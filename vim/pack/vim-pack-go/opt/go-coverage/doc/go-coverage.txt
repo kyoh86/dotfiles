@@ -6,7 +6,8 @@ INTRODUCTION                                                     *go-coverage*
 go-coverage.vim is a Vim plugin to show the coverages for the Go programming
 language.
 
-This plugin is ported from gopher.vim (https://github.com/arp242/gopher.vim).
+This plugin is extracted from
+[gopher.vim](https://github.com/arp242/gopher.vim). See `LICENSE`.
 
 ==============================================================================
 COMMANDS                                                *go-coverage-commands*
