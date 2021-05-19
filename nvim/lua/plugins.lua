@@ -307,7 +307,16 @@ packer.startup(function()
 
   -- Integrations            ==================================================
 
-  use { 'jremmen/vim-ripgrep', cmd = 'Rg' }
+  use {
+    'jremmen/vim-ripgrep',
+    cmd = 'Rg',
+    config = function()
+      vim.cmd[[cabbrev <expr> Rgi (getcmdtype() ==# ":" && getcmdline() ==# "Rgi") ? "Rg --no-ignore-vcs" : "Rgi"]]
+      vim.cmd[[cabbrev <expr> Rga (getcmdtype() ==# ":" && getcmdline() ==# "Rga") ? "Rg --no-ignore"     : "Rga"]]
+      vim.g.rg_highlight = true
+      vim.g.rg_derive_root = true
+    end,
+  }
 
   use {
     {
