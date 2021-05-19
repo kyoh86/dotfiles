@@ -11,7 +11,7 @@
 	untrackedCache = true
 [user]
 	name = Kyoichiro Yamada
-	email = me@kyoh86.dev
+	email = yamada@wacul.co.jp
 [filter "media"]
 	clean = git-media-clean %f
 	smudge = git-media-smudge %f
