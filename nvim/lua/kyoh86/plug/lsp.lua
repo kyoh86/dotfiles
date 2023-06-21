@@ -208,18 +208,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
       m.on_attach(client)
     end)
     if client.server_capabilities.inlayHintProvider then
-      vim.print(client.supports_method("textDocument/inlayHint"))
-      vim.notify("enable inlay hint", vim.log.levels.INFO)
       vim.api.nvim_create_autocmd("CursorHold", {
         callback = function(ev)
-          vim.notify("show inlay hint")
           vim.lsp.buf.inlay_hint(ev.buf, true)
         end,
         buffer = bufnr,
       })
       vim.api.nvim_create_autocmd({ "CursorMoved", "InsertEnter" }, {
         callback = function(ev)
-          vim.notify("hide inlay hint")
           vim.lsp.buf.inlay_hint(ev.buf, false)
         end,
         buffer = bufnr,
