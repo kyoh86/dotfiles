@@ -1,4 +1,4 @@
----@module lazy.nvimを使ってプラグインの管理をする
+---lazy.nvimを使ってプラグインの管理をする
 ---@author kyoh86
 
 --- lazy.nvim 本体をインストールする
