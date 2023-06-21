@@ -65,7 +65,12 @@ local spec = {
 
     local function resize()
       local lines = vim.opt.lines:get()
-      local height, row = math.floor(lines * 0.8), math.floor(lines * 0.1)
+      -- row = 'lines' minus below / 2
+      -- WINBAR_LINE = 1
+      -- MESSAGE_LINE = 1
+      -- STATUS_LINE = 1
+      -- FLOAT_LINE = 20
+      local row = math.floor((lines - 23) * 0.5)
       local columns = vim.opt.columns:get()
       local width, col = math.floor(columns * 0.8), math.floor(columns * 0.1)
 
