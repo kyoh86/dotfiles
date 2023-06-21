@@ -1,0 +1,6 @@
+[Unit]
+Description = User job
+
+[Service]
+ExecStart = /bin/sh -c '${HOME}/.config/userjob/exec'
+Type = oneshot

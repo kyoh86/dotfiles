@@ -1,0 +1,10 @@
+# What protocol to use when performing git operations. Supported values: ssh, https
+git_protocol: https
+# What editor gh should run when creating issues, pull requests, etc. If blank, will refer to environment.
+editor:
+# Aliases allow you to create nicknames for gh commands
+aliases:
+  co: pr checkout
+  patch: '!echo ''{"ref":"''$(git symbolic-ref refs/remotes/origin/HEAD | awk -F''/'' ''{print $NF}'')''","inputs":{"method":"patch"}}'' | gh api -X POST repos/:owner/:repo/actions/workflows/release.yaml/dispatches --input -'
+  me: api user --jq .login
+  my: '!gh $1 list --assignee "@me"'

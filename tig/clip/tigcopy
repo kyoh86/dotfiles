@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if (type win32yank.exe >/dev/null 2>&1); then
+    echo "$1" | win32yank.exe -i
+elif (type xclip >/dev/null 2>&1); then
+    echo "$1" | xclip -selection clipboard
+elif (type pbcopy >/dev/null 2>&1); then
+    echo "$1" | pbcopy
+else
+    echo "Failed to detect clipboard-cli" >&2
+fi

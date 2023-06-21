@@ -1,0 +1,66 @@
+#!/bin/zsh
+
+STDOUT_FILE=/usr/local/var/userjob-out.log
+STDERR_FILE=/usr/local/var/userjob-err.log
+if [[ -f "${STDOUT_FILE}" && -x /usr/local/bin/truncate ]]; then
+  /usr/local/bin/truncate --size 0 "${STDOUT_FILE}"
+fi
+if [ -f "${STDERR_FILE}" ]; then
+  error_offset=$(( $(wc -l "${STDERR_FILE}" | awk '{print $1}') + 1 ))
+else
+  error_offset=$(( 0 ))
+fi
+
+[ -f /etc/zshenv ] && source /etc/zshenv
+source ${HOME}/.config/zsh/.zshenv
+
+export PATH="${HOME}/.local/bin:${PATH}"
+
+error=""
+
+# Bundle brew:
+if [ -x /usr/local/bin/brew ]; then
+  PATH="/usr/local/bin/:${PATH}" /usr/local/bin/brew bundle dump --force --file=${HOME}/.config/homebrew/bundle --describe || error="1"
+else
+  echo no brew
+fi
+
+# Fetch all gogh manged projects
+if command -v gogh >/dev/null 2>&1 ; then
+  gogh list --format full-file-path | xargs -t -P10 -I{} git -C {} fetch || error="1"
+else
+  echo no gogh
+fi
+
+# # Bundle gordon:
+# if command -v gordon >/dev/null 2>&1 ; then
+#   gordon dump ${HOME}/.config/gordon/bundle || error="1"
+# else
+#   echo no gordon
+# fi
+# 
+# # dump pacman
+# if [ -x /usr/bin/pacman ]; then
+#   /usr/bin/pacman -Qe > ${HOME}/.config/pacman/dump.txt || error="1"
+# else
+#   echo no pacman
+# fi
+
+if [[ -n ${error} ]]; then
+  if command -v osascript >/dev/null 2>&1 ; then
+    message="$(tail -n +${error_offset} "${STDERR_FILE}" | tr -d "'" | perl -pe 's/[\r\n]/\\\\n/g')"
+    echo "var app = Application('System Events');
+  app.includeStandardAdditions = true;
+  var reply = app.displayAlert('Failed to process scheduled task', {
+    'message': '${message}',
+    'as':'warning',
+
+    'givingUpAfter': 15,
+
+    'defaultButton': 'OK',
+    'buttons': ['OK']
+  });
+  " \
+      | osascript -l JavaScript -
+  fi
+fi

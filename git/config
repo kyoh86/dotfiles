@@ -1,0 +1,112 @@
+;; core behaviors =============================================================
+
+[core]
+	excludesfile = ~/.config/git/ignore
+	attributesfile = ~/.config/git/attributes
+	quotepath = false
+	precomposeunicode = true
+	commentChar = %
+	untrackedCache = true
+
+[init]
+	defaultBranch = main
+[pull]
+	rebase = true
+[push]
+	default = simple
+	followTags = true
+    useForceIfIncludes = true
+[fetch]
+	prune = true
+[commit]
+	verbose = true
+[rebase]
+	autosquash = true
+	autostash = true
+[rerere]
+	enabled = true
+
+[diff]
+	compactionHeuristic = true
+[merge]
+	ff = false
+	tool = vimdiff
+
+;; interactive ================================================================
+
+[pager]
+    diff = delta --color-only --syntax-theme zenburn
+    log = delta --color-only --syntax-theme zenburn
+    reflog = delta --color-only --syntax-theme zenburn
+    show = delta --color-only --syntax-theme zenburn
+[interactive]
+	diffFilter = delta --color-only --syntax-theme zenburn
+[filter "media"]
+	clean = git-media-clean %f
+	smudge = git-media-smudge %f
+[filter "lfs"]
+	clean = git lfs clean %f
+	smudge = git lfs smudge %f
+	required = true
+
+;; colors =====================================================================
+
+[color]
+	diff = auto
+	status = auto
+	branch = auto
+	ui = auto
+[color "status"]
+	added = green
+	changed = red
+	untracked = blue
+	unmerged = yellow
+	branch = cyan
+	localBranch = cyan
+	remoteBranch = red
+	nobranch = magenta
+[color "diff"]
+	meta = blue
+	frag = white
+	func = cyan
+[color "remote"]
+	hint = white
+	warning = yellow
+	success = blue
+	error = red
+
+;; others =====================================================================
+
+[alias]
+	conflicts = !git ls-files -u | cut -f 2 | sort -u
+    addw = !"git diff -w --no-color | git apply --cached"
+[http "https://gopkg.in"]
+	followRedirects = true
+
+[credential]
+	helper = /mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe
+
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
+	insteadOf = git@github.com
+
+;; user identity ==============================================================
+
+;; You must put a file for the host. (it is ignored by .gitignore)
+[include]
+	path = ~/.config/git/host.conf
+; Sample:
+; 
+; [user]
+; 	name = kyoh86
+; 	email = me@kyoh86.dev
+; 	signingkey = 106F27E5F736475C
+; 
+; [github]
+; 	user = kyoh86
+
+;; signing
+[gpg]
+	program = gpg
+[commit]
+	gpgsign = true

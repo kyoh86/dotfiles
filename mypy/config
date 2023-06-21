@@ -1,0 +1,13 @@
+[mypy]
+
+[mypy-httplib2]
+ignore_missing_imports = True
+
+[mypy-googleapiclient]
+ignore_missing_imports = True
+
+[mypy-oauth2client.*]
+ignore_missing_imports = True
+
+[mypy-slack]
+ignore_missing_imports = True

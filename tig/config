@@ -1,0 +1,12 @@
+# main viewの左端にコミットIDを表示する
+set main-view = id:width=12 date author commit-title:graph=yes,refs=yes
+# デフォルト
+# set main-view = date author commit-title:graph=yes,refs=yes
+
+# 水平分割したウィンドウの下画面サイズを % で指定（行数指定も可）
+set split-view-height = 80%
+
+# コミットハッシュをクリップボードにコピー（PATHでtig/clip/tigcopyを参照）
+bind main C !tigcopy %(commit)
+# rebase -i を起動
+bind main R !git rebase -i %(commit)

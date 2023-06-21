@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Neovim
+eval "$(luarocks --lua-version=5.1 path)"
+nvim_tmpdir="$(mktemp -d)"
+git clone --depth 1 -b nightly https://github.com/neovim/neovim "${nvim_tmpdir}/neovim"
+pushd "${nvim_tmpdir}/neovim"
+make CMAKE_BUILD_TYPE=Release
+sudo make CMAKE_BUILD_TYPE=Release install
+sudo rm -rf "${nvim_tmpdir}"
+popd
+
+gem install neovim
+npm install --global neovim
+pip install neovim
+
+skkdir="${HOME}/.local/share/skk"
+skkfile="SKK-JISYO.L"
+mkdir -p "${skkdir}"
+curl -L --output "${skkdir}/${skkfile}" "https://github.com/skk-dev/dict/blob/master/${skkfile}?raw=true"

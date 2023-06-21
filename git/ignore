@@ -1,0 +1,92 @@
+### direnv
+.envrc
+.direnv/
+
+###
+
+### asdf
+.tool-versions
+
+### vim directory local ###
+.vimrc.local
+### end of vim directory local ###
+
+### vim plugin
+/doc/tags
+###
+
+### goenv ###
+.go-version
+### end of goenv ###
+
+### pyenv ###
+.python-version
+### end of pyenv ###
+
+### mypy ###
+.mypy_cache/
+### end of mypy ###
+
+### Ripgrep ###
+.rgignore
+### end of Ripgrep ###
+
+### Nodenv ###
+.node-version
+### end of Nodenv ###
+
+### VSCode ###
+.vscode
+### end of VSCode ###
+
+# Created by https://www.gitignore.io
+
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Created by https://www.gitignore.io/api/vim
+
+### Vim ###
+# swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+# vimdiff
+*.orig
+# session
+Session.vim
+# temporary
+.netrwhist
+*~
+
+# End of https://www.gitignore.io/api/vim
+
+## for RipGrep
+.git/
+
+## Act (GitHub Actions Local Runner)
+
+.secrets
+
+## Scala formatter
+.scalafmt.conf
