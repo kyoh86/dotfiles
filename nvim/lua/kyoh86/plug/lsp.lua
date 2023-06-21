@@ -199,14 +199,37 @@ local function disable_lsp(client, bufnr)
 end
 
 --- Attach時の設定
-local function on_attach(client, bufnr)
-  ensure("lsp-format", function(m)
-    m.on_attach(client)
-  end)
-  attach_lsp_format(client, bufnr)
-  attach_navic(client, bufnr)
-  disable_lsp(client, bufnr)
-end
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local bufnr = args.buf
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    ensure("lsp-format", function(m)
+      m.on_attach(client)
+    end)
+    if client.server_capabilities.inlayHintProvider then
+      vim.print(client.supports_method("textDocument/inlayHint"))
+      vim.notify("enable inlay hint", vim.log.levels.INFO)
+      vim.api.nvim_create_autocmd("CursorHold", {
+        callback = function(ev)
+          vim.notify("show inlay hint")
+          vim.lsp.buf.inlay_hint(ev.buf, true)
+        end,
+        buffer = bufnr,
+      })
+      vim.api.nvim_create_autocmd({ "CursorMoved", "InsertEnter" }, {
+        callback = function(ev)
+          vim.notify("hide inlay hint")
+          vim.lsp.buf.inlay_hint(ev.buf, false)
+        end,
+        buffer = bufnr,
+      })
+    end
+    attach_lsp_format(client, bufnr)
+    attach_navic(client, bufnr)
+    disable_lsp(client, bufnr)
+  end,
+})
 
 --- LSPサーバー毎の設定管理
 local function register_lsp_servers()
@@ -214,7 +237,6 @@ local function register_lsp_servers()
   ensure("cmp_nvim_lsp", function(m)
     capabilities = m.default_capabilities(capabilities)
   end)
-  -- capabilities.textDocument.completion.completionItem.snippetSupport = true
   capabilities.textDocument.completion.completionItem.resolveSupport = {
     properties = {
       "documentation",
@@ -225,7 +247,6 @@ local function register_lsp_servers()
 
   local function register(name, config, skip_mason)
     config.capabilities = capabilities
-    config.on_attach = on_attach
     if not skip_mason then
       table.insert(lsp_server_list, name)
     end
@@ -272,6 +293,13 @@ local function register_lsp_servers()
         test = true,
         tidy = true,
       },
+      hints = {
+        assignVariableTypes = true,
+        compositeLiteralTypes = true,
+        constantValues = true,
+        parameterNames = true,
+        rangeVariableTypes = true,
+      },
     },
   })
   register("graphql", {})
@@ -290,6 +318,10 @@ local function register_lsp_servers()
   register("lua_ls", {
     settings = {
       Lua = {
+        hint = {
+          -- Enable inlay hints
+          enable = true,
+        },
         runtime = {
           -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
           version = "LuaJIT",
@@ -343,10 +375,21 @@ local function register_lsp_servers()
       return found
     end,
   }, true) -- uses global deno, so it should not be installed by Mason
-  register("tsserver", {
+  register("vtsls", {
     settings = {
       typescript = {
         importModuleSpecifier = "relative",
+        inlayHints = {
+          parameterNames = {
+            enabled = "literals",
+            suppressWhenArgumentMatchesName = true,
+          },
+          parameterTypes = { enabled = true },
+          variableTypes = { enabled = false },
+          propertyDeclarationTypes = { enabled = true },
+          functionLikeReturnTypes = { enabled = true },
+          enumMemberValues = { enabled = true },
+        },
       },
     },
     root_dir = function(path)
