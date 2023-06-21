@@ -26,6 +26,6 @@ _G["lazydir"] = function(name)
   return vim.fs.normalize(vim.fn.stdpath("data") .. "/lazy/" .. name)
 end
 
-vim.fa = require("kyoh86.lib.fa")
+vim.fa = require("kyoh86.poc.fa")
 
 vim.cmd([[runtime! lua/kyoh86/conf/*.lua]])
