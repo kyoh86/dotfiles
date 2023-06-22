@@ -103,10 +103,13 @@ local spec = {
         nmap("<c-w>", "<nop>")
         nmap("<c-o>", "<nop>")
         nmap("<c-j>", "<nop>")
+        nmap("m", "<nop>")
 
         nmap("/", helper.action("openFilterWindow"))
         nmap("<esc>", helper.action("quit"))
         nmap("<cr>", helper.action("itemAction"))
+        nmap(">", helper.action("expandItem"))
+        nmap("+", helper.action("chooseAction"))
       end,
     })
 
