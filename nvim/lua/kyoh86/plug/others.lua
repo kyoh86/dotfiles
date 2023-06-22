@@ -5,12 +5,14 @@ local spec = {
     config = true,
   },
   {
-    "kyoh86/vim-copy-buffer-name",
-    cmd = { "CopyBufferName", "CopyBufferFullName", "CopyBufferGithub" },
-    keys = {
-      { "<leader>y%", "<plug>(copy-buffer-name)", silent = true, desc = "copy bufer name" },
-      { "<leader>Y%", "<plug>(copy-buffer-full-name)", silent = true, desc = "copy full-name" },
-    },
+    "kyoh86/vim-gitname",
+    init = function()
+      vim.api.nvim_create_user_command("YankGitHubURL", function(args)
+        vim.fa.gitname.yank.git_hub_url("branch", args)
+      end, { range = true, bang = true })
+      vim.keymap.set("n", "<leader>ygh", [[:call gitname#yank#git_hub_url("branch", {})]], { silent = true, desc = "copy bufer GitHub URL" })
+      vim.cmd([[vnoremap <silent> <leader>ygh :call gitname#yank#git_hub_url("branch", { "range": 2 })<cr>]]) -- it cannot be mapped by vim.keymap
+    end,
   },
   {
     "kyoh86/curtain.nvim",
