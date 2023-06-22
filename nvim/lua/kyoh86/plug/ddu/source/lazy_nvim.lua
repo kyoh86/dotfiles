@@ -16,6 +16,7 @@ local spec = {
       map("<leader>e", helper.action("itemAction", { name = "open" }))
       map("<leader>b", helper.action("itemAction", { name = "browse" }))
       map("<leader>g", helper.action("itemAction", { name = "grep_config" }))
+      map("<leader>c", helper.action("itemAction", { name = "grep_config" }))
       map("<leader>f", helper.action("itemAction", { name = "fork" }))
     end)
   end,
