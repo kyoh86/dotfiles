@@ -7,19 +7,7 @@ local spec = {
   config = function()
     vim.fa.ddu.custom.patch_global({
       sourceOptions = {
-        file_external = {
-          converters = { { name = "converter_hl_dir" } },
-        },
-        file_rec = {
-          converters = { { name = "converter_hl_dir" } },
-        },
-        buffer = {
-          converters = { { name = "converter_hl_dir" } },
-        },
-        lazy_nvim = {
-          converters = { { name = "converter_hl_dir" } },
-        },
-        mr = {
+        _ = {
           converters = { { name = "converter_hl_dir" } },
         },
       },
