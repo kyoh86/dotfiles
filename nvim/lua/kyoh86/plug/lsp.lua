@@ -64,6 +64,14 @@ local function setup_lsp_global()
       m[name].setup(config)
     end)
   end
+
+  -- highlightを設定する
+  ensure("momiji", function(m)
+    -- local m = require("momiji")
+    vim.api.nvim_set_hl(0, "LspInlayHint", {
+      fg = m.colors.lightgreen,
+    })
+  end)
 end
 
 --- Attach時の設定: Keymapの設定
@@ -72,24 +80,17 @@ local function setup_lsp_keymap()
     vim.keymap.set(modes, lhr, rhr, { remap = false, silent = true, desc = desc })
   end
   -- show / edit actions
+  setmap("n", "<leader>li", function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    if vim.b[bufnr].kyoh86_plug_lsp_inlay_hint_enabled == true then
+      vim.lsp.buf.inlay_hint(bufnr, nil)
+    end
+  end, "displays inlay hints")
   setmap("n", "<leader>lh", vim.lsp.buf.hover, "displays hover information about the symbol under the cursor in a floating window")
-  setmap("n", "<leader>lD", vim.lsp.buf.declaration, "jumps to the declaration of the symbol under the cursor")
-  setmap("n", "<leader>lvD", function()
-    vim.cmd("vsp")
-    vim.lsp.buf.declaration()
-  end, "open the declaration of the symbol under the cursor in vertical splitted window")
-  setmap("n", "<leader>ld", vim.lsp.buf.definition, "jumps to the definition of the symbol under the cursor")
-  setmap("n", "<leader>lvd", function()
-    vim.cmd("vsp")
-    vim.lsp.buf.definition()
-  end, "open the definition of the symbol under the cursor in vertical splitted window")
-  setmap("n", "<leader>li", vim.lsp.buf.implementation, "lists all the implementations for the symbol under the cursor in the quickfix window")
+  setmap("n", "<leader>ls", vim.lsp.buf.signature_help, "displays signature information about the symbol under the cursor in a floating window")
   setmap("n", "<leader>lr", vim.lsp.buf.rename, "renames all references to the symbol under the cursor")
   setmap("n", "]l", vim.diagnostic.goto_next, "move to the next diagnostic")
-  setmap("n", "<leader>ln", vim.diagnostic.goto_next, "move to the next diagnostic")
   setmap("n", "[l", vim.diagnostic.goto_prev, "move to the previous diagnostic in the current buffer")
-  setmap("n", "<leader>lp", vim.diagnostic.goto_prev, "move to the previous diagnostic in the current buffer")
-  setmap("n", "<leader>ls", vim.lsp.buf.signature_help, "displays signature information about the symbol under the cursor in a floating window")
 
   local function range_from_selection(mode)
     -- workaround for https://github.com/neovim/neovim/issues/22629
@@ -137,7 +138,7 @@ local function setup_lsp_keymap()
 end
 
 --- Attach時の設定: LSPによるImport文の再編とフォーマットの適用
-local function attach_lsp_format(client, bufnr)
+local function attach_lsp(client, bufnr)
   local organize_import = function() end
   local actions = vim.tbl_get(client.server_capabilities, "codeActionProvider", "codeActionKinds")
   if actions ~= nil and vim.tbl_contains(actions, "source.organizeImports") then
@@ -165,6 +166,8 @@ local function attach_lsp_format(client, bufnr)
       end)
     end,
   })
+
+  client.server_capabilities.semanticTokensProvider = nil
 end
 
 --- LSP Context Locationを表示する nvim-navic のアタッチ
@@ -208,20 +211,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
       m.on_attach(client)
     end)
     if client.server_capabilities.inlayHintProvider then
-      vim.api.nvim_create_autocmd("CursorHold", {
-        callback = function(ev)
-          vim.lsp.buf.inlay_hint(ev.buf, true)
-        end,
-        buffer = bufnr,
-      })
-      vim.api.nvim_create_autocmd({ "CursorMoved", "InsertEnter" }, {
-        callback = function(ev)
-          vim.lsp.buf.inlay_hint(ev.buf, false)
-        end,
-        buffer = bufnr,
-      })
+      vim.b.kyoh86_plug_lsp_inlay_hint_enabled = true
     end
-    attach_lsp_format(client, bufnr)
+    attach_lsp(client, bufnr)
     attach_navic(client, bufnr)
     disable_lsp(client, bufnr)
   end,

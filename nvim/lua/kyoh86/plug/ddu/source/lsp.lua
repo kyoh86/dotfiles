@@ -8,9 +8,6 @@ local spec = {
       lsp = {
         defaultAction = "open",
       },
-      lsp_codeAction = {
-        defaultAction = "apply",
-      },
     } })
 
     helper.start_by("<leader>fld", "lsp_definition", {
@@ -45,11 +42,6 @@ local spec = {
       },
     })
     helper.map_for_file("lsp_callHierarchy")
-
-    vim.keymap.set({ "n", "x" }, "<leader>fla", "<cmd>call ddu#start({'sources': [{'name': 'lsp_codeAction'}]})<cr>", {
-      remap = false,
-      desc = "Start ddu source: lsp_codeAction",
-    })
   end,
   dependencies = { { "Shougo/ddu.vim" } },
 }
