@@ -6,6 +6,6 @@ local spec = {
     { "<leader>ib", "<plug>(cinfo-show-buffer)", desc = "show informations about the current buffer" },
     { "<leader>ih", "<plug>(cinfo-show-highlight)", desc = "show informations about the highlight on the current cursor" },
   },
-  cmd = { "CursorInfo" },
+  cmd = { "CursorInfo", "BufferInfo", "HighlightInfo" },
 }
 return spec
