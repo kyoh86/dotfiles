@@ -1,9 +1,3 @@
---- インデント設定
-local indent_size = 2
-vim.opt_local.tabstop = indent_size
-vim.opt_local.shiftwidth = indent_size
-vim.opt_local.expandtab = false
-
 --- Goにおいて補完後に変数名が邪魔になることがあるので、削除するショートカットを設定する
 
 --- @return List curpos, string before, string after

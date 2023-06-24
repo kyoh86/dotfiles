@@ -26,7 +26,7 @@ vim.opt.hidden = true
 vim.opt.history = 10000
 
 --- インデント設定
-local indent_size = 4
+local indent_size = 2
 vim.opt.tabstop = indent_size
 vim.opt.shiftwidth = indent_size
 vim.opt.expandtab = true
