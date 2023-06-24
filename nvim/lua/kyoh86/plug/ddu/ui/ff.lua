@@ -98,12 +98,13 @@ local spec = {
       pattern = "ddu-ff",
       callback = function()
         local nmap = function(lh, rh)
-          vim.keymap.set("n", lh, rh, { nowait = true, buffer = true, silent = true })
+          vim.keymap.set("n", lh, rh, { nowait = true, buffer = true, silent = true, remap = false })
         end
         nmap("<c-w>", "<nop>")
         nmap("<c-o>", "<nop>")
         nmap("<c-j>", "<nop>")
-        nmap("m", "<nop>")
+        nmap(":", "<nop>")
+        nmap(";", ":")
 
         nmap("/", helper.action("openFilterWindow"))
         nmap("<esc>", helper.action("quit"))
