@@ -66,33 +66,35 @@ local spec = {
     local function resize()
       local lines = vim.opt.lines:get()
       -- row = 'lines' minus below / 2
-      -- WINBAR_LINE = 1
-      -- MESSAGE_LINE = 1
-      -- STATUS_LINE = 1
-      -- FLOAT_LINE = 20
+      -- WINBAR LINE = 1
+      -- MESSAGE LINE = 1
+      -- STATUS LINE = 1
+      -- FLOAT LINE = 20
       local row = math.floor((lines - 23) * 0.5)
       local columns = vim.opt.columns:get()
       local width, col = math.floor(columns * 0.8), math.floor(columns * 0.1)
+      local winWidth = math.floor(width / 2)
 
       vim.fa.ddu.custom.patch_global({
         uiParams = {
           ff = {
             winRow = row,
-            winWidth = math.floor(width / 2),
+            winWidth = winWidth,
             winCol = col,
-            previewRow = row + 1,
-            previewWidth = math.floor(width / 2),
+            previewRow = row,
+            previewWidth = winWidth,
+            previewCol = col + winWidth,
           },
         },
       })
     end
     resize()
 
+    local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff", { clear = true })
     vim.api.nvim_create_autocmd("VimResized", {
+      group = group,
       callback = resize,
     })
-
-    local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff", { clear = true })
     vim.api.nvim_create_autocmd("FileType", {
       group = group,
       pattern = "ddu-ff",
