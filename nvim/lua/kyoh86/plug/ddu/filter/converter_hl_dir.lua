@@ -3,6 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-filter-converter_hl_dir",
+  dependencies = { "Shougo/ddu.vim" },
   config = function()
     ensure("momiji", function(m)
       vim.api.nvim_set_hl(0, "dduDir1", { fg = m.colors.green })
@@ -23,6 +24,5 @@ local spec = {
       },
     })
   end,
-  dependencies = { { "Shougo/ddu.vim" } },
 }
 return spec

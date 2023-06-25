@@ -12,6 +12,6 @@ local spec = {
       },
     })
   end,
-  dependencies = { { "Shougo/ddu.vim" } },
+  dependencies = { "Shougo/ddu.vim" },
 }
 return spec

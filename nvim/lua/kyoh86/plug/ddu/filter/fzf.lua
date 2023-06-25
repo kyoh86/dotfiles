@@ -3,6 +3,7 @@
 ---@type LazySpec
 local spec = {
   "yuki-yano/ddu-filter-fzf",
+  dependencies = { "Shougo/ddu.vim" },
   config = function()
     vim.fa.ddu.custom.patch_global({
       sourceOptions = {
@@ -13,6 +14,5 @@ local spec = {
       },
     })
   end,
-  dependencies = { { "Shougo/ddu.vim" } },
 }
 return spec

@@ -4,6 +4,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 local spec = {
 
   "kyoh86/ddu-source-gogh",
+  dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file" },
   config = function()
     helper.start_by("<leader>fpl", "gogh_project", {
       sources = { { name = "gogh_project" } },
@@ -28,6 +29,5 @@ local spec = {
       map("<leader>g", helper.action("itemAction", { name = "get" }))
     end)
   end,
-  dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file" },
 }
 return spec

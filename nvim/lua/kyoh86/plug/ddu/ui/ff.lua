@@ -3,6 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "Shougo/ddu-ui-ff",
+  dependencies = { "Shougo/ddu.vim" },
   config = function()
     ensure("momiji", function(m)
       -- local m = require("momiji")
@@ -126,6 +127,5 @@ local spec = {
       end,
     })
   end,
-  dependencies = { { "Shougo/ddu.vim" } },
 }
 return spec

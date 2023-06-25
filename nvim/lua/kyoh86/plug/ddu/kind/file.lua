@@ -3,6 +3,7 @@
 ---@type LazySpec
 local spec = {
   "Shougo/ddu-kind-file",
+  dependencies = { "Shougo/ddu.vim" },
   config = function()
     vim.fa.ddu.custom.patch_global({
       kindOptions = {
@@ -12,6 +13,5 @@ local spec = {
       },
     })
   end,
-  dependencies = { { "Shougo/ddu.vim" } },
 }
 return spec

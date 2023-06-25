@@ -4,6 +4,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 local spec = {
   {
     "tennashi/ddu-source-git",
+    dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "kyoh86/ddu-source-git_diff_tree" },
     config = function()
       do
         local source = "git_status"
@@ -89,7 +90,6 @@ local spec = {
         end)
       end
     end,
-    dependencies = { "Shougo/ddu.vim", "kyoh86/ddu-source-git_diff_tree" },
   },
   {
     "kyoh86/ddu-source-git_diff_tree",

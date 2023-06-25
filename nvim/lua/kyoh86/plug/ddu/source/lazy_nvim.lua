@@ -3,6 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-lazy_nvim",
+  dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "folke/lazy.nvim" },
   config = function()
     helper.start_by("<leader><leader>p", "lazy_nvim", {
       sources = { { name = "lazy_nvim" } },
@@ -20,6 +21,5 @@ local spec = {
       map("<leader>f", helper.action("itemAction", { name = "fork" }))
     end)
   end,
-  dependencies = { "Shougo/ddu.vim", "folke/lazy.nvim" },
 }
 return spec
