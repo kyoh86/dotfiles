@@ -2,14 +2,13 @@ local helper = require("kyoh86.plug.ddu.helper")
 
 ---@type LazySpec
 local spec = {
-
   "kyoh86/ddu-source-gogh",
   dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file" },
   config = function()
     helper.start_by("<leader>fpl", "gogh_project", {
       sources = { { name = "gogh_project" } },
       kindOptions = {
-        file = {
+        gogh_project = {
           defaultAction = "cd",
         },
       },
