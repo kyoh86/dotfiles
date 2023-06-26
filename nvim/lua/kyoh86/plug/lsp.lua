@@ -17,17 +17,17 @@ local diagnosis_config = {
 local lsp_server_list = {}
 local lsp_config_table = {}
 local function setup_lsp_global()
-  ensure("mason", function(m)
+  kyoh86.ensure("mason", function(m)
     m.setup({
       log_level = vim.log.levels.DEBUG,
     })
   end)
-  ensure("mason-lspconfig", function(m)
+  kyoh86.ensure("mason-lspconfig", function(m)
     m.setup({
       ensure_installed = lsp_server_list,
     })
   end)
-  ensure("lsp-format", function(m)
+  kyoh86.ensure("lsp-format", function(m)
     m.setup()
   end)
 
@@ -60,13 +60,13 @@ local function setup_lsp_global()
   -- サーバー毎の設定を反映させる
   -- NOTE: mason, mason-lspconfig, lsp-formatより後にsetupを呼び出す必要がある
   for name, config in pairs(lsp_config_table) do
-    ensure("lspconfig", function(m)
+    kyoh86.ensure("lspconfig", function(m)
       m[name].setup(config)
     end)
   end
 
   -- highlightを設定する
-  ensure("momiji", function(m)
+  kyoh86.ensure("momiji", function(m)
     -- local m = require("momiji")
     vim.api.nvim_set_hl(0, "LspInlayHint", {
       fg = m.colors.lightgreen,
@@ -161,7 +161,7 @@ local function attach_lsp(client, bufnr)
     buffer = bufnr,
     callback = function()
       organize_import()
-      ensure("lsp-format", function(m)
+      kyoh86.ensure("lsp-format", function(m)
         m.format({ fargs = { "sync" } })
       end)
     end,
@@ -172,7 +172,7 @@ end
 
 --- LSP Context Locationを表示する nvim-navic のアタッチ
 local function attach_navic(client, bufnr)
-  ensure("nvim-navic", function(navic)
+  kyoh86.ensure("nvim-navic", function(navic)
     if client.server_capabilities.documentSymbolProvider then
       navic.attach(client, bufnr)
     end
@@ -207,7 +207,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local bufnr = args.buf
     local client = vim.lsp.get_client_by_id(args.data.client_id)
-    ensure("lsp-format", function(m)
+    kyoh86.ensure("lsp-format", function(m)
       m.on_attach(client)
     end)
     if client.server_capabilities.inlayHintProvider then
@@ -222,7 +222,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 --- LSPサーバー毎の設定管理
 local function register_lsp_servers()
   local capabilities = vim.lsp.protocol.make_client_capabilities()
-  ensure("cmp_nvim_lsp", function(m)
+  kyoh86.ensure("cmp_nvim_lsp", function(m)
     capabilities = m.default_capabilities(capabilities)
   end)
   capabilities.textDocument.completion.completionItem.resolveSupport = {

@@ -1,4 +1,4 @@
---- 別名を付けて保存
+--- 現在のファイルの移動
 local function rename(e)
   local newname = e.fargs[1]
   local oldname = vim.api.nvim_buf_get_name(0)

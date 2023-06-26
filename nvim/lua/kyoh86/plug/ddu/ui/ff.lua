@@ -5,7 +5,7 @@ local spec = {
   "Shougo/ddu-ui-ff",
   dependencies = { "Shougo/ddu.vim" },
   config = function()
-    ensure("momiji", function(m)
+    kyoh86.ensure("momiji", function(m)
       -- local m = require("momiji")
       vim.api.nvim_set_hl(0, "dduFilter", {
         fg = m.colors.lightgreen,
@@ -30,7 +30,7 @@ local spec = {
       vim.api.nvim_set_hl(0, "dduBorder", { link = "Normal" })
     end)
 
-    vim.fa.ddu.custom.patch_global({
+    kyoh86.fa.ddu.custom.patch_global({
       ui = "ff",
       uiParams = {
         ff = {
@@ -76,7 +76,7 @@ local spec = {
       local width, col = math.floor(columns * 0.8), math.floor(columns * 0.1)
       local winWidth = math.floor(width / 2)
 
-      vim.fa.ddu.custom.patch_global({
+      kyoh86.fa.ddu.custom.patch_global({
         uiParams = {
           ff = {
             winRow = row,

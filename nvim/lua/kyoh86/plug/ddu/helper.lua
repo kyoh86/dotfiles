@@ -4,7 +4,7 @@ function M.map_start(key, name, options)
   local opts = options or {}
   opts.name = name
   vim.keymap.set("n", key, function()
-    vim.fa.ddu.start(opts)
+    kyoh86.fa.ddu.start(opts)
   end, { remap = false, desc = "Start ddu source: " .. name })
 end
 
@@ -32,9 +32,9 @@ end
 function M.action(actionName, params)
   return function()
     if params then
-      vim.fa.ddu.ui.do_action(actionName, params)
+      kyoh86.fa.ddu.ui.do_action(actionName, params)
     else
-      vim.fa.ddu.ui.do_action(actionName)
+      kyoh86.fa.ddu.ui.do_action(actionName)
     end
   end
 end

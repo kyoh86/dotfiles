@@ -28,7 +28,7 @@ function M.view(init)
   vim.b.my_fern_mode = "view"
 
   if init then
-    vim.fa.fern.action.call("mark:clear")
+    kyoh86.fa.fern.action.call("mark:clear")
   end
 
   vim.keymap.set("n", "<space>", "<nop>", keyopt)

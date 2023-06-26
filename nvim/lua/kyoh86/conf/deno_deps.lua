@@ -14,7 +14,7 @@ local function open_deno_deps(e)
     return
   end
   -- open deps.ts in background (floatwin)
-  ensure("backgroundfile", function(m)
+  kyoh86.ensure("backgroundfile", function(m)
     m.open(path)
   end)
 end

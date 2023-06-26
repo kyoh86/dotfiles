@@ -13,7 +13,7 @@ local spec = { {
   dependencies = { "Shougo/ddu.vim" },
   config = function()
     helper.map_start("<leader>fqh", "quickfix_history", { sources = { { name = "quickfix_history" } } })
-    vim.fa.ddu.custom.patch_global({
+    kyoh86.fa.ddu.custom.patch_global({
       kindOptions = {
         quickfix_history = {
           defaultAction = "open",

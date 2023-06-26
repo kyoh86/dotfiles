@@ -8,7 +8,7 @@ local spec = {
     "kyoh86/vim-gitname",
     init = function()
       vim.api.nvim_create_user_command("YankGitHubURL", function(args)
-        vim.fa.gitname.yank.git_hub_url("branch", args)
+        kyoh86.fa.gitname.yank.git_hub_url("branch", args)
       end, { range = true, bang = true })
       vim.api.nvim_create_user_command("YankName", function(args)
         vim.fn.setreg("+", vim.fn.expand("%"))
@@ -97,7 +97,7 @@ local spec = {
   {
     "thinca/vim-themis",
     config = function()
-      local path = lazydir("vim-themis") -- lazydir is defined in preload.lua
+      local path = kyoh86.lazydir("vim-themis") -- lazydir is defined in preload.lua
       vim.env.PATH = vim.env.PATH .. ":" .. path .. "/bin"
     end,
   },

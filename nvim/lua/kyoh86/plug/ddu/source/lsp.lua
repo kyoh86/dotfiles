@@ -5,7 +5,7 @@ local spec = {
   "uga-rosa/ddu-source-lsp",
   dependencies = { { "Shougo/ddu.vim", "Shougo/ddu-kind-file" } },
   config = function()
-    vim.fa.ddu.custom.patch_global({ kindOptions = {
+    kyoh86.fa.ddu.custom.patch_global({ kindOptions = {
       lsp = {
         defaultAction = "open",
       },

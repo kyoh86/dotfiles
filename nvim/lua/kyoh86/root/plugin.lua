@@ -3,7 +3,7 @@
 
 --- lazy.nvim 本体をインストールする
 pcall(function()
-  local lazypath = lazydir("lazy.nvim") -- lazydir is defined in preload.lua
+  local lazypath = kyoh86.lazydir("lazy.nvim") -- lazydir is defined in preload.lua
   if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({
       "git",
@@ -32,7 +32,7 @@ vim.g.loaded_tar = 1
 local opts = {
   dev = { path = require("kyoh86.conf.lazy").dev_path },
 }
-ensure("lazy", function(m)
+kyoh86.ensure("lazy", function(m)
   m.setup({
     { import = "kyoh86.plug" },
   }, opts)

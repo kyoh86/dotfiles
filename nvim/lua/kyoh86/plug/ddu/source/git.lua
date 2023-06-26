@@ -34,9 +34,9 @@ local spec = {
             return 0
           end
         end
-        vim.fa.ddu.custom.action("kind", "git_working_tree", "custom:edit", opener("edit"))
-        vim.fa.ddu.custom.action("kind", "git_working_tree", "custom:vnew", opener("vnew"))
-        vim.fa.ddu.custom.action("kind", "git_working_tree", "custom:new", opener("new"))
+        kyoh86.fa.ddu.custom.action("kind", "git_working_tree", "custom:edit", opener("edit"))
+        kyoh86.fa.ddu.custom.action("kind", "git_working_tree", "custom:vnew", opener("vnew"))
+        kyoh86.fa.ddu.custom.action("kind", "git_working_tree", "custom:new", opener("new"))
         helper.map_ff(name, function(map)
           map("<leader>x", helper.action("itemAction", { name = "custom:new" }))
           map("<leader>v", helper.action("itemAction", { name = "custom:vnew" }))
@@ -67,14 +67,14 @@ local spec = {
             vim.notify("invalid action: it can edit only one file at once", vim.log.levels.WARN, {})
             return 1
           end
-          vim.fa.ddu.start({
+          kyoh86.fa.ddu.start({
             name = args.options.name,
             push = true,
             sources = { { name = "git_diff_tree", params = { commitHash = args.items[1].action.commitHash } } },
           })
           return 0
         end
-        vim.fa.ddu.custom.action("kind", "git_commit", "custom:files", custom_files)
+        kyoh86.fa.ddu.custom.action("kind", "git_commit", "custom:files", custom_files)
 
         local source = "git_log"
         local name = "git-log"
