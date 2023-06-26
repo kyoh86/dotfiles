@@ -1,6 +1,6 @@
 local M = {}
 
-function M.start_by(key, name, options)
+function M.map_start(key, name, options)
   local opts = options or {}
   opts.name = name
   vim.keymap.set("n", key, function()
@@ -11,7 +11,7 @@ end
 --- map in the named ddu-ui-ff
 ---@param name string A name of the ui
 ---@param callback function map function
-function M.ff_map(name, callback)
+function M.map_ff(name, callback)
   local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff-map-" .. name, { clear = true })
   vim.api.nvim_create_autocmd("FileType", {
     group = group,
@@ -43,8 +43,8 @@ end
 --- it defines <leader>v/<leader>x to edit with splitted window
 ---@param name string A name of the ui
 ---@param callback? function remaining map function
-function M.map_for_file(name, callback)
-  M.ff_map(name, function(map)
+function M.map_ff_file(name, callback)
+  M.map_ff(name, function(map)
     map("<leader>e", M.action("itemAction", { name = "open" }))
     map("<leader>v", M.action("itemAction", { name = "open", params = { command = "vnew" } }))
     map("<leader>h", M.action("itemAction", { name = "open", params = { command = "new" } }))

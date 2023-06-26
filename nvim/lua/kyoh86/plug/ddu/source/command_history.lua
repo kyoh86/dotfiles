@@ -7,7 +7,7 @@ local spec = {
   config = function()
     local name = "command-history"
     local source = "command_history"
-    helper.start_by("<leader>f;", name, {
+    helper.map_start("<leader>f;", name, {
       sources = { { name = source } },
       kindOptions = {
         [source] = {
@@ -16,7 +16,7 @@ local spec = {
       },
     })
 
-    helper.ff_map(name, function(map)
+    helper.map_ff(name, function(map)
       map("<leader>e", helper.action("itemAction", { name = "edit" }))
     end)
   end,

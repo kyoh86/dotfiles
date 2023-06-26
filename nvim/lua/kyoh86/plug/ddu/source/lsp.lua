@@ -11,23 +11,23 @@ local spec = {
       },
     } })
 
-    helper.start_by("<leader>fld", "lsp_definition", {
+    helper.map_start("<leader>fld", "lsp_definition", {
       sources = { { name = "lsp_definition" } },
     })
-    helper.map_for_file("lsp_definition")
+    helper.map_ff_file("lsp_definition")
 
-    helper.start_by("<leader>flr", "lsp_references", {
+    helper.map_start("<leader>flr", "lsp_references", {
       sources = { { name = "lsp_references" } },
     })
-    helper.map_for_file("lsp_references")
+    helper.map_ff_file("lsp_references")
 
-    helper.start_by("<leader>flw", "lsp_workspaceSymbol", {
+    helper.map_start("<leader>flw", "lsp_workspaceSymbol", {
       sources = { { name = "lsp_workspaceSymbol" } },
       sourceOptions = { lsp = { volatile = true } },
     })
-    helper.map_for_file("lsp_workspaceSymbol")
+    helper.map_ff_file("lsp_workspaceSymbol")
 
-    helper.start_by("<leader>flc", "lsp_callHierarchy", {
+    helper.map_start("<leader>flc", "lsp_callHierarchy", {
       sources = { {
         name = "lsp_callHierarchy",
         params = {
@@ -42,7 +42,7 @@ local spec = {
         },
       },
     })
-    helper.map_for_file("lsp_callHierarchy")
+    helper.map_ff_file("lsp_callHierarchy")
   end,
 }
 return spec

@@ -5,8 +5,8 @@ local spec = {
   "shun/ddu-source-buffer",
   dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file" },
   config = function()
-    helper.start_by("<leader>fb", "buffer", { sources = { { name = "buffer" } } })
-    helper.map_for_file("buffer")
+    helper.map_start("<leader>fb", "buffer", { sources = { { name = "buffer" } } })
+    helper.map_ff_file("buffer")
   end,
 }
 return spec

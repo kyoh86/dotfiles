@@ -6,12 +6,12 @@ local spec = {
   dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "lambdalisue/mr.vim" },
   config = function()
     local source = "mr"
-    helper.start_by("<leader>fmw", "mrw", { sources = { { name = source, params = { kind = "mrw" } } } })
-    helper.map_for_file("mrw")
-    helper.start_by("<leader>fmr", "mrr", { sources = { { name = source, params = { kind = "mrr" } } } })
-    helper.map_for_file("mrr")
-    helper.start_by("<leader>fmu", "mru", { sources = { { name = source, params = { kind = "mru" } } } })
-    helper.map_for_file("mru")
+    helper.map_start("<leader>fmw", "mrw", { sources = { { name = source, params = { kind = "mrw" } } } })
+    helper.map_ff_file("mrw")
+    helper.map_start("<leader>fmr", "mrr", { sources = { { name = source, params = { kind = "mrr" } } } })
+    helper.map_ff_file("mrr")
+    helper.map_start("<leader>fmu", "mru", { sources = { { name = source, params = { kind = "mru" } } } })
+    helper.map_ff_file("mru")
   end,
 }
 return spec

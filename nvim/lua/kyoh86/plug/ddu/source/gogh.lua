@@ -5,7 +5,7 @@ local spec = {
   "kyoh86/ddu-source-gogh",
   dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file" },
   config = function()
-    helper.start_by("<leader>fpl", "gogh_project", {
+    helper.map_start("<leader>fpl", "gogh_project", {
       sources = { { name = "gogh_project" } },
       kindOptions = {
         gogh_project = {
@@ -13,9 +13,12 @@ local spec = {
         },
       },
     })
-    helper.map_for_file("gogh_project")
+    helper.map_ff_file("gogh_project", function(map)
+      map("<leader>e", helper.action("itemAction", { name = "open" }))
+      map("<leader>b", helper.action("itemAction", { name = "browse" }))
+    end)
 
-    helper.start_by("<leader>fpr", "gogh_repo", {
+    helper.map_start("<leader>fpr", "gogh_repo", {
       sources = { { name = "gogh_repo" } },
       kindOptions = {
         gogh_repo = {
@@ -24,7 +27,7 @@ local spec = {
       },
     })
 
-    helper.ff_map("gogh_repo", function(map)
+    helper.map_ff("gogh_repo", function(map)
       map("<leader>g", helper.action("itemAction", { name = "get" }))
     end)
   end,

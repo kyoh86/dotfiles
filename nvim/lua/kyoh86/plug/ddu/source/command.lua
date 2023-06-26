@@ -7,7 +7,7 @@ local spec = {
   config = function()
     local name = "command"
     local source = "command"
-    helper.start_by("<leader>f:", name, {
+    helper.map_start("<leader>f:", name, {
       sources = { { name = source } },
       kindOptions = {
         [source] = {

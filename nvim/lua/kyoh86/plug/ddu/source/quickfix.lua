@@ -5,14 +5,14 @@ local spec = { {
   "flow6852/ddu-source-qf",
   dependencies = { "Shougo/ddu.vim" },
   config = function()
-    helper.start_by("<leader>fqc", "quickfix", { sources = { { name = "qf" } } })
-    helper.map_for_file("quickfix")
+    helper.map_start("<leader>fqc", "quickfix", { sources = { { name = "qf" } } })
+    helper.map_ff_file("quickfix")
   end,
 }, {
   "kyoh86/ddu-source-quickfix_history",
   dependencies = { "Shougo/ddu.vim" },
   config = function()
-    helper.start_by("<leader>fqh", "quickfix_history", { sources = { { name = "quickfix_history" } } })
+    helper.map_start("<leader>fqh", "quickfix_history", { sources = { { name = "quickfix_history" } } })
     vim.fa.ddu.custom.patch_global({
       kindOptions = {
         quickfix_history = {

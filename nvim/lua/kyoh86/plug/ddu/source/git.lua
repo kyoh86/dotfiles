@@ -9,7 +9,7 @@ local spec = {
       do
         local source = "git_status"
         local name = "git-status"
-        helper.start_by("<leader>fgs", name, {
+        helper.map_start("<leader>fgs", name, {
           sources = { { name = source } },
           sourceOptions = {
             _ = {
@@ -37,7 +37,7 @@ local spec = {
         vim.fa.ddu.custom.action("kind", "git_working_tree", "custom:edit", opener("edit"))
         vim.fa.ddu.custom.action("kind", "git_working_tree", "custom:vnew", opener("vnew"))
         vim.fa.ddu.custom.action("kind", "git_working_tree", "custom:new", opener("new"))
-        helper.ff_map(name, function(map)
+        helper.map_ff(name, function(map)
           map("<leader>x", helper.action("itemAction", { name = "custom:new" }))
           map("<leader>v", helper.action("itemAction", { name = "custom:vnew" }))
           map("<leader>a", helper.action("itemAction", { name = "add" }))
@@ -48,14 +48,14 @@ local spec = {
       do
         local source = "git_ref"
         local name = "git-ref"
-        helper.start_by("<leader>fgr", name, {
+        helper.map_start("<leader>fgr", name, {
           sources = { { name = source } },
           kindOptions = {
             git_branch = { defaultAction = "switch" },
             git_tag = { defaultAction = "switch" },
           },
         })
-        helper.ff_map(name, function(map)
+        helper.map_ff(name, function(map)
           map("<leader>d", helper.action("itemAction", { name = "delete" }))
         end)
       end
@@ -78,14 +78,14 @@ local spec = {
 
         local source = "git_log"
         local name = "git-log"
-        helper.start_by("<leader>fgl", name, {
+        helper.map_start("<leader>fgl", name, {
           sources = { { name = source } },
           kindOptions = {
             git_commit = { defaultAction = "custom:files" },
           },
         })
 
-        helper.map_for_file(name, function(map)
+        helper.map_ff_file(name, function(map)
           map("<leader>f", helper.action("itemAction", { name = "fixupTo" }))
         end)
       end
