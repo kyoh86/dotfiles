@@ -7,14 +7,22 @@ local function inscmdline(ins)
   vim.fn.setcmdline(left .. ins .. right, pos + #ins)
 end
 
-vim.keymap.set("c", "<C-p>t", function()
-  inscmdline(vim.fn.expand("%:p:t"))
+vim.keymap.set("c", "<C-x>t", function()
+  inscmdline(vim.fn.expand("%:t"))
 end)
 
-vim.keymap.set("c", "<C-p>p", function()
+vim.keymap.set("c", "<C-x>p", function()
   inscmdline(vim.fn.expand("%:p"))
 end)
 
-vim.keymap.set("c", "<C-p>h", function()
+vim.keymap.set("c", "<C-x>pp", function()
+  inscmdline(vim.fn.expand("%:p"))
+end)
+
+vim.keymap.set("c", "<C-x>ph", function()
   inscmdline(vim.fn.expand("%:p:h"))
+end)
+
+vim.keymap.set("c", "<C-x>h", function()
+  inscmdline(vim.fn.expand("%:h"))
 end)
