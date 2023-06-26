@@ -107,6 +107,7 @@ local spec = {
         nmap("<c-o>", "<nop>")
         nmap("<c-j>", "<nop>")
         nmap(":", "<nop>")
+        nmap("t", "<nop>")
         nmap(";", ":")
 
         nmap("/", helper.action("openFilterWindow"))
