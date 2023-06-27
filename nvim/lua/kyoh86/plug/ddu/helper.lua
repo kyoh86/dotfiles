@@ -4,15 +4,18 @@ local M = {}
 ---
 ---@param keys string|string[] lhs of the nmap
 ---@param name string 'name' of ddu see: |ddu-option|
----@param options DduOptions options
+---@param options DduOptions|fun():DduOptions options
 function M.map_start(keys, name, options)
-  local opts = options or {}
-  opts.name = name
   if type(keys) == "string" then
     keys = { keys }
   end
   for _, key in pairs(keys) do
     vim.keymap.set("n", key, function()
+      local opts = options or {}
+      if type(opts) == "function" then
+        opts = opts()
+      end
+      opts.name = name
       kyoh86.fa.ddu.start(opts)
     end, { remap = false, desc = "Start ddu source: " .. name })
   end

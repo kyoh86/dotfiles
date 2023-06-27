@@ -40,10 +40,6 @@ local zenn_keymap = function()
       vim.fn.setreg("+", url)
     end
   end, { remap = false, silent = true, desc = "open current aricle on the zenn.dev" })
-
-  -- TODO: ddu-source-zenn
-  -- vim.keymap.set("n", "<leader>zfa", "<cmd>Telescope zenn articles<cr>", { remap = false, silent = true, desc = "select an aricle for the zenn.dev" })
-  -- vim.keymap.set("n", "<leader>fza", "<cmd>Telescope zenn articles<cr>", { remap = false, silent = true, desc = "select an aricle for the zenn.dev" })
 end
 local zenn_keymap_reset = function()
   pcall(vim.keymap.del, "n", "<leader>zna")
