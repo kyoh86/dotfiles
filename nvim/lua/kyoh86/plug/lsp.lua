@@ -247,7 +247,6 @@ local function register_lsp_servers()
   register("cssls", {})
   register("cssmodules_ls", {})
   register("dockerls", {})
-  register("flux_lsp", {}, true)
   register("golangci_lint_ls", {
     init_options = {
       command = {
