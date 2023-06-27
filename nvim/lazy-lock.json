@@ -104,6 +104,7 @@
   "vim-sandwich": { "branch": "master", "commit": "c5a2cc438ce6ea2005c556dc833732aa53cae21a" },
   "vim-swap": { "branch": "master", "commit": "9358bfdc5e377aa13e7c2c2dd8699ba32b0dcf83" },
   "vim-table-mode": { "branch": "master", "commit": "9555a3e6e5bcf285ec181b7fc983eea90500feb4" },
+  "vim-terraform": { "branch": "master", "commit": "2bbc5f65a80c79a5110494a2ba1b869075fcf7a0" },
   "vim-test": { "branch": "master", "commit": "6fbfbfc434debf3d3e8676fad5041450615f2d5d" },
   "vim-textobj-entire": { "branch": "master", "commit": "64a856c9dff3425ed8a863b9ec0a21dbaee6fb3a" },
   "vim-textobj-functioncall": { "branch": "master", "commit": "325f3c43241860226b57b3f9417e8a4941a70d38" },
