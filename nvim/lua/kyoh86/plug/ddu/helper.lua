@@ -1,16 +1,26 @@
 local M = {}
 
-function M.map_start(key, name, options)
+--- map ddu#start for keys
+---
+---@param keys string|string[] lhs of the nmap
+---@param name string 'name' of ddu see: |ddu-option|
+---@param options DduOptions options
+function M.map_start(keys, name, options)
   local opts = options or {}
   opts.name = name
-  vim.keymap.set("n", key, function()
-    kyoh86.fa.ddu.start(opts)
-  end, { remap = false, desc = "Start ddu source: " .. name })
+  if type(keys) == "string" then
+    keys = { keys }
+  end
+  for _, key in pairs(keys) do
+    vim.keymap.set("n", key, function()
+      kyoh86.fa.ddu.start(opts)
+    end, { remap = false, desc = "Start ddu source: " .. name })
+  end
 end
 
 --- map in the named ddu-ui-ff
 ---@param name string A name of the ui
----@param callback function map function
+---@param callback fun(map: fun(lh: string, rh: any)) map function
 function M.map_ff(name, callback)
   local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff-map-" .. name, { clear = true })
   vim.api.nvim_create_autocmd("FileType", {
@@ -28,7 +38,7 @@ end
 
 --- Create caller for ddu#ui#do_action
 ---@param actionName string
----@param params? table
+---@param params? DduBaseActionParams
 function M.action(actionName, params)
   return function()
     if params then
@@ -42,7 +52,7 @@ end
 --- Map in the named ddu-ui-ff for "file" kind.
 --- it defines <leader>v/<leader>x to edit with splitted window
 ---@param name string A name of the ui
----@param callback? function remaining map function
+---@param callback? fun(map: fun(lh: string, rh: any)) remaining map function
 function M.map_ff_file(name, callback)
   M.map_ff(name, function(map)
     map("<leader>e", M.action("itemAction", { name = "open" }))
