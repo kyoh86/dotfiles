@@ -8,15 +8,17 @@ sudo apt install -y \
 
 # Compile & Build
 sudo apt install -y \
-	autoconf    \
-    gnupg       \
-    lsb-release \
-	automake    \
-	cmake       \
-	fakeroot    \
-	gettext     \
-	kcc         \
-	make        \
+	autoconf        \
+    gnupg         \
+    lsb-release   \
+	automake        \
+	cmake           \
+	fakeroot        \
+	gettext         \
+	kcc             \
+	make            \
+  ncurses-dev     \
+  build-essential \
 	ninja-build
 
 # Enhance Shell

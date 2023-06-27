@@ -1,0 +1,10 @@
+#!/bin/bash
+
+vim_tmpdir="$(mktemp -d)"
+git clone --depth 1 -b master https://github.com/vim/vim "${vim_tmpdir}/vim"
+pushd "${vim_tmpdir}/vim"
+./configure
+make
+sudo make install
+popd
+sudo rm -rf "${vim_tmpdir}"

@@ -1,0 +1,1 @@
+cat wsl.conf | sudo tee /etc/wsl.conf
