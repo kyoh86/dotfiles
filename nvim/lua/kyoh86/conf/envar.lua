@@ -33,6 +33,8 @@ path = {
   "/usr/sbin",
 }
 
+--- Pathに追加する
+---@path new string  New path to add
 local function push_path(new)
   table.insert(path, 1, new)
 end

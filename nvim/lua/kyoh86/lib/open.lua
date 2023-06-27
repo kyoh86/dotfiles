@@ -1,3 +1,5 @@
+--- Open GUI application referred for the target
+---@param target string  A target file or URL
 local function gui(target)
   if vim.loop.os_uname().sysname == "Darwin" then
     vim.fn.system("open " .. vim.fn.shellescape(target))

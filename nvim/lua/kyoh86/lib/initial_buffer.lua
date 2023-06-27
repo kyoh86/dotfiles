@@ -1,7 +1,8 @@
 local M = {}
 
+--- 現在のバッファが無名の空バッファかどうかを取得する
+---@return boolean
 function M.current()
-  --- 現在のバッファが無名の空バッファかどうかを取得する
   local name = vim.api.nvim_buf_get_name(0)
   if name ~= "" then
     return false

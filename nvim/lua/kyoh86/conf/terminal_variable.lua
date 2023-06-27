@@ -1,4 +1,5 @@
 --- SHELLをzshに設定する
+---@param shell string  Shell path
 local function attempt_set_shell(shell)
   if vim.fn.filereadable(shell) == 1 then
     vim.o.shell = shell

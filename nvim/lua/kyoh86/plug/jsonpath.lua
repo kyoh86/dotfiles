@@ -7,7 +7,7 @@ local spec = {
     vim.api.nvim_create_autocmd("FileType", {
       pattern = "json",
       group = group,
-      callback = function(_)
+      callback = function()
         vim.keymap.set("n", "<leader>jc", function()
           vim.fn.setreg("+", require("jsonpath").get())
         end, { desc = "copy json path", buffer = true })

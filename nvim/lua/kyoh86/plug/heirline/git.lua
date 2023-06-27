@@ -1,15 +1,17 @@
 --- feline(statusline)にCWDのGit情報を表示する
 
+--- Split a line which holds branch status from git-stauts-porcelain
+--- The line holds a local branch name, remote, ahead and behind commit counts like below.
+---     ## main...origin/main [ahead 3, behind 2]
+--- Eash words can be dropped if it has no significant value like below.
+---     ## main...origin/main [behind 9]
+---
+---     ## feature-1
+---
+--- This function will returns branch, remote, ahead and behind for each.
+---@param line string  A line of the branch in git-status-porcelain
+---@return string, string|nil, number, number
 local function split_branch_line(line)
-  --- Split a line which holds branch status from git-stauts-porcelain
-  --- The line holds a local branch name, remote, ahead and behind commit counts like below.
-  ---     ## main...origin/main [ahead 3, behind 2]
-  --- Eash words can be dropped if it has no significant value like below.
-  ---     ## main...origin/main [behind 9]
-  ---
-  ---     ## feature-1
-  ---
-  --- This function will returns branch, remote, ahead and behind for each.
   local words = vim.fn.split(line, "\\.\\.\\.\\|[ \\[\\],]")
   if #words == 2 then
     return words[2], nil, 0, 0

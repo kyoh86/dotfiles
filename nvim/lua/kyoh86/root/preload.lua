@@ -5,8 +5,8 @@ local extension = {}
 
 --- requireを安全に実行する
 ---@param spec string 対象モジュール名
----@param callback function 読み込まれたモジュールを受け取るCallback
----@param failed function 読み込みに失敗したときに処理を受け取るCallback
+---@param callback fun(m: any) 読み込まれたモジュールを受け取るCallback
+---@param failed? fun() 読み込みに失敗したときに処理を受け取るCallback
 extension.ensure = function(spec, callback, failed)
   local ok, module = pcall(require, spec)
   if ok then

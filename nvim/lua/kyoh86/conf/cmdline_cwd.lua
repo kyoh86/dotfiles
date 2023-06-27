@@ -1,4 +1,5 @@
 --- Insert text at cursor in the cmdline
+---@param ins string  Inserting text
 local function inscmdline(ins)
   local cmd = vim.fn.getcmdline()
   local pos = vim.fn.getcmdpos()

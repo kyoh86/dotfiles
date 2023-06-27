@@ -1,4 +1,5 @@
 --- integrations for zenn.dev
+---@param prefix? string  A URL prefix for my zenn.dev posts
 local zenn_url = function(prefix)
   prefix = prefix or "https://zenn.dev/kyoh86/"
   local name = vim.api.nvim_buf_get_name(0)

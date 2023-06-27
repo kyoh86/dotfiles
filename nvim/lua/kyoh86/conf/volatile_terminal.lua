@@ -15,13 +15,6 @@ local function open_volaterm(opts)
   vim.fn.termopen(opts.exec, opts)
 end
 
-local function open(opts)
-  if require("kyoh86.lib.initial_buffer").current() then
-    vim.cmd("enew")
-  end
-  open_volaterm(opts)
-end
-
 local function split(size, mods, opts)
   -- 指定方向に画面分割
   vim.cmd(mods .. " " .. "new")
@@ -70,16 +63,12 @@ vim.api.nvim_create_autocmd("TermOpen", {
   end,
 })
 
-vim.keymap.set("n", "tt", open, { remap = false, silent = true, desc = "open a terminal in the current window" })
 vim.keymap.set("n", "tx", function()
   split(0, "")
 end, { remap = false, silent = true, desc = "open a terminal in a splitted window" })
 vim.keymap.set("n", "tv", function()
   split(0, "vertical")
 end, { remap = false, silent = true, desc = "open a terminal in a vertical-splitted window" })
-vim.keymap.set("n", "tct", function()
-  open({ cwd = vim.fn.expand("%:p:h") })
-end, { remap = false, silent = true, desc = "open a terminal in the current window from current working directory" })
 vim.keymap.set("n", "tcx", function()
   split(0, "", { cwd = vim.fn.expand("%:p:h") })
 end, { remap = false, silent = true, desc = "open a terminal in a splitted window from current working directory" })
