@@ -11,6 +11,7 @@ _source_part env
 _source_part ls
 _source_part tool
 _source_part zmv
+_source_part sdkman
 
 _source_part util/put_zsh_history
 _source_part util/revive_job
