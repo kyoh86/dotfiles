@@ -15,8 +15,9 @@ function M.operate()
   vim.keymap.set("n", "C", "<plug>(fern-action-copy)", keyopt)
   vim.keymap.set("n", "M", "<plug>(fern-action-move)", keyopt)
   vim.keymap.set("n", "D", "<plug>(fern-action-remove)", keyopt)
+  vim.keymap.set("n", "R", "<plug>(fern-action-rename)", keyopt)
 
-  vim.notify("set to operation mode", vim.log.levels.INFO)
+  vim.notify("Changed to operation mode", vim.log.levels.WARN)
 
   vim.cmd([[doautocmd User MyFernModeChanged]])
 end
@@ -31,15 +32,16 @@ function M.view(init)
     kyoh86.fa.fern.action.call("mark:clear")
   end
 
-  vim.keymap.set("n", "<space>", "<nop>", keyopt)
-  vim.keymap.set("n", "<c-s-space>", "<nop>", keyopt)
-  vim.keymap.set("n", "<esc>", "<plug>(fern-action-cancel)", keyopt)
-  vim.keymap.set("n", "N", "<nop>", keyopt)
-  vim.keymap.set("n", "C", "<nop>", keyopt)
-  vim.keymap.set("n", "M", "<nop>", keyopt)
-  vim.keymap.set("n", "D", "<nop>", keyopt)
+  vim.keymap.del("n", "<space>")
+  vim.keymap.del("n", "<c-s-space>")
+  vim.keymap.del("n", "<esc>", "<plug>(fern-action-cancel)", keyopt)
+  vim.keymap.del("n", "N")
+  vim.keymap.del("n", "C")
+  vim.keymap.del("n", "M")
+  vim.keymap.del("n", "D")
+  vim.keymap.del("n", "R")
 
-  vim.notify("set to viewing mode", vim.log.levels.INFO)
+  vim.notify("Changed to viewing mode", vim.log.levels.WARN)
 
   vim.cmd([[doautocmd User MyFernModeChanged]])
 end
