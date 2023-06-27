@@ -11,8 +11,14 @@ local spec = {
       },
     } })
 
-    helper.map_start("<leader>fld", "lsp_definition", {
+    helper.map_start({ "<leader>fld", "<leader>ld" }, "lsp_definition", {
+      sync = true,
       sources = { { name = "lsp_definition" } },
+      uiParams = {
+        ff = {
+          immediateAction = "open",
+        },
+      },
     })
     helper.map_ff_file("lsp_definition")
 
