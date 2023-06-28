@@ -1,6 +1,7 @@
 # ZSHコマンドハイライト設定
 local cands=(
     '/usr/share/zsh-syntax-highlighting'
+    '/usr/share/zsh/plugins/zsh-syntax-highlighting'
     '/usr/local/share/zsh-syntax-highlighting'
     '/opt/homebrew/share/zsh-syntax-highlighting'
 )

@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# do https://blog.yukirii.dev/wsl2-arch-linux/ the first, and call me.
+
+set -e
+
+sudo pacman -Syy
+
+# AUR helper
+sudo pacman -Sy --needed \
+  base-devel   \
+  rustup       \
+  git
+
+paru_tmpdir="$(mktemp -d)"
+git clone https://aur.archlinux.org/paru.git "$paru_tmpdir"
+cd "$paru_tmpdur"
+makepkg -si
+cd -
+
+# Compile & Build
+paru -Sy --noconfirm \
+  autoconf        \
+  gnupg           \
+  lsb-release     \
+  automake        \
+  cmake           \
+  make            \
+  fakeroot        \
+  gettext         \
+  kcc             \
+  ncurses         \
+  ninja
+
+# Enhance Shell
+paru -Sy --noconfirm      \
+  binutils                \
+  coreutils               \
+  diffutils               \
+  findutils               \
+  direnv                  \
+  inotify-tools           \
+  man-db                  \
+  zsh                     \
+  zsh-autosuggestions     \
+  zsh-syntax-highlighting
+
+# Development Environment
+paru -Sy --noconfirm \
+  asciinema          \
+  curl               \
+  docker             \
+  docker-compose     \
+  httpie             \
+  jq                 \
+  openssh            \
+  patch              \
+  ripgrep            \
+  sed                \
+  tidy               \
+  tig                \
+  wget               \
+  github-cli         \
+  asdf-vm            \
+  git-delta          \
+  aws-cli
+
+# Programming Languages
+paru -Sy --noconfirm \
+  go       \
+  deno     \
+  lua      \
+	luajit   \
+	luarocks
+
+# python
+asdf plugin add python
+asdf install python latest
+asdf global python latest system
+
+# rust
+asdf plugin add rust
+asdf install rust latest
+asdf global rust latest system
+
+# node & npm
+asdf plugin add nodejs
+asdf install nodejs latest
+asdf global nodejs latest system
