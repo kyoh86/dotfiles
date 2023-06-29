@@ -10,10 +10,10 @@ sudo make CMAKE_BUILD_TYPE=Release install
 sudo rm -rf "${nvim_tmpdir}"
 popd
 
-gem install neovim
 npm install --global neovim
 pip install neovim
 
+# SKK
 skkdir="${HOME}/.local/share/skk"
 skkfile="SKK-JISYO.L"
 mkdir -p "${skkdir}"

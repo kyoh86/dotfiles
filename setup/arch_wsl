@@ -1,0 +1,1 @@
+cat arch_wsl.conf | sudo tee /etc/wsl.conf

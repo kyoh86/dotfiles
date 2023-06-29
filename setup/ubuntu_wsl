@@ -1,1 +1,1 @@
-cat wsl.conf | sudo tee /etc/wsl.conf
+cat ubuntu_wsl.conf | sudo tee /etc/wsl.conf
