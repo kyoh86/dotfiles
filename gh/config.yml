@@ -4,7 +4,8 @@ git_protocol: https
 editor:
 # Aliases allow you to create nicknames for gh commands
 aliases:
-  co: pr checkout
-  patch: '!echo ''{"ref":"''$(git symbolic-ref refs/remotes/origin/HEAD | awk -F''/'' ''{print $NF}'')''","inputs":{"method":"patch"}}'' | gh api -X POST repos/:owner/:repo/actions/workflows/release.yaml/dispatches --input -'
-  me: api user --jq .login
-  my: '!gh $1 list --assignee "@me"'
+    co: pr checkout
+    patch: '!echo ''{"ref":"''$(git symbolic-ref refs/remotes/origin/HEAD | awk -F''/'' ''{print $NF}'')''","inputs":{"method":"patch"}}'' | gh api -X POST repos/:owner/:repo/actions/workflows/release.yaml/dispatches --input -'
+    me: api user --jq .login
+    my: '!gh $1 list --assignee "@me"'
+    topic: api "search/repositories?q=topic:$1%20fork:true" --jq ".items[].full_name" --paginate
