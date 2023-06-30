@@ -47,12 +47,6 @@ return {
 
     { provider = "%=" },
 
-    {
-      provider = function()
-        return vim.fn.winnr()
-      end,
-    },
-
     { provider = "%=" },
 
     Diagnostics,
