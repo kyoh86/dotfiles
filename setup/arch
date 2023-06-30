@@ -73,6 +73,19 @@ paru -Sy --noconfirm \
 	luajit   \
 	luarocks
 
+# wslu (WSL Utilities includes wslview, etc.)
+sudo pacman-key init
+wget https://pkg.wslutiliti.es/public.key
+sudo pacman-key --add public.key
+sudo pacman-key --lsign-key 2D4C887EB08424F157151C493DD50AA7E055D853
+if grep -e wslutilities /etc/pacman.conf ; then
+  :
+else
+  echo "[wslutilities]" | sudo tee /etc/pacman.conf
+  echo "Server = https://pkg.wslutiliti.es/arch/" | sudo tee /etc/pacman.conf
+fi
+paru -Sy && paru -S --noconfirm wslu
+
 # python
 asdf plugin add python
 asdf install python latest

@@ -128,6 +128,9 @@ push_path(home .. "/.deno/bin")
 -- Tig:
 push_path(dotfiles .. "/tig/clip")
 
+-- GitHub CLI:
+vim.env.BROWSER='wslview'
+
 -- .local/bin
 push_path(home .. "/.local/bin")
 push_path(home .. "/.local/sbin")
