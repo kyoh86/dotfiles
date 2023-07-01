@@ -117,9 +117,11 @@ vim.env.CARGO_NET_GIT_FETCH_WITH_CLI = "true"
 push_path(home .. "/.asdf/bin")
 push_path(home .. "/.asdf/shims")
 
--- Coursier (for Scala Env)
+-- JAVA (using Coursier)
 push_path(home .. "/.local/share/coursier/bin")
-vim.env.JAVA_HOME = vim.fn.trim(vim.fn.system("coursier java-home"))
+if vim.fn.executable('coursier') then
+  vim.env.JAVA_HOME = vim.fn.trim(vim.fn.system("coursier java-home"))
+end
 push_path(vim.env.JAVA_HOME .. "/bin")
 
 -- Deno:
