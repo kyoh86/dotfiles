@@ -3,7 +3,7 @@ local spec = {
   "phelipetls/jsonpath.nvim",
   config = function()
     -- Define mappings for json buffers
-    local group = vim.api.nvim_create_augroup("local-with-jsonpath", { clear = true })
+    local group = vim.api.nvim_create_augroup("kyoh86-plug-jsonpath", { clear = true })
     vim.api.nvim_create_autocmd("FileType", {
       pattern = "json",
       group = group,

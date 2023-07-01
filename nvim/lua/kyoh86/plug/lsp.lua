@@ -155,7 +155,7 @@ local function attach_lsp(client, bufnr)
     end
   end
 
-  local group = vim.api.nvim_create_augroup("lsp_document_format", { clear = true })
+  local group = vim.api.nvim_create_augroup("kyoh86-plug-lsp-format", { clear = true })
   vim.api.nvim_create_autocmd("BufWritePre", {
     group = group,
     buffer = bufnr,
@@ -428,7 +428,7 @@ local spec = {
     -- update all mason's LSP automatically
     "RubixDev/mason-update-all",
     config = function()
-      local g = vim.api.nvim_create_augroup("update-mason-after-packer-sync", { clear = true })
+      local g = vim.api.nvim_create_augroup("kyoh86-plug-update-mason", { clear = true })
       vim.api.nvim_create_autocmd("User", {
         group = g,
         pattern = "LazyUpdate",

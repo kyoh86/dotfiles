@@ -53,7 +53,7 @@ local spec = {
     lazy = false,
     config = function()
       kyoh86.fa.zenn_autocmd.enable()
-      local group = vim.api.nvim_create_augroup("local-with-zenn-autocmd", { clear = true })
+      local group = vim.api.nvim_create_augroup("kyoh86-plug-zenn-autocmd", { clear = true })
       vim.api.nvim_create_autocmd("User", { pattern = "ZennEnter", group = group, callback = zenn_keymap })
       vim.api.nvim_create_autocmd("User", { pattern = "ZennLeave", group = group, callback = zenn_keymap_reset })
     end,

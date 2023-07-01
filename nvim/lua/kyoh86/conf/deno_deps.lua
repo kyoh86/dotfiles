@@ -20,7 +20,7 @@ local function open_deno_deps(e)
 end
 
 vim.api.nvim_create_autocmd("FileType", {
-  group = vim.api.nvim_create_augroup("open_deno_deps", {}),
+  group = vim.api.nvim_create_augroup("kyoh86-conf-open-deno-deps", {}),
   pattern = "typescript",
   callback = open_deno_deps,
   nested = true,
