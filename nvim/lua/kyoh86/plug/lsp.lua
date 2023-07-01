@@ -442,6 +442,7 @@ local spec = {
   {
     -- show progress of lsp-server
     "j-hui/fidget.nvim",
+    tag = "legacy",
     config = true,
     event = { "BufReadPre" },
   },
