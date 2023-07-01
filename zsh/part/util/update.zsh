@@ -13,6 +13,7 @@ function update {
         update_gordon
         update_go
         update_rust
+        update_coursier
         update_neovim
         echo "done"
     fi
@@ -78,6 +79,17 @@ function update_rust {
         if [ "$(cargo install --list | perl -ne'/^([\w-]+) v[\d.]+:$/&&print"$1\n"' | wc -l)" != "0" ]; then
             cargo install "$(cargo install --list | perl -ne'/^([\w-]+) v[\d.]+:$/&&print"$1\n"')"
         fi
+    fi
+    popd
+}
+# }}}
+
+# update coursier (scala) {{{
+function update_coursier {
+    echo updating coursier
+    pushd ~
+    if command -v coursier >/dev/null 2>&1; then
+      coursier list | xargs -n1 coursier update
     fi
     popd
 }

@@ -453,8 +453,8 @@ local spec = {
         diagnostics_format = "#{m} (#{s}: #{c})",
         sources = {
           null_ls.builtins.formatting.stylua,
+          null_ls.builtins.formatting.scalafmt,
           null_ls.builtins.diagnostics.actionlint,
-          null_ls.builtins.diagnostics.hadolint,
           null_ls.builtins.diagnostics.textlint.with({
             filetypes = { "markdown" },
             condition = function(utils)
@@ -474,13 +474,6 @@ local spec = {
       })
     end,
     dependencies = { "williamboman/mason.nvim", "lukas-reineke/lsp-format.nvim", "jay-babu/mason-null-ls.nvim" },
-  },
-  {
-    "jay-babu/mason-null-ls.nvim",
-    opts = {
-      ensure_installed = { "stylua", "actionlint", "hadolint" },
-    },
-    dependencies = { "williamboman/mason.nvim" },
   },
 }
 return spec

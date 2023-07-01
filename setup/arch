@@ -122,3 +122,13 @@ go install github.com/kyoh86/gordon@latest
 gordon install kyoh86/gordon
 rm ~/go/bin/gordon
 gordon restore ~/.config/gordon/bundle
+
+
+# stylua
+cargo install stylua
+
+# scalafmt
+coursier install scalafmt
+
+# actionlint
+go install github.com/rhysd/actionlint/cmd/actionlint@latest 
