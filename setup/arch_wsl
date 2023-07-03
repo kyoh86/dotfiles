@@ -1,1 +1,4 @@
-cat arch_wsl.conf | sudo tee /etc/wsl.conf
+SOURCE="$HOME/.config/setup/arch_wsl.conf"
+if [ -f "$SOURCE" ]; then
+  cat "$SOURCE" | sudo tee /etc/wsl.conf
+fi
