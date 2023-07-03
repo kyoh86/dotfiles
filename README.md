@@ -21,6 +21,7 @@
     - (see password manager)
     - Import public key: `gpg --import xxxxxxxx.pub`
     - Import secret key: `gpg --import xxxxxxxx`
+    - See key-id for git/host.conf: `gpg --list-keys --keyid-format LONG`
 1. Set user name & gpg key
     - Write `~/.config/git/host.conf` like below
 
@@ -51,9 +52,9 @@ NOTE: Update Ubuntu before setup: https://zenn.dev/ryuu/articles/upgrade-ubuntu2
 $ ~/.config/setup/ubuntu
 ```
 
-### 4. if I want to use this on another git user
+### 4. if I want to use this repository on another git user
 
-1. set config to send patch on email to myself
+1. Set dotfiles local config to send patch on email to myself
 
 ```console
 $ git config user.name kyoh86

@@ -7,16 +7,24 @@ set -e
 sudo pacman -Syy
 
 # AUR helper
-sudo pacman -Sy --needed \
+sudo pacman -Sy --needed --noconfirm \
   base-devel   \
   rustup       \
+  openssh      \
   git
 
-paru_tmpdir="$(mktemp -d)"
-git clone https://aur.archlinux.org/paru.git "$paru_tmpdir"
-cd "$paru_tmpdur"
-makepkg -si
-cd -
+rustup default stable
+
+# paru
+if command -v paru ; then
+  :
+else
+  paru_tmpdir="$(mktemp -d)"
+  git clone https://aur.archlinux.org/paru.git "$paru_tmpdir"
+  cd "$paru_tmpdir"
+  makepkg -si --noconfirm
+  cd -
+fi
 
 # Compile & Build
 paru -Sy --noconfirm \
@@ -61,30 +69,40 @@ paru -Sy --noconfirm \
   tig                \
   wget               \
   github-cli         \
-  asdf-vm            \
   git-delta          \
-  aws-cli
+  aws-cli-v2
+
+# for git send-email
+paru -Sy --noconfirm \
+  perl-io-socket-ssl \
+  perl-authen-sasl
 
 # Programming Languages
 paru -Sy --noconfirm \
   go       \
   deno     \
   lua      \
-	luajit   \
-	luarocks
+  coursier \
+  luajit   \
+  luarocks
 
 # wslu (WSL Utilities includes wslview, etc.)
-sudo pacman-key init
+sudo pacman-key --init
 wget https://pkg.wslutiliti.es/public.key
 sudo pacman-key --add public.key
 sudo pacman-key --lsign-key 2D4C887EB08424F157151C493DD50AA7E055D853
 if grep -e wslutilities /etc/pacman.conf ; then
   :
 else
-  echo "[wslutilities]" | sudo tee /etc/pacman.conf
-  echo "Server = https://pkg.wslutiliti.es/arch/" | sudo tee /etc/pacman.conf
+  echo "[wslutilities]" | sudo tee -a /etc/pacman.conf
+  echo "Server = https://pkg.wslutiliti.es/arch/" | sudo tee -a /etc/pacman.conf
 fi
 paru -Sy && paru -S --noconfirm wslu
+
+# ASDF
+paru -Sy --noconfirm \
+  asdf-vm
+. /opt/asdf-vm/asdf.sh
 
 # python
 asdf plugin add python
@@ -118,6 +136,7 @@ mkdir -p "${skkdir}"
 curl -L --output "${skkdir}/${skkfile}" "https://github.com/skk-dev/dict/blob/master/${skkfile}?raw=true"
 
 # gordon
+export PATH="$PATH:/home/kyoh86/go/bin"
 go install github.com/kyoh86/gordon@latest
 gordon install kyoh86/gordon
 rm ~/go/bin/gordon
