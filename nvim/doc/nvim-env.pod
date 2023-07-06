@@ -1,0 +1,20 @@
+---
+name: nvim-env
+description: Neovimの検証用環境の作り方
+---
+
+=pod
+
+=head1 流れ X<nvim-env-summary>
+
+- L<$NVIM_APPNAME> にnvim-で始まる適当な名前（e.g. nvim-text）を設定する
+- .config/<適当な名前>/init.vim を用意する
+- 必要なプラグインを ~/path/to/foo などにCloneする
+- init.vim に set rtp += ~/path/to/foo などと追記する
+- 必要な条件を書く
+
+=head1 参考資料
+
+L<Neovimの設定すべてをまるっと切り替えられるマルチプロファイル運用|https://zenn.dev/kyoh86/articles/e27a93d78767a7>
+
+=end
