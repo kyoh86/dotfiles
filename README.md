@@ -60,6 +60,7 @@ $ ~/.config/setup/ubuntu
 $ git config user.name kyoh86
 $ git config user.email me@kyoh86.dev
 $ git config commit.gpgsign false
+$ git config advice.skippedCherryPicks false
 $ git config sendEmail.smtpEncryption tls
 $ git config sendEmail.smtpServer smtp.gmail.com
 $ git config sendEmail.smtpServerPort 587
