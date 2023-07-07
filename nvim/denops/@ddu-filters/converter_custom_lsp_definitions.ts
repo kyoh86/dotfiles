@@ -28,20 +28,24 @@ export class Filter extends BaseFilter<Params> {
       items.map((item, index) => {
         const typedItem = item as Item<ActionData>;
         const method = typedItem?.action?.context?.method;
-        if (method) {
-          const label = MethodLabel[method];
-          item.display = `${label.toUpperCase()}${
-            " ".repeat(5 - label.length)
-          }${(item.display || item.word)}`;
-          item.highlights = [
-            {
-              name: `ddu-lsp-definition-method-${index}`,
-              col: 1,
-              width: 4,
-              hl_group: `DduLspDefinitionMethod${label}`,
-            },
-          ];
+        if (!method) {
+          return item;
         }
+        const label = MethodLabel[method];
+        if (!label) {
+          return item;
+        }
+        item.display = `${label.toUpperCase()}${
+          " ".repeat(5 - label.length)
+        }${(item.display || item.word)}`;
+        item.highlights = [
+          {
+            name: `ddu-lsp-definition-method-${index}`,
+            col: 1,
+            width: 4,
+            hl_group: `DduLspDefinitionMethod${label}`,
+          },
+        ];
         return item;
       }),
     );
