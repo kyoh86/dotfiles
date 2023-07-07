@@ -45,13 +45,13 @@ local spec = {
             prompt = "dduPrompt",
           },
 
+          startAutoAction = true,
           autoAction = {
             name = "preview",
           },
           previewFloating = true,
           previewFloatingBorder = "single",
           previewSplit = "vertical",
-          previewFloatingTitle = "Preview",
           previewWindowOptions = {
             { "&signcolumn", "no" },
             { "&foldcolumn", 0 },
@@ -70,22 +70,25 @@ local spec = {
       -- WINBAR LINE = 1
       -- MESSAGE LINE = 1
       -- STATUS LINE = 1
-      -- FLOAT LINE = 20
-      local row = math.floor((lines - 23) * 0.5)
+      local height = math.min(30, lines - 12)
+      local row = math.floor((lines - height - 3) * 0.5)
       local columns = vim.opt.columns:get()
       local width, col = math.floor(columns * 0.8), math.floor(columns * 0.1)
-      local winWidth = math.floor(width / 2)
+      local winWidth = math.floor(width / 2) - 1
 
+      local conf = {
+        winRow = row,
+        winWidth = winWidth,
+        winHeight = height,
+        winCol = col,
+        previewRow = row,
+        previewHeight = height,
+        previewWidth = winWidth,
+        previewCol = col + winWidth + 2,
+      }
       kyoh86.fa.ddu.custom.patch_global({
         uiParams = {
-          ff = {
-            winRow = row,
-            winWidth = winWidth,
-            winCol = col,
-            previewRow = row,
-            previewWidth = winWidth,
-            previewCol = col + winWidth,
-          },
+          ff = conf,
         },
       })
     end
