@@ -13,13 +13,31 @@ local spec = {
 
     helper.map_start({ "<leader>fld", "<leader>ld" }, "lsp_definition", {
       sync = true,
-      sources = { { name = "lsp_definition" } },
+      sources = {
+        { name = "lsp_definition", params = { method = "textDocument/definition" } },
+        { name = "lsp_definition", params = { method = "textDocument/typeDefinition" } },
+        { name = "lsp_definition", params = { method = "textDocument/declaration" } },
+        { name = "lsp_definition", params = { method = "textDocument/implementation" } },
+      },
       uiParams = {
         ff = {
           immediateAction = "open",
         },
       },
     })
+    kyoh86.fa.ddu.custom.patch_global({
+      sourceOptions = {
+        lsp_definition = {
+          converters = { { name = "converter_custom_lsp_definitions" } },
+        },
+      },
+    })
+    kyoh86.ensure("momiji", function(m)
+      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodDef", { fg = m.colors.red, bold = true })
+      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodType", { fg = m.colors.blue, bold = true })
+      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodDecl", { fg = m.colors.green, bold = true })
+      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodImpl", { fg = m.colors.magenta, bold = true })
+    end)
     helper.map_ff_file("lsp_definition")
 
     helper.map_start("<leader>flr", "lsp_references", {
