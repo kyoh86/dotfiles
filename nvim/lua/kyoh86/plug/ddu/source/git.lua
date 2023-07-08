@@ -20,6 +20,9 @@ local spec = {
             git_working_tree = {
               defaultAction = "custom:edit",
             },
+            git_index = {
+              defaultAction = "custom:edit",
+            },
           },
         })
 
@@ -30,13 +33,22 @@ local spec = {
               vim.notify("invalid action: it can edit only one file at once", vim.log.levels.WARN, {})
               return 1
             end
-            vim.cmd[command](args.items[1].action.fileStatus.path)
+
+            local status = args.items[1].action.fileStatus
+            if status.workingTreeState == "deleted" then
+              vim.notify("invalid action: deleted file may not be editable", vim.log.levels.WARN, {})
+              return 0
+            end
+            vim.cmd[command](status.path)
             return 0
           end
         end
         kyoh86.fa.ddu.custom.action("kind", "git_working_tree", "custom:edit", opener("edit"))
         kyoh86.fa.ddu.custom.action("kind", "git_working_tree", "custom:vnew", opener("vnew"))
         kyoh86.fa.ddu.custom.action("kind", "git_working_tree", "custom:new", opener("new"))
+        kyoh86.fa.ddu.custom.action("kind", "git_index", "custom:edit", opener("edit"))
+        kyoh86.fa.ddu.custom.action("kind", "git_index", "custom:vnew", opener("vnew"))
+        kyoh86.fa.ddu.custom.action("kind", "git_index", "custom:new", opener("new"))
         helper.map_ff(name, function(map)
           map("<leader>x", helper.action("itemAction", { name = "custom:new" }))
           map("<leader>v", helper.action("itemAction", { name = "custom:vnew" }))
