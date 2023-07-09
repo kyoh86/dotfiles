@@ -44,11 +44,7 @@ end
 ---@param params? DduBaseActionParams
 function M.action(actionName, params)
   return function()
-    if params then
-      kyoh86.fa.ddu.ui.do_action(actionName, params)
-    else
-      kyoh86.fa.ddu.ui.do_action(actionName)
-    end
+    kyoh86.fa.ddu.ui.do_action(actionName, params or vim.empty_dict())
   end
 end
 
