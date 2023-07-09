@@ -52,6 +52,9 @@ local spec = {
   },
   {
     "lambdalisue/gin.vim",
+    config = function()
+      vim.g.gin_proxy_disable_editor = true
+    end,
     dependencies = { "vim-denops/denops.vim" },
   },
 }
