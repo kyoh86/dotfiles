@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Snippet configuration for the VSCode",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": {
+    "description": "A snippet definition.",
+    "type": "object",
+    "default": {},
+    "properties": {
+      "prefix": {
+        "description": "The prefix to use when selecting the snippet in intellisense",
+        "oneOf": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "default": []
+      },
+      "body": {
+        "description": "The snippet content. Use $1, ${1:defaultText} to define cursor positions, use $0 for the final cursor position. Insert variable values with ${varName} and ${varName:defaultText}, e.g. This is file: $TM_FILENAME.",
+        "oneOf": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "default": []
+      },
+      "description": {
+        "description": "The snippet description.",
+        "type": "string",
+        "default": ""
+      },
+      "scope": {
+        "description": "A list of language names to which this snippet applies, seperated by a comma. E.g. \"javascript,typescript\".",
+        "type": "string",
+        "default": ""
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "body"
+    ]
+  }
+}
