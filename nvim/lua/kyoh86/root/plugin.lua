@@ -17,28 +17,31 @@ pcall(function()
   vim.opt.rtp:prepend(lazypath)
 end)
 
---- 不要な標準プラグインを無効化
-vim.g.loaded_gzip = 1
-vim.g.loaded_matchit = 1
-vim.g.loaded_netrwPlugin = 1
-vim.g.loaded_netrw = 1
-vim.g.loaded_zipPlugin = 1
-vim.g.loaded_zip = 1
-vim.g.loaded_tarPlugin = 1
-vim.g.loaded_tar = 1
-
 --- lazy.nvim で読み込む
 ---@type LazyConfig
 local opts = {
   dev = { path = require("kyoh86.conf.lazy").dev_path },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        --- 不要な標準プラグインを無効化
+        "gzip",
+        "matchit",
+        "matchparen",
+        "netrwPlugin",
+        "netrw",
+        "tarPlugin",
+        "tar",
+        "tohtml",
+        "tutor",
+        "zipPlugin",
+        "zip",
+      },
+    },
+  },
 }
 kyoh86.ensure("lazy", function(m)
   m.setup({
     { import = "kyoh86.plug" },
   }, opts)
 end)
-
---- 必要な標準プラグインを有効化
-vim.cmd([[
-    packadd cfilter
-]])
