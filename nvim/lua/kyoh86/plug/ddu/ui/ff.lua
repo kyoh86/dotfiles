@@ -128,6 +128,9 @@ local spec = {
         vim.opt_local.cursorline = false
         vim.keymap.set("i", "<esc>", "<esc>dd<cmd>call ddu#ui#do_action('closeFilterWindow')<cr>", { buffer = true, silent = true, remap = false })
         vim.keymap.set("i", "<cr>", "<esc><cmd>call ddu#ui#do_action('leaveFilterWindow')<cr>", { buffer = true, silent = true, remap = false })
+        vim.keymap.set("i", "<bs>", function()
+          return vim.fn.col(".") <= 1 and "" or "<bs>"
+        end, { buffer = true, expr = true, silent = true, remap = false })
       end,
     })
   end,
