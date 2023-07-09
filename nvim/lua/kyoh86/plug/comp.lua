@@ -2,6 +2,7 @@
 
 --- 補完の設定
 local function setup_comp()
+  vim.opt.omnifunc = "syntaxcomplete#Complete"
   vim.opt.completeopt = { "menu", "menuone", "noselect" }
   local cmp = require("cmp")
 
