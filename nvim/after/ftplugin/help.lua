@@ -47,7 +47,7 @@ if vim.opt_local.buftype:get() ~= "help" then
   -- Template
   local prof = vim.fn.wordcount()
   if prof.bytes == 0 then
-    local name = vim.fn.expand("%:p:h:h:t:s?vim-??:s?.vim??:s?.nvim??")
+    local name = vim.fn.expand("%:p:h:h:t:s?^vim-??:s?\\.vim$??:s?\\.nvim$??")
     vim.api.nvim_put({
       name .. ".txt                          (description of the plugin)",
       "",
