@@ -30,7 +30,6 @@ end
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-zenn_dev",
-  dev = true,
   dependencies = { { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "Milly/ddu-filter-kensaku", "Milly/ddu-filter-merge" } },
   config = function()
     helper.map_start("<leader>fza", "zenn-dev-article", option)
