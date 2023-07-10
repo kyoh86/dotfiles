@@ -69,6 +69,7 @@ paru -Sy --noconfirm \
   wget               \
   github-cli         \
   git-delta          \
+  mongosh-bin        \
   aws-cli-v2
 
 # for git send-email
