@@ -17,6 +17,7 @@
 !/nvim
 !/nvim-?*
 !/ripgrep
+!/schemastore/
 !/setup/
 !/ssh
 !/stylua

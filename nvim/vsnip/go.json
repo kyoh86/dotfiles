@@ -1,24 +1,22 @@
 {
-    ".source.go": {
-        "table driven test function": {
-            "prefix": "testtablefunc",
-            "body": "func Test$1(t *testing.T) {\n\tfor _, testcase := range []struct {\n\t\ttitle\tstring\n\t\t$2\n\t}{\n\t\t{\n\t\t\ttitle: \"$3\",\n\t\t\t$4\n\t\t},\n\t} {\n\t\tt.Run(testcase.title, func(t *testing.T) {\n\t\t\t$0\n\t\t})\n\t}\n}",
-            "description": "Snippet for table driven test"
-        },
-        "table driven test": {
-            "prefix": "testtable",
-            "body": "for _, testcase := range []struct {\n\t\ttitle\tstring\n\t\t$2\n\t}{\n\t\t{\n\t\t\ttitle: \"$3\",\n\t\t\t$4\n\t\t},\n\t} {\n\t\tt.Run(testcase.title, func(t *testing.T) {\n\t\t\t$0\n\t\t})\n\t}",
-            "description": "Snippet for table driven test"
-        },
-        "sub test": {
-            "prefix": "testsub",
-            "body": "t.Run(\"$1\", func(t *testing.T) {\n\t$2\n})",
-            "description": "Snippet for sub-test"
-        },
-        "test fatal error": {
-            "prefix": "ifterr",
-            "body": "if err != nil {\n\tt.Fatal(err)\n}",
-            "description": "Snippet for fatal error in test"
-        }
-    }
+  "table driven test function": {
+    "prefix": "testtablefunc",
+    "body": "func Test$1(t *testing.T) {\n\tfor _, testcase := range []struct {\n\t\ttitle\tstring\n\t\t$2\n\t}{\n\t\t{\n\t\t\ttitle: \"$3\",\n\t\t\t$4\n\t\t},\n\t} {\n\t\tt.Run(testcase.title, func(t *testing.T) {\n\t\t\t$0\n\t\t})\n\t}\n}",
+    "description": "Snippet for table driven test"
+  },
+  "table driven test": {
+    "prefix": "testtable",
+    "body": "for _, testcase := range []struct {\n\t\ttitle\tstring\n\t\t$2\n\t}{\n\t\t{\n\t\t\ttitle: \"$3\",\n\t\t\t$4\n\t\t},\n\t} {\n\t\tt.Run(testcase.title, func(t *testing.T) {\n\t\t\t$0\n\t\t})\n\t}",
+    "description": "Snippet for table driven test"
+  },
+  "sub test": {
+    "prefix": "testsub",
+    "body": "t.Run(\"$1\", func(t *testing.T) {\n\t$2\n})",
+    "description": "Snippet for sub-test"
+  },
+  "test fatal error": {
+    "prefix": "ifterr",
+    "body": "if err != nil {\n\tt.Fatal(err)\n}",
+    "description": "Snippet for fatal error in test"
+  }
 }

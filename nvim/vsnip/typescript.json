@@ -1,0 +1,8 @@
+{
+  "deno-import": {
+    "body": [
+      "import {$2} from \"https://$1\""
+    ],
+    "prefix": "denoimport"
+  }
+}

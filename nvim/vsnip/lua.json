@@ -1,9 +1,7 @@
 {
-    ".source.lua": {
-        "lazy.nvim spec": {
-            "prefix": "lazyspec",
-            "body": "---@type LazySpec\nlocal spec = {\n  \"$1\",\n  $2\n}\nreturn spec",
-            "description": "Snippet for lazy.nvim spec"
-        }
-    }
+  "lazy.nvim spec": {
+    "prefix": "lazyspec",
+    "body": "---@type LazySpec\nlocal spec = {\n  \"$1\",\n  $2\n}\nreturn spec",
+    "description": "Snippet for lazy.nvim spec"
+  }
 }

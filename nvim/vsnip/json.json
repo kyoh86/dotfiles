@@ -1,0 +1,13 @@
+{
+  "vsnip": {
+    "body": [
+      "{",
+      "  \"$schema\": \"../../schemastore/vsnip.schema.json\",",
+      "  \"vsnip\": {",
+      "    \"body\": [],",
+      "  }",
+      "}"
+    ],
+    "prefix": "vsnip"
+  }
+}

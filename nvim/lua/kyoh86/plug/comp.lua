@@ -46,8 +46,9 @@ end
 
 -- snippetの設定
 local function setup_snip()
+  vim.g.vsnip_snippet_dir = vim.fn.expand("~/.config/nvim/vsnip")
   vim.g.vsnip_snippet_dirs = {
-    vim.fn.expand("~/.config/nvim/vsnip"),
+    vim.g.vsnip_snippet_dir,
     vim.fn.expand("~/.config/aia/vsnip"),
   }
 

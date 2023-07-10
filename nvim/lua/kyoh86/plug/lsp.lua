@@ -291,8 +291,14 @@ local function register_lsp_servers()
   })
   register("graphql", {})
   register("html", {})
+  local schemas = require("schemastore").json.schemas()
+  table.insert(schemas, {
+    description = "JSON schema for VSCode Code Snippets",
+    fileMatch = { "nvim/vsnip/*.json" },
+    url = "https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json",
+  })
   register("jsonls", {
-    schemas = require("schemastore").json.schemas(),
+    schemas = schemas,
   })
   register("lemminx", {}) -- XML
   register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
