@@ -24,7 +24,7 @@ local function get_stored_range()
   end
 end
 
-local toggle_cmdtype = vim.api.nvim_replace_termcodes("<End><C-U><BS>", true, false, false)
+local toggle_cmdtype = vim.keycode("<End><C-U><BS>")
 
 local function switch_search_replace()
   local cmdtype = vim.fn.getcmdtype()

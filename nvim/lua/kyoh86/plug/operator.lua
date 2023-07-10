@@ -37,7 +37,7 @@ local spec = {
         action = { "add" },
         cursor = "head",
         command = { "startinsert" },
-        input = { vim.api.nvim_replace_termcodes("<c-f>", true, false, true) },
+        input = { vim.keycode("<c-f>") },
       })
       vim.g["operator#sandwich#recipes"] = recipes
     end,

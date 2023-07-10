@@ -10,4 +10,4 @@ vim.keymap.set("c", "<C-P>", "<Up>", { remap = false, desc = "recall older comma
 vim.keymap.set("c", "<C-N>", "<Down>", { remap = false, desc = "recall more recent command-line from history, whose beginning matches the current command-line (see below)" })
 
 -- enter command-line-window
-vim.opt.cedit = vim.api.nvim_replace_termcodes("<c-y>", true, true, true)
+vim.opt.cedit = vim.keycode("<c-y>")

@@ -15,7 +15,7 @@ return {
         [")"] = { "）" },
       })
       local map = function(mode, key, operation)
-        kyoh86.fa.skkeleton.register_keymap(mode, vim.api.nvim_replace_termcodes(key, true, false, true), operation)
+        kyoh86.fa.skkeleton.register_keymap(mode, vim.keycode(key), operation)
       end
       map("input", "<space>", "henkanFirst")
       map("input", "<C-q>", "katakana")
