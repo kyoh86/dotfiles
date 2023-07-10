@@ -58,8 +58,6 @@ paru -Sy --noconfirm      \
 paru -Sy --noconfirm \
   asciinema          \
   curl               \
-  docker             \
-  docker-compose     \
   httpie             \
   jq                 \
   openssh            \
@@ -86,6 +84,14 @@ paru -Sy --noconfirm \
   coursier \
   luajit   \
   luarocks
+
+# Docker
+paru -Sy --noconfirm \
+  docker             \
+  docker-compose     \
+# sudo groupadd docker # it may be error "groupadd: group 'docker' already exists" because docker AUR creates it. 
+sudo usermod -aG docker ${USER}
+newgrp docker
 
 # wslu (WSL Utilities includes wslview, etc.)
 sudo pacman-key --init
