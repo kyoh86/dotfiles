@@ -1,5 +1,60 @@
 --- feline(statusline)にCWDのGit情報を表示する
 
+local stat = {}
+local watch_handler = vim.uv.new_fs_event()
+local gitdir = ""
+local group = vim.api.nvim_create_augroup("kyoh86-plug-heirline-git-status-update", { clear = true })
+
+local function notify_update()
+  vim.api.nvim_exec_autocmds("User", { pattern = "UpdateHeirlineGitStatus" })
+  vim.cmd("redrawstatus")
+end
+
+local function start_watching()
+  if not vim.fn.filereadable(gitdir) then
+    return
+  end
+  vim.uv.fs_event_start(
+    watch_handler,
+    gitdir .. "/index",
+    {},
+    vim.schedule_wrap(function(err, _, _)
+      if err then
+        vim.notify("failed to watch git-path: " .. err, vim.log.levels.WARN)
+        return
+      end
+      notify_update()
+    end)
+  )
+end
+
+local function stop_watching()
+  if watch_handler then
+    vim.uv.fs_event_stop(watch_handler)
+  end
+end
+
+vim.api.nvim_create_autocmd("DirChangedPre", {
+  group = group,
+  pattern = "global",
+  callback = stop_watching,
+})
+
+vim.api.nvim_create_autocmd("DirChanged", {
+  group = group,
+  pattern = "global",
+  callback = function(ev)
+    notify_update()
+    gitdir = ev.file .. "/.git"
+    start_watching()
+  end,
+})
+
+vim.api.nvim_create_autocmd({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave" }, {
+  group = group,
+  callback = notify_update,
+})
+
 --- Split a line which holds branch status from git-stauts-porcelain
 --- The line holds a local branch name, remote, ahead and behind commit counts like below.
 ---     ## main...origin/main [ahead 3, behind 2]
@@ -49,7 +104,9 @@ local function signif(x)
 end
 
 local function get_git_stat(path)
+  stop_watching()
   local res = vim.fn.system("git -C '" .. path .. "' status --porcelain --branch --ahead-behind --untracked-files --renames")
+  start_watching()
   local info = { has_git = false, ahead = 0, behind = 0, unmerged = 0, untracked = 0, staged = 0, unstaged = 0, dirty = false }
   if string.sub(res, 1, 7) == "fatal: " then
     return info
@@ -85,8 +142,8 @@ end
 
 local function numeric_stat_module(prefix, key)
   return {
-    provider = function(self)
-      local s = self.stat[key]
+    provider = function()
+      local s = stat[key]
       if signif(s) then
         return prefix .. s --󰛄 x
       end
@@ -97,19 +154,19 @@ end
 local Padding = { provider = " " }
 
 local LocalBranch = {
-  provider = function(self)
+  provider = function()
     -- local
-    if self.stat.branch ~= nil then
-      return "\u{F418}" .. self.stat.branch
+    if stat.branch ~= nil then
+      return "\u{F418}" .. stat.branch
     end
   end,
 }
 
 local RemoteBranch = {
-  provider = function(self)
+  provider = function()
     -- remote
-    if self.stat.remote ~= nil then
-      return " \u{F427}" .. self.stat.remote
+    if stat.remote ~= nil then
+      return " \u{F427}" .. stat.remote
     else
       return " \u{F6C8}"
     end
@@ -119,8 +176,8 @@ local RemoteBranch = {
 local StatAhead = numeric_stat_module("\u{EAA1}", "ahead") -- x
 local StatBehind = numeric_stat_module("\u{EA9A}", "behind") -- x
 local StatUnfollow = {
-  provider = function(self)
-    if self.stat.branch ~= nil and self.stat.remote == nil then
+  provider = function()
+    if stat.branch ~= nil and stat.remote == nil then
       return "\u{F6C8}" -- x
     end
   end,
@@ -130,7 +187,8 @@ local StatStaged = numeric_stat_module("\u{F012C} ", "staged") -- 󰄬 x
 local StatUnstaged = numeric_stat_module("\u{F0415} ", "unstaged") -- 󰐕 x
 local StatUntracked = numeric_stat_module(" \u{F0205} ", "untracked") -- 󰈅 x
 
-return {
+---@type StatusLine
+local status = {
   {
     {
       -- Git branch
@@ -151,14 +209,19 @@ return {
       Padding,
 
       hl = { fg = "yellow", bg = "black" },
-      condition = function(self)
-        return self.stat.dirty
+      condition = function()
+        return stat.dirty
       end,
     },
-    condition = function(self)
-      self.stat = get_git_stat(vim.fn.getcwd())
-      return self.stat.has_git
+    condition = function()
+      stat = get_git_stat(vim.fn.getcwd())
+      return stat.has_git
     end,
   },
-  update = { "CursorHold", "CursorHoldI", "DirChanged", "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave", "ModeChanged" },
+  update = {
+    "User",
+    pattern = "UpdateHeirlineGitStatus",
+  },
 }
+
+return status

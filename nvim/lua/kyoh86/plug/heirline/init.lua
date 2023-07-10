@@ -26,6 +26,7 @@ end
 ---@type LazySpec[]
 local spec = { {
   "rebelot/heirline.nvim",
+  dev = true,
   config = setup_heirline,
   dependencies = { "kyoh86/momiji", "lewis6991/gitsigns.nvim", "nvim-tree/nvim-web-devicons", "SmiteshP/nvim-navic" },
 }, {
