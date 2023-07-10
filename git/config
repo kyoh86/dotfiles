@@ -79,7 +79,7 @@
 
 [alias]
 	conflicts = !git ls-files -u | cut -f 2 | sort -u
-    addw = !"git diff -w --no-color | git apply --cached"
+	addw = !"git diff -w --no-color | git apply --cached"
 [http "https://gopkg.in"]
 	followRedirects = true
 
