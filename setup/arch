@@ -49,6 +49,7 @@ paru -Sy --noconfirm      \
   direnv                  \
   inotify-tools           \
   man-db                  \
+  pass                    \
   zsh                     \
   zsh-autosuggestions     \
   zsh-syntax-highlighting
