@@ -1,0 +1,10 @@
+["lazy.nvim spec"]
+prefix = "lazyspec"
+description = "Snippet for lazy.nvim spec"
+body = """
+---@type LazySpec
+local spec = {
+  \"$1\",
+  $2
+}
+return spec"""

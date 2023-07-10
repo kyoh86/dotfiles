@@ -1,0 +1,6 @@
+{
+    "vsnip": {
+        "prefix": "vsnip",
+        "body": "#:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json\n\n[$1]\nprefix = \"$1\"\nbody = \"\"\"\n$2\"\"\"\n"
+    }
+}
