@@ -49,12 +49,12 @@ local spec = {
         kyoh86.fa.ddu.custom.action("kind", "git_index", "custom:edit", opener("edit"))
         kyoh86.fa.ddu.custom.action("kind", "git_index", "custom:vnew", opener("vnew"))
         kyoh86.fa.ddu.custom.action("kind", "git_index", "custom:new", opener("new"))
-        helper.map_ff(name, function(map)
-          map("<leader>x", helper.action("itemAction", { name = "custom:new" }))
-          map("<leader>v", helper.action("itemAction", { name = "custom:vnew" }))
-          map("<leader>a", helper.action("itemAction", { name = "add" }))
-          map("<leader>r", helper.action("itemAction", { name = "restore" }))
-        end)
+        helper.map_ff(name, {
+          ["<leader>x"] = { "itemAction", name = "custom:new" },
+          ["<leader>v"] = { "itemAction", name = "custom:vnew" },
+          ["<leader>a"] = { "itemAction", name = "add" },
+          ["<leader>r"] = { "itemAction", name = "restore" },
+        })
       end
 
       do
@@ -67,9 +67,9 @@ local spec = {
             git_tag = { defaultAction = "switch" },
           },
         })
-        helper.map_ff(name, function(map)
-          map("<leader>d", helper.action("itemAction", { name = "delete" }))
-        end)
+        helper.map_ff(name, {
+          ["<leader>d"] = { "itemAction", name = "delete" },
+        })
       end
 
       do
@@ -97,9 +97,9 @@ local spec = {
           },
         })
 
-        helper.map_ff_file(name, function(map)
-          map("<leader>f", helper.action("itemAction", { name = "fixupTo" }))
-        end)
+        helper.map_ff_file(name, {
+          ["<leader>f"] = { "itemAction", name = "fixupTo" },
+        })
       end
     end,
   },

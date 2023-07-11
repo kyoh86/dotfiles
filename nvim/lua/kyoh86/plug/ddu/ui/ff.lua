@@ -1,5 +1,13 @@
 local helper = require("kyoh86.plug.ddu.helper")
 
+--- Create caller for ddu#ui#do_action
+---@param actionName string
+local function ddu_ui_action(actionName)
+  return function()
+    kyoh86.fa.ddu.ui.do_action(actionName, vim.empty_dict())
+  end
+end
+
 ---@type LazySpec
 local spec = {
   "Shougo/ddu-ui-ff",
@@ -113,11 +121,11 @@ local spec = {
         nmap("t", "<nop>")
         nmap(";", ":")
 
-        nmap("/", helper.action("openFilterWindow"))
-        nmap("<esc>", helper.action("quit"))
-        nmap("<cr>", helper.action("itemAction"))
-        nmap(">", helper.action("expandItem"))
-        nmap("+", helper.action("chooseAction"))
+        nmap("/", ddu_ui_action("openFilterWindow"))
+        nmap("<esc>", ddu_ui_action("quit"))
+        nmap("<cr>", ddu_ui_action("itemAction"))
+        nmap(">", ddu_ui_action("expandItem"))
+        nmap("+", ddu_ui_action("chooseAction"))
       end,
     })
 

@@ -33,9 +33,9 @@ local spec = {
   dependencies = { { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "Milly/ddu-filter-kensaku", "Milly/ddu-filter-merge" } },
   config = function()
     helper.map_start("<leader>fza", "zenn-dev-article", option)
-    helper.map_ff_file("zenn-dev-article", function(map)
-      map("<leader>b", helper.action("itemAction", { name = "browse" }))
-    end)
+    helper.map_ff_file("zenn-dev-article", {
+      ["<leader>b"] = { "itemAction", name = "browse" },
+    })
   end,
 }
 return spec

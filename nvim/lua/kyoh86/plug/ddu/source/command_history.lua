@@ -16,9 +16,9 @@ local spec = {
       },
     })
 
-    helper.map_ff(name, function(map)
-      map("<leader>e", helper.action("itemAction", { name = "edit" }))
-    end)
+    helper.map_ff(name, {
+      ["<leader>e"] = { "itemAction", name = "edit" },
+    })
   end,
 }
 return spec

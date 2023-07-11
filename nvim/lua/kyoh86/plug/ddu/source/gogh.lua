@@ -13,10 +13,10 @@ local spec = {
         },
       },
     })
-    helper.map_ff_file("gogh_project", function(map)
-      map("<leader>e", helper.action("itemAction", { name = "open" }))
-      map("<leader>b", helper.action("itemAction", { name = "browse" }))
-    end)
+    helper.map_ff_file("gogh_project", {
+      ["<leader>e"] = { "itemAction", name = "open" },
+      ["<leader>b"] = { "itemAction", name = "browse" },
+    })
 
     helper.map_start("<leader>fpr", "gogh_repo", {
       sources = { { name = "gogh_repo" } },
@@ -27,9 +27,9 @@ local spec = {
       },
     })
 
-    helper.map_ff("gogh_repo", function(map)
-      map("<leader>g", helper.action("itemAction", { name = "get" }))
-    end)
+    helper.map_ff("gogh_repo", {
+      ["<leader>g"] = { "itemAction", name = "get" },
+    })
   end,
 }
 return spec

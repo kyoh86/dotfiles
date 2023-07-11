@@ -13,13 +13,13 @@ local spec = {
         },
       },
     })
-    helper.map_ff_file("lazy_nvim", function(map)
-      map("<leader>e", helper.action("itemAction", { name = "open" }))
-      map("<leader>b", helper.action("itemAction", { name = "browse" }))
-      map("<leader>g", helper.action("itemAction", { name = "grep_config" }))
-      map("<leader>c", helper.action("itemAction", { name = "grep_config" }))
-      map("<leader>f", helper.action("itemAction", { name = "fork" }))
-    end)
+    helper.map_ff_file("lazy_nvim", {
+      ["<leader>e"] = { "itemAction", name = "open" },
+      ["<leader>b"] = { "itemAction", name = "browse" },
+      ["<leader>g"] = { "itemAction", name = "grep_config" },
+      ["<leader>c"] = { "itemAction", name = "grep_config" },
+      ["<leader>f"] = { "itemAction", name = "fork" },
+    })
   end,
 }
 return spec

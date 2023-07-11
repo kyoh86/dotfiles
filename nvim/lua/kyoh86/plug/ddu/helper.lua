@@ -21,47 +21,63 @@ function M.map_start(keys, name, options)
   end
 end
 
---- map in the named ddu-ui-ff
+local ddu_ui_map = {}
+
+---call mapped function for named ddu-ui
+---UNDONE: support |:map-arguments|
+---UNDONE: support map-mode
+---@param ui_name string ddu_ui_name
+---@param lh string
+local function ddu_ui_call_map(ui_name, lh)
+  local rh = (ddu_ui_map[ui_name] or {})[lh]
+  if type(rh) == "table" then
+    local action_name = table.remove(rh, 1)
+    kyoh86.fa.ddu.ui.do_action(action_name, rh)
+  elseif type(rh) == "function" then
+    rh()
+  end
+end
+
+---set mapping for named ddu-ui
+---@param ui_name string ddu_ui_name
+---@param map table<string, any>
+local function ddu_ui_set_map(ui_name, map)
+  ddu_ui_map[ui_name] = vim.tbl_extend("error", ddu_ui_map[ui_name] or {}, map)
+end
+
+---map in the named ddu-ui-ff
 ---@param name string A name of the ui
----@param callback fun(map: fun(lh: string, rh: any)) map function
-function M.map_ff(name, callback)
-  local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff-map-" .. name, { clear = true })
+---@param map table<string, any>
+function M.map_ff(name, map)
+  local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff-map-" .. name, {})
+  ddu_ui_set_map(name, map)
   vim.api.nvim_create_autocmd("FileType", {
     group = group,
     pattern = "ddu-ff",
     callback = function()
-      if vim.b["ddu_ui_name"] == name then
-        callback(function(lh, rh)
-          vim.keymap.set("n", lh, rh, { nowait = true, remap = false, buffer = true })
-        end)
+      for lh in pairs(map) do
+        vim.keymap.set("n", lh, function()
+          ddu_ui_call_map(vim.b["ddu_ui_name"], lh)
+        end, { nowait = true, remap = false, buffer = true })
       end
     end,
   })
 end
 
---- Create caller for ddu#ui#do_action
----@param actionName string
----@param params? DduBaseActionParams
-function M.action(actionName, params)
-  return function()
-    kyoh86.fa.ddu.ui.do_action(actionName, params or vim.empty_dict())
-  end
-end
-
 --- Map in the named ddu-ui-ff for "file" kind.
 --- it defines <leader>v/<leader>x to edit with splitted window
 ---@param name string A name of the ui
----@param callback? fun(map: fun(lh: string, rh: any)) remaining map function
-function M.map_ff_file(name, callback)
-  M.map_ff(name, function(map)
-    map("<leader>e", M.action("itemAction", { name = "open" }))
-    map("<leader>v", M.action("itemAction", { name = "open", params = { command = "vnew" } }))
-    map("<leader>h", M.action("itemAction", { name = "open", params = { command = "new" } }))
-    map("<leader>x", M.action("itemAction", { name = "open", params = { command = "new" } }))
-    if callback then
-      callback(map)
-    end
-  end)
+---@param additional_map? table<string, any> remaining map function
+function M.map_ff_file(name, additional_map)
+  M.map_ff(
+    name,
+    vim.tbl_extend("keep", additional_map or {}, {
+      ["<leader>e"] = { "itemAction", name = "open" },
+      ["<leader>v"] = { "itemAction", name = "open", params = { command = "vnew" } },
+      ["<leader>h"] = { "itemAction", name = "open", params = { command = "new" } },
+      ["<leader>x"] = { "itemAction", name = "open", params = { command = "new" } },
+    })
+  )
 end
 
 ---@alias DduSourceName string
