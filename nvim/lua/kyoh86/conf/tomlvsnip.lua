@@ -36,7 +36,7 @@ vim.api.nvim_create_user_command("Snip", function(args)
     end
     open_snippet(item, args.smods)
   end)
-end, { desc = "Edit snippet for the current file-type", force = true })
+end, { desc = "Edit snippet for the current file-type", force = true, bang = true })
 
 vim.api.nvim_create_autocmd("BufWritePost", {
   group = group,
