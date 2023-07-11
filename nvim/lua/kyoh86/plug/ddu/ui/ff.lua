@@ -118,6 +118,8 @@ local spec = {
         nmap("<c-o>", "<nop>")
         nmap("<c-j>", "<nop>")
         nmap(":", "<nop>")
+        nmap("q", "<nop>")
+        nmap("m", "<nop>")
         nmap("t", "<nop>")
         nmap(";", ":")
 
