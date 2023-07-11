@@ -1,10 +1,13 @@
 local group = vim.api.nvim_create_augroup("kyoh86-conf-tomlvsinp", { clear = true })
 
+local function snippet_dirs()
+  local candidates = vim.g.vsnip_snippet_dirs or {}
+  table.insert(candidates, 1, vim.g.vsnip_snippet_dir)
+  return candidates
+end
 ---@param dir string link-followd full path
 ---@return boolean true if the dir is a snippets directory
-local function match_snippet_dir(dir)
-  local candidates = vim.g.vsnip_snippet_dirs or {}
-  table.insert(candidates, vim.g.vsnip_snippet_dir)
+local function match_paths(dir, candidates)
   for _, c in pairs(candidates) do
     if vim.fn.resolve(vim.fn.expand(c)) == vim.fn.resolve(vim.fn.expand(dir)) then
       return true
@@ -43,11 +46,13 @@ vim.api.nvim_create_autocmd("BufWritePost", {
   pattern = "*.toml",
   callback = function(ev)
     local path = vim.fn.resolve(vim.fn.fnamemodify(ev.file, ":p"))
-    if match_snippet_dir(vim.fn.fnamemodify(path, ":h")) then
+    local candidates = snippet_dirs()
+    if not match_paths(vim.fn.fnamemodify(path, ":h"), candidates) then
       return
     end
     kyoh86.fa.denops.request("tomlvsnip", "process", {
       path,
+      candidates,
       table.concat(vim.api.nvim_buf_get_lines(ev.buf, 0, -1, false), "\n"),
       4,
     })
@@ -59,11 +64,12 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
   pattern = "*.json",
   callback = function(ev)
     local path = vim.fn.resolve(vim.fn.fnamemodify(ev.file, ":p"))
-    if match_snippet_dir(vim.fn.fnamemodify(path, ":h")) then
+    local candidates = snippet_dirs()
+    if not match_paths(vim.fn.fnamemodify(path, ":h"), candidates) then
       return
     end
-    vim.api.nvim_buf_create_user_command(ev.buf, "ReverseToTOML", function()
-      kyoh86.fa.denops.request("tomlvsnip", "reverse", {
+    vim.api.nvim_buf_create_user_command(ev.buf, "DeconvertToTOML", function()
+      kyoh86.fa.denops.request("tomlvsnip", "deconvert", {
         path,
         table.concat(vim.api.nvim_buf_get_lines(ev.buf, 0, -1, false), "\n"),
         4,
