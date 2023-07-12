@@ -50,7 +50,7 @@ vim.api.nvim_create_autocmd("DirChanged", {
   end,
 })
 
-vim.api.nvim_create_autocmd({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave" }, {
+vim.api.nvim_create_autocmd({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave", "ModeChanged" }, {
   group = group,
   callback = notify_update,
 })
