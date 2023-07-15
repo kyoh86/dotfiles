@@ -304,7 +304,24 @@ local function register_lsp_servers()
   register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
   register("pylsp", {})
   register("pyright", {})
-  register("rust_analyzer", {})
+  register("rust_analyzer", {
+    ["rust-analyzer"] = {
+      imports = {
+        granularity = {
+          group = "module",
+        },
+        prefix = "self",
+      },
+      cargo = {
+        buildScripts = {
+          enable = true,
+        },
+      },
+      procMacro = {
+        enable = true,
+      },
+    },
+  }, true)
   register("sqlls", {})
   register("stylelint_lsp", {})
 
@@ -354,7 +371,17 @@ local function register_lsp_servers()
   register("denols", {
     init_options = {
       lint = true,
-      unstable = true,
+      unstable = false,
+      suggest = {
+        completeFunctionCalls = true,
+        names = true,
+        paths = true,
+        autoImports = true,
+        imports = {
+          autoDiscover = true,
+          hosts = vim.empty_dict(),
+        },
+      },
     },
     single_file_support = false,
     root_dir = function(path)
