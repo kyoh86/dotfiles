@@ -1,0 +1,15 @@
+[deno-import]
+body = "import {$2} from \"https://$1\""
+prefix = "denoimport"
+
+[deno-import-type]
+body = "import type {$2} from \"https://$1\""
+prefix = "denoimporttype"
+
+[deno-local-import]
+body = "import {$2} from \"$1\""
+prefix = "denolocalimport"
+
+[deno-local-import-type]
+body = "import type {$2} from \"$1\""
+prefix = "denolocalimporttype"

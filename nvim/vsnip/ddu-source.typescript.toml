@@ -1,0 +1,25 @@
+[ddu-source]
+prefix = "ddusource"
+body = """
+import type {} from "https://deno.land/x/denops_std@v5.0.1/mod.ts";
+import type { GatherArguments } from "https://deno.land/x/ddu_vim@v3.4.1/base/source.ts";
+import { BaseSource, Item } from "https://deno.land/x/ddu_vim@v3.4.1/types.ts";
+
+type ActionData = Record<never, never>;
+
+type Params = Record<never, never>;
+
+export class Source extends BaseSource<Params, ActionData> {
+  override kind = "$1";
+
+  override gather(
+    args: GatherArguments<Params>,
+  ): ReadableStream<Item<ActionData>[]> {
+    throw new Error("not implemented");
+  }
+
+  override params(): Params {
+    return {};
+  }
+}
+"""
