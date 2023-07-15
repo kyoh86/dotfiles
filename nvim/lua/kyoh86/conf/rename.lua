@@ -5,7 +5,7 @@ local function rename(e)
   if vim.uv.fs_realpath(newname) == vim.uv.fs_realpath(oldname) then
     return
   end
-  vim.cmd("saveas" .. (e.bang and "! " or " ") .. "++p" .. newname)
+  vim.cmd.saveas({ bang = e.bang, args = { "++p", newname } })
   vim.fn.delete(oldname)
   vim.cmd("silent! edit")
 end
