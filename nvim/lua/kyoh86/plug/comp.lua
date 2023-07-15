@@ -3,7 +3,6 @@
 --- 補完の設定
 local function setup_comp()
   vim.opt.omnifunc = "syntaxcomplete#Complete"
-  vim.opt.completeopt = { "menu", "menuone", "noselect" }
   local cmp = require("cmp")
 
   -- テキスト内の補完: lsp, vsnip
@@ -26,7 +25,16 @@ local function setup_comp()
     }),
     completion = {
       autocomplete = false,
-      keyword_length = 0,
+    },
+    formatting = {
+      ---@type fun(entry: cmp.Entry, vim_item: vim.CompletedItem): vim.CompletedItem
+      format = function(entry, vim_item)
+        if entry.source.name == "nvim_lsp" then
+          local client_name = vim.tbl_get(entry, "source", "source", "client", "name")
+          vim_item.menu = client_name
+        end
+        return vim_item
+      end,
     },
     experimental = {
       ghost_text = true,
@@ -37,10 +45,6 @@ local function setup_comp()
       { name = "vsnip" },
       { name = "skkeleton" },
     }),
-  })
-
-  cmp.setup.filetype({ "TelescopePrompt" }, {
-    enabled = false,
   })
 end
 
@@ -71,7 +75,7 @@ local function setup_snip()
   vim.keymap.set("s", "<s-tab>", jump_prev, { expr = true, desc = "jump to previous snippet filler" })
 end
 
----@type LazySpec
+---@type LazySpec[]
 local spec = { {
   "hrsh7th/nvim-cmp",
   config = function()
