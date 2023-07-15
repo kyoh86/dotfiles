@@ -119,7 +119,7 @@ push_path(home .. "/.asdf/shims")
 
 -- JAVA (using Coursier)
 push_path(home .. "/.local/share/coursier/bin")
-if vim.fn.executable('coursier') then
+if vim.fn.executable("coursier") then
   vim.env.JAVA_HOME = vim.fn.trim(vim.fn.system("coursier java-home"))
 end
 push_path(vim.env.JAVA_HOME .. "/bin")
@@ -131,7 +131,7 @@ push_path(home .. "/.deno/bin")
 push_path(dotfiles .. "/tig/clip")
 
 -- GitHub CLI:
-vim.env.BROWSER='wslview'
+vim.env.BROWSER = "wslview"
 
 -- .local/bin
 push_path(home .. "/.local/bin")
