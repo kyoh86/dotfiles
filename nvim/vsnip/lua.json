@@ -3,5 +3,10 @@
         "prefix": "lazyspec",
         "description": "Snippet for lazy.nvim spec",
         "body": "---@type LazySpec\nlocal spec = {\n  \"$1\",\n  $2\n}\nreturn spec"
+    },
+    "lazy.nvim specs": {
+        "prefix": "lazyspecs",
+        "description": "Snippet for lazy.nvim specs",
+        "body": "---@type LazySpec[]\nlocal spec = {{\n  \"$1\",\n  $2\n}}\nreturn spec"
     }
 }

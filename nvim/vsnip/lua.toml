@@ -8,3 +8,14 @@ local spec = {
   $2
 }
 return spec"""
+
+["lazy.nvim specs"]
+prefix = "lazyspecs"
+description = "Snippet for lazy.nvim specs"
+body = """
+---@type LazySpec[]
+local spec = {{
+  \"$1\",
+  $2
+}}
+return spec"""

@@ -20,16 +20,18 @@ export function main(denops: Denops): void {
   denops.dispatcher = {
     process: async (
       unknownPath: unknown,
+      unknownName: unknown,
       unknownDirs: unknown,
       unknownText: unknown,
       unknownIndent: unknown,
     ) => {
-      const name = ensure(unknownPath, isString);
+      const path = ensure(unknownPath, isString);
+      const name = ensure(unknownName, isString);
       const dirs = ensure(unknownDirs, isArrayOf(isString));
       const text = ensure(unknownText, isString);
       const indent = ensure(unknownIndent, isNumber);
 
-      const ext = extname(name);
+      const ext = extname(path);
       const extTrim = name.substring(0, name.length - ext.length);
       const ft = (/\..+\./.test(name)) ? extTrim.replace(/^.+\./, "") : extTrim;
       const newPath = join(dirs[0], ft + ".json");
@@ -40,7 +42,7 @@ export function main(denops: Denops): void {
           if (!file.isFile) {
             continue;
           }
-          if (file.path == name) {
+          if (file.path == path) {
             continue;
           }
           Object.assign(obj, parse(await Deno.readTextFile(file.path)));

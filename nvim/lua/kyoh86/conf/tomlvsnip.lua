@@ -52,6 +52,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
     end
     kyoh86.fa.denops.request("tomlvsnip", "process", {
       path,
+      vim.fn.fnamemodify(ev.file, ":t"),
       candidates,
       table.concat(vim.api.nvim_buf_get_lines(ev.buf, 0, -1, false), "\n"),
       4,
