@@ -103,7 +103,7 @@ local function show_outline()
 
   local qflist = vim.fn.getqflist()
   if #qflist == 0 then
-    vim.cmd("cclose")
+    vim.cmd.cclose()
     return
   end
 
@@ -111,7 +111,7 @@ local function show_outline()
   vim.fn.sort(qflist, sort_qf)
   vim.fn.setqflist(qflist)
   vim.fn.setqflist({}, "r", { title = fname .. " TOC" })
-  vim.cmd("copen")
+  vim.cmd.copen()
 end
 
 vim.keymap.set("n", "gO", show_outline, { remap = false, buffer = true })

@@ -1,17 +1,13 @@
 ---Lazy.nvim用の設定やプラグインの設定をさっと作る
-local function start_edit(mods, dirname, name)
+local function start_edit(smods, name, dirname)
   name = string.gsub(name, ".lua", "")
   local fullpath = table.concat({ vim.fn.stdpath("config"), "lua", "kyoh86", dirname, name }, "/") .. ".lua"
-  local cmd = "new"
-  if mods == "" then
-    cmd = "edit"
-  end
-  vim.cmd(table.concat({ mods, cmd, fullpath }, " "))
+  vim.cmd({ cmd = "new", mods = smods, args = { fullpath } })
 end
 
-local function start_edit_file(mods, fargs, dirname)
+local function start_edit_file(smods, fargs, dirname)
   if #fargs > 0 then
-    start_edit(mods, dirname, fargs[1])
+    start_edit(smods, dirname, fargs[1])
   else
     vim.ui.input({ prompt = "File name: " }, function(v)
       if v == nil then
@@ -19,7 +15,7 @@ local function start_edit_file(mods, fargs, dirname)
       end
       local name = vim.fn.trim(v)
       if name ~= "" then
-        start_edit(mods, dirname, name)
+        start_edit(smods, dirname, name)
       end
     end)
   end
@@ -36,24 +32,10 @@ local function fill_plug_template()
   vim.fn.setpos(".", { 0, 3, 4, 0 })
 end
 
-vim.api.nvim_create_user_command("LazyConf", function(event)
-  start_edit_file(event.mods, event.fargs, "conf")
+vim.api.nvim_create_user_command("LazyConf", function(cmd)
+  start_edit_file(cmd.smods, cmd.fargs, "conf")
 end, { nargs = "?", force = true })
-vim.api.nvim_create_user_command("LazyConfH", function(event)
-  start_edit_file("horizontal", event.fargs, "conf")
-end, { nargs = "?", force = true })
-vim.api.nvim_create_user_command("LazyConfV", function(event)
-  start_edit_file("vertical", event.fargs, "conf")
-end, { nargs = "?", force = true })
-vim.api.nvim_create_user_command("LazyPlug", function(event)
-  start_edit_file(event.mods, event.fargs, "plug")
-  fill_plug_template()
-end, { nargs = "?", force = true })
-vim.api.nvim_create_user_command("LazyPlugH", function(event)
-  start_edit_file("horizontal", event.fargs, "plug")
-  fill_plug_template()
-end, { nargs = "?", force = true })
-vim.api.nvim_create_user_command("LazyPlugV", function(event)
-  start_edit_file("vertical", event.fargs, "plug")
+vim.api.nvim_create_user_command("LazyPlug", function(cmd)
+  start_edit_file(cmd.smods, cmd.fargs, "plug")
   fill_plug_template()
 end, { nargs = "?", force = true })

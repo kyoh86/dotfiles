@@ -31,6 +31,6 @@ end
 
 extension.fa = require("kyoh86.poc.fa")
 
-vim.cmd([[runtime! lua/kyoh86/conf/*.lua]])
+vim.cmd.runtime({ args = { "lua/kyoh86/conf/*.lua" }, bang = true })
 
 _G["kyoh86"] = extension

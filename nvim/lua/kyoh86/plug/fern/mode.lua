@@ -19,7 +19,7 @@ function M.operate()
 
   vim.notify("Changed to operation mode", vim.log.levels.WARN)
 
-  vim.cmd([[doautocmd User MyFernModeChanged]])
+  vim.cmd.doautocmd({ args = { "User", "MyFernModeChanged" } })
 end
 
 function M.view(init)
@@ -43,7 +43,7 @@ function M.view(init)
 
   vim.notify("Changed to viewing mode", vim.log.levels.WARN)
 
-  vim.cmd([[doautocmd User MyFernModeChanged]])
+  vim.cmd.doautocmd({ args = { "User", "MyFernModeChanged" } })
 end
 
 function M.toggle()

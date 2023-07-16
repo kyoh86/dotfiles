@@ -64,13 +64,21 @@ local spec = {
     event = { "User ZennEnter" },
     config = function()
       vim.g["zenn#article#edit_new_cmd"] = "edit"
-      vim.cmd([[
-        command! -nargs=0 ZennUpdate call zenn#update()
-        command! -nargs=* ZennPreview call zenn#preview(<f-args>)
-        command! -nargs=0 ZennStopPreview call zenn#stop_preview()
-        command! -nargs=* ZennNewArticle call zenn#new_article(<f-args>)
-        command! -nargs=* ZennNewBook call zenn#new_book(<f-args>)
-      ]])
+      vim.api.nvim_create_user_command("ZennUpdate", function()
+        kyoh86.fa.zenn.update()
+      end, { nargs = 0 })
+      vim.api.nvim_create_user_command("ZennPreview", function(cmd)
+        kyoh86.fa.zenn.preview(cmd.args)
+      end, { nargs = "*" })
+      vim.api.nvim_create_user_command("ZennStopPreview", function()
+        kyoh86.fa.zenn.stop_preview()
+      end, { nargs = 0 })
+      vim.api.nvim_create_user_command("ZennNewArticle", function(cmd)
+        kyoh86.fa.zenn.new_article(cmd.args)
+      end, { nargs = "*" })
+      vim.api.nvim_create_user_command("ZennNewBook", function(cmd)
+        kyoh86.fa.zenn.new_book(cmd.args)
+      end, { nargs = "*" })
     end,
   },
 }

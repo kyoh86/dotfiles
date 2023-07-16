@@ -19,13 +19,21 @@ function M.open(opts)
   vim.fn.termopen(opts.exec, opts)
 end
 
+---@class VolatermMods
+---@field silent boolean |:silent|
+---@field noautocmd boolean |:noautocmd|
+---@field horizontal boolean |:horizontal|
+---@field vertical boolean |:vertical|
+---@field split "aboveleft"|"belowright"|"topleft"|"botright" Split modifier string, is an empty string when there's no split modifier See also: |:aboveleft| |:belowright| |:topleft| |:botright|
+
+---@param mods VolatermMods
 function M.split(size, mods, opts)
   -- 指定方向に画面分割
-  vim.cmd(mods .. " " .. "new")
+  vim.cmd({ cmd = "new", mods = mods })
   M.open(opts)
   -- 指定方向にresize
   if size ~= 0 then
-    vim.cmd(mods .. " resize " .. size)
+    vim.cmd({ cmd = "resize", mods = mods, args = { size } })
   end
 end
 

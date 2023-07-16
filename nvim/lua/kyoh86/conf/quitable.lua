@@ -13,10 +13,10 @@ local function quit_empty_buffers()
   for _, b in ipairs(vim.api.nvim_list_bufs()) do
     vim.api.nvim_buf_call(b, enqueue)
   end
-  vim.cmd("buffer!" .. cur)
+  vim.cmd.buffer({ cur, bang = true })
 
   for _, b in ipairs(wipeout_queue) do
-    vim.cmd(b .. "bwipeout!")
+    vim.cmd.bwipeout({ b, bang = true })
   end
 end
 

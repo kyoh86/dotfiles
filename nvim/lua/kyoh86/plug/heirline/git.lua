@@ -7,7 +7,7 @@ local group = vim.api.nvim_create_augroup("kyoh86-plug-heirline-git-status-updat
 
 local function notify_update()
   vim.api.nvim_exec_autocmds("User", { pattern = "UpdateHeirlineGitStatus" })
-  vim.cmd("redrawstatus")
+  vim.cmd.redrawstatus()
 end
 
 local function start_watching()

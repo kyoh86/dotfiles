@@ -7,7 +7,7 @@ local function rename(e)
   end
   vim.cmd("saveas" .. (e.bang and "! " or " ") .. "++p" .. newname)
   vim.fn.delete(oldname)
-  vim.cmd("silent! edit")
+  vim.cmd({ cmd = "edit", mods = { silent = true } })
 end
 
 local opt = {
