@@ -1,0 +1,11 @@
+[async-readable-stream]
+prefix = "asyncreadablestream"
+body = """new ReadableStream({
+  async start(controller) {
+    try {
+      $1
+    } finally {
+      controller.close()
+    }
+  },
+});"""
