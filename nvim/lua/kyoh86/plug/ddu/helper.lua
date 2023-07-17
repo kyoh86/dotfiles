@@ -31,8 +31,7 @@ local ddu_ui_map = {}
 local function ddu_ui_call_map(ui_name, lh)
   local rh = (ddu_ui_map[ui_name] or {})[lh]
   if type(rh) == "table" then
-    local action_name = table.remove(rh, 1)
-    kyoh86.fa.ddu.ui.do_action(action_name, rh)
+    kyoh86.fa.ddu.ui.do_action(rh.action_name, rh.params)
   elseif type(rh) == "function" then
     rh()
   end
@@ -40,14 +39,22 @@ end
 
 ---set mapping for named ddu-ui
 ---@param ui_name string ddu_ui_name
----@param map table<string, any>
+---@param map table<string, Kyoh86DduHelperMapParam | fun()>
 local function ddu_ui_set_map(ui_name, map)
   ddu_ui_map[ui_name] = vim.tbl_extend("error", ddu_ui_map[ui_name] or {}, map)
 end
 
+function M.show_map(ui_name)
+  vim.print(ddu_ui_map[ui_name])
+end
+
+---@class Kyoh86DduHelperMapParam
+---@field action_name string
+---@field params table<string, any>
+
 ---map in the named ddu-ui-ff
 ---@param name string A name of the ui
----@param map table<string, any>
+---@param map table<string, Kyoh86DduHelperMapParam | fun()>
 function M.map_ff(name, map)
   local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff-map-" .. name, {})
   ddu_ui_set_map(name, map)
@@ -67,15 +74,15 @@ end
 --- Map in the named ddu-ui-ff for "file" kind.
 --- it defines <leader>v/<leader>x to edit with splitted window
 ---@param name string A name of the ui
----@param additional_map? table<string, any> remaining map function
+---@param additional_map? table<string, Kyoh86DduHelperMapParam | fun()>
 function M.map_ff_file(name, additional_map)
   M.map_ff(
     name,
     vim.tbl_extend("keep", additional_map or {}, {
-      ["<leader>e"] = { "itemAction", name = "open" },
-      ["<leader>v"] = { "itemAction", name = "open", params = { command = "vnew" } },
-      ["<leader>h"] = { "itemAction", name = "open", params = { command = "new" } },
-      ["<leader>x"] = { "itemAction", name = "open", params = { command = "new" } },
+      ["<leader>e"] = { action_name = "itemAction", params = { name = "open" } },
+      ["<leader>v"] = { action_name = "itemAction", params = { name = "open", params = { command = "vnew" } } },
+      ["<leader>h"] = { action_name = "itemAction", params = { name = "open", params = { command = "new" } } },
+      ["<leader>x"] = { action_name = "itemAction", params = { name = "open", params = { command = "new" } } },
     })
   )
 end

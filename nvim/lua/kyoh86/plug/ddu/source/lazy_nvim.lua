@@ -14,11 +14,11 @@ local spec = {
       },
     })
     helper.map_ff_file("lazy_nvim", {
-      ["<leader>e"] = { "itemAction", name = "open" },
-      ["<leader>b"] = { "itemAction", name = "browse" },
-      ["<leader>g"] = { "itemAction", name = "grep_config" },
-      ["<leader>c"] = { "itemAction", name = "grep_config" },
-      ["<leader>f"] = { "itemAction", name = "fork" },
+      ["<leader>e"] = { action_name = "itemAction", params = { name = "open" } },
+      ["<leader>b"] = { action_name = "itemAction", params = { name = "browse" } },
+      ["<leader>g"] = { action_name = "itemAction", params = { name = "grep_config" } },
+      ["<leader>c"] = { action_name = "itemAction", params = { name = "grep_config" } },
+      ["<leader>f"] = { action_name = "itemAction", params = { name = "fork" } },
     })
   end,
 }

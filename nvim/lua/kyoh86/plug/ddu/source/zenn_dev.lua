@@ -34,7 +34,7 @@ local spec = {
   config = function()
     helper.map_start("<leader>fza", "zenn-dev-article", option)
     helper.map_ff_file("zenn-dev-article", {
-      ["<leader>b"] = { "itemAction", name = "browse" },
+      ["<leader>b"] = { action_name = "itemAction", params = { name = "browse" } },
     })
   end,
 }

@@ -50,10 +50,10 @@ local spec = {
         kyoh86.fa.ddu.custom.action("kind", "git_index", "custom:vnew", opener("vnew"))
         kyoh86.fa.ddu.custom.action("kind", "git_index", "custom:new", opener("new"))
         helper.map_ff(name, {
-          ["<leader>x"] = { "itemAction", name = "custom:new" },
-          ["<leader>v"] = { "itemAction", name = "custom:vnew" },
-          ["<leader>a"] = { "itemAction", name = "add" },
-          ["<leader>r"] = { "itemAction", name = "restore" },
+          ["<leader>x"] = { action_name = "itemAction", params = { name = "custom:new" } },
+          ["<leader>v"] = { action_name = "itemAction", params = { name = "custom:vnew" } },
+          ["<leader>a"] = { action_name = "itemAction", params = { name = "add" } },
+          ["<leader>r"] = { action_name = "itemAction", params = { name = "restore" } },
         })
       end
 
@@ -68,7 +68,7 @@ local spec = {
           },
         })
         helper.map_ff(name, {
-          ["<leader>d"] = { "itemAction", name = "delete" },
+          ["<leader>d"] = { action_name = "itemAction", params = { name = "delete" } },
         })
       end
 
@@ -98,7 +98,7 @@ local spec = {
         })
 
         helper.map_ff_file(name, {
-          ["<leader>f"] = { "itemAction", name = "fixupTo" },
+          ["<leader>f"] = { action_name = "itemAction", params = { name = "fixupTo" } },
         })
       end
     end,
