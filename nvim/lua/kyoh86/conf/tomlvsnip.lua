@@ -16,15 +16,45 @@ local function match_paths(dir, candidates)
   return false
 end
 
-local function open_snippet(item, mods)
-  local ext = "toml"
+local ext = "toml"
+local function open_new_snippet(mods, cmd, dir, filetype)
+  vim.ui.input({ prompt = "Prefix (if you don't need, empty): " }, function(input)
+    if input == nil then
+      return
+    end
+    local filename = (input == "" and string.format("%s/%s.%s", dir, filetype, ext) or string.format("%s/%s.%s.%s", dir, input, filetype, ext))
+    vim.api.nvim_cmd({ cmd = cmd, mods = mods, args = { filename } }, {})
+  end)
+end
+
+local function open_snippet(filetype, mods)
   local cmd = "edit"
   if mods.split ~= "" or mods.horizontal or mods.vertical then
     cmd = "new"
   end
 
-  local expanded_dir = vim.fn.expand(vim.g.vsnip_snippet_dir)
-  vim.api.nvim_cmd({ cmd = cmd, args = { string.format("%s/%s.%s", vim.fn.resolve(expanded_dir), item, ext) }, mods = mods }, {})
+  local expanded_dir = vim.fn.resolve(vim.fn.expand(vim.g.vsnip_snippet_dir))
+  local files = vim.list_extend(vim.fn.glob(string.format("%s/*.%s.%s", expanded_dir, filetype, ext), true, true), vim.fn.glob(string.format("%s/%s.%s", expanded_dir, filetype, ext), true, true))
+  if #files == 0 then
+    return open_new_snippet(mods, cmd, expanded_dir, filetype)
+  end
+  table.insert(files, 1, "New one")
+  vim.ui.select(files, {
+    prompt = "Select file to edit: ",
+    format_item = function(file)
+      return vim.fs.basename(file)
+    end,
+  }, function(item, idx)
+    vim.cmd.redraw()
+    if item == nil then
+      return
+    end
+    if idx == 1 then
+      -- new one
+      return open_new_snippet(mods, cmd, expanded_dir, item)
+    end
+    vim.api.nvim_cmd({ cmd = cmd, mods = mods, args = { item } }, {})
+  end)
 end
 
 vim.api.nvim_create_user_command("Snip", function(args)
@@ -34,6 +64,7 @@ vim.api.nvim_create_user_command("Snip", function(args)
     return
   end
   vim.ui.select(candidates, { prompt = "Select type" }, function(item, index)
+    vim.cmd.redraw()
     if index == nil then
       return
     end
