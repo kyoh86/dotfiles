@@ -20,4 +20,6 @@ if [ -f "${ZDOTDIR}/part/env.zsh" ]; then
     source "${ZDOTDIR}/part/env.zsh"
 fi
 
-. "$HOME/.cargo/env"
+if [ -f "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi
