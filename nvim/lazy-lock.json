@@ -46,6 +46,7 @@
   "fern-hijack.vim": { "branch": "master", "commit": "5989a1ac6ddffd0fe49631826b6743b129992b32" },
   "fern.vim": { "branch": "main", "commit": "cdec1327ec99f0155d0a53aee1beae4c58071558" },
   "fidget.nvim": { "branch": "main", "commit": "0ba1e16d07627532b6cae915cc992ecac249fb97" },
+  "friendly-snippets": { "branch": "main", "commit": "ea84a710262cb2c286d439070bad37d36fd3db25" },
   "gin.vim": { "branch": "main", "commit": "fd28fa823bb41143d9af822b27f82bc873a85021" },
   "gitsigns.nvim": { "branch": "main", "commit": "1e01b2958aebb79f1c33e7427a1bac131a678e0d" },
   "guise.vim": { "branch": "main", "commit": "1759cc936583490af76c36e0a25546329b2b9921" },

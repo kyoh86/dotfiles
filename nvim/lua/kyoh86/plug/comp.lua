@@ -93,6 +93,7 @@ local spec = { {
     { "hrsh7th/cmp-path" },
     { "hrsh7th/cmp-vsnip" },
     { "hrsh7th/vim-vsnip" },
+    { "rafamadriz/friendly-snippets" },
   },
 }, {
   "uga-rosa/cmp-skkeleton",
