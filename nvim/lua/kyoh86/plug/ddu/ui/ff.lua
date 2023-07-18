@@ -136,11 +136,19 @@ local spec = {
       pattern = "ddu-ff-filter",
       callback = function()
         vim.opt_local.cursorline = false
-        vim.keymap.set("i", "<esc>", "<esc>dd<cmd>call ddu#ui#do_action('closeFilterWindow')<cr>", { buffer = true, silent = true, remap = false })
-        vim.keymap.set("i", "<cr>", "<esc><cmd>call ddu#ui#do_action('leaveFilterWindow')<cr>", { buffer = true, silent = true, remap = false })
-        vim.keymap.set("i", "<bs>", function()
+        local imap = function(lh, rh)
+          vim.keymap.set("i", lh, rh, { nowait = true, buffer = true, silent = true, remap = false })
+        end
+        imap("<esc>", "<esc>dd<cmd>call ddu#ui#do_action('closeFilterWindow')<cr>")
+        imap("<cr>", "<esc><cmd>call ddu#ui#do_action('leaveFilterWindow')<cr>")
+        imap("<bs>", function()
           return vim.fn.col(".") <= 1 and "" or "<bs>"
-        end, { buffer = true, expr = true, silent = true, remap = false })
+        end)
+        imap("<C-A>", "<Home>")
+        imap("<C-F>", "<Right>")
+        imap("<C-B>", "<Left>")
+        imap("<C-D>", "<Del>")
+        imap("<C-H>", "<BS>")
       end,
     })
   end,
