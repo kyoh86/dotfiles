@@ -42,17 +42,16 @@ local function setup_lsp_global()
   vim.api.nvim_create_autocmd("LspAttach", {
     once = true,
     callback = function()
-      vim.lsp.handlers["textDocument/hover"] = function(_, results, ctx, config)
+      vim.lsp.handlers["textDocument/hover"] = function(_, results, ctx, conf)
         local client = vim.lsp.get_client_by_id(ctx.client_id)
-        vim.lsp.handlers.hover(
-          _,
-          results,
-          ctx,
-          vim.tbl_deep_extend("force", config or {}, {
+        local config = conf or {}
+        if client ~= nil then
+          config = vim.tbl_deep_extend("force", config, {
             border = "single",
             title = " " .. client.name .. " ",
           })
-        )
+        end
+        vim.lsp.handlers.hover(_, results, ctx, config)
       end
     end,
   })
@@ -247,19 +246,6 @@ local function register_lsp_servers()
   register("cssls", {})
   register("cssmodules_ls", {})
   register("dockerls", {})
-  register("golangci_lint_ls", {
-    init_options = {
-      command = {
-        "golangci-lint",
-        "run",
-        "--enable",
-        "exportloopref",
-        "--out-format",
-        "json",
-        "--issues-exit-code=1",
-      },
-    },
-  })
   register("gopls", {
     init_options = {
       usePlaceholders = true,
