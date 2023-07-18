@@ -1,0 +1,26 @@
+[ddu-kind]
+prefix = "ddukind"
+body = """
+import {
+  ActionFlags,
+  BaseKind,
+} from "https://deno.land/x/ddu_vim@v3.4.2/types.ts";
+import type {
+  Actions,
+} from "https://deno.land/x/ddu_vim@v3.4.2/types.ts";
+
+export type ActionData = Record<never, never>;
+
+type Params = Record<never, never>;
+
+export class Kind extends BaseKind<Params> {
+  override actions: Actions<Params> = {
+    $1: async (args) => {
+      $2
+      return ActionFlags.None;
+    },
+  };
+  params(): Params {
+    return {};
+  }
+}"""

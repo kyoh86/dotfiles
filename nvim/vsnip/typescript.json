@@ -1,7 +1,7 @@
 {
-    "async-readable-stream": {
-        "prefix": "asyncreadablestream",
-        "body": "new ReadableStream({\n  async start(controller) {\n    try {\n      $1\n    } finally {\n      controller.close()\n    }\n  },\n});"
+    "ddu-kind": {
+        "prefix": "ddukind",
+        "body": "import {\n  ActionFlags,\n  BaseKind,\n} from \"https://deno.land/x/ddu_vim@v3.4.2/types.ts\";\nimport type {\n  Actions,\n} from \"https://deno.land/x/ddu_vim@v3.4.2/types.ts\";\n\nexport type ActionData = Record<never, never>;\n\ntype Params = Record<never, never>;\n\nexport class Kind extends BaseKind<Params> {\n  override actions: Actions<Params> = {\n    $1: async (args) => {\n      $2\n      return ActionFlags.None;\n    },\n  };\n  params(): Params {\n    return {};\n  }\n}"
     },
     "ddu-source": {
         "prefix": "ddusource",
