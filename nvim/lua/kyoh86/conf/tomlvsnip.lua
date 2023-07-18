@@ -51,7 +51,7 @@ local function open_snippet(filetype, mods)
     end
     if idx == 1 then
       -- new one
-      return open_new_snippet(mods, cmd, expanded_dir, item)
+      return open_new_snippet(mods, cmd, expanded_dir, filetype)
     end
     vim.api.nvim_cmd({ cmd = cmd, mods = mods, args = { item } }, {})
   end)
