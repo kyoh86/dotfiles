@@ -22,6 +22,8 @@ local function setup_comp()
       ["<C-f>"] = cmp.mapping.scroll_docs(4),
       ["<C-x><C-s>"] = cmp.mapping.complete(),
       ["<CR>"] = cmp.mapping.confirm({ select = true }),
+      ["<C-y>"] = cmp.mapping.confirm({ select = true }),
+      ["<C-l>"] = cmp.mapping.complete_common_string(),
     }),
     completion = {
       autocomplete = false,
