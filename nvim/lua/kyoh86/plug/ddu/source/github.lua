@@ -3,6 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-github",
+  dependencies = { "Shougo/ddu.vim" },
   config = function()
     kyoh86.fa.ddu.custom.patch_global({
       kindOptions = {
@@ -19,6 +20,9 @@ local spec = {
         } },
       }
     end)
+    helper.map_ff("github-issues", {
+      ["<leader>e"] = { action_name = "itemAction", params = { name = "edit" } },
+    })
   end,
 }
 return spec

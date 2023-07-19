@@ -105,6 +105,7 @@ local spec = {
   },
   {
     "kyoh86/ddu-source-git_diff_tree",
+    dependencies = { "Shougo/ddu.vim" },
   },
 }
 return spec
