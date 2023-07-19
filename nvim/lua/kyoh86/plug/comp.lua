@@ -24,6 +24,7 @@ local function setup_comp()
       ["<CR>"] = cmp.mapping.confirm({ select = true }),
       ["<C-y>"] = cmp.mapping.confirm({ select = true }),
       ["<C-l>"] = cmp.mapping.complete_common_string(),
+      ["<Tab>"] = cmp.mapping.complete_common_string(),
     }),
     completion = {
       autocomplete = false,
