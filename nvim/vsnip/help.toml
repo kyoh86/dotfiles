@@ -1,25 +1,26 @@
 [help-doc]
 prefix = "helpdoc"
 body = """
-$1.txt	(description of the plugin)
+*$1.txt*	(description of the plugin)
+*$1*
 
 Author: kyoh86 <me@kyoh86.dev>
 License: MIT License
 
 
 ==============================================================================
-CONTENTS ~                             *$1-contents*
+Contents ~                             *$1-contents*
 
-Introduction     |$1-introdution|
 Function         |$1-function|
+Option           |$1-option|
 
 
 ==============================================================================
-FUNCTION                               *$1-function*
+Function ~                             *$1-function*
 
 
 ==============================================================================
-OPTIONS ~                              *$1-function*
+Option  ~                              *$1-option*
 
 
 ==============================================================================
@@ -29,6 +30,11 @@ OPTIONS ~                              *$1-function*
 [help-hr]
 prefix = "helphr"
 body = "=============================================================================="
+
+
+[help-hr2]
+prefix = "helphr2"
+body = "------------------------------------------------------------------------------"
 
 
 [help-header]
