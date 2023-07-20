@@ -1,0 +1,6 @@
+{
+    "readme-pod": {
+        "prefix": "readme",
+        "body": "---\nname: $1\ndescription: $2\n---\n\n=pod\n\n\n=head1 $1\n\n$2\n\nAuthor: kyoh86 <me@kyoh86.dev>\nLicense: MIT\nURL: https://github.com/kyoh86/$1\n\n\n=head2 Contents X<$1-contents>\n\nInstall\t\t\t\t\t\t|$1-install|\nExamples\t\t\t\t\t|$1-examples|\n\n\n=head2 Install X<$1-install>\n\n=head2 Examples X<$1-examples>\n\n=cut"
+    }
+}

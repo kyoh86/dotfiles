@@ -1,0 +1,31 @@
+[readme-pod]
+prefix = "readme"
+body="""
+---
+name: $1
+description: $2
+---
+
+=pod
+
+
+=head1 $1
+
+$2
+
+Author: kyoh86 <me@kyoh86.dev>
+License: MIT
+URL: https://github.com/kyoh86/$1
+
+
+=head2 Contents X<$1-contents>
+
+Install						|$1-install|
+Examples					|$1-examples|
+
+
+=head2 Install X<$1-install>
+
+=head2 Examples X<$1-examples>
+
+=cut"""
