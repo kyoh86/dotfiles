@@ -24,6 +24,7 @@ if vim.opt_local.buftype:get() ~= "help" then
   vim.opt_local.smartindent = true
 
   -- 便利機能
+  -- 右寄せ
   vim.keymap.set("n", "<leader>>", function()
     local value = vim.trim(vim.api.nvim_get_current_line())
     local words = {}
@@ -39,34 +40,15 @@ if vim.opt_local.buftype:get() ~= "help" then
     end
   end, { desc = "align right" })
 
-  local sep = string.rep("=", text_width)
+  -- 章区切り
+  local chapter = string.rep("=", text_width)
   vim.keymap.set("n", "<leader>==", function()
-    vim.api.nvim_put({ sep }, "l", true, true)
+    vim.api.nvim_put({ chapter }, "l", true, true)
   end, { desc = "put horizontal line" })
 
-  -- Template
-  local prof = vim.fn.wordcount()
-  if prof.bytes == 0 then
-    local name = vim.fn.expand("%:p:h:h:t:s?^vim-??:s?\\.vim$??:s?\\.nvim$??")
-    vim.api.nvim_put({
-      name .. ".txt                          (description of the plugin)",
-      "",
-      "Author: kyoh86 <me@kyoh86.dev>",
-      "License: MIT License",
-      "",
-      "",
-      sep,
-      "CONTENTS" .. string.rep(" ", 53) .. "*" .. name .. "-contents*",
-      "",
-      "Introduction" .. string.rep(" ", 32) .. "|" .. name .. "-introdution|",
-      "Function" .. string.rep(" ", 36) .. "|" .. name .. "-function|",
-      "",
-      sep,
-      "FUNCTION" .. string.rep(" ", 53) .. "*" .. name .. "-function*",
-      "",
-      "",
-      sep,
-      "vim:tw=78:ts=8:sw=8:ft=help:norl:noet:fen:",
-    }, "l", false, false)
-  end
+  -- 節区切り
+  local section = string.rep("-", text_width)
+  vim.keymap.set("n", "<leader>--", function()
+    vim.api.nvim_put({ section }, "l", true, true)
+  end, { desc = "put horizontal line" })
 end

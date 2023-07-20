@@ -1,51 +1,57 @@
-local exts = {
-  html = ".html",
-  markdown = ".md",
-  vimdoc = ".txt",
-}
+local DefaultFilePermissions = 420 -- 0644(8) == 420(10)
+local DefaultDirectoryPermissions = 493 -- 0755(8) == 493(10)
 
 ---@param buffer integer
----@param filetype "html"|"markdown"|"vimdoc"|nil
----@return "html"|"markdown"|"vimdoc",string
-local function preprocess(buffer, filetype)
-  if not filetype or filetype == "" then
-    filetype = "vimdoc"
-  end
-  local bufname = vim.api.nvim_buf_get_name(buffer)
-  local filename = string.gsub(bufname, "%.pod$", exts[filetype])
-  return filetype, filename
-end
-
----@param buffer integer
----@param filetype "html"|"markdown"|"vimdoc"
+---@param filetype "markdown"|"vimdoc"
 ---@param filename string a output file
 local function processToFile(buffer, filetype, filename)
   local podium = require("podium")
-  local processor = podium.PodiumProcessor.new(podium[filetype])
+  local processor = podium[filetype]
   local content = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
-  local processed = processor:process(table.concat(content, "\n"))
-  local mode = 420 -- 0644(8) == 420(10)
+  local processed = podium.process(processor, table.concat(content, "\n"))
+  local mode = DefaultFilePermissions
   local fp = vim.uv.fs_open(filename, "w", mode)
   vim.uv.fs_write(fp, processed)
   vim.uv.fs_close(fp)
-  --TODO: reload buffers loading the outname
 end
 
----Make preview window for the podium
+---@param bang boolean
 ---@param buffer integer
----@param filetype "html"|"markdown"|"vimdoc"
 ---@param filename string
----@param preview boolean
-local function processToBuffer(buffer, filetype, filename, preview)
-  local podium = require("podium")
-  local content = table.concat(vim.api.nvim_buf_get_lines(buffer, 0, -1, true), "\n")
-  local processor = podium.PodiumProcessor.new(podium[filetype])
-  local output = processor:process(content)
-  vim.cmd.new(filename)
-  vim.api.nvim_buf_set_lines(0, 0, -1, true, vim.split(output, "\n"))
-  if preview then
-    vim.bo[0].modified = false
-    vim.bo[0].readonly = true
+local function convertReadmePod(bang, buffer, filename)
+  local processors = {}
+  local bufname = vim.fn.bufname(buffer)
+  if bufname == "README.pod" or bufname == "readme.pod" then
+    vim.notify("Processing README document to markdown and vimdoc", vim.log.levels.info)
+    table.insert(processors, {
+      filename = "README.md",
+      filetype = "markdown",
+    })
+    vim.uv.fs_mkdir("doc", DefaultDirectoryPermissions)
+    table.insert(processors, {
+      filename = "doc/" .. vim.fs.basename(vim.fn.getcwd()) .. ".txt",
+      filetype = "vimdoc",
+    })
+  else
+    vim.notify("Processing individual document to vimdoc", vim.log.levels.info)
+    table.insert(processors, {
+      filename = string.gsub(filename, "%.pod$", ".txt"),
+      filetype = "vimdoc",
+    })
+  end
+  for _, p in pairs(processors) do
+    if bang or vim.fn.filereadable(p.filename) == 0 then
+      processToFile(buffer, p.filetype, p.filename)
+    else
+      vim.ui.select({ "yes", "no" }, {
+        prompt = "There's already " .. p.filename .. "; Are you sure you overwrite it?: ",
+      }, function(choice)
+        if choice ~= "yes" then
+          return
+        end
+        processToFile(buffer, p.filetype, p.filename)
+      end)
+    end
   end
 end
 
@@ -54,44 +60,17 @@ local spec = {
   "tani/podium",
   config = function()
     local group = vim.api.nvim_create_augroup("kyoh86-plug-podium-commands", { clear = true })
-    vim.api.nvim_create_autocmd({ "FileType" }, {
+
+    vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
       group = group,
-      pattern = "pod",
+      pattern = { "*.pod" },
       callback = function(ev)
-        vim.api.nvim_buf_create_user_command(ev.buf, "PodiumWrite", function(opts)
-          local filetype, filename = preprocess(ev.buf, opts.args)
-          if vim.fn.filereadable(filename) ~= 0 then
-            vim.ui.select({ "yes", "no" }, {
-              prompt = "There's already " .. filename .. "; Are you sure you overwrite it?: ",
-            }, function(choice)
-              if choice ~= "yes" then
-                return
-              end
-              processToFile(ev.buf, filetype, filename)
-            end)
-          else
-            processToFile(ev.buf, filetype, filename)
-          end
-        end, {
-          desc = "Convert pod with podium and write it to file",
-          nargs = "?",
-          force = true,
-        })
         vim.api.nvim_buf_create_user_command(ev.buf, "Podium", function(opts)
-          local filetype, filename = preprocess(ev.buf, opts.args)
-          processToBuffer(ev.buf, filetype, filename, false)
+          convertReadmePod(opts.bang, ev.buf, ev.file)
         end, {
-          desc = "Convert pod with podium",
-          nargs = "?",
+          desc = "Convert readme.pod with podium and write it to file",
           force = true,
-        })
-        vim.api.nvim_buf_create_user_command(ev.buf, "PodiumPreview", function(opts)
-          local filetype, filename = preprocess(ev.buf, opts.args)
-          processToBuffer(ev.buf, filetype, filename, false)
-        end, {
-          desc = "Convert pod with podium and write it to file",
-          nargs = "?",
-          force = true,
+          bang = true,
         })
       end,
     })
