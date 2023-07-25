@@ -1,5 +1,5 @@
 ---Lazy.nvim用の設定やプラグインの設定をさっと作る
-local function start_edit(smods, name, dirname)
+local function start_edit(smods, dirname, name)
   name = string.gsub(name, ".lua", "")
   local fullpath = table.concat({ vim.fn.stdpath("config"), "lua", "kyoh86", dirname, name }, "/") .. ".lua"
   vim.cmd({ cmd = "new", mods = smods, args = { fullpath } })
