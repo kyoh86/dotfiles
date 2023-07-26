@@ -27,10 +27,6 @@ local spec = {
     end,
   },
   {
-    "kyoh86/curtain.nvim",
-    keys = { { "<leader>wr", "<plug>(curtain-start)", desc = "resize current window" } },
-  },
-  {
     "junegunn/vim-easy-align",
     cmd = { "EasyAlign" },
     keys = { { "ga", "<plug>(EasyAlign)", mode = { "x", "n" }, desc = "EasyAlign" } },
@@ -47,10 +43,6 @@ local spec = {
     keys = { { "<leader>wr", "<plug>(curtain-start)", desc = "resize current window" } },
   },
   {
-    "chentoast/marks.nvim",
-    opts = { cyclic = true },
-  },
-  {
     "lambdalisue/guise.vim", -- Enhance $EDITOR behavior in terminal
     dependencies = { "vim-denops/denops.vim" },
   },
@@ -59,42 +51,10 @@ local spec = {
     cmd = "Capture",
   },
   {
-    "previm/previm", -- previous some file-types
-    dependencies = { "tyru/open-browser.vim" },
-  },
-  {
     "tyru/open-browser-github.vim",
     cmd = { "OpenGithubFile", "OpenGithubIssue", "OpenGithubProject", "OpenGithubPullReq" },
     dependencies = { "tyru/open-browser.vim" },
   },
-  {
-    "bfrg/vim-jq",
-    config = function()
-      table.insert(vim.g.markdown_fenced_languages, "jq")
-    end,
-  },
-  {
-    "kyoh86/vim-jsonl",
-    config = function()
-      table.insert(vim.g.markdown_fenced_languages, "jsonl")
-    end,
-  },
-  "kyoh86/vim-go-scaffold",
-  { "kyoh86/vim-go-testfile", ft = "go" },
-  { "kyoh86/vim-go-coverage", ft = "go" },
-  { "dhruvasagar/vim-table-mode", ft = "markdown" },
-  "rust-lang/rust.vim",
-  {
-    "jparise/vim-graphql",
-    config = function()
-      table.insert(vim.g.markdown_fenced_languages, "graphql")
-    end,
-  },
-  "glench/vim-jinja2-syntax",
-  "briancollins/vim-jst",
-  { "cespare/vim-toml", branch = "main" },
-  "leafgarland/typescript-vim",
-  "pangloss/vim-javascript",
   "delphinus/vim-firestore",
   -- for Plugin Development      ==================================================
   { "prabirshrestha/async.vim", cmd = "AsyncEmbed" },

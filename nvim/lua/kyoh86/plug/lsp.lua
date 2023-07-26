@@ -369,6 +369,7 @@ local function register_lsp_servers()
         },
       },
     },
+    cmd = { "/home/kyoh86/Projects/github.com/denoland/deno/target/debug/deno", "lsp" },
     single_file_support = false,
     root_dir = function(path)
       local marker = require("climbdir.marker")
