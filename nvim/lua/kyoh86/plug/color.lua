@@ -1,5 +1,6 @@
 --- ハイライトや色の設定
-return {
+---@type LazySpec
+local spec = {
   "kyoh86/momiji",
   priority = 1000,
   config = function()
@@ -7,3 +8,4 @@ return {
     vim.cmd.colorscheme("momiji")
   end,
 }
+return spec
