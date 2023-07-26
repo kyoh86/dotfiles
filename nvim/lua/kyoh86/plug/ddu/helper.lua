@@ -8,11 +8,11 @@ function M.map_start(keys, options)
   if type(keys) == "string" then
     keys = { keys }
   end
+  if type(options) == "function" then
+    options = options()
+  end
   for _, key in pairs(keys) do
     vim.keymap.set("n", key, function()
-      if type(options) == "function" then
-        options = options()
-      end
       kyoh86.fa.ddu.start(options)
     end, { remap = false, desc = "Start ddu source: " .. options.name })
   end
