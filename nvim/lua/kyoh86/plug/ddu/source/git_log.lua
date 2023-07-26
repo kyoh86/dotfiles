@@ -3,7 +3,6 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-git_log",
-  enabled = false, -- TODO: create ddu-source-git_log
   dependencies = { "Shougo/ddu.vim", "kyoh86/ddu-source-git_diff_tree" },
   config = function()
     ---@param args DduActionArguments
@@ -15,7 +14,7 @@ local spec = {
       kyoh86.fa.ddu.start({
         name = args.options.name,
         push = true,
-        sources = { { name = "git_diff_tree", params = { commitHash = args.items[1].action.commitHash } } },
+        sources = { { name = "git_diff_tree", params = { commitHash = args.items[1].action.hash } } },
       })
       return 0
     end
