@@ -5,7 +5,9 @@ local spec = {
   "kyoh86/ddu-source-lazy_nvim",
   dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "folke/lazy.nvim" },
   config = function()
-    helper.map_start("<leader><leader>p", "lazy_nvim", {
+    local name = "lazy_nvim"
+    helper.map_start("<leader><leader>p", {
+      name = name,
       sources = { { name = "lazy_nvim" } },
       kindOptions = {
         file = {
@@ -13,7 +15,7 @@ local spec = {
         },
       },
     })
-    helper.map_ff_file("lazy_nvim", {
+    helper.map_ff_file(name, {
       ["<leader>e"] = { action_name = "itemAction", params = { name = "open" } },
       ["<leader>b"] = { action_name = "itemAction", params = { name = "browse" } },
       ["<leader>g"] = { action_name = "itemAction", params = { name = "grep_config" } },

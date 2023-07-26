@@ -1,5 +1,3 @@
-local helper = require("kyoh86.plug.ddu.helper")
-
 --- Create caller for ddu#ui#do_action
 ---@param actionName string
 local function ddu_ui_action(actionName)

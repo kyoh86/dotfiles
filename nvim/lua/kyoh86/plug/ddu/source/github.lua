@@ -12,8 +12,9 @@ local spec = {
         },
       },
     })
-    helper.map_start("<leader>fgh", "github-issues", function()
+    helper.map_start("<leader>fgh", function()
       return {
+        name = "github-issues",
         sources = { {
           name = "github_repo_issue",
           params = { source = "cwd" },

@@ -10,11 +10,11 @@ local spec = {
       vim.api.nvim_set_hl(0, "dduColumnGitBranchLocal", { fg = m.colors.red })
       vim.api.nvim_set_hl(0, "dduColumnGitBranchAuthor", { fg = m.colors.green })
     end)
-    local source = "git_branch"
     local name = "git-branch"
-    helper.map_start("<leader>fgb", name, {
+    helper.map_start("<leader>fgb", {
+      name = name,
       sources = { {
-        name = source,
+        name = "git_branch",
         options = {
           columns = {
             "git_branch_head",

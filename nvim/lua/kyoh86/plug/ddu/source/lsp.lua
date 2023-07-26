@@ -11,7 +11,9 @@ local spec = {
       },
     } })
 
-    helper.map_start({ "<leader>fld", "<leader>ld" }, "lsp_definition", {
+    local name_def = "lsp-definition"
+    helper.map_start({ "<leader>fld", "<leader>ld" }, {
+      name = name_def,
       sync = true,
       sources = {
         { name = "lsp_definition", params = { method = "textDocument/definition" } },
@@ -38,20 +40,26 @@ local spec = {
       vim.api.nvim_set_hl(0, "DduLspDefinitionMethodDecl", { fg = m.colors.green, bold = true })
       vim.api.nvim_set_hl(0, "DduLspDefinitionMethodImpl", { fg = m.colors.magenta, bold = true })
     end)
-    helper.map_ff_file("lsp_definition")
+    helper.map_ff_file(name_def)
 
-    helper.map_start("<leader>flr", "lsp_references", {
+    local name_ref = "lsp-references"
+    helper.map_start("<leader>flr", {
+      name = name_ref,
       sources = { { name = "lsp_references" } },
     })
-    helper.map_ff_file("lsp_references")
+    helper.map_ff_file(name_ref)
 
-    helper.map_start("<leader>flw", "lsp_workspaceSymbol", {
+    local name_sym = "lsp-symbols"
+    helper.map_start("<leader>flw", {
+      name = name_sym,
       sources = { { name = "lsp_workspaceSymbol" } },
       sourceOptions = { lsp = { volatile = true } },
     })
-    helper.map_ff_file("lsp_workspaceSymbol")
+    helper.map_ff_file(name_sym)
 
-    helper.map_start("<leader>flc", "lsp_callHierarchy", {
+    local name_call = "lsp-call-hierarchy"
+    helper.map_start("<leader>flc", {
+      name = name_call,
       sources = { {
         name = "lsp_callHierarchy",
         params = {
@@ -66,7 +74,7 @@ local spec = {
         },
       },
     })
-    helper.map_ff_file("lsp_callHierarchy")
+    helper.map_ff_file(name_call)
   end,
 }
 return spec

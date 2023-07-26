@@ -20,10 +20,10 @@ local spec = {
     end
     kyoh86.fa.ddu.custom.action("kind", "git_commit", "custom:files", custom_files)
 
-    local source = "git_log"
     local name = "git-log"
-    helper.map_start("<leader>fgl", name, {
-      sources = { { name = source } },
+    helper.map_start("<leader>fgl", {
+      name = name,
+      sources = { { name = "git_log" } },
       kindOptions = {
         git_commit = { defaultAction = "custom:files" },
       },

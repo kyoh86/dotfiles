@@ -1,9 +1,12 @@
 local helper = require("kyoh86.plug.ddu.helper")
 
+local ui_name = "zenn-dev-article"
+
 ---@return DduOptions
 local function option()
   ---@type DduOptions
   local o = {
+    name = ui_name,
     sources = { {
       name = "zenn_dev_article",
       params = { cwd = vim.fn.getcwd() },
@@ -32,8 +35,8 @@ local spec = {
   "kyoh86/ddu-source-zenn_dev",
   dependencies = { { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "Milly/ddu-filter-kensaku", "Milly/ddu-filter-merge" } },
   config = function()
-    helper.map_start("<leader>fza", "zenn-dev-article", option)
-    helper.map_ff_file("zenn-dev-article", {
+    helper.map_start("<leader>fza", option)
+    helper.map_ff_file(ui_name, {
       ["<leader>b"] = { action_name = "itemAction", params = { name = "browse" } },
     })
   end,

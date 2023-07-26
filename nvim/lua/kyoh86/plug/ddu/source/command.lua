@@ -5,12 +5,11 @@ local spec = {
   "kyoh86/ddu-source-command",
   dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-word" },
   config = function()
-    local name = "command"
-    local source = "command"
-    helper.map_start("<leader>f:", name, {
-      sources = { { name = source } },
+    helper.map_start("<leader>f:", {
+      name = "command",
+      sources = { { name = "command" } },
       kindOptions = {
-        [source] = {
+        command = {
           defaultAction = "edit",
         },
       },

@@ -5,7 +5,9 @@ local spec = {
   "kuuote/ddu-source-git_status",
   dependencies = { "Shougo/ddu.vim" },
   config = function()
-    helper.map_start("<leader>fgs", "git-status", {
+    local name = "git-status"
+    helper.map_start("<leader>fgs", {
+      name = name,
       sources = { { name = "git_status" } },
       kindOptions = {
         git_status = {
@@ -13,7 +15,7 @@ local spec = {
         },
       },
     })
-    helper.map_ff("git-status", {
+    helper.map_ff(name, {
       ["<leader>x"] = { action_name = "itemAction", params = { name = "open", params = { command = "new" } } },
       ["<leader>v"] = { action_name = "itemAction", params = { name = "open", params = { command = "vnew" } } },
     })

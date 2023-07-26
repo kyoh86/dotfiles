@@ -1,4 +1,3 @@
-local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "Shougo/ddu-source-action",

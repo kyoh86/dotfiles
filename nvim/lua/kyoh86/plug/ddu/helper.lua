@@ -3,21 +3,18 @@ local M = {}
 --- map ddu#start for keys
 ---
 ---@param keys string|string[] lhs of the nmap
----@param name string 'name' of ddu see: |ddu-option|
 ---@param options DduOptions|fun():DduOptions options
-function M.map_start(keys, name, options)
+function M.map_start(keys, options)
   if type(keys) == "string" then
     keys = { keys }
   end
   for _, key in pairs(keys) do
     vim.keymap.set("n", key, function()
-      local opts = options or {}
-      if type(opts) == "function" then
-        opts = opts()
+      if type(options) == "function" then
+        options = options()
       end
-      opts.name = name
-      kyoh86.fa.ddu.start(opts)
-    end, { remap = false, desc = "Start ddu source: " .. name })
+      kyoh86.fa.ddu.start(options)
+    end, { remap = false, desc = "Start ddu source: " .. options.name })
   end
 end
 
@@ -122,30 +119,30 @@ end
 ---@field kind string
 ---
 ---@class DduOptions
----@field actionOptions table<string, DduActionOptions>
----@field actionParams table<string, DduBaseActionParams>
----@field columnOptions table<string, DduColumnOptions>
----@field columnParams table<string, DduBaseColumnParams>
----@field expandInput boolean
----@field filterOptions table<string, DduFilterOptions>
----@field filterParams table<string, DduBaseFilterParams>
----@field input string
----@field kindOptions table<string, DduKindOptions>
----@field kindParams table<string, DduBaseKindParams>
+---@field actionOptions? table<string, DduActionOptions>
+---@field actionParams? table<string, DduBaseActionParams>
+---@field columnOptions? table<string, DduColumnOptions>
+---@field columnParams? table<string, DduBaseColumnParams>
+---@field expandInput? boolean
+---@field filterOptions? table<string, DduFilterOptions>
+---@field filterParams? table<string, DduBaseFilterParams>
+---@field input? string
+---@field kindOptions? table<string, DduKindOptions>
+---@field kindParams? table<string, DduBaseKindParams>
 ---@field name string
----@field profile boolean
----@field push boolean
----@field refresh boolean
----@field resume boolean
----@field searchPath string
----@field sourceOptions table<DduSourceName, DduSourceOptions>
----@field sourceParams table<DduSourceName, DduBaseSourceParams>
----@field sources DduUserSource[]
----@field sync boolean
----@field ui string
----@field uiOptions table<string, DduUiOptions>
----@field uiParams table<string, DduBaseUiParams>
----@field unique boolean
+---@field profile? boolean
+---@field push? boolean
+---@field refresh? boolean
+---@field resume? boolean
+---@field searchPath? string
+---@field sourceOptions? table<DduSourceName, DduSourceOptions>
+---@field sourceParams? table<DduSourceName, DduBaseSourceParams>
+---@field sources? DduUserSource[]
+---@field sync? boolean
+---@field ui? string
+---@field uiOptions? table<string, DduUiOptions>
+---@field uiParams? table<string, DduBaseUiParams>
+---@field unique? boolean
 ---
 ---@alias DduUserOptions table<string, any>
 ---
@@ -156,17 +153,17 @@ end
 ---@field toggle boolean
 ---
 ---@class DduSourceOptions
----@field actions table<string, string>
----@field columns string[]
----@field converters string[]
----@field defaultAction string
----@field ignoreCase boolean
----@field matcherKey string
----@field matchers string[]
----@field maxItems number
----@field path string
----@field sorters string[]
----@field volatile boolean
+---@field actions? table<string, string>
+---@field columns? string[]
+---@field converters? string[]
+---@field defaultAction? string
+---@field ignoreCase? boolean
+---@field matcherKey? string
+---@field matchers? string[]
+---@field maxItems? number
+---@field path? string
+---@field sorters? string[]
+---@field volatile? boolean
 ---
 ---@class DduFilterOptions
 ---@field placeholder? any
@@ -175,8 +172,8 @@ end
 ---@field placeholder? any
 ---
 ---@class DduKindOptions
----@field actions table<string, string>
----@field defaultAction string
+---@field actions? table<string, string>
+---@field defaultAction? string
 ---
 ---@class DduActionOptions
 ---@field quit boolean
