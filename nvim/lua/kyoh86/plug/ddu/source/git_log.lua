@@ -31,6 +31,8 @@ local spec = {
 
     helper.map_ff_file(name, {
       ["<leader>f"] = { action_name = "itemAction", params = { name = "fixupTo" } },
+      ["<leader>y"] = { action_name = "itemAction", params = { name = "yank" } },
+      ["<leader>p"] = { action_name = "itemAction", params = { name = "append" } },
     })
   end,
 }
