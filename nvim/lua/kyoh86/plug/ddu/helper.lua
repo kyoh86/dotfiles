@@ -3,13 +3,10 @@ local M = {}
 --- map ddu#start for keys
 ---
 ---@param keys string|string[] lhs of the nmap
----@param options DduOptions|fun():DduOptions options
+---@param options DduOptions options
 function M.map_start(keys, options)
   if type(keys) == "string" then
     keys = { keys }
-  end
-  if type(options) == "function" then
-    options = options()
   end
   for _, key in pairs(keys) do
     vim.keymap.set("n", key, function()

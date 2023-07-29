@@ -12,15 +12,13 @@ local spec = {
         },
       },
     })
-    helper.map_start("<leader>fgh", function()
-      return {
-        name = "github-issues",
-        sources = { {
-          name = "github_repo_issue",
-          params = { source = "cwd" },
-        } },
-      }
-    end)
+    helper.map_start("<leader>fgh", {
+      name = "github-issues",
+      sources = { {
+        name = "github_repo_issue",
+        params = { source = "cwd" },
+      } },
+    })
     helper.map_ff("github-issues", {
       ["<leader>e"] = { action_name = "itemAction", params = { name = "edit" } },
     })
