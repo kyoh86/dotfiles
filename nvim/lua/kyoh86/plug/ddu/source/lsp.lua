@@ -11,9 +11,22 @@ local spec = {
       },
     } })
 
-    local name_def = "lsp-definition"
-    helper.map_start({ "<leader>fld", "<leader>ld" }, {
-      name = name_def,
+    kyoh86.fa.ddu.custom.patch_global({
+      sourceOptions = {
+        lsp_definition = {
+          converters = { { name = "converter_custom_lsp_definitions" } },
+        },
+      },
+    })
+
+    kyoh86.ensure("momiji", function(m)
+      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodDef", { fg = m.colors.red, bold = true })
+      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodType", { fg = m.colors.blue, bold = true })
+      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodDecl", { fg = m.colors.green, bold = true })
+      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodImpl", { fg = m.colors.magenta, bold = true })
+    end)
+
+    helper.setup("lsp-definition", {
       sync = true,
       sources = {
         { name = "lsp_definition", params = { method = "textDocument/definition" } },
@@ -26,40 +39,27 @@ local spec = {
           immediateAction = "open",
         },
       },
+    }, {
+      startkey = { "<leader>fld", "<leader>ld" },
+      filelike = true,
     })
-    kyoh86.fa.ddu.custom.patch_global({
-      sourceOptions = {
-        lsp_definition = {
-          converters = { { name = "converter_custom_lsp_definitions" } },
-        },
-      },
-    })
-    kyoh86.ensure("momiji", function(m)
-      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodDef", { fg = m.colors.red, bold = true })
-      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodType", { fg = m.colors.blue, bold = true })
-      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodDecl", { fg = m.colors.green, bold = true })
-      vim.api.nvim_set_hl(0, "DduLspDefinitionMethodImpl", { fg = m.colors.magenta, bold = true })
-    end)
-    helper.map_ff_file(name_def)
 
-    local name_ref = "lsp-references"
-    helper.map_start("<leader>flr", {
-      name = name_ref,
+    helper.setup("lsp-references", {
       sources = { { name = "lsp_references" } },
+    }, {
+      startkey = "<leader>flr",
+      filelike = true,
     })
-    helper.map_ff_file(name_ref)
 
-    local name_sym = "lsp-symbols"
-    helper.map_start("<leader>flw", {
-      name = name_sym,
+    helper.setup("lsp-symbols", {
       sources = { { name = "lsp_workspaceSymbol" } },
       sourceOptions = { lsp = { volatile = true } },
+    }, {
+      startkey = "<leader>flw",
+      filelike = true,
     })
-    helper.map_ff_file(name_sym)
 
-    local name_call = "lsp-call-hierarchy"
-    helper.map_start("<leader>flc", {
-      name = name_call,
+    helper.setup("lsp-call-hierarchy", {
       sources = { {
         name = "lsp_callHierarchy",
         params = {
@@ -73,8 +73,10 @@ local spec = {
           startFilter = false,
         },
       },
+    }, {
+      startkey = "<leader>flc",
+      filelike = true,
     })
-    helper.map_ff_file(name_call)
   end,
 }
 return spec

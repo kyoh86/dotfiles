@@ -5,13 +5,15 @@ local spec = {
   "4513ECHO/ddu-source-emoji",
   dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-word" },
   config = function()
-    helper.map_start("<leader>fee", {
-      name = "emoji-emoji",
+    helper.setup("emoji-emoji", {
       sources = { { name = "emoji", options = { defaultAction = "append" } } },
+    }, {
+      startkey = "<leader>fee",
     })
-    helper.map_start("<leader>fes", {
-      name = "emoji-slug",
+    helper.setup("emoji-slug", {
       sources = { { name = "emoji", options = { defaultAction = "append" }, params = { convertEmoji = false } } },
+    }, {
+      startkey = "<leader>fes",
     })
   end,
 }

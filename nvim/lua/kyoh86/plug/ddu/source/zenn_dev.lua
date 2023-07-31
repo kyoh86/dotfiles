@@ -1,14 +1,11 @@
 local helper = require("kyoh86.plug.ddu.helper")
 
-local ui_name = "zenn-dev-article"
-
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-zenn_dev",
   dependencies = { { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "Milly/ddu-filter-kensaku", "Milly/ddu-filter-merge" } },
   config = function()
-    helper.map_start("<leader>fza", {
-      name = ui_name,
+    helper.setup("zenn-dev-article", {
       sources = { {
         name = "zenn_dev_article",
       } },
@@ -27,9 +24,12 @@ local spec = {
           unique = true,
         },
       },
-    })
-    helper.map_ff_file(ui_name, {
-      ["<leader>b"] = { action_name = "itemAction", params = { name = "browse" } },
+    }, {
+      startkey = "<leader>fza",
+      filelike = true,
+      localmap = {
+        ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
+      },
     })
   end,
 }

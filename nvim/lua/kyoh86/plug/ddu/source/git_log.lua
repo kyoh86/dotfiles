@@ -5,7 +5,6 @@ local spec = {
   "kyoh86/ddu-source-git_log",
   dependencies = { "Shougo/ddu.vim", "kyoh86/ddu-source-git_diff_tree" },
   config = function()
-    ---@param args DduActionArguments
     local custom_files = function(args)
       if #args.items ~= 1 then
         vim.notify("invalid action: it can edit only one file at once", vim.log.levels.WARN, {})
@@ -20,20 +19,20 @@ local spec = {
     end
     kyoh86.fa.ddu.custom.action("kind", "git_commit", "custom:files", custom_files)
 
-    local name = "git-log"
-    helper.map_start("<leader>fgl", {
-      name = name,
+    helper.setup("git-log", {
       sources = { { name = "git_log" } },
       kindOptions = {
         git_commit = { defaultAction = "custom:files" },
       },
-    })
-
-    helper.map_ff_file(name, {
-      ["<leader>f"] = { action_name = "itemAction", params = { name = "fixupTo" } },
-      ["<leader>y"] = { action_name = "itemAction", params = { name = "yank" } },
-      ["<leader>p"] = { action_name = "itemAction", params = { name = "append" } },
-      ["<leader>r"] = { action_name = "itemAction", params = { name = "reset" } },
+    }, {
+      startkey = "<leader>fgl",
+      filelike = true,
+      localmap = {
+        ["<leader>f"] = { action = "itemAction", params = { name = "fixupTo" } },
+        ["<leader>y"] = { action = "itemAction", params = { name = "yank" } },
+        ["<leader>p"] = { action = "itemAction", params = { name = "append" } },
+        ["<leader>r"] = { action = "itemAction", params = { name = "reset" } },
+      },
     })
   end,
 }

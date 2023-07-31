@@ -5,28 +5,30 @@ local spec = {
   "matsui54/ddu-source-file_external",
   dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "Shougo/ddu-source-file_rec" },
   config = function()
-    helper.map_start("<leader>ff", {
-      name = "file-hide",
+    helper.setup("file-hide", {
       sources = { {
         name = "file_external",
         params = { cmd = { "rg", "--files", "--color", "never" } },
       } },
+    }, {
+      startkey = "<leader>ff",
+      filelike = true,
     })
 
-    helper.map_start("<leader>faf", {
-      name = "file-all",
+    helper.setup("file-all", {
       sources = { { name = "file_rec" } },
+    }, {
+      startkey = "<leader>faf",
+      filelike = true,
     })
-
-    helper.map_ff_file("file-hide")
-    helper.map_ff_file("file-all")
 
     -- setup source for nvim-configs
-    helper.map_start("<leader><leader>c", {
-      name = "nvim-config",
+    helper.setup("nvim-config", {
       sources = { { name = "file_rec", options = { path = vim.env.XDG_CONFIG_HOME } } },
+    }, {
+      startkey = "<leader><leader>c",
+      filelike = true,
     })
-    helper.map_ff_file("nvim-config")
   end,
 }
 return spec

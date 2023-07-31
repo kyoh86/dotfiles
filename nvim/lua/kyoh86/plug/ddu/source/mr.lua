@@ -5,13 +5,24 @@ local spec = {
   "kuuote/ddu-source-mr",
   dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "lambdalisue/mr.vim" },
   config = function()
-    local source = "mr"
-    helper.map_start("<leader>fmw", { name = "mrw", sources = { { name = source, params = { kind = "mrw" } } } })
-    helper.map_ff_file("mrw")
-    helper.map_start("<leader>fmr", { name = "mrr", sources = { { name = source, params = { kind = "mrr" } } } })
-    helper.map_ff_file("mrr")
-    helper.map_start("<leader>fmu", { name = "mru", sources = { { name = source, params = { kind = "mru" } } } })
-    helper.map_ff_file("mru")
+    helper.setup("mrw", {
+      sources = { { name = "mr", params = { kind = "mrw" } } },
+    }, {
+      startkey = "<leader>fmw",
+      filelike = true,
+    })
+    helper.setup("mrr", {
+      sources = { { name = "mr", params = { kind = "mrr" } } },
+    }, {
+      startkey = "<leader>fmr",
+      filelike = true,
+    })
+    helper.setup("mru", {
+      sources = { { name = "mr", params = { kind = "mru" } } },
+    }, {
+      startkey = "<leader>fmu",
+      filelike = true,
+    })
   end,
 }
 return spec

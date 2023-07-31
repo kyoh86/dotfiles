@@ -12,25 +12,27 @@ local spec = {
         },
       },
     })
-    helper.map_start("<leader>fgi", {
-      name = "github-issues",
+
+    local map = {
+      ["<leader>e"] = { action = "itemAction", params = { name = "edit" } },
+    }
+    helper.setup("github-issues", {
       sources = { {
         name = "github_repo_issue",
         params = { source = "cwd" },
       } },
+    }, {
+      startkey = "<leader>fgp",
+      localmap = map,
     })
-    helper.map_ff("github-issues", {
-      ["<leader>e"] = { action_name = "itemAction", params = { name = "edit" } },
-    })
-    helper.map_start("<leader>fgp", {
-      name = "github-pulls",
+    helper.setup("github-pulls", {
       sources = { {
         name = "github_repo_pull",
         params = { source = "cwd" },
       } },
-    })
-    helper.map_ff("github-pulls", {
-      ["<leader>e"] = { action_name = "itemAction", params = { name = "edit" } },
+    }, {
+      startkey = "<leader>fgi",
+      localmap = map,
     })
   end,
 }

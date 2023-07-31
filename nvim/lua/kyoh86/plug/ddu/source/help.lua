@@ -5,14 +5,15 @@ local spec = {
   "matsui54/ddu-source-help",
   dependencies = { { "Shougo/ddu.vim" } },
   config = function()
-    helper.map_start("<leader>fh", {
-      name = "help",
+    helper.setup("help", {
       sources = { { name = "help" } },
       kindOptions = {
         help = {
           defaultAction = "open",
         },
       },
+    }, {
+      startkey = "<leader>fh",
     })
   end,
 }

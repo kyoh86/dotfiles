@@ -10,9 +10,7 @@ local spec = {
       vim.api.nvim_set_hl(0, "dduColumnGitBranchLocal", { fg = m.colors.red })
       vim.api.nvim_set_hl(0, "dduColumnGitBranchAuthor", { fg = m.colors.green })
     end)
-    local name = "git-branch"
-    helper.map_start("<leader>fgb", {
-      name = name,
+    helper.setup("git-branch", {
       sources = { {
         name = "git_branch",
         options = {
@@ -29,9 +27,11 @@ local spec = {
       kindOptions = {
         git_branch = { defaultAction = "switch" },
       },
-    })
-    helper.map_ff(name, {
-      ["<leader>d"] = { action_name = "itemAction", params = { name = "delete" } },
+    }, {
+      startkey = "<leader>fgb",
+      localmap = {
+        ["<leader>d"] = { action = "itemAction", params = { name = "delete" } },
+      },
     })
   end,
 }
