@@ -10,6 +10,9 @@ local spec = {
         github_issue = {
           defaultAction = "open",
         },
+        github_repo = {
+          defaultAction = "open",
+        },
       },
     })
 
@@ -34,6 +37,30 @@ local spec = {
       startkey = "<leader>fgi",
       localmap = map,
     })
+    vim.api.nvim_create_user_command("DduSources", function()
+      kyoh86.fa.ddu.start({
+        sources = { {
+          name = "github_search_repo",
+          params = { query = "topic:ddu-source" },
+        } },
+      })
+    end, {})
+    vim.api.nvim_create_user_command("DduFilters", function()
+      kyoh86.fa.ddu.start({
+        sources = { {
+          name = "github_search_repo",
+          params = { query = "topic:ddu-filter" },
+        } },
+      })
+    end, {})
+    vim.api.nvim_create_user_command("DduKinds", function()
+      kyoh86.fa.ddu.start({
+        sources = { {
+          name = "github_search_repo",
+          params = { query = "topic:ddu-kind" },
+        } },
+      })
+    end, {})
   end,
 }
 return spec
