@@ -33,6 +33,7 @@ local spec = {
       ["<leader>f"] = { action_name = "itemAction", params = { name = "fixupTo" } },
       ["<leader>y"] = { action_name = "itemAction", params = { name = "yank" } },
       ["<leader>p"] = { action_name = "itemAction", params = { name = "append" } },
+      ["<leader>r"] = { action_name = "itemAction", params = { name = "reset" } },
     })
   end,
 }
