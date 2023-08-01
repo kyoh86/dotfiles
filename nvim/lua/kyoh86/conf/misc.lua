@@ -68,7 +68,8 @@ vim.opt.formatoptions:append("1") -- Don't break a line after a one-letter word
 vim.opt.exrc = true
 
 --- よく間違えるmapを消す
-vim.keymap.set("n", "Q", "<nop>", { remap = false, desc = "nop" })
+vim.keymap.set("n", "q", "<nop>", { remap = false, desc = "nop" })
+vim.keymap.set("n", "Q", "q", { remap = false, desc = "Macro" })
 vim.keymap.set("n", "gQ", "<nop>", { remap = false, desc = "nop" })
 
 --- クォーテーションを含むTextobjにスペースを含めない
