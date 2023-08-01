@@ -122,7 +122,7 @@ local spec = {
         nmap(";", ":")
 
         nmap("/", ddu_ui_action("openFilterWindow"))
-        nmap("<esc>", ddu_ui_action("quit"))
+        nmap("q", ddu_ui_action("quit"))
         nmap("<cr>", ddu_ui_action("itemAction"))
         nmap(">", ddu_ui_action("expandItem"))
         nmap("+", ddu_ui_action("chooseAction"))
