@@ -63,7 +63,7 @@ function M.setup(name, dduopts, config)
       ["<leader>x"] = { action = "itemAction", params = { name = "open", params = { command = "new" } } },
     })
   end
-  if #map > 0 then
+  if next(map) ~= nil then
     local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff-map-" .. name, {})
     ddu_ui_set_map(name, map)
     vim.api.nvim_create_autocmd("FileType", {
