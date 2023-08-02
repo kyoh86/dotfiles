@@ -40,6 +40,9 @@ local spec = {
       ui = "ff",
       uiParams = {
         ff = {
+          onPreview = kyoh86.fa.denops.callback.register(function(args)
+            vim.wo[args.previewWinId].cursorline = false
+          end),
           split = "floating",
           floatingBorder = "rounded",
           prompt = "▶ ",
