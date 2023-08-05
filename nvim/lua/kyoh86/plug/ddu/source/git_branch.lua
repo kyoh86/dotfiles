@@ -31,6 +31,8 @@ local spec = {
       startkey = "<leader>fgb",
       localmap = {
         ["<leader>d"] = { action = "itemAction", params = { name = "delete" } },
+        ["<leader>r"] = { action = "itemAction", params = { name = "reset" } },
+        ["<leader>c"] = { action = "itemAction", params = { name = "copy" } },
       },
     })
   end,

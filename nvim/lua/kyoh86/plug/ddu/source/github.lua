@@ -25,7 +25,7 @@ local spec = {
         params = { source = "cwd" },
       } },
     }, {
-      startkey = "<leader>fgp",
+      startkey = "<leader>fgi",
       localmap = map,
     })
     helper.setup("github-pulls", {
@@ -34,7 +34,7 @@ local spec = {
         params = { source = "cwd" },
       } },
     }, {
-      startkey = "<leader>fgi",
+      startkey = "<leader>fgp",
       localmap = map,
     })
     vim.api.nvim_create_user_command("DduSources", function()
