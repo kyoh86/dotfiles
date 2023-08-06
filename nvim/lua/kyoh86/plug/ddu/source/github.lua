@@ -18,6 +18,7 @@ local spec = {
 
     local map = {
       ["<leader>e"] = { action = "itemAction", params = { name = "edit" } },
+      ["<leader>c"] = { action = "itemAction", params = { name = "checkout" } },
     }
     helper.setup("github-issues", {
       sources = { {
