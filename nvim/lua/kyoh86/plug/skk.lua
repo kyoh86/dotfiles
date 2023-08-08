@@ -1,7 +1,7 @@
 ---@type LazySpec
 local spec = {
   "vim-skk/skkeleton",
-  dependencies = { "vim-denops/denops.vim", "kyoh86/momiji" },
+  dependencies = { "denops.vim", "momiji" },
   config = function()
     kyoh86.fa.skkeleton.config({
       globalJisyo = "~/.local/share/skk/SKK-JISYO.L",

@@ -12,7 +12,7 @@ vim.api.nvim_create_autocmd("FileType", {
 ---@type LazySpec
 local spec = {
   "rest-nvim/rest.nvim",
-  dependencies = { "nvim-lua/plenary.nvim" },
+  dependencies = { "plenary.nvim" },
   ft = "rest",
   opts = {
     -- Open request results in a horizontal split

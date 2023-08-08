@@ -1,8 +1,6 @@
 ---@type LazySpec
 local spec = {
   "andymass/vim-matchup",
-  dependencies = {
-    "nvim-treesitter/nvim-treesitter",
-  },
+  dependencies = { "nvim-treesitter" },
 }
 return spec

@@ -3,7 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "uga-rosa/ddu-source-lsp",
-  dependencies = { { "Shougo/ddu.vim", "Shougo/ddu-kind-file" } },
+  dependencies = { "ddu.vim", "ddu-kind-file" },
   config = function()
     kyoh86.fa.ddu.custom.patch_global({ kindOptions = {
       lsp = {

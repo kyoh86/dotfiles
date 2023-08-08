@@ -17,16 +17,32 @@ local spec = {
   },
   {
     "lambdalisue/guise.vim", -- Enhance $EDITOR behavior in terminal
-    dependencies = { "vim-denops/denops.vim" },
+    dependencies = { "denops.vim" },
+  },
+  {
+    "nvim-tree/nvim-web-devicons",
+    lazy = true,
+  },
+  {
+    "tpope/vim-dispatch",
+    lazy = true,
+  },
+  {
+    "nvim-lua/plenary.nvim",
+    lazy = true,
   },
   {
     "tyru/capture.vim",
     cmd = "Capture",
   },
   {
+    "tyru/open-browser.vim",
+    lazy = true,
+  },
+  {
     "tyru/open-browser-github.vim",
     cmd = { "OpenGithubFile", "OpenGithubIssue", "OpenGithubProject", "OpenGithubPullReq" },
-    dependencies = { "tyru/open-browser.vim" },
+    dependencies = { "open-browser.vim" },
   },
   "delphinus/vim-firestore",
   -- for Plugin Development      ==================================================

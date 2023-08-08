@@ -78,27 +78,59 @@ local function setup_snip()
 end
 
 ---@type LazySpec[]
-local spec = { {
-  "hrsh7th/nvim-cmp",
-  config = function()
-    setup_comp()
-    setup_snip()
-  end,
-  dependencies = {
-    {
-      "golang/vscode-go",
-      ft = { "go" },
-    },
-    { "hrsh7th/cmp-nvim-lua" },
-    { "hrsh7th/cmp-nvim-lsp" },
-    { "hrsh7th/cmp-cmdline" },
-    { "hrsh7th/cmp-path" },
-    { "hrsh7th/cmp-vsnip" },
-    { "hrsh7th/vim-vsnip" },
-    { "rafamadriz/friendly-snippets" },
+local spec = {
+  {
+    "golang/vscode-go",
+    ft = { "go" },
   },
-}, {
-  "uga-rosa/cmp-skkeleton",
-  dependencies = { "vim-skk/skkeleton", "hrsh7th/nvim-cmp" },
-} }
+  {
+    "hrsh7th/cmp-nvim-lua",
+    lazy = true,
+  },
+  {
+    "hrsh7th/cmp-nvim-lsp",
+    lazy = true,
+  },
+  {
+    "hrsh7th/cmp-cmdline",
+    lazy = true,
+  },
+  {
+    "hrsh7th/cmp-path",
+    lazy = true,
+  },
+  {
+    "hrsh7th/cmp-vsnip",
+    lazy = true,
+  },
+  {
+    "hrsh7th/vim-vsnip",
+    lazy = true,
+  },
+  {
+    "rafamadriz/friendly-snippets",
+    lazy = true,
+  },
+  {
+    "hrsh7th/nvim-cmp",
+    config = function()
+      setup_comp()
+      setup_snip()
+    end,
+    dependencies = {
+      "vscode-go",
+      "cmp-nvim-lua",
+      "cmp-nvim-lsp",
+      "cmp-cmdline",
+      "cmp-path",
+      "cmp-vsnip",
+      "vim-vsnip",
+      "friendly-snippets",
+    },
+  },
+  {
+    "uga-rosa/cmp-skkeleton",
+    dependencies = { "skkeleton", "nvim-cmp" },
+  },
+}
 return spec

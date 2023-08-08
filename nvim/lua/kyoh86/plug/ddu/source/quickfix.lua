@@ -3,7 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = { {
   "flow6852/ddu-source-qf",
-  dependencies = { "Shougo/ddu.vim" },
+  dependencies = { "ddu.vim" },
   config = function()
     helper.setup("quickfix", { sources = { { name = "qf" } } }, {
       startkey = "<leader>fqc",
@@ -12,7 +12,7 @@ local spec = { {
   end,
 }, {
   "kyoh86/ddu-source-quickfix_history",
-  dependencies = { "Shougo/ddu.vim" },
+  dependencies = { "ddu.vim" },
   config = function()
     helper.setup("quickfix-history", {
       sources = { { name = "quickfix_history" } },

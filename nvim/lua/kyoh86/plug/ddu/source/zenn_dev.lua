@@ -3,7 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-zenn_dev",
-  dependencies = { { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "Milly/ddu-filter-kensaku", "Milly/ddu-filter-merge" } },
+  dependencies = { "ddu.vim", "ddu-kind-file", "ddu-filter-kensaku" },
   config = function()
     helper.setup("zenn-dev-article", {
       sources = { {

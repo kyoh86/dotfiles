@@ -3,7 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kuuote/ddu-source-git_status",
-  dependencies = { "Shougo/ddu.vim" },
+  dependencies = { "ddu.vim" },
   config = function()
     helper.setup("git-status", {
       sources = { { name = "git_status" } },

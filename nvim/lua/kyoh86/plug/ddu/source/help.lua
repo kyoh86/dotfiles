@@ -3,7 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "matsui54/ddu-source-help",
-  dependencies = { { "Shougo/ddu.vim" } },
+  dependencies = { { "ddu.vim" } },
   config = function()
     helper.setup("help", {
       sources = { { name = "help" } },

@@ -8,6 +8,6 @@ local spec = {
     { "<leader>Yb", "<plug>(operator-quotem-fullnamed)", desc = "start to copy markdown-quoted text with full-name" },
   },
   cmd = { "QuotemGithub", "QuotemBare", "QuotemNamed", "QuotemTailnamed", "QuotemFullnamed" },
-  dependencies = { "kana/vim-operator-user" },
+  dependencies = { "vim-operator-user" },
 }
 return spec

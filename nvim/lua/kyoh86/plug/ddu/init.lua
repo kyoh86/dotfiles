@@ -11,7 +11,7 @@ local spec = {
         },
       })
     end,
-    dependencies = { "vim-denops/denops.vim" },
+    dependencies = { "denops.vim" },
   },
   { import = "kyoh86.plug.ddu.source" },
   { import = "kyoh86.plug.ddu.filter" },

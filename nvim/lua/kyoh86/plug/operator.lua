@@ -9,19 +9,36 @@ vim.g.textobj_generics = { -- iG, aG (function call)で使う
 
 ---@type LazySpec[]
 local spec = {
-  { "arthurxavierx/vim-caser", dependencies = { "kana/vim-textobj-user" } },
-  { "kana/vim-textobj-line", dependencies = { "kana/vim-textobj-user" } },
-  { "kana/vim-textobj-entire", dependencies = { "kana/vim-textobj-user" } },
+  {
+    "kana/vim-textobj-user",
+    lazy = true,
+  },
+  {
+    "kana/vim-operator-user",
+    lazy = true,
+  },
+  {
+    "arthurxavierx/vim-caser",
+    dependencies = { "vim-textobj-user" },
+  },
+  {
+    "kana/vim-textobj-line",
+    dependencies = { "vim-textobj-user" },
+  },
+  {
+    "kana/vim-textobj-entire",
+    dependencies = { "vim-textobj-user" },
+  },
   {
     "kana/vim-operator-replace",
     keys = {
       { "_", "<Plug>(operator-replace)", mode = { "" }, desc = "replace target with the register" },
     },
-    dependencies = { "kana/vim-operator-user" },
+    dependencies = { "vim-operator-user" },
   },
   {
     "osyo-manga/vim-operator-jump_side",
-    dependencies = { "kana/vim-operator-user" },
+    dependencies = { "vim-operator-user" },
     keys = {
       { "[<leader>", "<plug>(operator-jump-head)", desc = "jumps to head of the textobj" },
       { "]<leader>", "<plug>(operator-jump-tail)", desc = "jumps to tail of the textobj" },
@@ -63,7 +80,7 @@ local spec = {
       { "iF", "<plug>(textobj-functioncall-innerparen-i)", mode = { "x", "o" }, desc = "a textobj in the function calling" },
       { "aF", "<plug>(textobj-functioncall-a)", mode = { "x", "o" }, desc = "a textobj around the function calling" },
     },
-    dependencies = { "kana/vim-textobj-user" },
+    dependencies = { "vim-textobj-user" },
   },
   {
     "machakann/vim-swap",

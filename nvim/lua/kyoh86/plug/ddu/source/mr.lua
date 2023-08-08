@@ -1,9 +1,12 @@
 local helper = require("kyoh86.plug.ddu.helper")
 
 ---@type LazySpec
-local spec = {
+local spec = { {
+  "lambdalisue/mr.vim",
+  lazy = true,
+}, {
   "kuuote/ddu-source-mr",
-  dependencies = { "Shougo/ddu.vim", "Shougo/ddu-kind-file", "lambdalisue/mr.vim" },
+  dependencies = { "ddu.vim", "ddu-kind-file", "mr.vim" },
   config = function()
     helper.setup("mrw", {
       sources = { { name = "mr", params = { kind = "mrw" } } },
@@ -24,5 +27,5 @@ local spec = {
       filelike = true,
     })
   end,
-}
+} }
 return spec

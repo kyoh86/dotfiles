@@ -8,7 +8,7 @@ vim.g["test#lua#busted#executable"] = "vusted"
 ---@type LazySpec
 local spec = {
   "vim-test/vim-test",
-  dependencies = { "tpope/vim-dispatch" },
+  dependencies = { "vim-dispatch" },
   cmd = {
     "TestVisit",
     "TestNearest",

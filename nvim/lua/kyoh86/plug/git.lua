@@ -2,7 +2,7 @@
 local spec = {
   {
     "lewis6991/gitsigns.nvim",
-    dependencies = { "nvim-lua/plenary.nvim", "kyoh86/momiji" },
+    dependencies = { "plenary.nvim", "momiji" },
     config = function()
       local palette = vim.g.momiji_colors
       vim.api.nvim_set_hl(0, "GitSignsAddNr", { fg = palette.grayscale1, bg = palette.lightgreen })
@@ -52,7 +52,7 @@ local spec = {
   },
   {
     "lambdalisue/gin.vim",
-    dependencies = { "vim-denops/denops.vim" },
+    dependencies = { "denops.vim" },
   },
 }
 return spec

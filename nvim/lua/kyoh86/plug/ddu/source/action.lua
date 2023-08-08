@@ -1,7 +1,7 @@
 ---@type LazySpec
 local spec = {
   "Shougo/ddu-source-action",
-  dependencies = { "Shougo/ddu.vim" },
+  dependencies = { "ddu.vim" },
   config = function()
     kyoh86.fa.ddu.custom.patch_global({
       kindParams = { action = { quit = true } },

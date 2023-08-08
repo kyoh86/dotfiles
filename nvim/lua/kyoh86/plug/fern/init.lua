@@ -15,11 +15,17 @@ local function open_fern()
 end
 
 ---@type LazySpec
-local spec = {
+local spec = { {
+  "lambdalisue/fern-git-status.vim",
+  lazy = true,
+}, {
+  "lambdalisue/fern-hijack.vim",
+  lazy = true,
+}, {
   "lambdalisue/fern.vim",
   dependencies = {
-    { "lambdalisue/fern-git-status.vim" },
-    { "lambdalisue/fern-hijack.vim" },
+    "fern-git-status.vim",
+    "fern-hijack.vim",
   },
   config = function()
     vim.api.nvim_set_hl(0, "FernMarkedLine", { link = "PmenuSel" })
@@ -34,5 +40,5 @@ local spec = {
       callback = require("kyoh86.plug.fern.mode").setup,
     })
   end,
-}
+} }
 return spec

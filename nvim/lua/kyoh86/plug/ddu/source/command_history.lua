@@ -3,7 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "matsui54/ddu-source-command_history",
-  dependencies = { "Shougo/ddu.vim" },
+  dependencies = { "ddu.vim" },
   config = function()
     helper.setup("command-history", {
       sources = { { name = "command_history" } },

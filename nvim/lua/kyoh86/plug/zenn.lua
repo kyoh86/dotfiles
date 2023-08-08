@@ -60,7 +60,7 @@ local spec = {
   },
   {
     "kkiyama117/zenn-vim",
-    dependencies = { "kyoh86/vim-zenn-autocmd" },
+    dependencies = { "vim-zenn-autocmd" },
     event = { "User ZennEnter" },
     config = function()
       vim.g["zenn#article#edit_new_cmd"] = "edit"

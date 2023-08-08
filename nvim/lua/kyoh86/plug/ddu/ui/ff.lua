@@ -9,7 +9,7 @@ end
 ---@type LazySpec
 local spec = {
   "Shougo/ddu-ui-ff",
-  dependencies = { "Shougo/ddu.vim" },
+  dependencies = { "ddu.vim" },
   config = function()
     kyoh86.ensure("momiji", function(m)
       -- local m = require("momiji")

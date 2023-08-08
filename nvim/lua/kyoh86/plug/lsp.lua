@@ -418,6 +418,19 @@ end
 
 ---@type LazySpec[]
 local spec = {
+  { "hrsh7th/cmp-nvim-lsp", lazy = true },
+  { "kyoh86/climbdir.nvim", lazy = true },
+  { "lukas-reineke/lsp-format.nvim", lazy = true },
+  -- make easier setup mason & lspconfig
+  { "williamboman/mason-lspconfig.nvim", lazy = true },
+  -- make JSON LSP more strict
+  { "b0o/schemastore.nvim", lazy = true },
+  {
+    -- make lua-lsp more gentle
+    "folke/neodev.nvim",
+    config = true,
+    lazy = true,
+  },
   {
     "neovim/nvim-lspconfig",
     config = function()
@@ -426,18 +439,12 @@ local spec = {
       setup_lsp_keymap()
     end,
     dependencies = {
-      "hrsh7th/cmp-nvim-lsp",
-      "kyoh86/climbdir.nvim",
-      "lukas-reineke/lsp-format.nvim",
-      -- make easier setup mason & lspconfig
-      "williamboman/mason-lspconfig.nvim",
-      -- make JSON LSP more strict
-      "b0o/schemastore.nvim",
-      -- make lua-lsp more gentle
-      {
-        "folke/neodev.nvim",
-        config = true,
-      },
+      "cmp-nvim-lsp",
+      "climbdir.nvim",
+      "lsp-format.nvim",
+      "mason-lspconfig.nvim",
+      "schemastore.nvim",
+      "neodev.nvim",
     },
     event = { "VeryLazy" },
   },
@@ -473,6 +480,9 @@ local spec = {
       require("lsp_signature").setup(opts)
     end,
   },
+  { "williamboman/mason.nvim", lazy = true },
+  { "lukas-reineke/lsp-format.nvim", lazy = true },
+  { "jay-babu/mason-null-ls.nvim", lazy = true },
   {
     "jose-elias-alvarez/null-ls.nvim",
     config = function()
@@ -501,7 +511,7 @@ local spec = {
         end,
       })
     end,
-    dependencies = { "williamboman/mason.nvim", "lukas-reineke/lsp-format.nvim", "jay-babu/mason-null-ls.nvim" },
+    dependencies = { "mason.nvim", "lsp-format.nvim", "mason-null-ls.nvim" },
   },
 }
 return spec

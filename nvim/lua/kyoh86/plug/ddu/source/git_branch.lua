@@ -3,7 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-git_branch",
-  dependencies = { "Shougo/ddu.vim" },
+  dependencies = { "ddu.vim" },
   config = function()
     kyoh86.ensure("momiji", function(m)
       vim.api.nvim_set_hl(0, "dduColumnGitBranchRemote", { fg = m.colors.blue })

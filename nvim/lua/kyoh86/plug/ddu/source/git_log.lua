@@ -3,7 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-git_log",
-  dependencies = { "Shougo/ddu.vim", "kyoh86/ddu-source-git_diff_tree" },
+  dependencies = { "ddu.vim" },
   config = function()
     local custom_files = function(args)
       if #args.items ~= 1 then
