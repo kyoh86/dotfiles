@@ -14,7 +14,7 @@ function M.operate()
   vim.keymap.set("n", "N", "<plug>(fern-action-new-path)", keyopt)
   vim.keymap.set("n", "C", "<plug>(fern-action-copy)", keyopt)
   vim.keymap.set("n", "M", "<plug>(fern-action-move)", keyopt)
-  vim.keymap.set("n", "D", "<plug>(fern-action-remove)", keyopt)
+  vim.keymap.set("n", "<S-DEL>", "<plug>(fern-action-remove)", keyopt)
   vim.keymap.set("n", "R", "<plug>(fern-action-rename)", keyopt)
 
   vim.notify("Changed to operation mode", vim.log.levels.WARN)
