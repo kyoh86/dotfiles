@@ -11,6 +11,9 @@ if vim.opt_local.buftype:get() ~= "help" then
   vim.opt_local.colorcolumn = { text_width + 2 }
   vim.opt_local.textwidth = text_width
 
+  vim.api.nvim_set_hl(0, "helpHeader", { link = "Title" })
+  vim.api.nvim_set_hl(0, "helpHeadline", { link = "Title" })
+  vim.api.nvim_set_hl(0, "helpSectionDelim", { link = "Title" })
   vim.api.nvim_set_hl(0, "helpIgnore", { link = "PreProc" })
   vim.api.nvim_set_hl(0, "helpBar", { link = "PreProc" })
   vim.api.nvim_set_hl(0, "helpStar", { link = "PreProc" })
@@ -24,13 +27,14 @@ if vim.opt_local.buftype:get() ~= "help" then
   vim.opt_local.smartindent = true
 
   -- 便利機能
-  -- 右寄せ
-  vim.keymap.set("n", "<leader>>", function()
+  -- Align tags
+  vim.keymap.set("n", "<leader>=", function()
     local value = vim.trim(vim.api.nvim_get_current_line())
     local words = {}
     for c in vim.gsplit(value, "%s+", { trimempty = true }) do
       table.insert(words, c)
     end
+
     if #words == 1 then
       vim.api.nvim_set_current_line(string.rep(" ", text_width - #value) .. value)
     elseif #words == 2 then
@@ -38,7 +42,7 @@ if vim.opt_local.buftype:get() ~= "help" then
     else
       vim.notify("unsupported line: there're more than two words", vim.log.levels.WARN)
     end
-  end, { desc = "align right" })
+  end, { desc = "align tags" })
 
   -- 章区切り
   local chapter = string.rep("=", text_width)
@@ -51,4 +55,10 @@ if vim.opt_local.buftype:get() ~= "help" then
   vim.keymap.set("n", "<leader>--", function()
     vim.api.nvim_put({ section }, "l", true, true)
   end, { desc = "put horizontal line" })
+end
+
+---@param word string
+---@retruns boolean
+local function is_tag(word)
+  return word:sub(1, 1) == "*" and word:sub(-1) == "*"
 end
