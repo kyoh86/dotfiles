@@ -42,7 +42,7 @@ if vim.opt_local.buftype:get() ~= "help" then
   end
 
   -- Align tags
-  vim.keymap.set("n", "<leader>=", function()
+  vim.keymap.set("n", "<leader>>", function()
     local value = vim.api.nvim_get_current_line()
     local words = {}
     local tags = {}
@@ -62,8 +62,10 @@ if vim.opt_local.buftype:get() ~= "help" then
 
     local tagline = table.concat(tags, " ")
     vim.api.nvim_set_current_line(string.rep(" ", text_width - vim.fn.strdisplaywidth(tagline)) .. tagline)
-    if #words > 0 then
-      vim.api.nvim_put({ table.concat(words, "") }, "l", true, true)
+
+    local nextline = vim.fn.trim(table.concat(words, ""), " \t", 2)
+    if nextline and string.len(nextline) > 0 then
+      vim.api.nvim_put({ nextline }, "l", true, true)
     end
   end, { desc = "align tags" })
 
