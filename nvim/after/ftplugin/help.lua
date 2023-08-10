@@ -27,20 +27,43 @@ if vim.opt_local.buftype:get() ~= "help" then
   vim.opt_local.smartindent = true
 
   -- 便利機能
+
+  ---文字列がタグかどうか確認
+  ---@param word string|nil
+  ---@retruns boolean
+  local function is_tag(word)
+    if word == nil then
+      return false
+    end
+    if string.len(word) < 2 then
+      return false
+    end
+    return word:sub(1, 1) == "*" and word:sub(-1) == "*"
+  end
+
   -- Align tags
   vim.keymap.set("n", "<leader>=", function()
-    local value = vim.trim(vim.api.nvim_get_current_line())
+    local value = vim.api.nvim_get_current_line()
     local words = {}
-    for c in vim.gsplit(value, "%s+", { trimempty = true }) do
-      table.insert(words, c)
+    local tags = {}
+    local terms = vim.fn.split(value, [[\s\+\zs]], true)
+    for _, c in pairs(terms) do
+      if is_tag(vim.fn.trim(c)) then
+        table.insert(tags, vim.fn.trim(c))
+      else
+        table.insert(words, c)
+      end
     end
 
-    if #words == 1 then
-      vim.api.nvim_set_current_line(string.rep(" ", text_width - #value) .. value)
-    elseif #words == 2 then
-      vim.api.nvim_set_current_line(words[1] .. string.rep(" ", text_width - #words[1] - #words[2]) .. words[2])
-    else
-      vim.notify("unsupported line: there're more than two words", vim.log.levels.WARN)
+    if #tags == 0 then
+      vim.notify("no tags", vim.log.levels.DEBUG)
+      return
+    end
+
+    local tagline = table.concat(tags, " ")
+    vim.api.nvim_set_current_line(string.rep(" ", text_width - vim.fn.strdisplaywidth(tagline)) .. tagline)
+    if #words > 0 then
+      vim.api.nvim_put({ table.concat(words, "") }, "l", true, true)
     end
   end, { desc = "align tags" })
 
@@ -55,10 +78,4 @@ if vim.opt_local.buftype:get() ~= "help" then
   vim.keymap.set("n", "<leader>--", function()
     vim.api.nvim_put({ section }, "l", true, true)
   end, { desc = "put horizontal line" })
-end
-
----@param word string
----@retruns boolean
-local function is_tag(word)
-  return word:sub(1, 1) == "*" and word:sub(-1) == "*"
 end
