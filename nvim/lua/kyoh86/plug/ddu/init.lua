@@ -3,7 +3,7 @@ local spec = {
   {
     "Shougo/ddu.vim",
     config = function()
-      kyoh86.fa.ddu.custom.patch_global({
+      vim.fn["ddu#custom#patch_global"]({
         sourceOptions = {
           _ = {
             ignoreCase = true,

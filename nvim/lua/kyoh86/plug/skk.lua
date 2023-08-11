@@ -3,19 +3,19 @@ local spec = {
   "vim-skk/skkeleton",
   dependencies = { "denops.vim", "momiji" },
   config = function()
-    kyoh86.fa.skkeleton.config({
+    vim.fn["skkeleton#config"]({
       globalJisyo = "~/.local/share/skk/SKK-JISYO.L",
       markerHenkan = "❓",
       markerHenkanSelect = "❗",
       eggLikeNewline = true,
       immediatelyCancel = true,
     })
-    kyoh86.fa.skkeleton.register_kanatable("rom", {
+    vim.fn["skkeleton#register_kanatable"]("rom", {
       ["("] = { "（" },
       [")"] = { "）" },
     })
     local map = function(mode, key, operation)
-      kyoh86.fa.skkeleton.register_keymap(mode, vim.keycode(key), operation)
+      vim.fn["skkeleton#register_keymap"](mode, vim.keycode(key), operation)
     end
     map("input", "<space>", "henkanFirst")
     map("input", "<C-q>", "katakana")
@@ -41,7 +41,7 @@ local spec = {
     }
     local apply_mode_color = function()
       if inserting[vim.fn.mode(0)] then
-        local skk_mode = kyoh86.fa.skkeleton.mode()
+        local skk_mode = vim.fn["skkeleton#mode"]()
         vim.api.nvim_set_hl(0, "CursorLineNr", skk_mode_colors[skk_mode])
       else
         disable_color()

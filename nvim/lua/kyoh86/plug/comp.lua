@@ -11,7 +11,7 @@ local function setup_comp()
     enabled = true,
     snippet = {
       expand = function(args)
-        kyoh86.fa.vsnip.anonymous(args.body) -- For `vsnip` users.
+        vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
       end,
     },
     window = {
@@ -60,13 +60,13 @@ local function setup_snip()
 
   -- Expand, jump forward or backward
   local expand = function()
-    return kyoh86.fa.vsnip.available(1) ~= 0 and "<plug>(vsnip-expand-or-jump)" or "<c-l>"
+    return vim.fn["vsnip#available"](1) ~= 0 and "<plug>(vsnip-expand-or-jump)" or "<c-l>"
   end
   local jump_next = function()
-    return kyoh86.fa.vsnip.jumpable(1) ~= 0 and "<plug>(vsnip-jump-next)" or "<tab>"
+    return vim.fn["vsnip#jumpable"](1) ~= 0 and "<plug>(vsnip-jump-next)" or "<tab>"
   end
   local jump_prev = function()
-    return kyoh86.fa.vsnip.jumpable(-1) ~= 0 and "<plug>(vsnip-jump-prev)" or "<s-tab>"
+    return vim.fn["vsnip#jumpable"](-1) ~= 0 and "<plug>(vsnip-jump-prev)" or "<s-tab>"
   end
 
   vim.keymap.set("i", "<c-l>", expand, { expr = true, desc = "expand snipet or jump to filler" })

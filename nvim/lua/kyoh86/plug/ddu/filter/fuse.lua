@@ -4,7 +4,7 @@
 local spec = {
   "kuuote/ddu-filter-fuse",
   config = function()
-    kyoh86.fa.ddu.custom.patch_global({
+    vim.fn["ddu#custom#patch_global"]({
       filterParams = {
         matcher_fuse = {
           threshold = 0.6,

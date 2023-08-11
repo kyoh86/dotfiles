@@ -10,14 +10,14 @@ local spec = {
         vim.notify("invalid action: it can edit only one file at once", vim.log.levels.WARN, {})
         return 1
       end
-      kyoh86.fa.ddu.start({
+      vim.fn["ddu#start"]({
         name = args.options.name,
         push = true,
         sources = { { name = "git_diff_tree", params = { commitHash = args.items[1].action.hash } } },
       })
       return 0
     end
-    kyoh86.fa.ddu.custom.action("kind", "git_commit", "custom:files", custom_files)
+    vim.fn["ddu#custom#action"]("kind", "git_commit", "custom:files", custom_files)
 
     helper.setup("git-log", {
       sources = { { name = "git_log" } },

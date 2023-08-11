@@ -2,7 +2,7 @@
 ---@param actionName string
 local function ddu_ui_action(actionName)
   return function()
-    kyoh86.fa.ddu.ui.do_action(actionName, vim.empty_dict())
+    vim.fn["ddu#ui#do_action"](actionName, vim.empty_dict())
   end
 end
 
@@ -36,11 +36,11 @@ local spec = {
       vim.api.nvim_set_hl(0, "dduBorder", { link = "Normal" })
     end)
 
-    kyoh86.fa.ddu.custom.patch_global({
+    vim.fn["ddu#custom#patch_global"]({
       ui = "ff",
       uiParams = {
         ff = {
-          onPreview = kyoh86.fa.denops.callback.register(function(args)
+          onPreview = vim.fn["denops#callback#register"](function(args)
             vim.wo[args.previewWinId].cursorline = false
           end),
           split = "floating",
@@ -95,7 +95,7 @@ local spec = {
         previewWidth = winWidth,
         previewCol = col + winWidth + 2,
       }
-      kyoh86.fa.ddu.custom.patch_global({
+      vim.fn["ddu#custom#patch_global"]({
         uiParams = {
           ff = conf,
         },

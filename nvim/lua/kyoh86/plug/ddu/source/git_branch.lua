@@ -51,7 +51,7 @@ local spec = {
       if refName.remote ~= "" then
         branch = refName.remote .. "/" .. branch
       end
-      kyoh86.fa.ddu.start({
+      vim.fn["ddu#start"]({
         name = args.options.name,
         push = true,
         sources = { { name = "git_log", params = { startingCommit = { branch } } } },
@@ -59,7 +59,7 @@ local spec = {
       return 0
     end
 
-    kyoh86.fa.ddu.custom.action("kind", "git_branch", "custom:logs", custom_logs)
+    vim.fn["ddu#custom#action"]("kind", "git_branch", "custom:logs", custom_logs)
   end,
 }
 return spec

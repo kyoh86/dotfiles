@@ -10,7 +10,7 @@ local ddu_ui_map = {}
 local function ddu_ui_call_map(ui_name, lh)
   local rh = (ddu_ui_map[ui_name] or {})[lh]
   if type(rh) == "table" then
-    kyoh86.fa.ddu.ui.do_action(rh.action, rh.params)
+    vim.fn["ddu#ui#do_action"](rh.action, rh.params)
   elseif type(rh) == "function" then
     rh()
   end
@@ -40,7 +40,7 @@ end
 ---@param dduopts table<string, any> ddu options.
 ---@param config Kyoh86DduHelperConfig additional config
 function M.setup(name, dduopts, config)
-  kyoh86.fa.ddu.custom.patch_local(name, dduopts)
+  vim.fn["ddu#custom#patch_local"](name, dduopts)
 
   if config.startkey then
     local keys = config.startkey or {}
@@ -49,7 +49,7 @@ function M.setup(name, dduopts, config)
     end
     for _, key in pairs(keys) do
       vim.keymap.set("n", key, function()
-        kyoh86.fa.ddu.start({ name = name })
+        vim.fn["ddu#start"]({ name = name })
       end, { remap = false, desc = "Start ddu: " .. name })
     end
   end

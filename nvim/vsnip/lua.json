@@ -8,5 +8,10 @@
         "prefix": "lazyspecs",
         "description": "Snippet for lazy.nvim specs",
         "body": "---@type LazySpec[]\nlocal spec = {{\n  \"$1\",\n  $2\n}}\nreturn spec"
+    },
+    "Neovim autoload functions call": {
+        "prefix": "vimfa",
+        "description": "Call vim autoload functions call",
+        "body": "vim.fn[\"$1\"]($2)"
     }
 }

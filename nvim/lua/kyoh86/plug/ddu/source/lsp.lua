@@ -5,13 +5,13 @@ local spec = {
   "uga-rosa/ddu-source-lsp",
   dependencies = { "ddu.vim", "ddu-kind-file" },
   config = function()
-    kyoh86.fa.ddu.custom.patch_global({ kindOptions = {
+    vim.fn["ddu#custom#patch_global"]({ kindOptions = {
       lsp = {
         defaultAction = "open",
       },
     } })
 
-    kyoh86.fa.ddu.custom.patch_global({
+    vim.fn["ddu#custom#patch_global"]({
       sourceOptions = {
         lsp_definition = {
           converters = { { name = "converter_custom_lsp_definitions" } },

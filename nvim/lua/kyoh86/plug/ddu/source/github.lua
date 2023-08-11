@@ -5,7 +5,7 @@ local spec = {
   "kyoh86/ddu-source-github",
   dependencies = { "ddu.vim" },
   config = function()
-    kyoh86.fa.ddu.custom.patch_global({
+    vim.fn["ddu#custom#patch_global"]({
       kindOptions = {
         github_issue = {
           defaultAction = "open",
@@ -39,7 +39,7 @@ local spec = {
       localmap = map,
     })
     vim.api.nvim_create_user_command("DduSources", function()
-      kyoh86.fa.ddu.start({
+      vim.fn["ddu#start"]({
         sources = { {
           name = "github_search_repo",
           params = { query = "topic:ddu-source" },
@@ -47,7 +47,7 @@ local spec = {
       })
     end, {})
     vim.api.nvim_create_user_command("DduFilters", function()
-      kyoh86.fa.ddu.start({
+      vim.fn["ddu#start"]({
         sources = { {
           name = "github_search_repo",
           params = { query = "topic:ddu-filter" },
@@ -55,7 +55,7 @@ local spec = {
       })
     end, {})
     vim.api.nvim_create_user_command("DduKinds", function()
-      kyoh86.fa.ddu.start({
+      vim.fn["ddu#start"]({
         sources = { {
           name = "github_search_repo",
           params = { query = "topic:ddu-kind" },

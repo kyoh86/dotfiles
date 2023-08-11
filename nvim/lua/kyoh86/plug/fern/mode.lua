@@ -29,7 +29,7 @@ function M.view(init)
   vim.b.my_fern_mode = "view"
 
   if init then
-    kyoh86.fa.fern.action.call("mark:clear")
+    vim.fn["fern#action#call"]("mark:clear")
   end
 
   vim.keymap.del("n", "<space>")

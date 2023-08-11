@@ -58,7 +58,7 @@ local function open_snippet(filetype, mods)
 end
 
 vim.api.nvim_create_user_command("Snip", function(args)
-  local candidates = kyoh86.fa.vsnip.source.filetypes(vim.fn.bufnr("%"))
+  local candidates = vim.fn["vsnip#source#filetypes"](vim.fn.bufnr("%"))
   if args.bang then
     open_snippet(candidates[1], args.smods)
     return
@@ -81,7 +81,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
     if not match_paths(vim.fn.fnamemodify(path, ":h"), candidates) then
       return
     end
-    kyoh86.fa.denops.request("tomlvsnip", "process", {
+    vim.fn["denops#request"]("tomlvsnip", "process", {
       path,
       vim.fn.fnamemodify(ev.file, ":t"),
       candidates,
@@ -101,7 +101,7 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
       return
     end
     vim.api.nvim_buf_create_user_command(ev.buf, "DeconvertToTOML", function()
-      kyoh86.fa.denops.request("tomlvsnip", "deconvert", {
+      vim.fn["denops#request"]("tomlvsnip", "deconvert", {
         path,
         table.concat(vim.api.nvim_buf_get_lines(ev.buf, 0, -1, false), "\n"),
         4,

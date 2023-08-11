@@ -8,7 +8,7 @@ local spec = {
     kyoh86.ensure("momiji", function(m)
       vim.api.nvim_set_hl(0, "dduDir1", { fg = m.colors.green })
       vim.api.nvim_set_hl(0, "dduDir2", { fg = m.colors.lightgreen })
-      kyoh86.fa.ddu.custom.patch_global({
+      vim.fn["ddu#custom#patch_global"]({
         filterParams = {
           converter_hl_dir = {
             hlGroup = { "dduDir1", "dduDir2" },
@@ -16,7 +16,7 @@ local spec = {
         },
       })
     end)
-    kyoh86.fa.ddu.custom.patch_global({
+    vim.fn["ddu#custom#patch_global"]({
       sourceOptions = {
         _ = {
           converters = { { name = "converter_hl_dir" } },

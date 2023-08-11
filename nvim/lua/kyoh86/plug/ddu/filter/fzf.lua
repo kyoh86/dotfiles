@@ -5,7 +5,7 @@ local spec = {
   "yuki-yano/ddu-filter-fzf",
   dependencies = { "ddu.vim" },
   config = function()
-    kyoh86.fa.ddu.custom.patch_global({
+    vim.fn["ddu#custom#patch_global"]({
       sourceOptions = {
         _ = {
           matchers = { "matcher_fzf" },

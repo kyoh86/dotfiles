@@ -19,3 +19,9 @@ local spec = {{
   $2
 }}
 return spec"""
+
+["Neovim autoload functions call"]
+prefix = "vimfa"
+description = "Call vim autoload functions call"
+body = """
+vim.fn["$1"]($2)"""

@@ -52,7 +52,7 @@ local spec = {
     "kyoh86/vim-zenn-autocmd",
     lazy = false,
     config = function()
-      kyoh86.fa.zenn_autocmd.enable()
+      vim.fn["zenn_autocmd#enable"]()
       local group = vim.api.nvim_create_augroup("kyoh86-plug-zenn-autocmd", { clear = true })
       vim.api.nvim_create_autocmd("User", { pattern = "ZennEnter", group = group, callback = zenn_keymap })
       vim.api.nvim_create_autocmd("User", { pattern = "ZennLeave", group = group, callback = zenn_keymap_reset })
@@ -65,19 +65,19 @@ local spec = {
     config = function()
       vim.g["zenn#article#edit_new_cmd"] = "edit"
       vim.api.nvim_create_user_command("ZennUpdate", function()
-        kyoh86.fa.zenn.update()
+        vim.fn["zenn#update"]()
       end, { nargs = 0 })
       vim.api.nvim_create_user_command("ZennPreview", function(cmd)
-        kyoh86.fa.zenn.preview(cmd.args)
+        vim.fn["zenn#preview"](cmd.args)
       end, { nargs = "*" })
       vim.api.nvim_create_user_command("ZennStopPreview", function()
-        kyoh86.fa.zenn.stop_preview()
+        vim.fn["zenn#stop_preview"]()
       end, { nargs = 0 })
       vim.api.nvim_create_user_command("ZennNewArticle", function(cmd)
-        kyoh86.fa.zenn.new_article(cmd.args)
+        vim.fn["zenn#new_article"](cmd.args)
       end, { nargs = "*" })
       vim.api.nvim_create_user_command("ZennNewBook", function(cmd)
-        kyoh86.fa.zenn.new_book(cmd.args)
+        vim.fn["zenn#new_book"](cmd.args)
       end, { nargs = "*" })
     end,
   },
