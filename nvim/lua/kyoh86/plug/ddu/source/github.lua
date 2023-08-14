@@ -7,6 +7,9 @@ local spec = {
   config = function()
     vim.fn["ddu#custom#patch_global"]({
       kindOptions = {
+        github_pull = {
+          defaultAction = "open",
+        },
         github_issue = {
           defaultAction = "open",
         },
