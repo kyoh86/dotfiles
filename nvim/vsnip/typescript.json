@@ -1,11 +1,11 @@
 {
-    "ddu-kind": {
-        "prefix": "ddukind",
-        "body": "import {\n  ActionFlags,\n  BaseKind,\n} from \"https://deno.land/x/ddu_vim@v3.4.2/types.ts\";\nimport type {\n  Actions,\n} from \"https://deno.land/x/ddu_vim@v3.4.2/types.ts\";\n\nexport type ActionData = Record<never, never>;\n\ntype Params = Record<never, never>;\n\nexport class Kind extends BaseKind<Params> {\n  override actions: Actions<Params> = {\n    $1: async (args) => {\n      $2\n      return ActionFlags.None;\n    },\n  };\n  params(): Params {\n    return {};\n  }\n}"
-    },
     "ddu-source": {
         "prefix": "ddusource",
-        "body": "import type {} from \"https://deno.land/x/denops_std@v5.0.1/mod.ts\";\nimport type { GatherArguments } from \"https://deno.land/x/ddu_vim@v3.4.2/base/source.ts\";\nimport type { BaseSource, Item } from \"https://deno.land/x/ddu_vim@v3.4.2/types.ts\";\n\ntype ActionData = Record<never, never>;\n\ntype Params = Record<never, never>;\n\nexport class Source extends BaseSource<Params, ActionData> {\n  override kind = \"$1\";\n\n  override gather(\n    args: GatherArguments<Params>,\n  ): ReadableStream<Item<ActionData>[]> {\n    throw new Error(\"not implemented\");\n    $2\n  }\n\n  override params(): Params {\n    return {};\n  }\n}\n"
+        "body": "import type {} from \"https://deno.land/x/denops_std@v5.0.1/mod.ts\";\nimport type { GatherArguments } from \"https://deno.land/x/ddu_vim@v3.4.2/base/source.ts\";\nimport type { BaseSource, Item } from \"https://deno.land/x/ddu_vim@v3.4.2/types.ts\";\n\ntype ActionData = Record<PropertyKey, never>;\n\ntype Params = Record<PropertyKey, never>;\n\nexport class Source extends BaseSource<Params, ActionData> {\n  override kind = \"$1\";\n\n  override gather(\n    args: GatherArguments<Params>,\n  ): ReadableStream<Item<ActionData>[]> {\n    throw new Error(\"not implemented\");\n    $2\n  }\n\n  override params(): Params {\n    return {};\n  }\n}\n"
+    },
+    "ddu-kind": {
+        "prefix": "ddukind",
+        "body": "import {\n  ActionFlags,\n  BaseKind,\n} from \"https://deno.land/x/ddu_vim@v3.4.2/types.ts\";\nimport type {\n  Actions,\n} from \"https://deno.land/x/ddu_vim@v3.4.2/types.ts\";\n\nexport type ActionData = Record<PropertyKey, never>;\n\ntype Params = Record<PropertyKey, never>;\n\nexport class Kind extends BaseKind<Params> {\n  override actions: Actions<Params> = {\n    $1: async (args) => {\n      $2\n      return ActionFlags.None;\n    },\n  };\n  params(): Params {\n    return {};\n  }\n}"
     },
     "deno-import": {
         "body": "import {$2} from \"https://$1\"",

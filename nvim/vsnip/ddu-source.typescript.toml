@@ -5,9 +5,9 @@ import type {} from "https://deno.land/x/denops_std@v5.0.1/mod.ts";
 import type { GatherArguments } from "https://deno.land/x/ddu_vim@v3.4.2/base/source.ts";
 import type { BaseSource, Item } from "https://deno.land/x/ddu_vim@v3.4.2/types.ts";
 
-type ActionData = Record<never, never>;
+type ActionData = Record<PropertyKey, never>;
 
-type Params = Record<never, never>;
+type Params = Record<PropertyKey, never>;
 
 export class Source extends BaseSource<Params, ActionData> {
   override kind = "$1";

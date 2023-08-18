@@ -9,9 +9,9 @@ import type {
   Actions,
 } from "https://deno.land/x/ddu_vim@v3.4.2/types.ts";
 
-export type ActionData = Record<never, never>;
+export type ActionData = Record<PropertyKey, never>;
 
-type Params = Record<never, never>;
+type Params = Record<PropertyKey, never>;
 
 export class Kind extends BaseKind<Params> {
   override actions: Actions<Params> = {

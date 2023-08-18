@@ -5,7 +5,7 @@ import {
   Item,
 } from "https://deno.land/x/ddu_vim@v3.4.0/types.ts";
 
-type Params = Record<never, never>;
+type Params = Record<PropertyKey, never>;
 
 type ActionData = {
   context?: {
