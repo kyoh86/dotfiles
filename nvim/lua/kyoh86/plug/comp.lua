@@ -21,6 +21,8 @@ local function setup_comp()
       ["<C-d>"] = cmp.mapping.scroll_docs(-4),
       ["<C-f>"] = cmp.mapping.scroll_docs(4),
       ["<C-x><C-s>"] = cmp.mapping.complete(),
+      ["<C-n>"] = cmp.mapping.select_next_item(),
+      ["<C-p>"] = cmp.mapping.select_prev_item(),
       ["<CR>"] = cmp.mapping.confirm({ select = true }),
       ["<C-y>"] = cmp.mapping.confirm({ select = true }),
       ["<C-l>"] = cmp.mapping.complete_common_string(),
