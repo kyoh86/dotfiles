@@ -1,6 +1,6 @@
 --- バッファ操作系
 local keep = function()
-  require("wipeout").menu({ keep_layout = true })
+  require("unload").menu({ keep_layout = true })
 end
 
 ---@type LazySpec[]
@@ -12,18 +12,18 @@ local spec = {
     },
   },
   {
-    "kyoh86/wipeout-buffers.nvim",
+    "kyoh86/unload-buffers.nvim",
     keys = {
       {
         "<C-q>",
         function()
-          require("wipeout").menu()
+          require("unload").menu()
         end,
         silent = true,
-        desc = "show the menu to wipeout buffers",
+        desc = "show the menu to unload buffers",
       },
-      { "<A-q>", keep, silent = true, desc = "show the menu to wipeout buffers without closing windcow" },
-      { "<C-S-q>", keep, silent = true, desc = "show the menu to wipeout buffers without closing windcow" },
+      { "<A-q>", keep, silent = true, desc = "show the menu to unload buffers without closing windcow" },
+      { "<C-S-q>", keep, silent = true, desc = "show the menu to unload buffers without closing windcow" },
     },
   },
 }

@@ -91,6 +91,7 @@
   "schemastore.nvim": { "branch": "main", "commit": "df8bece94cf1ac036262bba7411b3cdda52f025c" },
   "skkeleton": { "branch": "main", "commit": "fbdfe6e48de08d9ca1116683b796de95bd6ef83c" },
   "typescript-vim": { "branch": "master", "commit": "31ede5ad905ce4159a5e285073a391daa3bf83fa" },
+  "unload-buffers.nvim": { "branch": "main", "commit": "7c5b3ed81bb007aece6666756c4a52e6aef40d53" },
   "vim-ambiwidth": { "branch": "main", "commit": "023c43aad6629c9b2fc7bda26f7a63891df0f44d" },
   "vim-caser": { "branch": "master", "commit": "6bc9f41d170711c58e0157d882a5fe8c30f34bf6" },
   "vim-cinfo": { "branch": "main", "commit": "d8f28a47e30b54070e9a07edb031f42263a7407d" },
