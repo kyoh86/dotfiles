@@ -53,6 +53,12 @@ local spec = {
   {
     "lambdalisue/gin.vim",
     dependencies = { "denops.vim" },
+    config = function()
+      vim.keymap.set("n", "<leader>gdp", "<Plug>(gin-diffput)", { desc = "Put a diff chunk to WORKTREE buffer" })
+      vim.keymap.set("n", "<leader>gdg", "<Plug>(gin-diffget)", { desc = "Get a diff chunk from WORKTREE or HEAD buffer (prefer WORKTREE)" })
+      vim.keymap.set("n", "<leader>gd>", "<Plug>(gin-diffget-l)", { desc = "Get a diff chunk from HEAD buffer" })
+      vim.keymap.set("n", "<leader>gd<", "<Plug>(gin-diffget-r)", { desc = "Get a diff chunk from WORKTREE buffer" })
+    end,
   },
 }
 return spec
