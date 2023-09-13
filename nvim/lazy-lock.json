@@ -132,8 +132,6 @@
   "vital-Whisky": { "branch": "master", "commit": "b26652930c5f5b562c6d797b49f3b61228158a84" },
   "vital.vim": { "branch": "master", "commit": "f28b0d147b702686817da56eef47e0736f425233" },
   "vscode-go": { "branch": "master", "commit": "d9015c19ed5be58bb51f3c53b651fe2468540086" },
-  "which-key.nvim": { "branch": "main", "commit": "7ccf476ebe0445a741b64e36c78a682c1c6118b7" },
-  "wipeout-buffers.nvim": { "branch": "main", "commit": "2be0f2d604afc26ba8cc7a08036ba1e2b92b1b28" },
   "zen-mode.nvim": { "branch": "main", "commit": "68f554702de63f4b7b6b6d4bcb10178f41a0acc7" },
   "zenn-vim": { "branch": "main", "commit": "55a5457837c541a353dd92333d258e348b3d3e7f" }
 }
