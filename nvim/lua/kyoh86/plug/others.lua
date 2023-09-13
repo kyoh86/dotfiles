@@ -1,10 +1,6 @@
 ---@type LazySpec[]
 local spec = {
   {
-    "folke/which-key.nvim",
-    config = true,
-  },
-  {
     "bfredl/nvim-miniyank",
     keys = {
       { "p", "<plug>(miniyank-autoput)", mode = "", desc = "autoput with miniyank" },
