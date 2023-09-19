@@ -1,6 +1,6 @@
 --- バッファ操作系
 local keep = function()
-  require("unload").menu({ keep_layout = true })
+  require("bdelete").menu({ keep_layout = true })
 end
 
 ---@type LazySpec[]
@@ -12,18 +12,18 @@ local spec = {
     },
   },
   {
-    "kyoh86/unload-buffers.nvim",
+    "kyoh86/bdelete-buffers.nvim",
     keys = {
       {
         "<C-q>",
         function()
-          require("unload").menu()
+          require("bdelete").menu()
         end,
         silent = true,
-        desc = "show the menu to unload buffers",
+        desc = "show the menu to bdelete buffers",
       },
-      { "<A-q>", keep, silent = true, desc = "show the menu to unload buffers without closing windcow" },
-      { "<C-S-q>", keep, silent = true, desc = "show the menu to unload buffers without closing windcow" },
+      { "<A-q>", keep, silent = true, desc = "show the menu to bdelete buffers without closing windcow" },
+      { "<C-S-q>", keep, silent = true, desc = "show the menu to bdelete buffers without closing windcow" },
     },
   },
 }
