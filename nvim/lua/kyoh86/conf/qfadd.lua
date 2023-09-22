@@ -26,4 +26,4 @@ vim.api.nvim_create_user_command("QfAdd", function(opts)
   end
 end, { force = true, range = true, nargs = "*" })
 vim.cmd([[ cabbrev <expr> Qfadd (getcmdtype() ==# ":" && getcmdline() ==# "Qfadd") ? "QfAdd" : "Qfadd" ]])
-vim.keymap.set({ "n", "v" }, "<leader>qa", "<cmd>QfAdd<cr>", { remap = false })
+vim.keymap.set({ "n", "v" }, "<leader>qa", "<cmd>QfAdd<cr>", { remap = false, desc = "Add the line under the cursor to quickfix" })

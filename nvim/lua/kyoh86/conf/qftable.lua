@@ -304,4 +304,4 @@ end
 -- コマンド/keymap設定
 vim.api.nvim_create_user_command("QfTable", quickfix_to_table, { force = true, range = true, nargs = "*" })
 vim.cmd([[ cabbrev <expr> Qftable (getcmdtype() ==# ":" && getcmdline() ==# "Qftable") ? "QfTable" : "Qftable" ]])
-vim.keymap.set({ "n", "v" }, "<leader>qt", "<cmd>QfTable<cr>", { remap = false })
+vim.keymap.set({ "n", "v" }, "<leader>qt", "<cmd>QfTable<cr>", { remap = false, desc = "Put quickfix table with Markdown format" })
