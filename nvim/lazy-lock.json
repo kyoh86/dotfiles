@@ -46,7 +46,7 @@
   "ddu-ui-ff": { "branch": "main", "commit": "00ad412ff49daf93afe3b2679e03e47bfb51ef03" },
   "ddu.vim": { "branch": "main", "commit": "1bf2e4b001a3bc5f248b9b65008bd399b6d57b5f" },
   "deepl.vim": { "branch": "main", "commit": "2397b16d4070080b695321a1fe7958fd0812176b" },
-  "denops-docbase.vim": { "branch": "main", "commit": "3b4cb1ddc77ffb529fda39598d1684351f3bcb37" },
+  "denops-docbase.vim": { "branch": "main", "commit": "796dfd03175030b65405dcfbcaa8d926a80a48b5" },
   "denops.vim": { "branch": "main", "commit": "68f607d93a9758d15c0d63d3268aa420ddd29edd" },
   "dial.nvim": { "branch": "master", "commit": "611cf5e84f655c96318b803785f89e3146d8e48f" },
   "fern-git-status.vim": { "branch": "master", "commit": "151336335d3b6975153dad77e60049ca7111da8e" },
