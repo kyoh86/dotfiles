@@ -78,5 +78,8 @@ vim.keymap.set({ "o", "x" }, [[a']], [[2i']], { remap = false })
 vim.keymap.set({ "o", "x" }, [[a"]], [[2i"]], { remap = false })
 vim.keymap.set({ "o", "x" }, [[a`]], [[2i`]], { remap = false })
 
+--- Tabを閉じる
+vim.keymap.set("n", "<C-w><Tab>", "<cmd>tabclose<cr>", { remap = false, desc = "Close current tab" })
+
 --- Quickfixの表示
 vim.keymap.set("n", "<leader>qo", "<cmd>copen<cr><esc>", { remap = false, desc = "open a window to show the current list of errors" })
