@@ -15,6 +15,11 @@ local spec = {
           columns = { "zenn_dev_slug", "zenn_dev_emoji", "zenn_dev_title" },
         },
       },
+      kindOptions = {
+        zenn_dev_article = {
+          defaultAction = "open",
+        },
+      },
       filterParams = {
         merge = {
           filters = {
