@@ -4,11 +4,14 @@ local stat = {}
 local watch_handler = vim.uv.new_fs_event()
 local gitdir = ""
 local group = vim.api.nvim_create_augroup("kyoh86-plug-heirline-git-status-update", { clear = true })
+local defer = require("kyoh86.lib.defer")
 
-local function notify_update()
+local function notify_update_core()
   vim.api.nvim_exec_autocmds("User", { pattern = "UpdateHeirlineGitStatus" })
   vim.cmd.redrawstatus()
 end
+
+local notify_update, _ = defer.debounce_trailing(notify_update_core, 500)
 
 local function start_watching()
   if not vim.fn.filereadable(gitdir) then
