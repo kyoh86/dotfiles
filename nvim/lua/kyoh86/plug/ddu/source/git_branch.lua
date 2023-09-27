@@ -23,6 +23,9 @@ local spec = {
             "git_branch_date",
           },
         },
+        params = {
+          remote = true,
+        },
       } },
       kindOptions = {
         git_branch = { defaultAction = "switch" },
