@@ -283,8 +283,18 @@ local function register_lsp_servers()
     fileMatch = { "nvim/vsnip/*.json" },
     url = "https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json",
   })
+  table.insert(schemas, {
+    description = "Google Tag Manager",
+    fileMatch = "GTM-*_workspace*.json",
+    url = vim.fn.stdpath("config") .. "/schema/gtm.json",
+  })
   register("jsonls", {
-    schemas = schemas,
+    settings = {
+      json = {
+        schemas = schemas,
+        validate = { enable = true },
+      },
+    },
   })
   register("lemminx", {}) -- XML
   register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
@@ -345,9 +355,9 @@ local function register_lsp_servers()
   register("tflint", {})
   register("vimls", {})
   register("yamlls", {
-    schemaStore = { enable = true },
     settings = {
       yaml = {
+        schemaStore = { enable = true },
         keyOrdering = false,
       },
     },

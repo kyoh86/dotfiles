@@ -1,0 +1,585 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#.",
+  "properties": {
+    "exportFormatVersion": {
+      "type": "integer"
+    },
+    "exportTime": {
+      "type": "string"
+    },
+    "containerVersion": {
+      "$ref": "#/definitions/containerVersion"
+    }
+  },
+  "type": "object",
+  "definitions": {
+    "containerVersion": {
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "accountId": {
+          "type": "string"
+        },
+        "containerId": {
+          "type": "string"
+        },
+        "containerVersionId": {
+          "type": "string"
+        },
+        "container": {
+          "$ref": "#/definitions/containerVersion.container"
+        },
+        "tag": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.tag.element"
+          },
+          "type": "array"
+        },
+        "trigger": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.trigger.element"
+          },
+          "type": "array"
+        },
+        "variable": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.variable.element"
+          },
+          "type": "array"
+        },
+        "folder": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.folder.element"
+          },
+          "type": "array"
+        },
+        "builtInVariable": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.builtInVariable.element"
+          },
+          "type": "array"
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "tagManagerUrl": {
+          "type": "string"
+        },
+        "customTemplate": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.customTemplate.element"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.container": {
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "accountId": {
+          "type": "string"
+        },
+        "containerId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "publicId": {
+          "type": "string"
+        },
+        "usageContext": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "tagManagerUrl": {
+          "type": "string"
+        },
+        "features": {
+          "$ref": "#/definitions/containerVersion.container.features"
+        },
+        "tagIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.container.features": {
+      "properties": {
+        "supportUserPermissions": {
+          "type": "boolean"
+        },
+        "supportEnvironments": {
+          "type": "boolean"
+        },
+        "supportWorkspaces": {
+          "type": "boolean"
+        },
+        "supportGtagConfigs": {
+          "type": "boolean"
+        },
+        "supportBuiltInVariables": {
+          "type": "boolean"
+        },
+        "supportClients": {
+          "type": "boolean"
+        },
+        "supportFolders": {
+          "type": "boolean"
+        },
+        "supportTags": {
+          "type": "boolean"
+        },
+        "supportTemplates": {
+          "type": "boolean"
+        },
+        "supportTriggers": {
+          "type": "boolean"
+        },
+        "supportVariables": {
+          "type": "boolean"
+        },
+        "supportVersions": {
+          "type": "boolean"
+        },
+        "supportZones": {
+          "type": "boolean"
+        },
+        "supportTransformations": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.tag.element": {
+      "properties": {
+        "accountId": {
+          "type": "string"
+        },
+        "containerId": {
+          "type": "string"
+        },
+        "tagId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^.+__.+__.+$"
+        },
+        "type": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string",
+          "pattern": "^(.|\\n)+$"
+        },
+        "parameter": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.tag.element.parameter.element"
+          },
+          "type": "array"
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "firingTriggerId": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "parentFolderId": {
+          "type": "string"
+        },
+        "tagFiringOption": {
+          "type": "string"
+        },
+        "monitoringMetadata": {
+          "$ref": "#/definitions/containerVersion.tag.element.monitoringMetadata"
+        },
+        "consentSettings": {
+          "$ref": "#/definitions/containerVersion.tag.element.consentSettings"
+        },
+        "setupTag": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.tag.element.setupTag.element"
+          },
+          "type": "array"
+        },
+        "teardownTag": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.tag.element.teardownTag.element"
+          },
+          "type": "array"
+        },
+        "paused": {
+          "type": "boolean"
+        },
+        "blockingTriggerId": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "notes"
+      ],
+      "type": "object"
+    },
+    "containerVersion.tag.element.parameter.element": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "list": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.tag.element.parameter.element.list.element"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.tag.element.parameter.element.list.element": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "map": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.tag.element.parameter.element.list.element.map.element"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.tag.element.parameter.element.list.element.map.element": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.tag.element.monitoringMetadata": {
+      "properties": {
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.tag.element.consentSettings": {
+      "properties": {
+        "consentStatus": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.tag.element.setupTag.element": {
+      "properties": {
+        "tagName": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.tag.element.teardownTag.element": {
+      "properties": {
+        "tagName": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.trigger.element": {
+      "properties": {
+        "accountId": {
+          "type": "string"
+        },
+        "containerId": {
+          "type": "string"
+        },
+        "triggerId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "filter": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.trigger.element.filter.element"
+          },
+          "type": "array"
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "customEventFilter": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.trigger.element.customEventFilter.element"
+          },
+          "type": "array"
+        },
+        "parentFolderId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.trigger.element.filter.element": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "parameter": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.trigger.element.filter.element.parameter.element"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.trigger.element.filter.element.parameter.element": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.trigger.element.customEventFilter.element": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "parameter": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.trigger.element.customEventFilter.element.parameter.element"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.trigger.element.customEventFilter.element.parameter.element": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.variable.element": {
+      "properties": {
+        "accountId": {
+          "type": "string"
+        },
+        "containerId": {
+          "type": "string"
+        },
+        "variableId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "parameter": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.variable.element.parameter.element"
+          },
+          "type": "array"
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "formatValue": {
+          "$ref": "#/definitions/containerVersion.variable.element.formatValue"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.variable.element.parameter.element": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "list": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.variable.element.parameter.element.list.element"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.variable.element.parameter.element.list.element": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "map": {
+          "items": {
+            "$ref": "#/definitions/containerVersion.variable.element.parameter.element.list.element.map.element"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.variable.element.parameter.element.list.element.map.element": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.variable.element.formatValue": {
+      "properties": {},
+      "type": "object"
+    },
+    "containerVersion.folder.element": {
+      "properties": {
+        "accountId": {
+          "type": "string"
+        },
+        "containerId": {
+          "type": "string"
+        },
+        "folderId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "fingerprint": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.builtInVariable.element": {
+      "properties": {
+        "accountId": {
+          "type": "string"
+        },
+        "containerId": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.customTemplate.element": {
+      "properties": {
+        "accountId": {
+          "type": "string"
+        },
+        "containerId": {
+          "type": "string"
+        },
+        "templateId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "templateData": {
+          "type": "string"
+        },
+        "galleryReference": {
+          "$ref": "#/definitions/containerVersion.customTemplate.element.galleryReference"
+        }
+      },
+      "type": "object"
+    },
+    "containerVersion.customTemplate.element.galleryReference": {
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
