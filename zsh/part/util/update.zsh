@@ -9,6 +9,7 @@ function update {
         done
     else
         update_apt
+        update_paru
         update_asdf
         update_gordon
         update_go
@@ -25,6 +26,17 @@ function update_apt {
     pushd ~
     if command -v apt >/dev/null 2>&1; then
         sudo apt update && sudo apt upgrade -y
+    fi
+    popd
+}
+# }}}
+
+# update paru {{{
+function update_paru {
+    echo updating paru
+    pushd ~
+    if command -v paru >/dev/null 2>&1; then
+        paru -Syyu
     fi
     popd
 }
