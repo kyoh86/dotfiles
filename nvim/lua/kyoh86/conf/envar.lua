@@ -6,9 +6,9 @@ local app_name = vim.env.NVIM_APPNAME
 if app_name == "" or app_name == nil then
   app_name = "nvim"
 end
-local config_home = vim.fn.substitute(vim.fn.stdpath("config"), "/" .. app_name .. "$", "", "") -- ${xdg-CONFIG-home}/nvim
-local data_home = vim.fn.substitute(vim.fn.stdpath("data"), "/" .. app_name .. "$", "", "") -- ${xdg-DATA-home}/nvim
-local cache_home = vim.fn.substitute(vim.fn.stdpath("cache"), "/" .. app_name .. "$", "", "") -- ${xdg-CACHE-home}/nvim
+local config_home = vim.fn.substitute(vim.fn.stdpath("config")--[[@as string]], "/" .. app_name .. "$", "", "") -- ${xdg-CONFIG-home}/nvim
+local data_home = vim.fn.substitute(vim.fn.stdpath("data")--[[@as string]], "/" .. app_name .. "$", "", "") -- ${xdg-DATA-home}/nvim
+local cache_home = vim.fn.substitute(vim.fn.stdpath("cache")--[[@as string]], "/" .. app_name .. "$", "", "") -- ${xdg-CACHE-home}/nvim
 local home = vim.env.HOME
 local path = {}
 
