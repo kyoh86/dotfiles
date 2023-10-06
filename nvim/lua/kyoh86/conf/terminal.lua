@@ -8,6 +8,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
   callback = function()
     -- 行番号を表示しない
     vim.opt_local.number = false
+    vim.opt_local.scrollback = 100000
     vim.opt_local.relativenumber = false
     local buf = vim.api.nvim_get_current_buf()
     -- ノーマルモード、ヴィジュアルモードの<Up>で一つ前のプロンプトに戻る
