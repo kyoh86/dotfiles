@@ -131,5 +131,6 @@
   "vital.vim": { "branch": "master", "commit": "f28b0d147b702686817da56eef47e0736f425233" },
   "vscode-go": { "branch": "master", "commit": "d9015c19ed5be58bb51f3c53b651fe2468540086" },
   "zen-mode.nvim": { "branch": "main", "commit": "68f554702de63f4b7b6b6d4bcb10178f41a0acc7" },
-  "zenn-vim": { "branch": "main", "commit": "55a5457837c541a353dd92333d258e348b3d3e7f" }
+  "zenn-vim": { "branch": "main", "commit": "55a5457837c541a353dd92333d258e348b3d3e7f" },
+  "zsh-abbr": { "branch": "main", "commit": "ede0a43b8b5eb0633521decd3a251e654388748a" }
 }

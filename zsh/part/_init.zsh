@@ -6,6 +6,8 @@ _source_part zsh_completion
 _source_part zsh_highlight
 _source_part zsh_misc
 
+_source_part zsh_source
+
 _source_part gpg
 _source_part env
 _source_part ls

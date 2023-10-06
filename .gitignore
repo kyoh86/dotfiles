@@ -25,6 +25,7 @@
 !/userjob
 !/wezterm
 !/zsh
+!/zsh-abbr/
 /zsh/.zcompcache
 
 *.log
