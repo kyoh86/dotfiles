@@ -119,10 +119,14 @@ push_path(home .. "/.asdf/shims")
 
 -- JAVA (using Coursier)
 push_path(home .. "/.local/share/coursier/bin")
-if vim.fn.executable("coursier") then
-  vim.env.JAVA_HOME = vim.fn.trim(vim.fn.system("coursier java-home"))
-end
-push_path(vim.env.JAVA_HOME .. "/bin")
+vim.uv
+  .new_async(vim.schedule_wrap(function()
+    if vim.fn.executable("coursier") then
+      vim.env.JAVA_HOME = vim.fn.trim(vim.fn.system("coursier java-home"))
+    end
+    push_path(vim.env.JAVA_HOME .. "/bin")
+  end))
+  :send()
 
 -- Deno:
 push_path(home .. "/.deno/bin")
