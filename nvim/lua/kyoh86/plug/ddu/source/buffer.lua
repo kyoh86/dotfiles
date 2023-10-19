@@ -5,7 +5,26 @@ local spec = {
   "shun/ddu-source-buffer",
   dependencies = { "ddu.vim", "ddu-kind-file" },
   config = function()
-    helper.setup("buffer", { sources = { { name = "buffer" } } }, { startkey = "<leader>fb", filelike = true })
+    local custom_bdelete = function(args)
+      for _, file in pairs(args.items) do
+        local bufnr = vim.tbl_get(file, "action", "bufNr")
+        if bufnr ~= nil then
+          vim.cmd.bdelete({
+            args = { bufnr }, --[[bang = true]]
+          })
+        end
+      end
+      return 0
+    end
+
+    vim.fn["ddu#custom#action"]("kind", "file", "custom:bdelete", custom_bdelete)
+    helper.setup("buffer", { sources = { { name = "buffer" } } }, {
+      startkey = "<leader>fb",
+      filelike = true,
+      localmap = {
+        ["<leader>d"] = { action = "itemAction", params = { name = "custom:bdelete" } },
+      },
+    })
   end,
 }
 return spec
