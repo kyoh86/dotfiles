@@ -137,6 +137,9 @@ push_path(dotfiles .. "/tig/clip")
 -- GitHub CLI:
 vim.env.BROWSER = "wslview"
 
+-- for lambdalisue/vim-manpager
+vim.env.MANPAGER = "nvim +Man!"
+
 -- .local/bin
 push_path(home .. "/.local/bin")
 push_path(home .. "/.local/sbin")
