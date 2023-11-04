@@ -38,6 +38,8 @@ local function setup_lsp_global()
     virtual_text = diagnosis_config,
   })
 
+  vim.diagnostic.config({ virtual_text = true, signs = false })
+
   -- hoverの表示に表示元(source)を表示
   vim.api.nvim_create_autocmd("LspAttach", {
     once = true,
@@ -430,7 +432,6 @@ end
 local spec = {
   { "hrsh7th/cmp-nvim-lsp", lazy = true },
   { "kyoh86/climbdir.nvim", lazy = true },
-  { "lukas-reineke/lsp-format.nvim", lazy = true },
   -- make easier setup mason & lspconfig
   { "williamboman/mason-lspconfig.nvim", lazy = true },
   -- make JSON LSP more strict
