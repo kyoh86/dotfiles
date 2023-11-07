@@ -133,5 +133,6 @@
   "wrapwidth": { "branch": "main", "commit": "4e62ca28c045da6e475e849e6aa2de872a8eb122" },
   "zen-mode.nvim": { "branch": "main", "commit": "50e2e2a36cc97847d9ab3b1a3555ba2ef6839b50" },
   "zenn-vim": { "branch": "main", "commit": "55a5457837c541a353dd92333d258e348b3d3e7f" },
-  "zsh-abbr": { "branch": "main", "commit": "6802d7353b2422d7a82134ce655aff97367eefa0" }
+  "zsh-abbr": { "branch": "main", "commit": "6802d7353b2422d7a82134ce655aff97367eefa0" },
+  "zsh-window-title": { "branch": "main", "commit": "0253f338b3ef74f3e3c2e833b906c602c94552a7" }
 }

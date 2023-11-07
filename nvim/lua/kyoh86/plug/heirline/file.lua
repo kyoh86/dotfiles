@@ -1,5 +1,6 @@
 --- File情報
 local utils = require("heirline.utils")
+
 local FileInfo = {
   condition = function()
     -- バッファがファイルを開いているかどうか
@@ -8,6 +9,10 @@ local FileInfo = {
   end,
 
   init = function(self)
+    if vim.opt_local.buftype == "terminal" then
+      print("foo")
+      self.filename = "%{b:term_title}"
+    end
     self.filename = vim.api.nvim_buf_get_name(0)
   end,
 }
@@ -25,6 +30,9 @@ local FileIcon = {
 
 local FileName = {
   provider = function(self)
+    if vim.bo.buftype == "terminal" then
+      return "%{b:term_title}" .. " "
+    end
     local filename = vim.fn.fnamemodify(self.filename, ":.")
     if filename == "" then
       filename = "[No Name]"

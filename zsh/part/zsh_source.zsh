@@ -1,8 +1,8 @@
 function() source_zsh_plugins() {
   setopt localoptions
   setopt noglob
-  IFS=:
-  for s in $zsh_sources""; do
+  parts=(${(s/:/)zsh_sources})
+  for s in $parts; do
     source $s
   done
 }
