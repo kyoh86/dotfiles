@@ -8,7 +8,7 @@ local spec = {
     helper.setup("lazy_nvim", {
       sources = { { name = "lazy_nvim" } },
       kindOptions = {
-        file = {
+        lazy_nvim_plugin = {
           defaultAction = "cd",
         },
       },
