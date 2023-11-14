@@ -28,7 +28,13 @@ local function setup_lsp_global()
     })
   end)
   kyoh86.ensure("lsp-format", function(m)
-    m.setup()
+    m.setup({
+      typescript = true,
+      javascript = {},
+      go = {},
+      terraform = {},
+      lsp = {},
+    })
   end)
 
   -- 随時表示されるDiagnosticsのフォーマット設定
