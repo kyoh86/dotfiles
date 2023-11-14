@@ -45,9 +45,3 @@ local function switch_search_replace()
 end
 
 vim.keymap.set("c", [[<C-\><c-o>]], switch_search_replace, { expr = true, remap = false })
-
---- TODOコメントを探し出す
-local todo_command = [[silent! grep! -i 'TODO\|UNDONE\|HACK\|FIXME' | copen]]
-vim.api.nvim_create_user_command("Todo", todo_command, { force = true })
-vim.api.nvim_create_user_command("ToDo", todo_command, { force = true })
-vim.api.nvim_create_user_command("TODO", todo_command, { force = true })
