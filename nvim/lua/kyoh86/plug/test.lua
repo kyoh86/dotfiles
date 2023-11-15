@@ -27,5 +27,23 @@ local spec = {
     { "<leader>ta", "<cmd>TestSuite<cr>", silent = true, remap = false, desc = "run test suite of the current file" },
     { "<leader>tl", "<cmd>TestLast<cr>", silent = true, remap = false, desc = "run the last test" },
   },
+  config = function()
+    local custom_alternate_file = function(cmd)
+      local file = vim.api.nvim_buf_get_name(0)
+      if file:match("_test.lua$") then
+        return file:gsub("_test.lua$", ".lua")
+      elseif file:match(".spec.lua$") then
+        return file:gsub(".spec.lua$", ".lua")
+      elseif file:match(".test.lua$") then
+        return file:gsub(".test.lua$", ".lua")
+      elseif file:match("_spec.lua$") then
+        return file:gsub("_spec.lua$", ".lua")
+      elseif file:match(".lua$") then
+        return file:gsub(".lua$", "_test.lua")
+      end
+    end
+
+    vim.g["test#custom_alternate_file"] = custom_alternate_file
+  end,
 }
 return spec
