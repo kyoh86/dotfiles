@@ -3,7 +3,6 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = { {
   "lambdalisue/mr.vim",
-  lazy = true,
 }, {
   "kuuote/ddu-source-mr",
   dependencies = { "ddu.vim", "ddu-kind-file", "mr.vim" },
