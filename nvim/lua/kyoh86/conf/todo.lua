@@ -1,4 +1,37 @@
+local conf = {
+  data_dir = vim.fn.stdpath("data") .. "/todo",
+}
+
+local def = {
+  list_name = "list.json",
+}
+
 local M = {}
+
+function M.setup(user_config)
+  if user_config then
+    conf = vim.tbl_deep_extend("force", conf, user_config)
+  end
+end
+
+--- データファイルのパスを生成する関数
+local function data_path(filename)
+  return conf.data_dir .. "/" .. filename
+end
+
+--- エラーログを出力する
+--- ログは `error.log` に追記される
+--- また、vim-notifyを使ってエラーを通知する
+--- @param message string
+local function log_error(message)
+  local log_file = data_path("error.log")
+  local file = io.open(log_file, "a")
+  if file then
+    file:write(os.date("%Y-%m-%d %H:%M:%S") .. ": " .. message .. "\n")
+    file:close()
+  end
+  vim.notify(message, vim.log.levels.ERROR)
+end
 
 local function generate_uuid()
   local random = math.random
@@ -9,11 +42,49 @@ local function generate_uuid()
   end)
 end
 
+--- タスクリストを読み込む
+--- @return table, string|nil
+function M.load_task_list()
+  local list_path = data_path(def.list_name)
+  local file = io.open(list_path, "r")
+
+  if not file then
+    -- ファイルが存在しない場合は空のリストを返す
+    return {}, "Todo list file not found."
+  end
+
+  local content = file:read("*a")
+  file:close()
+
+  local status, task_list = pcall(vim.fn.json_decode, content)
+  if not status then
+    -- JSONの解析に失敗した場合はエラーメッセージを返す
+    return {}, "Failed to decode the todo list."
+  end
+
+  return task_list, nil -- 成功した場合はタスクリストとnil（エラーなし）を返す
+end
+
+--- タスクリストを保存する
+--- @param task_list table
+function M.save_task_list(task_list)
+  local list_path = data_path(def.list_name)
+  local file = io.open(list_path, "w")
+
+  if not file then
+    log_error("Could not open the todo list file to save.")
+    return
+  end
+
+  file:write(vim.fn.json_encode(task_list))
+  file:close()
+end
+
 function M.add_todo()
   local uuid = generate_uuid()
-  local filepath = vim.fn.stdpath("data") .. "/todo/" .. uuid .. ".md"
+  local filepath = data_path(uuid .. ".md")
 
-  vim.fn.mkdir(vim.fn.stdpath("data") .. "/todo", "p")
+  vim.fn.mkdir(conf.data_dir, "p")
   vim.cmd("edit " .. filepath)
 
   -- 新しいバッファにUUIDを設定
@@ -28,15 +99,9 @@ function M.add_todo()
 end
 
 function M.update_list(task_uuid, task_data)
-  local list_path = vim.fn.stdpath("data") .. "/todo/list.json"
-  local list = {}
-
-  -- list.json ファイルを読み込む
-  local file = io.open(list_path, "r")
-  if file then
-    local content = file:read("*a")
-    list = content ~= "" and vim.fn.json_decode(content) or {}
-    file:close()
+  local list, err = M.load_task_list()
+  if err then
+    vim.notify(err, vim.log.levels.INFO)
   end
 
   -- 既存のタスクデータを取得または新規作成
@@ -56,29 +121,36 @@ function M.update_list(task_uuid, task_data)
   list[task_uuid] = existing_task_data
 
   -- list.jsonファイルの更新
-  file = io.open(list_path, "w")
-  if file then
-    file:write(vim.fn.json_encode(list))
-    file:close()
-  end
+  M.save_task_list(list)
 end
 
-local function log_error(message)
-  local log_file = vim.fn.stdpath("data") .. "/todo/error.log"
-  local file = io.open(log_file, "a")
-  if file then
-    file:write(os.date("%Y-%m-%d %H:%M:%S") .. ": " .. message .. "\n")
-    file:close()
-  end
-end
-
+--- コマンドを実行し、その結果を返す
+--- @param cmd string
+--- @return string
 local function execute_command(cmd)
   local handle = io.popen(cmd, "r")
+  if not handle then
+    log_error("Failed to execute command: " .. cmd)
+    return ""
+  end
   local result = handle:read("*a")
   handle:close()
   return result
 end
 
+--- タスクバッファの内容を解析する
+--- タスクバッファは以下の形式であることを前提とする
+---
+--- <タイトル>
+--- <本文>
+--- <==={UUID}===>
+--- <コメント1>
+--- <==={UUID}===>
+--- <コメント2>
+--- ...
+---
+--- @param bufnr number
+--- @return table
 function M.parse_buffer(bufnr)
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   local title = lines[1]
@@ -113,6 +185,9 @@ function M.parse_buffer(bufnr)
   }
 end
 
+--- タスクバッファの内容をGitHub Issueに反映する
+--- @param create boolean
+--- @param task_bufnr number
 function M.reflect_issue(create, task_bufnr)
   -- バッファからタスクの内容を解析
   local parsed_data = M.parse_buffer(task_bufnr)
@@ -122,20 +197,19 @@ function M.reflect_issue(create, task_bufnr)
 
   -- list.jsonを読み込む
   local uuid = vim.api.nvim_buf_get_var(task_bufnr, "todo_uuid")
-  local list_path = vim.fn.stdpath("data") .. "/todo/list.json"
-  local list = vim.fn.json_decode(vim.fn.readfile(list_path)) or {}
+  local list = M.load_task_list()
   local task_data = list[uuid] or { comments = {} }
 
   -- Issueを更新、または新しいIssueを作成
   if task_data.api_issue_url then
     if not M.update_issue(task_data.api_issue_url, title, body) then
-      print("Failed to update issue.")
+      log_error("Failed to update issue.")
       return
     end
   elseif create then
     local new_issue_url = M.create_issue(title, body)
     if not new_issue_url then
-      print("Failed to create new issue.")
+      log_error("Failed to create new issue.")
       return
     end
     task_data.api_issue_url = new_issue_url
@@ -149,7 +223,7 @@ function M.reflect_issue(create, task_bufnr)
     if comment_data.issue_comment_url then
       -- 既存のコメントを更新
       if not M.update_issue_comment(comment_data.issue_comment_url, table.concat(comment.body, "\n")) then
-        print("Failed to update comment: " .. comment.uuid)
+        log_error("Failed to update comment: " .. comment.uuid)
       end
     else
       -- 新しいコメントを作成
@@ -157,7 +231,7 @@ function M.reflect_issue(create, task_bufnr)
       if new_comment_url then
         comment_data.issue_comment_url = new_comment_url
       else
-        print("Failed to create new comment: " .. comment.uuid)
+        log_error("Failed to create new comment: " .. comment.uuid)
       end
     end
     task_data.comments[comment.uuid] = comment_data
@@ -172,15 +246,13 @@ function M.create_issue(title, body)
   local create_cmd = string.format('gh api -X POST /issues --field title=%s --field body=%s --jq ".url"', vim.fn.shellescape(title), vim.fn.shellescape(body))
 
   -- コマンドの実行と結果の処理
-  local handle = io.popen(create_cmd, "r")
-  local api_issue_url = handle:read("*a")
-  handle:close()
+  local api_issue_url = execute_command(create_cmd)
 
   if api_issue_url == "" then
-    print("Failed to create GitHub Issue.")
+    log_error("Failed to create GitHub Issue.")
     return nil
   else
-    print("GitHub Issue created successfully.")
+    log_error("GitHub Issue created successfully.")
     return api_issue_url:match('"(.-)"') -- JSON文字列からURLを抽出
   end
 end
@@ -188,7 +260,7 @@ end
 function M.update_issue(api_issue_url, title, body)
   -- IssueのAPI URLを確認
   if not api_issue_url or api_issue_url == "" then
-    print("Error: Invalid GitHub Issue API URL")
+    log_error("Error: Invalid GitHub Issue API URL")
     return false
   end
 
@@ -196,15 +268,13 @@ function M.update_issue(api_issue_url, title, body)
   local update_cmd = string.format("gh api -X PATCH %s --field title=%s --field body=%s", api_issue_url, vim.fn.shellescape(title), vim.fn.shellescape(body))
 
   -- コマンドの実行と結果の処理
-  local handle = io.popen(update_cmd, "r")
-  local result = handle:read("*a")
-  handle:close()
+  local result = execute_command(update_cmd)
 
   if result:match("Error:") then
-    print("Failed to update GitHub Issue: " .. result)
+    log_error("Failed to update GitHub Issue: " .. result)
     return false
   else
-    print("GitHub Issue updated successfully.")
+    vim.notify("GitHub Issue updated successfully.", vim.log.levels.INFO)
     return true
   end
 end
@@ -214,15 +284,13 @@ function M.create_issue_comment(api_issue_url, comment_body)
   local create_cmd = string.format('gh api -X POST %s/comments --field body=%s --jq ".url"', api_issue_url, vim.fn.shellescape(comment_body))
 
   -- コマンドの実行と結果の処理
-  local handle = io.popen(create_cmd, "r")
-  local api_comment_url = handle:read("*a")
-  handle:close()
+  local api_comment_url = execute_command(create_cmd)
 
   if api_comment_url == "" then
-    print("Failed to create GitHub Comment.")
+    log_error("Failed to create GitHub Comment.")
     return nil
   else
-    print("GitHub Comment created successfully.")
+    vim.notify("GitHub Comment created successfully.", vim.log.levels.INFO)
     return api_comment_url:match('"(.-)"') -- JSON文字列からURLを抽出
   end
 end
@@ -230,7 +298,7 @@ end
 function M.update_issue_comment(api_comment_url, new_body)
   -- コメントのAPI URLを確認
   if not api_comment_url or api_comment_url == "" then
-    print("Error: Invalid GitHub Comment API URL")
+    log_error("Error: Invalid GitHub Comment API URL")
     return false
   end
 
@@ -238,15 +306,13 @@ function M.update_issue_comment(api_comment_url, new_body)
   local update_cmd = string.format("gh api -X PATCH %s --field body=%s", api_comment_url, vim.fn.shellescape(new_body))
 
   -- コマンドの実行と結果の処理
-  local handle = io.popen(update_cmd, "r")
-  local result = handle:read("*a")
-  handle:close()
+  local result = execute_command(update_cmd)
 
   if result:match("Error:") then
-    print("Failed to update GitHub Comment: " .. result)
+    log_error("Failed to update GitHub Comment: " .. result)
     return false
   else
-    print("GitHub Comment updated successfully.")
+    vim.notify("GitHub Comment updated successfully.", vim.log.levels.INFO)
     return true
   end
 end
@@ -300,20 +366,17 @@ function M.save_comment(task_bufnr, task_uuid)
 end
 
 function M.update_comment_list(task_uuid, comment_uuid)
-  local list_path = vim.fn.stdpath("data") .. "/todo/list.json"
-  local list = vim.fn.json_decode(vim.fn.readfile(list_path)) or {}
+  local list = M.load_task_list()
   local task_data = list[task_uuid] or { comments = {} }
 
   table.insert(task_data.comments, { uuid = comment_uuid, issue_comment_url = nil })
   list[task_uuid] = task_data
 
-  local file = io.open(list_path, "w")
-  file:write(vim.fn.json_encode(list))
-  file:close()
+  M.save_task_list(list)
 end
 
 vim.cmd([[
-function! TodoCommandCompletion()
+function! TodoCommandCompletion(...)
   return [ 'new', 'note', 'sync' ]
 endfunction
 command! -nargs=? -complete=customlist,TodoCommandCompletion Todo call v:lua.handle_todo_command(<f-args>)
@@ -339,6 +402,6 @@ function handle_todo_command(args)
 end
 
 -- To use commands like lower-letter
-vim.keymap.set({ "!a" }, "todo", "Todo")
+require("kyoh86.conf.cmd_alias").set("todo", "Todo")
 
 return M
