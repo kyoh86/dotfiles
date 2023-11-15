@@ -4,7 +4,8 @@ local spec = {
     "kyoh86/vim-ripgrep",
     cmd = "Ripgrep",
     init = function()
-      vim.cmd([[ cabbrev <expr> Rg (getcmdtype() ==# ":" && getcmdline() ==# "Rg") ? "Ripgrep" : "Rg" ]])
+      require("kyoh86.conf.cmd_alias").set("rg", "Ripgrep")
+      require("kyoh86.conf.cmd_alias").set("Rg", "Ripgrep")
     end,
     config = function()
       vim.api.nvim_create_user_command("Ripgrep", "call ripgrep#search(<q-args>)", { nargs = "*", complete = "file" })
