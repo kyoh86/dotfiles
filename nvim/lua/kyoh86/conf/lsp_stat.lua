@@ -82,7 +82,7 @@ local function show_message(name, content)
 
   local winnr = vim.fn.bufwinnr(buf)
   if winnr == -1 then
-    vim.cmd({cmd="split", mods={belowright=true}})
+    vim.cmd({cmd="split", mods={split="belowright"}})
     local win = vim.api.nvim_get_current_win()
     vim.api.nvim_win_set_buf(win, buf)
   else

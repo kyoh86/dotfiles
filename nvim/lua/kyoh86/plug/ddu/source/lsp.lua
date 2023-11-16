@@ -40,7 +40,7 @@ local spec = {
         },
       },
     }, {
-      startkey = { "<leader>fld", "<leader>ld" },
+      startkey = { "<leader>fld" },
       filelike = true,
     })
 
