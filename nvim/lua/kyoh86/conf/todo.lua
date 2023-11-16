@@ -1,3 +1,5 @@
+--- ref: ../../../plugin/todo.lua
+
 local conf = {
   data_dir = vim.fn.stdpath("data") .. "/todo",
 }
@@ -374,13 +376,6 @@ function M.update_comment_list(task_uuid, comment_uuid)
 
   M.save_task_list(list)
 end
-
-vim.cmd([[
-function! TodoCommandCompletion(...)
-  return [ 'new', 'note', 'sync' ]
-endfunction
-command! -nargs=? -complete=customlist,TodoCommandCompletion Todo call v:lua.handle_todo_command(<f-args>)
-]])
 
 function handle_todo_command(args)
   -- サブコマンドに基づいて適切なアクションを実行
