@@ -1,9 +1,10 @@
 [ddu-source]
 prefix = "ddusource"
 body = """
-import type {} from "https://deno.land/x/denops_std@v5.0.1/mod.ts";
-import type { GatherArguments } from "https://deno.land/x/ddu_vim@v3.4.2/base/source.ts";
-import type { BaseSource, Item } from "https://deno.land/x/ddu_vim@v3.4.2/types.ts";
+import type {} from "https://deno.land/x/denops_std@v5.0.2/mod.ts";
+import type { GatherArguments } from "https://deno.land/x/ddu_vim@v3.6.0/base/source.ts";
+import { BaseSource } from "https://deno.land/x/ddu_vim@v3.6.0/types.ts";
+import type { Item } from "https://deno.land/x/ddu_vim@v3.6.0/types.ts";
 
 type ActionData = Record<PropertyKey, never>;
 
@@ -16,7 +17,6 @@ export class Source extends BaseSource<Params, ActionData> {
     args: GatherArguments<Params>,
   ): ReadableStream<Item<ActionData>[]> {
     throw new Error("not implemented");
-    $2
   }
 
   override params(): Params {
