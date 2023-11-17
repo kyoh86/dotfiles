@@ -26,8 +26,6 @@ local opts = {
       disabled_plugins = {
         --- 不要な標準プラグインを無効化
         "gzip",
-        "matchit",
-        "matchparen",
         "netrwPlugin",
         "netrw",
         "tarPlugin",
