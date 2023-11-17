@@ -32,6 +32,7 @@ local function setup_lsp_global()
       go = {},
       javascript = {},
       lua = {},
+      css = {},
       terraform = {},
       typescript = {},
     })

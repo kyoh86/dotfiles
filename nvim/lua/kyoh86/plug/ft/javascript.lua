@@ -1,5 +1,7 @@
 ---@type LazySpec
-local spec = {
+local spec = { {
   "pangloss/vim-javascript",
-}
+}, {
+  "MaxMEllon/vim-jsx-pretty",
+} }
 return spec
