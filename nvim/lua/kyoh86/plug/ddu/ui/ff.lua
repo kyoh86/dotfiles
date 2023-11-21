@@ -141,12 +141,13 @@ local spec = {
           local option = vim.tbl_extend("keep", opt or {}, { nowait = true, buffer = true, silent = true, remap = false })
           vim.keymap.set("i", lh, rh, option)
         end
-        imap("<esc>", "<esc>dd<cmd>call ddu#ui#do_action('closeFilterWindow')<cr>")
+        imap("<esc>", "<esc>ggdG<cmd>call ddu#ui#do_action('closeFilterWindow')<cr>")
         imap("<cr>", "<esc><cmd>call ddu#ui#do_action('leaveFilterWindow')<cr>")
         imap("<bs>", function()
           return vim.fn.col(".") <= 1 and "" or "<bs>"
         end, { expr = true, remap = true })
         imap("<C-A>", "<Home>")
+        imap("<C-E>", "<End>")
         imap("<C-F>", "<Right>")
         imap("<C-B>", "<Left>")
         imap("<C-D>", "<Del>")
