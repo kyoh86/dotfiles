@@ -1,14 +1,14 @@
 --- Statuslineのmodeに関する設定
 local indicator = { -- see :help mode(1)
-  n = "\u{E7C5}  ", --[[                   x : ノーマル ]]
-  no = "\u{E7C5}\u{F01D8} ", --[[        󰇘 x : オペレータ待機 ]]
-  nov = "\u{E7C5}\u{F01D8} ", --[[       󰇘 x : オペレータ待機（強制文字単位） ]]
-  noV = "\u{E7C5}\u{F01D8} ", --[[       󰇘 x : オペレータ待機（強制行単位） ]]
-  ["no"] = "\u{E7C5}\u{F01D8} ", --[[  󰇘 x : オペレータ待機（強制ブロック単位） ]]
-  niI = "\u{F246}\u{E7C5}", --[[         x : Insert-mode で i_CTRL-O を使用したノーマル ]]
-  niR = "\u{F027C} \u{E7C5}", --[[       󰉼 x : Replace-mode で i_CTRL-O を使用したノーマル ]]
-  niV = "\u{F027C} \u{E7C5}", --[[       󰉼 x : Virtual-Replace-mode で i_CTRL-O を使用したノーマル ]]
-  nt = "\u{F120}\u{E7C5}", --[[          x : 端末ノーマル ]]
+  n = "\u{E6AE}  ", --[[                   x : ノーマル ]]
+  no = "\u{E6AE}\u{F01D8} ", --[[        󰇘 x : オペレータ待機 ]]
+  nov = "\u{E6AE}\u{F01D8} ", --[[       󰇘 x : オペレータ待機（強制文字単位） ]]
+  noV = "\u{E6AE}\u{F01D8} ", --[[       󰇘 x : オペレータ待機（強制行単位） ]]
+  ["no"] = "\u{E6AE}\u{F01D8} ", --[[  󰇘 x : オペレータ待機（強制ブロック単位） ]]
+  niI = "\u{F246}\u{E6AE}", --[[         x : Insert-mode で i_CTRL-O を使用したノーマル ]]
+  niR = "\u{F027C} \u{E6AE}", --[[       󰉼 x : Replace-mode で i_CTRL-O を使用したノーマル ]]
+  niV = "\u{F027C} \u{E6AE}", --[[       󰉼 x : Virtual-Replace-mode で i_CTRL-O を使用したノーマル ]]
+  nt = "\u{F120}\u{E6AE}", --[[          x : 端末ノーマル ]]
 
   v = "\u{F09A8}   ", --[[               󰦨   x : 文字単位ビジュアル ]]
   vs = "\u{F09A8}   ", --[[              󰦨   x : 選択モードで v_CTRL-O を利用した時の文字単位ビジュアル ]]
