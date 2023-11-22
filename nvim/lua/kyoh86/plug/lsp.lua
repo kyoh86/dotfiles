@@ -324,6 +324,7 @@ local function register_lsp_servers()
   register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
   register("pylsp", {})
   register("pyright", {})
+  register("prismals", {}) -- Prisma (TypeScript DB ORM)
   register("rust_analyzer", {
     ["rust-analyzer"] = {
       imports = {
