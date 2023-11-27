@@ -1,4 +1,4 @@
-local func = require("kyoh86.func")
+local func = require("kyoh86.lib.func")
 ---@type LazySpec
 local spec = {
   "vim-skk/skkeleton",
