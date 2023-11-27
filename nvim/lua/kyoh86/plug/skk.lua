@@ -1,3 +1,4 @@
+local func = require("kyoh86.func")
 ---@type LazySpec
 local spec = {
   "vim-skk/skkeleton",
@@ -29,9 +30,7 @@ local spec = {
       zenkaku = { bg = vim.g.momiji_palette.green[1], fg = vim.g.momiji_palette.black[1] }, -- 全角英数
       abbrev = { bg = vim.g.momiji_palette.magenta[1], fg = vim.g.momiji_palette.black[1] },
     }
-    local disable_color = function()
-      vim.api.nvim_set_hl(0, "CursorLineNr", { bg = vim.g.momiji_palette.white[1], fg = vim.g.momiji_palette.black[1] })
-    end
+    local disable_color = func.bind_all(vim.api.nvim_set_hl, 0, "CursorLineNr", { bg = vim.g.momiji_palette.white[1], fg = vim.g.momiji_palette.black[1] })
     local inserting = {
       i = true,
       R = true,

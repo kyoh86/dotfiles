@@ -4,17 +4,15 @@ local helper = require("kyoh86.plug.ddu.helper")
 local spec = {
   "matsui54/ddu-source-help",
   dependencies = { { "ddu.vim" } },
-  config = function()
-    helper.setup("help", {
-      sources = { { name = "help" } },
-      kindOptions = {
-        help = {
-          defaultAction = "open",
-        },
+  config = helper.setup_func("help", {
+    sources = { { name = "help" } },
+    kindOptions = {
+      help = {
+        defaultAction = "open",
       },
-    }, {
-      startkey = "<leader>fh",
-    })
-  end,
+    },
+  }, {
+    startkey = "<leader>fh",
+  }),
 }
 return spec

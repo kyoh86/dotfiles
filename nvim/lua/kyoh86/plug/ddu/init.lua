@@ -1,16 +1,15 @@
+local func = require("kyoh86.lib.func")
 ---@type LazySpec[]
 local spec = {
   {
     "Shougo/ddu.vim",
-    config = function()
-      vim.fn["ddu#custom#patch_global"]({
-        sourceOptions = {
-          _ = {
-            ignoreCase = true,
-          },
+    config = func.bind_all(vim.fn["ddu#custom#patch_global"], {
+      sourceOptions = {
+        _ = {
+          ignoreCase = true,
         },
-      })
-    end,
+      },
+    }),
     dependencies = { "denops.vim" },
   },
   { import = "kyoh86.plug.ddu.source" },

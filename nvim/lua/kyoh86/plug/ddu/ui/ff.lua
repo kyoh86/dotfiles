@@ -1,9 +1,9 @@
+local func = require("kyoh86.lib.func")
+
 --- Create caller for ddu#ui#do_action
 ---@param actionName string
 local function ddu_ui_action(actionName)
-  return function()
-    vim.fn["ddu#ui#do_action"](actionName, vim.empty_dict())
-  end
+  return func.bind_all(vim.fn["ddu#ui#do_action"], actionName, vim.empty_dict())
 end
 
 ---@type LazySpec

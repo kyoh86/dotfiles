@@ -5,40 +5,38 @@ local spec = {
   {
     "kyoh86/ddu-source-zenn_dev",
     dependencies = { "ddu.vim", "ddu-kind-file", "ddu-filter-kensaku", "ddu-filter-sorter_alpha" },
-    config = function()
-      helper.setup("zenn-dev-article", {
-        sources = { {
-          name = "zenn_dev_article",
-        } },
-        sourceOptions = {
-          _ = {
-            matchers = { "merge" },
-            columns = { "zenn_dev_date", "zenn_dev_emoji", "zenn_dev_title" },
-            sorters = { "sorter_alpha", "sorter_fzf" },
+    config = helper.setup_func("zenn-dev-article", {
+      sources = { {
+        name = "zenn_dev_article",
+      } },
+      sourceOptions = {
+        _ = {
+          matchers = { "merge" },
+          columns = { "zenn_dev_date", "zenn_dev_emoji", "zenn_dev_title" },
+          sorters = { "sorter_alpha", "sorter_fzf" },
+        },
+      },
+      kindOptions = {
+        zenn_dev_article = {
+          defaultAction = "open",
+        },
+      },
+      filterParams = {
+        merge = {
+          filters = {
+            { name = "matcher_kensaku", weight = 1 },
+            { name = "matcher_fzf", weight = 1 },
           },
+          unique = true,
         },
-        kindOptions = {
-          zenn_dev_article = {
-            defaultAction = "open",
-          },
-        },
-        filterParams = {
-          merge = {
-            filters = {
-              { name = "matcher_kensaku", weight = 1 },
-              { name = "matcher_fzf", weight = 1 },
-            },
-            unique = true,
-          },
-        },
-      }, {
-        startkey = "<leader>fza",
-        filelike = true,
-        localmap = {
-          ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
-        },
-      })
-    end,
+      },
+    }, {
+      startkey = "<leader>fza",
+      filelike = true,
+      localmap = {
+        ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
+      },
+    }),
   },
   {
     "Shougo/ddu-filter-sorter_alpha",

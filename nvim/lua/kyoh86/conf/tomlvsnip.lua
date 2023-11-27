@@ -100,12 +100,7 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
     if not match_paths(vim.fn.fnamemodify(path, ":h"), candidates) then
       return
     end
-    vim.api.nvim_buf_create_user_command(ev.buf, "DeconvertToTOML", function()
-      vim.fn["denops#request"]("tomlvsnip", "deconvert", {
-        path,
-        table.concat(vim.api.nvim_buf_get_lines(ev.buf, 0, -1, false), "\n"),
-        4,
-      })
-    end, {})
+    local func = require("kyoh86.lib.func")
+    vim.api.nvim_buf_create_user_command(ev.buf, "DeconvertToTOML", func.bind_all(vim.fn["denops#request"], "tomlvsnip", "deconvert", { path, table.concat(vim.api.nvim_buf_get_lines(ev.buf, 0, -1, false), "\n"), 4 }), {})
   end,
 })

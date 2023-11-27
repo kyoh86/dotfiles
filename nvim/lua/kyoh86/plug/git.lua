@@ -1,3 +1,4 @@
+local func = require("kyoh86.lib.func")
 ---@type LazySpec[]
 local spec = {
   {
@@ -18,9 +19,7 @@ local spec = {
             if vim.wo.diff then
               return "]g"
             end
-            vim.schedule(function()
-              gitsigns.next_hunk()
-            end)
+            vim.schedule(func.bind_all(gitsigns.next_hunk))
             return "<Ignore>"
           end, { expr = true, buffer = bufnr, desc = "jump to next git-diff hunk" })
 
@@ -28,17 +27,13 @@ local spec = {
             if vim.wo.diff then
               return "[g"
             end
-            vim.schedule(function()
-              gitsigns.prev_hunk()
-            end)
+            vim.schedule(func.bind_all(gitsigns.prev_hunk))
             return "<Ignore>"
           end, { expr = true, buffer = bufnr, desc = "jump to next git-diff hunk" })
 
           vim.keymap.set({ "n", "x" }, "<leader>gs", ":Gitsigns stage_hunk<CR>", { buffer = bufnr, noremap = true })
           vim.keymap.set({ "n", "x" }, "<leader>gr", ":Gitsigns undo_stage_hunk<CR>", { buffer = bufnr, noremap = true })
-          vim.keymap.set("n", "<leader>gq", function()
-            gitsigns.setqflist("all")
-          end, { buffer = bufnr, noremap = true, desc = "Populate the quickfix list with hunks" })
+          vim.keymap.set("n", "<leader>gq", func.bind_all(gitsigns.setqflist, "all"), { buffer = bufnr, noremap = true, desc = "Populate the quickfix list with hunks" })
         end,
       })
     end,

@@ -1,17 +1,14 @@
--- local helper = require("kyoh86.plug.ddu.helper")
-
+local func = require("kyoh86.lib.func")
 ---@type LazySpec
 local spec = {
   "kuuote/ddu-filter-fuse",
-  config = function()
-    vim.fn["ddu#custom#patch_global"]({
-      filterParams = {
-        matcher_fuse = {
-          threshold = 0.6,
-        },
+  config = func.bind_all(vim.fn["ddu#custom#patch_global"], {
+    filterParams = {
+      matcher_fuse = {
+        threshold = 0.6,
       },
-    })
-  end,
+    },
+  }),
   dependencies = { "ddu.vim" },
 }
 return spec

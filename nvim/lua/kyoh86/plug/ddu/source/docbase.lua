@@ -4,21 +4,19 @@ local helper = require("kyoh86.plug.ddu.helper")
 local spec = {
   "kyoh86/ddu-source-docbase",
   dependencies = { "ddu.vim", "denops-docbase.vim" },
-  config = function()
-    helper.setup("docbase_posts", {
-      sources = { { name = "docbase_posts", params = { domain = "wacul" } } },
-      kindOptions = {
-        file = {
-          defaultAction = "open",
-        },
+  config = helper.setup_func("docbase_posts", {
+    sources = { { name = "docbase_posts", params = { domain = "wacul" } } },
+    kindOptions = {
+      file = {
+        defaultAction = "open",
       },
-    }, {
-      startkey = "<leader>fd",
-      filelike = true,
-      localmap = {
-        ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
-      },
-    })
-  end,
+    },
+  }, {
+    startkey = "<leader>fd",
+    filelike = true,
+    localmap = {
+      ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
+    },
+  }),
 }
 return spec

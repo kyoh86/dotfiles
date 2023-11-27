@@ -1,3 +1,4 @@
+local func = require("kyoh86.lib.func")
 local M = {}
 
 local ddu_ui_map = {}
@@ -39,6 +40,14 @@ end
 ---@param name string A name of the ddu instance or the local option.
 ---@param dduopts table<string, any> ddu options.
 ---@param config Kyoh86DduHelperConfig additional config
+---@return fun()
+function M.setup_func(name, dduopts, config)
+  return func.bind_all(M.setup, name, dduopts, config)
+end
+
+---@param name string A name of the ddu instance or the local option.
+---@param dduopts table<string, any> ddu options.
+---@param config Kyoh86DduHelperConfig additional config
 function M.setup(name, dduopts, config)
   vim.fn["ddu#custom#patch_local"](name, dduopts)
 
@@ -48,9 +57,7 @@ function M.setup(name, dduopts, config)
       keys = { keys }
     end
     for _, key in pairs(keys) do
-      vim.keymap.set("n", key, function()
-        vim.fn["ddu#start"]({ name = name })
-      end, { remap = false, desc = "Start ddu: " .. name })
+      vim.keymap.set("n", key, func.bind_all(vim.fn["ddu#start"], { name = name }), { remap = false, desc = "Start ddu: " .. name })
     end
   end
 
@@ -71,9 +78,7 @@ function M.setup(name, dduopts, config)
       pattern = "ddu-ff",
       callback = function()
         for lh in pairs(map) do
-          vim.keymap.set("n", lh, function()
-            ddu_ui_call_map(vim.b["ddu_ui_name"], lh)
-          end, { nowait = true, remap = false, buffer = true })
+          vim.keymap.set("n", lh, func.bind_all(ddu_ui_call_map, vim.b["ddu_ui_name"], lh), { nowait = true, remap = false, buffer = true })
         end
       end,
     })

@@ -1,3 +1,4 @@
+local func = require("kyoh86.lib.func")
 --- LSPで表示されるDiagnosticsのフォーマット
 local function format_diagnostics(diag)
   if diag.code then
@@ -128,19 +129,20 @@ local function setup_lsp_keymap()
   end
   setmap({ "n", "v" }, "<leader>lca", function()
     local range = range_from_selection(vim.api.nvim_get_mode().mode)
+    if range == nil then
+      return
+    end
     vim.lsp.buf.code_action({ range = range })
   end, "selects a code action available at the current cursor position")
 
   -- listup actions
-  local function wrap_on_list(func)
-    return function()
-      func({
-        on_list = function(options)
-          vim.fn.setloclist(0, {}, " ", options)
-          vim.cmd.lopen()
-        end,
-      })
-    end
+  local function wrap_on_list(f)
+    return func.bind(f, {
+      on_list = function(options)
+        vim.fn.setqflist({}, " ", options)
+        vim.cmd.copen()
+      end,
+    })
   end
 
   setmap("n", "<leader>lf", wrap_on_list(vim.lsp.buf.definition), "jumps to the definition of the symbol under the cursor")
@@ -155,9 +157,7 @@ local function setup_lsp_keymap()
   setmap("n", "<leader>lld", vim.diagnostic.setqflist, "add all diagnostics to the quickfix list")
 
   -- show diagnostics
-  setmap("n", "<leader>lll", function()
-    vim.diagnostic.open_float(diagnosis_config)
-  end, "show diagnostics in a floating window")
+  setmap("n", "<leader>lll", func.bind_all(vim.diagnostic.open_float, diagnosis_config), "show diagnostics in a floating window")
 end
 
 --- Attach時の設定: LSPによるImport文の再編とフォーマットの適用

@@ -4,17 +4,15 @@ local helper = require("kyoh86.plug.ddu.helper")
 local spec = {
   "flow6852/ddu-source-vim_function",
   dependencies = { "ddu.vim", "denops.vim", "flow6852/ddu-kind-vim_type" },
-  config = function()
-    helper.setup("vim-function", {
-      sources = { { name = "vim_function" } },
-      kindOptions = {
-        vim_type = {
-          defaultAction = "insert",
-        },
+  config = helper.setup_func("vim-function", {
+    sources = { { name = "vim_function" } },
+    kindOptions = {
+      vim_type = {
+        defaultAction = "insert",
       },
-    }, {
-      startkey = "<leader>fvf",
-    })
-  end,
+    },
+  }, {
+    startkey = "<leader>fvf",
+  }),
 }
 return spec

@@ -4,17 +4,15 @@ local helper = require("kyoh86.plug.ddu.helper")
 local spec = {
   "kyoh86/ddu-source-command",
   dependencies = { "ddu.vim", "ddu-kind-word" },
-  config = function()
-    helper.setup("command", {
-      sources = { { name = "command" } },
-      kindOptions = {
-        command = {
-          defaultAction = "edit",
-        },
+  config = helper.setup_func("command", {
+    sources = { { name = "command" } },
+    kindOptions = {
+      command = {
+        defaultAction = "edit",
       },
-    }, {
-      startkey = "<leader>f:",
-    })
-  end,
+    },
+  }, {
+    startkey = "<leader>f:",
+  }),
 }
 return spec

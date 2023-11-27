@@ -24,17 +24,15 @@ local spec = {
   {
     "matsui54/ddu-source-file_external",
     dependencies = { "ddu.vim", "ddu-kind-file" },
-    config = function()
-      helper.setup("file-hide", {
-        sources = { {
-          name = "file_external",
-          params = { cmd = { "rg", "--files", "--color", "never" } },
-        } },
-      }, {
-        startkey = "<leader>ff",
-        filelike = true,
-      })
-    end,
+    config = helper.setup_func("file-hide", {
+      sources = { {
+        name = "file_external",
+        params = { cmd = { "rg", "--files", "--color", "never" } },
+      } },
+    }, {
+      startkey = "<leader>ff",
+      filelike = true,
+    }),
   },
 }
 return spec
