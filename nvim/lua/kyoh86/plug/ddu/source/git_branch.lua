@@ -34,13 +34,10 @@ local spec = {
       startkey = "<leader>fgb",
       localmap = {
         ["<leader>d"] = { action = "itemAction", params = { name = "delete" } },
-        ["<leader>r"] = { action = "itemAction", params = { name = "reset" } },
-        ["<leader>c"] = { action = "itemAction", params = { name = "copy" } },
+        ["<leader>c"] = { action = "itemAction", params = { name = "createFrom" } },
         ["<leader>l"] = { action = "itemAction", params = { name = "custom:logs" } },
 
-        ["<leader>f"] = { action = "itemAction", params = { name = "fixupTo" } },
-        ["<leader>y"] = { action = "itemAction", params = { name = "yank" } },
-        ["<leader>p"] = { action = "itemAction", params = { name = "append" } },
+        ["<leader>y"] = { action = "itemAction", params = { name = "yankName" } },
       },
     })
 
