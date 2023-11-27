@@ -3,27 +3,31 @@
 local function inscmdline(ins)
   local cmd = vim.fn.getcmdline()
   local pos = vim.fn.getcmdpos()
-  local left = cmd:sub(1, pos - 1)
-  local right = cmd:sub(pos)
+  local left = ""
+  local right = ""
+  if cmd ~= nil and pos ~= nil and pos > 0 then
+    left = cmd:sub(1, pos - 1)
+    right = cmd:sub(pos)
+  end
   vim.fn.setcmdline(left .. ins .. right, pos + #ins)
 end
 
 vim.keymap.set("c", "<C-x>t", function()
-  inscmdline(vim.fn.expand("%:t"))
+  inscmdline(vim.fn.expand("%:t")--[[@as string]])
 end)
 
 vim.keymap.set("c", "<C-x>p", function()
-  inscmdline(vim.fn.expand("%:p"))
+  inscmdline(vim.fn.expand("%:p")--[[@as string]])
 end)
 
 vim.keymap.set("c", "<C-x>pp", function()
-  inscmdline(vim.fn.expand("%:p"))
+  inscmdline(vim.fn.expand("%:p")--[[@as string]])
 end)
 
 vim.keymap.set("c", "<C-x>ph", function()
-  inscmdline(vim.fn.expand("%:p:h"))
+  inscmdline(vim.fn.expand("%:p:h")--[[@as string]])
 end)
 
 vim.keymap.set("c", "<C-x>h", function()
-  inscmdline(vim.fn.expand("%:h"))
+  inscmdline(vim.fn.expand("%:h")--[[@as string]])
 end)

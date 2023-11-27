@@ -105,6 +105,9 @@ local function setup_lsp_keymap()
     -- workaround for https://github.com/neovim/neovim/issues/22629
     local start = vim.fn.getpos("v")
     local end_ = vim.fn.getpos(".")
+    if start == nil or end_ == nil then
+      return nil
+    end
     local start_row = start[2]
     local start_col = start[3]
     local end_row = end_[2]
