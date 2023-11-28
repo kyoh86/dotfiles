@@ -27,9 +27,6 @@ local function setup_comp()
       ["<C-y>"] = cmp.mapping.confirm({ select = true }),
       ["<C-l>"] = cmp.mapping.complete_common_string(),
     }),
-    completion = {
-      autocomplete = false,
-    },
     formatting = {
       ---@type fun(entry: cmp.Entry, vim_item: vim.CompletedItem): vim.CompletedItem
       format = function(entry, vim_item)
