@@ -37,6 +37,7 @@ local spec = {
         ["<leader>c"] = { action = "itemAction", params = { name = "createFrom" } },
         ["<leader>l"] = { action = "itemAction", params = { name = "custom:logs" } },
 
+        ["<leader>R"] = { action = "itemAction", params = { name = "rebaseTo" } },
         ["<leader>y"] = { action = "itemAction", params = { name = "yankName" } },
       },
     })
