@@ -18,7 +18,6 @@ export class Config extends BaseConfig {
     args.contextBuilder.patchGlobal({
       ui: "pum",
       sources: sources,
-      autoCompleteEvents: [],
       cmdlineSources: {
         ":": ["cmdline", "cmdline-history"],
         "@": ["input", "cmdline-history"],
