@@ -18,6 +18,7 @@ export class Config extends BaseConfig {
     args.contextBuilder.patchGlobal({
       ui: "pum",
       sources: sources,
+      autoCompleteEvents: ["TextChangedI", "TextChangedP"],
       cmdlineSources: {
         ":": ["cmdline", "cmdline-history"],
         "@": ["input", "cmdline-history"],
@@ -30,18 +31,19 @@ export class Config extends BaseConfig {
       sourceOptions: {
         _: {
           ignoreCase: true,
+
+          // maxAutoCompleteLength: 0,
           matchers: ["matcher_head", "matcher_prefix", "matcher_length"],
           sorters: ["sorter_rank"],
           converters: ["converter_remove_overlap"],
-          timeout: 1000,
         },
         "nvim-lsp": {
           mark: "lsp",
           forceCompletionPattern: "\\.\\w*|::\\w*|->\\w*",
-          dup: "force",
+          // dup: "force",
         },
       },
-      postFilters: ["sorter_head"],
+      // postFilters: ["sorter_head"],
     });
 
     args.contextBuilder.patchFiletype("ddu-ff-filter", {

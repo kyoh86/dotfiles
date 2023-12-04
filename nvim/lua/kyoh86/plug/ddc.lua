@@ -26,20 +26,28 @@ local spec = {
 
       vim.keymap.set("i", "<C-Space>", func.bind_all(vim.fn["ddc#map#manual_complete"]), {})
 
+      --- pumの設定
+      vim.fn["pum#set_option"]({
+        border = "single",
+        padding = true,
+        preview = true,
+      })
       --- ddc利用に必要な周辺の設定
       vim.opt.completeopt:append("noinsert")
       vim.opt.shortmess:append("c")
-      -- local group = vim.api.nvim_create_augroup("kyoh86-plug-ddc", {
-      --   clear = true,
-      -- })
-      -- vim.api.nvim_create_autocmd("CompleteDone", {
-      --   pattern = "*",
-      --   command = "silent! pclose!",
-      --   group = group,
-      -- })
+      vim.api.nvim_create_autocmd("TextChangedI", {
+        group = vim.api.nvim_create_augroup("kyoh86-plug-ddc", { clear = true }),
+        pattern = "*",
+        callback = function()
+          if vim.fn["pum#visible"]() then
+            vim.fn["ddc#map#manual_complete"]()
+          end
+        end,
+      })
+
       vim.fn["ddc#enable"]()
     end,
-    dependencies = { "denops.vim" },
+    dependencies = { "pum.vim", "denops.vim" },
   },
   {
     "Shougo/ddc-source-nvim-lsp",
