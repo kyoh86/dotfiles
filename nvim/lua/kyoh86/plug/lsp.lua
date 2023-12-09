@@ -18,6 +18,7 @@ local diagnosis_config = {
 local lsp_server_list = {}
 local lsp_config_table = {}
 local function setup_lsp_global()
+  vim.lsp.set_log_level(vim.log.levels.WARN)
   kyoh86.ensure("mason", function(m)
     m.setup({
       log_level = vim.log.levels.DEBUG,
@@ -232,6 +233,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local bufnr = args.buf
     local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if client == nil then
+      return
+    end
     if client.server_capabilities.documentFormattingProvider then
       kyoh86.ensure("lsp-format", function(m)
         m.on_attach(client)
