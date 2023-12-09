@@ -232,9 +232,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local bufnr = args.buf
     local client = vim.lsp.get_client_by_id(args.data.client_id)
-    kyoh86.ensure("lsp-format", function(m)
-      m.on_attach(client)
-    end)
+    if client.server_capabilities.documentFormattingProvider then
+      kyoh86.ensure("lsp-format", function(m)
+        m.on_attach(client)
+      end)
+    end
     if client.server_capabilities.inlayHintProvider then
       vim.b.kyoh86_plug_lsp_inlay_hint_enabled = true
     end
