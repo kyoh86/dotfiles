@@ -145,13 +145,13 @@ local spec = {
         imap("<cr>", "<esc><cmd>call ddu#ui#do_action('leaveFilterWindow')<cr>")
         imap("<bs>", function()
           return vim.fn.col(".") <= 1 and "" or "<bs>"
-        end, { expr = true, remap = true })
-        imap("<C-A>", "<Home>")
-        imap("<C-E>", "<End>")
-        imap("<C-F>", "<Right>")
-        imap("<C-B>", "<Left>")
-        imap("<C-D>", "<Del>")
-        imap("<C-H>", "<BS>", { remap = true })
+        end, { expr = true })
+        imap("<C-a>", "<Home>")
+        imap("<C-e>", "<End>")
+        imap("<C-f>", "<Right>")
+        imap("<C-b>", "<Left>")
+        imap("<C-d>", "<Del>")
+        imap("<C-h>", "<BS>")
       end,
     })
   end,
