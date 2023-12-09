@@ -17,6 +17,7 @@ _source_part zmv
 _source_part sdkman
 
 _source_part util/put_zsh_history
+_source_part util/update_deno_dependencies
 _source_part util/revive_job
 _source_part util/nvim_env
 _source_part util/show_github_issue
