@@ -203,6 +203,7 @@ local function register_lsp_servers()
   register("cssmodules_ls", {})
   register("denols", require("kyoh86.plug.lsp.denols"), true) -- uses global deno, so it should not be installed by Mason
   register("dockerls", {})
+  register("efm", require("kyoh86.plug.lsp.efm"))
   register("eslint", {})
   register("gopls", require("kyoh86.plug.lsp.gopls"))
   register("graphql", {})
@@ -297,36 +298,5 @@ local spec = {
   },
   { "williamboman/mason.nvim", lazy = true },
   { "lukas-reineke/lsp-format.nvim", lazy = true },
-  { "jay-babu/mason-null-ls.nvim", lazy = true },
-  {
-    "jose-elias-alvarez/null-ls.nvim",
-    config = function()
-      local null_ls = require("null-ls")
-      null_ls.setup({
-        diagnostics_format = "#{m} (#{s}: #{c})",
-        sources = {
-          null_ls.builtins.formatting.stylua,
-          null_ls.builtins.formatting.scalafmt,
-          null_ls.builtins.diagnostics.actionlint,
-          null_ls.builtins.diagnostics.textlint.with({
-            filetypes = { "markdown" },
-            condition = function(utils)
-              return vim.fn.executable("textlint") ~= 0 and utils.root_has_file({
-                ".textlintrc",
-                ".textlintrc.js",
-                ".textlintrc.json",
-                ".textlintrc.yml",
-                ".textlintrc.yaml",
-              })
-            end,
-          }),
-        },
-        on_attach = function(client, _)
-          require("lsp-format").on_attach(client)
-        end,
-      })
-    end,
-    dependencies = { "mason.nvim", "lsp-format.nvim", "mason-null-ls.nvim" },
-  },
 }
 return spec
