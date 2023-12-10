@@ -1,4 +1,5 @@
-local func = require("kyoh86.lib.func")
+local setup_keymap = require("kyoh86.plug.lsp.keymap")
+
 --- LSPで表示されるDiagnosticsのフォーマット
 local function format_diagnostics(diag)
   if diag.code then
@@ -85,83 +86,6 @@ local function setup_lsp_global()
 end
 
 --- Attach時の設定: Keymapの設定
-local function setup_lsp_keymap()
-  local setmap = function(modes, lhr, rhr, desc)
-    vim.keymap.set(modes, lhr, rhr, { remap = false, silent = true, desc = desc })
-  end
-  -- show / edit actions
-  setmap("n", "<leader>li", function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    if vim.b[bufnr].kyoh86_plug_lsp_inlay_hint_enabled == true then
-      vim.lsp.buf.inlay_hint(bufnr, nil)
-    end
-  end, "displays inlay hints")
-  setmap("n", "<leader>lh", vim.lsp.buf.hover, "displays hover information about the symbol under the cursor in a floating window")
-  setmap("n", "<leader>ls", vim.lsp.buf.signature_help, "displays signature information about the symbol under the cursor in a floating window")
-  setmap("n", "<leader>lr", vim.lsp.buf.rename, "renames all references to the symbol under the cursor")
-  setmap("n", "]l", vim.diagnostic.goto_next, "move to the next diagnostic")
-  setmap("n", "[l", vim.diagnostic.goto_prev, "move to the previous diagnostic in the current buffer")
-
-  local function range_from_selection(mode)
-    -- workaround for https://github.com/neovim/neovim/issues/22629
-    local start = vim.fn.getpos("v")
-    local end_ = vim.fn.getpos(".")
-    if start == nil or end_ == nil then
-      return nil
-    end
-    local start_row = start[2]
-    local start_col = start[3]
-    local end_row = end_[2]
-    local end_col = end_[3]
-
-    if start_row == end_row and end_col < start_col then
-      end_col, start_col = start_col, end_col
-    elseif end_row < start_row then
-      start_row, end_row = end_row, start_row
-      start_col, end_col = end_col, start_col
-    end
-    if mode == "V" then
-      -- select whole line in the selection (in linewise-visual mode)
-      start_col = 1
-      local lines = vim.api.nvim_buf_get_lines(0, end_row - 1, end_row, true)
-      end_col = #lines[1]
-    end
-    return {
-      start = { start_row, start_col - 1 },
-      ["end"] = { end_row, end_col - 1 },
-    }
-  end
-  setmap({ "n", "v" }, "<leader>lca", function()
-    local range = range_from_selection(vim.api.nvim_get_mode().mode)
-    if range == nil then
-      return
-    end
-    vim.lsp.buf.code_action({ range = range })
-  end, "selects a code action available at the current cursor position")
-
-  -- listup actions
-  local function wrap_on_list(f)
-    return func.bind(f, {
-      on_list = function(options)
-        vim.fn.setqflist({}, " ", options)
-        vim.cmd.copen()
-      end,
-    })
-  end
-
-  setmap("n", "<leader>lf", vim.lsp.buf.definition, "jumps to the definition of the symbol under the cursor")
-  setmap("n", "<leader>ld", vim.lsp.buf.declaration, "jumps to the declaration of the symbol under the cursor")
-  setmap("n", "<leader>ltf", vim.lsp.buf.type_definition, "jumps to the type definition of the symbol under the cursor")
-  setmap("n", "<leader>llr", vim.lsp.buf.references, "lists all the references to the symbol under the cursor in the quickfix window")
-  setmap("n", "<leader>lls", vim.lsp.buf.document_symbol, "lists all symbols in the current buffer in the quickfix window")
-  setmap("n", "<leader>llS", vim.lsp.buf.workspace_symbol, "lists all symbols in the current workspace in the quickfix window")
-  setmap("n", "<leader>llc", vim.lsp.buf.incoming_calls, "lists all the call sites of the symbol under the cursor in the quickfix window")
-  setmap("n", "<leader>llC", vim.lsp.buf.outgoing_calls, "lists all the items that are called by the symbol under the cursor in the quickfix window")
-  setmap("n", "<leader>lld", vim.diagnostic.setqflist, "add all diagnostics to the quickfix list")
-
-  -- show diagnostics
-  setmap("n", "<leader>lll", func.bind_all(vim.diagnostic.open_float, diagnosis_config), "show diagnostics in a floating window")
-end
 
 --- Attach時の設定: LSPによるImport文の再編とフォーマットの適用
 local function attach_lsp(client, bufnr)
@@ -277,176 +201,27 @@ local function register_lsp_servers()
   register("bashls", {})
   register("cssls", {})
   register("cssmodules_ls", {})
-  register("denols", {
-    init_options = {
-      lint = true,
-      unstable = false,
-      suggest = {
-        completeFunctionCalls = true,
-        names = true,
-        paths = true,
-        autoImports = true,
-        imports = {
-          autoDiscover = true,
-          hosts = vim.empty_dict(),
-        },
-      },
-    },
-    single_file_support = false,
-    root_dir = function(path)
-      local marker = require("climbdir.marker")
-      local found = require("climbdir").climb(path, marker.one_of(marker.has_readable_file("deno.json"), marker.has_readable_file("deno.jsonc"), marker.has_directory("denops")), {
-        halt = marker.one_of(marker.has_readable_file("package.json"), marker.has_directory("node_modules")),
-      })
-      if found then
-        vim.b[vim.fn.bufnr()].deno_deps_candidate = found .. "/deps.ts"
-      end
-      return found
-    end,
-  }, true) -- uses global deno, so it should not be installed by Mason
+  register("denols", require("kyoh86.plug.lsp.denols"), true) -- uses global deno, so it should not be installed by Mason
   register("dockerls", {})
   register("eslint", {})
-  register("gopls", {
-    init_options = {
-      usePlaceholders = true,
-      semanticTokens = true,
-      staticcheck = true,
-      experimentalPostfixCompletions = true,
-      directoryFilters = {
-        "-node_modules",
-      },
-      analyses = {
-        nilness = true,
-        unusedparams = true,
-        unusedwrite = true,
-        fieldalignment = true,
-      },
-      codelenses = {
-        gc_details = true,
-        test = true,
-        tidy = true,
-      },
-      hints = {
-        assignVariableTypes = true,
-        compositeLiteralTypes = true,
-        constantValues = true,
-        parameterNames = true,
-        rangeVariableTypes = true,
-      },
-    },
-  })
+  register("gopls", require("kyoh86.plug.lsp.gopls"))
   register("graphql", {})
   register("html", {})
-  local schemas = require("schemastore").json.schemas()
-  table.insert(schemas, {
-    description = "JSON schema for VSCode Code Snippets",
-    fileMatch = { "nvim/vsnip/*.json" },
-    url = "https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json",
-  })
-  table.insert(schemas, {
-    description = "Google Tag Manager",
-    fileMatch = "GTM-*_workspace*.json",
-    url = vim.fn.stdpath("config") .. "/schema/gtm.json",
-  })
-  register("jsonls", {
-    settings = {
-      json = {
-        schemas = schemas,
-        validate = { enable = true },
-      },
-    },
-  })
+  register("jsonls", require("kyoh86.plug.lsp.jsonls"))
   register("lemminx", {}) -- XML
-  register("lua_ls", {
-    settings = {
-      Lua = {
-        hint = {
-          -- Enable inlay hints
-          enable = true,
-        },
-        runtime = {
-          -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-          version = "LuaJIT",
-        },
-        workspace = {
-          -- Make the server aware of Neovim runtime files
-          library = vim.api.nvim_get_runtime_file("", true),
-          checkThirdParty = false,
-        },
-        completion = {
-          callSnippet = "Replace",
-        },
-        -- Do not send telemetry data containing a randomized but unique identifier
-        telemetry = {
-          enable = false,
-        },
-        format = {
-          enable = false,
-        },
-      },
-    },
-  })
+  register("lua_ls", require("kyoh86.plug.lsp.luals"))
   register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
   register("prismals", {}) -- Prisma (TypeScript DB ORM)
   register("pylsp", {})
   register("pyright", {})
-  register("rust_analyzer", {
-    ["rust-analyzer"] = {
-      imports = {
-        granularity = {
-          group = "module",
-        },
-        prefix = "self",
-      },
-      cargo = {
-        buildScripts = {
-          enable = true,
-        },
-      },
-      procMacro = {
-        enable = true,
-      },
-    },
-  }, true)
+  register("rust_analyzer", require("kyoh86.plug.lsp.rust"), true)
   register("sqlls", {})
   register("stylelint_lsp", {})
   register("taplo", {}) -- TOML
   register("terraformls", {})
   register("tflint", {})
   register("vimls", {})
-  register("vtsls", {
-    settings = {
-      typescript = {
-        importModuleSpecifier = "relative",
-        inlayHints = {
-          parameterNames = {
-            enabled = "literals",
-            suppressWhenArgumentMatchesName = true,
-          },
-          parameterTypes = { enabled = true },
-          variableTypes = { enabled = false },
-          propertyDeclarationTypes = { enabled = true },
-          functionLikeReturnTypes = { enabled = true },
-          enumMemberValues = { enabled = true },
-        },
-      },
-    },
-    root_dir = function(path)
-      local marker = require("climbdir.marker")
-      return require("climbdir").climb(path, marker.one_of(marker.has_readable_file("package.json"), marker.has_directory("node_modules")), {
-        halt = marker.one_of(marker.has_readable_file("deno.json"), marker.has_readable_file("deno.jsonc"), marker.has_directory("denops")),
-      })
-    end,
-    single_file_support = false,
-    filetypes = {
-      "javascript",
-      "javascriptreact",
-      "javascript.jsx",
-      "typescript",
-      "typescriptreact",
-      "typescript.tsx",
-    },
-  })
+  register("vtsls", require("kyoh86.plug.lsp.vtsls"))
   register("yamlls", {
     settings = {
       yaml = {
@@ -476,7 +251,7 @@ local spec = {
     config = function()
       register_lsp_servers()
       setup_lsp_global()
-      setup_lsp_keymap()
+      setup_keymap(diagnosis_config)
     end,
     dependencies = {
       "cmp-nvim-lsp",
