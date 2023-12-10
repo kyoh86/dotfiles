@@ -9,12 +9,6 @@ local function format_diagnostics(diag)
   end
 end
 
-local diagnosis_config = {
-  format = format_diagnostics,
-  header = {},
-  scope = "cursor",
-}
-
 --- Globalな設定
 local lsp_server_list = {}
 local lsp_config_table = {}
@@ -41,14 +35,60 @@ local function setup_lsp_global()
     })
   end)
 
-  -- 随時表示されるDiagnosticsのフォーマット設定
-  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-    update_in_insert = false,
-    float = diagnosis_config,
-    virtual_text = diagnosis_config,
-  })
+  local diagnostic_config = {
+    underline = true,
+    update_in_insert = true,
+    virtual_text = {
+      severity = vim.diagnostic.severity.WARN,
+      source = true,
+      format = format_diagnostics,
+    },
+    float = {
+      focusable = false,
+      border = "rounded",
+      format = format_diagnostics,
+      header = {},
+      source = true,
+      scope = "cursor",
+    },
+    signs = true,
+  }
 
-  vim.diagnostic.config({ virtual_text = true, signs = false })
+  kyoh86.ensure("momiji", function(m)
+    vim.cmd(string.format(
+      [[
+      highlight DiagnosticFloatingOk    guibg=%s ctermbg=%s guifg=%s ctermfg=%s
+      highlight DiagnosticFloatingHint  guibg=%s ctermbg=%s guifg=%s ctermfg=%s
+      highlight DiagnosticFloatingInfo  guibg=%s ctermbg=%s guifg=%s ctermfg=%s
+      highlight DiagnosticFloatingWarn  guibg=%s ctermbg=%s guifg=%s ctermfg=%s
+      highlight DiagnosticFloatingError guibg=%s ctermbg=%s guifg=%s ctermfg=%s
+    ]],
+      m.palette.black.gui,
+      m.palette.black.cterm,
+      m.palette.lightgreen.gui,
+      m.palette.lightgreen.cterm,
+      m.palette.black.gui,
+      m.palette.black.cterm,
+      m.palette.grayscale3.gui,
+      m.palette.grayscale3.cterm,
+      m.palette.black.gui,
+      m.palette.black.cterm,
+      m.palette.lightblue.gui,
+      m.palette.lightblue.cterm,
+      m.palette.black.gui,
+      m.palette.black.cterm,
+      m.palette.lightred.gui,
+      m.palette.lightred.cterm,
+      m.palette.black.gui,
+      m.palette.black.cterm,
+      m.palette.red.gui,
+      m.palette.red.cterm
+    ))
+  end)
+
+  -- 随時表示されるDiagnosticsの設定
+  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, diagnostic_config)
+  vim.diagnostic.config(diagnostic_config)
 
   -- hoverの表示に表示元(source)を表示
   vim.api.nvim_create_autocmd("LspAttach", {
@@ -252,7 +292,7 @@ local spec = {
     config = function()
       register_lsp_servers()
       setup_lsp_global()
-      setup_keymap(diagnosis_config)
+      setup_keymap()
     end,
     dependencies = {
       "cmp-nvim-lsp",

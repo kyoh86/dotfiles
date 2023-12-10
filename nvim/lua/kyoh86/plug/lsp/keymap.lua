@@ -1,6 +1,4 @@
-local func = require("kyoh86.lib.func")
-
-return function(diagnosis_config)
+return function()
   local setmap = function(modes, lhr, rhr, desc)
     vim.keymap.set(modes, lhr, rhr, { remap = false, silent = true, desc = desc })
   end
@@ -54,16 +52,6 @@ return function(diagnosis_config)
     vim.lsp.buf.code_action({ range = range })
   end, "selects a code action available at the current cursor position")
 
-  -- listup actions
-  local function wrap_on_list(f)
-    return func.bind(f, {
-      on_list = function(options)
-        vim.fn.setqflist({}, " ", options)
-        vim.cmd.copen()
-      end,
-    })
-  end
-
   setmap("n", "<leader>lf", vim.lsp.buf.definition, "jumps to the definition of the symbol under the cursor")
   setmap("n", "<leader>ld", vim.lsp.buf.declaration, "jumps to the declaration of the symbol under the cursor")
   setmap("n", "<leader>ltf", vim.lsp.buf.type_definition, "jumps to the type definition of the symbol under the cursor")
@@ -75,5 +63,5 @@ return function(diagnosis_config)
   setmap("n", "<leader>lld", vim.diagnostic.setqflist, "add all diagnostics to the quickfix list")
 
   -- show diagnostics
-  setmap("n", "<leader>lll", func.bind_all(vim.diagnostic.open_float, diagnosis_config), "show diagnostics in a floating window")
+  setmap("n", "<leader>lll", vim.diagnostic.open_float, "show diagnostics in a floating window")
 end
