@@ -277,7 +277,35 @@ local function register_lsp_servers()
   register("bashls", {})
   register("cssls", {})
   register("cssmodules_ls", {})
+  register("denols", {
+    init_options = {
+      lint = true,
+      unstable = false,
+      suggest = {
+        completeFunctionCalls = true,
+        names = true,
+        paths = true,
+        autoImports = true,
+        imports = {
+          autoDiscover = true,
+          hosts = vim.empty_dict(),
+        },
+      },
+    },
+    single_file_support = false,
+    root_dir = function(path)
+      local marker = require("climbdir.marker")
+      local found = require("climbdir").climb(path, marker.one_of(marker.has_readable_file("deno.json"), marker.has_readable_file("deno.jsonc"), marker.has_directory("denops")), {
+        halt = marker.one_of(marker.has_readable_file("package.json"), marker.has_directory("node_modules")),
+      })
+      if found then
+        vim.b[vim.fn.bufnr()].deno_deps_candidate = found .. "/deps.ts"
+      end
+      return found
+    end,
+  }, true) -- uses global deno, so it should not be installed by Mason
   register("dockerls", {})
+  register("eslint", {})
   register("gopls", {
     init_options = {
       usePlaceholders = true,
@@ -329,31 +357,6 @@ local function register_lsp_servers()
     },
   })
   register("lemminx", {}) -- XML
-  register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
-  register("pylsp", {})
-  register("pyright", {})
-  register("prismals", {}) -- Prisma (TypeScript DB ORM)
-  register("rust_analyzer", {
-    ["rust-analyzer"] = {
-      imports = {
-        granularity = {
-          group = "module",
-        },
-        prefix = "self",
-      },
-      cargo = {
-        buildScripts = {
-          enable = true,
-        },
-      },
-      procMacro = {
-        enable = true,
-      },
-    },
-  }, true)
-  register("sqlls", {})
-  register("stylelint_lsp", {})
-
   register("lua_ls", {
     settings = {
       Lua = {
@@ -383,47 +386,34 @@ local function register_lsp_servers()
       },
     },
   })
+  register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
+  register("prismals", {}) -- Prisma (TypeScript DB ORM)
+  register("pylsp", {})
+  register("pyright", {})
+  register("rust_analyzer", {
+    ["rust-analyzer"] = {
+      imports = {
+        granularity = {
+          group = "module",
+        },
+        prefix = "self",
+      },
+      cargo = {
+        buildScripts = {
+          enable = true,
+        },
+      },
+      procMacro = {
+        enable = true,
+      },
+    },
+  }, true)
+  register("sqlls", {})
+  register("stylelint_lsp", {})
   register("taplo", {}) -- TOML
   register("terraformls", {})
   register("tflint", {})
   register("vimls", {})
-  register("yamlls", {
-    settings = {
-      yaml = {
-        schemaStore = { enable = true },
-        keyOrdering = false,
-      },
-    },
-  })
-  register("eslint", {})
-
-  register("denols", {
-    init_options = {
-      lint = true,
-      unstable = false,
-      suggest = {
-        completeFunctionCalls = true,
-        names = true,
-        paths = true,
-        autoImports = true,
-        imports = {
-          autoDiscover = true,
-          hosts = vim.empty_dict(),
-        },
-      },
-    },
-    single_file_support = false,
-    root_dir = function(path)
-      local marker = require("climbdir.marker")
-      local found = require("climbdir").climb(path, marker.one_of(marker.has_readable_file("deno.json"), marker.has_readable_file("deno.jsonc"), marker.has_directory("denops")), {
-        halt = marker.one_of(marker.has_readable_file("package.json"), marker.has_directory("node_modules")),
-      })
-      if found then
-        vim.b[vim.fn.bufnr()].deno_deps_candidate = found .. "/deps.ts"
-      end
-      return found
-    end,
-  }, true) -- uses global deno, so it should not be installed by Mason
   register("vtsls", {
     settings = {
       typescript = {
@@ -455,6 +445,14 @@ local function register_lsp_servers()
       "typescript",
       "typescriptreact",
       "typescript.tsx",
+    },
+  })
+  register("yamlls", {
+    settings = {
+      yaml = {
+        schemaStore = { enable = true },
+        keyOrdering = false,
+      },
     },
   })
 end
