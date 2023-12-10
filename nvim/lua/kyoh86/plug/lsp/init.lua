@@ -19,10 +19,10 @@ local diagnosis_config = {
 local lsp_server_list = {}
 local lsp_config_table = {}
 local function setup_lsp_global()
-  vim.lsp.set_log_level(vim.log.levels.WARN)
+  vim.lsp.set_log_level(vim.log.levels.OFF)
   kyoh86.ensure("mason", function(m)
     m.setup({
-      log_level = vim.log.levels.DEBUG,
+      log_level = vim.log.levels.OFF,
     })
   end)
   kyoh86.ensure("mason-lspconfig", function(m)
