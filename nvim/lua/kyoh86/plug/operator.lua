@@ -17,6 +17,10 @@ local spec = {
     dependencies = { "vim-textobj-user" },
   },
   {
+    "inside/vim-textobj-jsxattr",
+    dependencies = { "vim-textobj-user" },
+  },
+  {
     "kana/vim-textobj-entire",
     dependencies = { "vim-textobj-user" },
   },
@@ -67,7 +71,7 @@ local spec = {
       vim.keymap.set("n", "sc", "<plug>(operator-sandwich-replace)<plug>(operator-sandwich-release-count)<plug>(textobj-sandwich-query-a)", { silent = true, desc = "replace sandwich" })
       vim.keymap.set("n", "scb", "<plug>(operator-sandwich-replace)<plug>(operator-sandwich-release-count)<plug>(textobj-sandwich-auto-a)", { silent = true, desc = "replace sandwich for the typical brackets" })
     end,
-    dependencies = { "vim-textobj-functioncall" },
+    dependencies = { "vim-textobj-user", "vim-textobj-functioncall" },
   },
   {
     "machakann/vim-textobj-functioncall",
@@ -82,10 +86,10 @@ local spec = {
       }
 
       -- Genericsのカッコ（<>）絡み
-      vim.keymap.set("o", "<plug>(textobj-functioncall-generics-i)", ":<c-u>call textobj#functioncall#ip('o', g:textobj_functioncall_generics_patterns)<cr>", { remap = false })
-      vim.keymap.set("x", "<plug>(textobj-functioncall-generics-i)", ":<c-u>call textobj#functioncall#ip('x', g:textobj_functioncall_generics_patterns)<cr>", { remap = false })
-      vim.keymap.set("o", "<plug>(textobj-functioncall-generics-a)", ":<c-u>call textobj#functioncall#i('o', g:textobj_functioncall_generics_patterns)<cr>", { remap = false })
-      vim.keymap.set("x", "<plug>(textobj-functioncall-generics-a)", ":<c-u>call textobj#functioncall#i('x', g:textobj_functioncall_generics_patterns)<cr>", { remap = false })
+      vim.keymap.set("o", "<plug>(textobj-functioncall-generics-i)", "<cmd>call textobj#functioncall#ip('o', g:textobj_functioncall_generics_patterns)<cr>", { remap = false })
+      vim.keymap.set("x", "<plug>(textobj-functioncall-generics-i)", "<cmd>call textobj#functioncall#ip('x', g:textobj_functioncall_generics_patterns)<cr>", { remap = false })
+      vim.keymap.set("o", "<plug>(textobj-functioncall-generics-a)", "<cmd>call textobj#functioncall#i('o', g:textobj_functioncall_generics_patterns)<cr>", { remap = false })
+      vim.keymap.set("x", "<plug>(textobj-functioncall-generics-a)", "<cmd>call textobj#functioncall#i('x', g:textobj_functioncall_generics_patterns)<cr>", { remap = false })
 
       vim.keymap.set("o", "ig", "<Plug>(textobj-functioncall-generics-i)", {})
       vim.keymap.set("x", "ig", "<Plug>(textobj-functioncall-generics-i)", {})
