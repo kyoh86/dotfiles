@@ -7,17 +7,9 @@ local spec = {
       local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-static-import", { clear = true })
       vim.api.nvim_create_autocmd("User", {
         group = group,
-        pattern = { "LazyUpdate" },
+        pattern = { "LazyUpdate", "LazyInstall" },
         callback = function()
           vim.fn["ddu#set_static_import_path"]()
-        end,
-      })
-      vim.api.nvim_create_autocmd("User", {
-        group = group,
-        pattern = { "LazyUpdatePre" },
-        callback = function()
-          local cmd = string.format("git -C %q restore denops/ddu/_mods.js", plugin.dir)
-          vim.fn.system(cmd)
         end,
       })
       vim.fn["ddu#custom#patch_global"]({
@@ -28,6 +20,7 @@ local spec = {
         },
       })
     end,
+    build = "git update-index --skip-worktree denops/ddu/_mods.js",
     dependencies = { "denops.vim" },
   },
   { import = "kyoh86.plug.ddu.source" },
