@@ -2,7 +2,7 @@
 
 # do https://blog.yukirii.dev/wsl2-arch-linux/ the first, and call me.
 
-set -e
+set -ex
 
 sudo pacman -Syy
 
