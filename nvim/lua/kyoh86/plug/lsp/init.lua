@@ -217,9 +217,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
 --- LSPサーバー毎の設定管理
 local function register_lsp_servers()
   local capabilities = vim.lsp.protocol.make_client_capabilities()
-  kyoh86.ensure("cmp_nvim_lsp", function(m)
-    capabilities = m.default_capabilities(capabilities)
-  end)
+  -- kyoh86.ensure("cmp_nvim_lsp", function(m)
+  --   capabilities = m.default_capabilities(capabilities)
+  -- end)
   capabilities.textDocument.completion.completionItem.resolveSupport = {
     properties = {
       "documentation",
@@ -275,7 +275,7 @@ end
 
 ---@type LazySpec[]
 local spec = {
-  { "hrsh7th/cmp-nvim-lsp", lazy = true },
+  -- { "hrsh7th/cmp-nvim-lsp", lazy = true },
   { "kyoh86/climbdir.nvim", lazy = true },
   -- make easier setup mason & lspconfig
   { "williamboman/mason-lspconfig.nvim", lazy = true },
@@ -295,7 +295,7 @@ local spec = {
       setup_keymap()
     end,
     dependencies = {
-      "cmp-nvim-lsp",
+      --- "cmp-nvim-lsp",
       "climbdir.nvim",
       "lsp-format.nvim",
       "mason-lspconfig.nvim",

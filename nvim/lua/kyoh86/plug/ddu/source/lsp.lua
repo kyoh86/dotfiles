@@ -40,14 +40,14 @@ local spec = {
         },
       },
     }, {
-      startkey = { "<leader>fld" },
+      startkey = { "<leader>ld" },
       filelike = true,
     })
 
     helper.setup("lsp-references", {
       sources = { { name = "lsp_references" } },
     }, {
-      startkey = "<leader>flr",
+      startkey = "<leader>lr",
       filelike = true,
     })
 
@@ -55,7 +55,7 @@ local spec = {
       sources = { { name = "lsp_workspaceSymbol" } },
       sourceOptions = { lsp = { volatile = true } },
     }, {
-      startkey = "<leader>flw",
+      startkey = "<leader>lw",
       filelike = true,
     })
 
@@ -74,7 +74,7 @@ local spec = {
         },
       },
     }, {
-      startkey = "<leader>flc",
+      startkey = "<leader>lch",
       filelike = true,
     })
   end,

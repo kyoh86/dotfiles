@@ -52,8 +52,6 @@ return function()
     vim.lsp.buf.code_action({ range = range })
   end, "selects a code action available at the current cursor position")
 
-  setmap("n", "<leader>lf", vim.lsp.buf.definition, "jumps to the definition of the symbol under the cursor")
-  setmap("n", "<leader>ld", vim.lsp.buf.declaration, "jumps to the declaration of the symbol under the cursor")
   setmap("n", "<leader>ltf", vim.lsp.buf.type_definition, "jumps to the type definition of the symbol under the cursor")
   setmap("n", "<leader>llr", vim.lsp.buf.references, "lists all the references to the symbol under the cursor in the quickfix window")
   setmap("n", "<leader>lls", vim.lsp.buf.document_symbol, "lists all symbols in the current buffer in the quickfix window")
