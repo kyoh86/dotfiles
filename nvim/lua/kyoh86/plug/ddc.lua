@@ -70,7 +70,7 @@ local spec = {
   { "Shougo/ddc-source-cmdline-history", dependencies = { "ddc.vim", "denops.vim" } },
   { "Shougo/ddc-source-input", dependencies = { "ddc.vim", "denops.vim" } },
   { "Shougo/ddc-source-line", dependencies = { "ddc.vim", "denops.vim" } },
-  { "Shougo/ddc-source-nvim-lsp", dependencies = { "ddc.vim", "denops.vim" } },
+  { "Shougo/ddc-source-lsp", dependencies = { "ddc.vim", "denops.vim" } },
   { "matsui54/ddc-buffer", dependencies = { "ddc.vim", "denops.vim" } },
   { "Shougo/ddc-ui-inline", dependencies = { "ddc.vim", "denops.vim" } },
   {
