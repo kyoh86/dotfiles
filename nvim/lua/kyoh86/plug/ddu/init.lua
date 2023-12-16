@@ -7,7 +7,7 @@ local spec = {
       local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-static-import", { clear = true })
       vim.api.nvim_create_autocmd("User", {
         group = group,
-        pattern = { "LazyUpdate", "LazyInstall" },
+        pattern = { "LazyInstall", "LazyUpdate", "LazyClean", "LazySync" },
         callback = function()
           vim.fn["ddu#set_static_import_path"]()
         end,
