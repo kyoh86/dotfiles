@@ -8,11 +8,6 @@ export class Config extends BaseConfig {
   override config(args: ConfigArguments): Promise<void> {
     const sources: UserSource[] = [
       { name: "nvim-lsp" },
-      // "codeium",
-      // "around",
-      // "yank",
-      // "file",
-      // "mocword",
     ];
 
     args.contextBuilder.patchGlobal({

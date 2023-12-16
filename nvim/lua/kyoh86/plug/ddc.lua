@@ -9,7 +9,7 @@ local spec = {
       vim.fn["ddc#custom#load_config"](vim.fn.stdpath("config")--[[@as string]] .. "/denops/kyoh86/plug/ddc.ts")
 
       --- ddcのKeymap設定
-      local pump = function(lh, rh)
+      local pumap = function(lh, rh)
         vim.keymap.set("i", lh, function()
           if not vim.fn["pum#visible"]() then
             return lh
@@ -17,12 +17,12 @@ local spec = {
           rh()
         end, { remap = false, expr = true })
       end
-      pump("<CR>", func.bind_all(vim.fn["pum#map#confirm"]))
-      pump("<ESC>", func.bind_all(vim.fn["ddc#hide"], "Manual"))
-      pump("<C-e>", func.bind_all(vim.fn["ddc#map#extend"], vim.api.nvim_replace_termcodes("<C-y>", true, true, true)))
-      pump("<C-n>", func.bind_all(vim.fn["pum#map#select_relative"], 1))
-      pump("<C-p>", func.bind_all(vim.fn["pum#map#select_relative"], -1))
-      pump("<C-o>", func.bind_all(vim.fn["pum#map#confirm_word"]))
+      pumap("<CR>", func.bind_all(vim.fn["pum#map#confirm"]))
+      pumap("<ESC>", func.bind_all(vim.fn["ddc#hide"], "Manual"))
+      pumap("<C-e>", func.bind_all(vim.fn["ddc#map#extend"], vim.api.nvim_replace_termcodes("<C-y>", true, true, true)))
+      pumap("<C-n>", func.bind_all(vim.fn["pum#map#select_relative"], 1))
+      pumap("<C-p>", func.bind_all(vim.fn["pum#map#select_relative"], -1))
+      pumap("<C-o>", func.bind_all(vim.fn["pum#map#confirm_word"]))
 
       vim.keymap.set("i", "<C-Space>", func.bind_all(vim.fn["ddc#map#manual_complete"]), {})
 
@@ -35,23 +35,19 @@ local spec = {
       --- ddc利用に必要な周辺の設定
       vim.opt.completeopt:append("noinsert")
       vim.opt.shortmess:append("c")
-      vim.api.nvim_create_autocmd("TextChangedI", {
-        group = vim.api.nvim_create_augroup("kyoh86-plug-ddc", { clear = true }),
-        pattern = "*",
-        callback = function()
-          if vim.fn["pum#visible"]() then
-            vim.fn["ddc#map#manual_complete"]()
-          end
-        end,
-      })
+      -- vim.api.nvim_create_autocmd("TextChangedI", {
+      --   group = vim.api.nvim_create_augroup("kyoh86-plug-ddc", { clear = true }),
+      --   pattern = "*",
+      --   callback = function()
+      --     if vim.fn["pum#visible"]() then
+      --       vim.fn["ddc#map#manual_complete"]()
+      --     end
+      --   end,
+      -- })
 
       vim.fn["ddc#enable"]()
     end,
     dependencies = { "pum.vim", "denops.vim" },
-  },
-  {
-    "Shougo/ddc-source-nvim-lsp",
-    dependencies = { "ddc.vim", "denops.vim" },
   },
   {
     "Shougo/ddc-ui-pum",
