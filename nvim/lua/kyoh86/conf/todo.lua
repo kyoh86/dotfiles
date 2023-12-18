@@ -349,7 +349,7 @@ end
 
 function M.save_comment(task_bufnr, task_uuid)
   local comment_uuid = generate_uuid() -- generate_uuidはUUIDを生成する関数
-  local comment = table.concat(vim.fn.getline(1, "$"), "\n")
+  local comment = table.concat(vim.fn.getline(1, "$") --[=[@as string[]]]=], "\n")
   if comment == "" then
     vim.api.nvim_err_writeln("No comment was entered.")
     return

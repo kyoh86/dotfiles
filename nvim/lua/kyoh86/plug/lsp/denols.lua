@@ -1,5 +1,5 @@
 return {
-  init_options = {
+  settings = {
     lint = true,
     unstable = false,
     suggest = {
