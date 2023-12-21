@@ -17,6 +17,16 @@ local function open_cursor()
         end
       end,
     })
+  elseif string.match(target, "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$") then
+    -- gh を呼んでリポジトリを開く
+    local cmd = { "gh", "repo", "view", "--web", target }
+    vim.fn.jobstart(cmd, {
+      on_exit = function(_, code)
+        if code ~= 0 then
+          print("Failed to open repository.")
+        end
+      end,
+    })
   else
     vim.ui.open(target)
   end
