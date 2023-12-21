@@ -35,15 +35,6 @@ local spec = {
       --- ddc利用に必要な周辺の設定
       vim.opt.completeopt:append("noinsert")
       vim.opt.shortmess:append("c")
-      -- vim.api.nvim_create_autocmd("TextChangedI", {
-      --   group = vim.api.nvim_create_augroup("kyoh86-plug-ddc", { clear = true }),
-      --   pattern = "*",
-      --   callback = function()
-      --     if vim.fn["pum#visible"]() then
-      --       vim.fn["ddc#map#manual_complete"]()
-      --     end
-      --   end,
-      -- })
 
       vim.fn["ddc#enable"]()
     end,

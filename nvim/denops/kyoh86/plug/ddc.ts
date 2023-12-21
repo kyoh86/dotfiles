@@ -42,13 +42,7 @@ export class Config extends BaseConfig {
     });
 
     args.contextBuilder.patchFiletype("ddu-ff-filter", {
-      sources: ["line", "buffer"],
-      sourceOptions: {
-        _: {
-          keywordPattern: "[0-9a-zA-Z_:#-]*",
-        },
-      },
-      specialBufferCompletion: true,
+      sources: [],
     });
 
     args.contextBuilder.patchFiletype("vim", {
