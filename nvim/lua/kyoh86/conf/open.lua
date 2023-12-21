@@ -5,8 +5,21 @@ local function open_cursor()
     print("No target found at cursor.")
     return
   end
-  target = string.gsub(target, [[\.+$]], "")
-  require("kyoh86.lib.open").gui(target)
+  target = string.gsub(target --[[@as string]], [[\.+$]], "")
+  -- target が #nnn というIssue番号の場合は、そのIssueを開く
+  if string.match(target, "^#%d+$") then
+    -- gh を呼んでIssueを開く
+    local cmd = { "gh", "issue", "view", "--web", target:sub(2) }
+    vim.fn.jobstart(cmd, {
+      on_exit = function(_, code)
+        if code ~= 0 then
+          print("Failed to open issue.")
+        end
+      end,
+    })
+  else
+    vim.ui.open(target)
+  end
 end
 
 vim.api.nvim_create_user_command("OpenCursor", open_cursor, {
