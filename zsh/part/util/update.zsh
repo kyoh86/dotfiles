@@ -36,7 +36,7 @@ function update_paru {
     echo updating paru
     pushd ~
     if command -v paru >/dev/null 2>&1; then
-        paru -Syyu
+        zsh -c 'paru -Syyu --skipreview --clean --noconfirm'
     fi
     popd
 }
