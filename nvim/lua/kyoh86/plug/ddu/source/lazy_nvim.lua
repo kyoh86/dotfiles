@@ -19,7 +19,7 @@ local spec = {
       ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
       ["<leader>g"] = { action = "itemAction", params = { name = "grep_config" } },
       ["<leader>c"] = { action = "itemAction", params = { name = "grep_config" } },
-      ["<leader>f"] = { action = "itemAction", params = { name = "fork" } },
+      ["<leader>f"] = { action = "itemAction", params = { name = "clone" } },
     },
   }),
 }
