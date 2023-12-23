@@ -27,6 +27,7 @@ local function setup_lsp_global()
   kyoh86.ensure("lsp-format", function(m)
     m.setup({
       efm = {},
+      denols = {},
     })
   end)
 
@@ -145,7 +146,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     if client == nil then
       return
     end
-    if client.name == "efm" then
+    if client.server_capabilities.documentFormattingProvider then
       kyoh86.ensure("lsp-format", function(m)
         m.on_attach(client)
       end)
