@@ -1,4 +1,4 @@
-vim.g["test#strategy"] = "dispatch"
+vim.g["test#strategy"] = "neovim"
 vim.g["test#neovim#term_position"] = "aboveleft"
 vim.g["test#neovim#start_normal"] = 1
 vim.g["test#preserve_screen"] = 1
@@ -44,6 +44,7 @@ local spec = {
     end
 
     vim.g["test#custom_alternate_file"] = custom_alternate_file
+    vim.g["test#javascript#denotest#executable"] = "NO_COLOR=true deno test"
   end,
 }
 return spec
