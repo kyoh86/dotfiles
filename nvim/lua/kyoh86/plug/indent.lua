@@ -29,7 +29,6 @@ local spec = {
       },
     }
     kyoh86.ensure("momiji", function(m)
-      vim.print(m.colors.lightmagenta)
       opt.chunk.style = {
         { fg = m.colors.lightmagenta },
       }
