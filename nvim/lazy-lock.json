@@ -70,7 +70,7 @@
   "gitsigns.nvim": { "branch": "main", "commit": "d195f0c35ced5174d3ecce1c4c8ebb3b5bc23fa9" },
   "guise.vim": { "branch": "main", "commit": "1759cc936583490af76c36e0a25546329b2b9921" },
   "heirline.nvim": { "branch": "master", "commit": "170e1b1fd7c11db00e46d802165fb277db601ae7" },
-  "indent-blankline.nvim": { "branch": "master", "commit": "3084950d1b66426d207064a509477cbfa96362c6" },
+  "hlchunk.nvim": { "branch": "main", "commit": "882d1bc86d459fa8884398223c841fd09ea61b6b" },
   "jsonpath.nvim": { "branch": "main", "commit": "ea7e07e935f3f95deda97f9f6dc87f7bcf3fb69a" },
   "kensaku.vim": { "branch": "main", "commit": "7ddad2f355a3678597ebbac666e2ee6dda6b9cf3" },
   "lazy.nvim": { "branch": "main", "commit": "96584866b9c5e998cbae300594d0ccfd0c464627" },
