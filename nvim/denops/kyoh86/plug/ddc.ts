@@ -13,7 +13,7 @@ export class Config extends BaseConfig {
     args.contextBuilder.patchGlobal({
       ui: "pum",
       sources: sources,
-      autoCompleteEvents: ["TextChangedI", "TextChangedP"],
+      autoCompleteEvents: ["InsertEnter", "TextChangedI", "TextChangedP"],
       cmdlineSources: {
         ":": ["cmdline", "cmdline-history"],
         "@": ["input", "cmdline-history"],
@@ -26,8 +26,9 @@ export class Config extends BaseConfig {
       sourceOptions: {
         _: {
           ignoreCase: true,
+          timeout: 500,
 
-          // maxAutoCompleteLength: 0,
+          maxAutoCompleteLength: 0,
           matchers: ["matcher_head", "matcher_prefix", "matcher_length"],
           sorters: ["sorter_rank"],
           converters: ["converter_remove_overlap"],
