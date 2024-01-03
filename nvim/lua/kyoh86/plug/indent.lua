@@ -5,7 +5,7 @@ local spec = {
   config = function()
     local opt = {
       chunk = {
-        enable = true,
+        use_treesitter = false,
         chars = {
           horizontal_line = "─",
           vertical_line = "│",
@@ -13,19 +13,6 @@ local spec = {
           left_bottom = "╰",
           right_arrow = "▶", -- U+25B6
         },
-        use_treesitter = false,
-      },
-      indent = {
-        enable = true,
-        use_treesitter = false,
-      },
-      line_num = {
-        enable = true,
-        use_treesitter = false,
-      },
-      blank = {
-        enable = true,
-        use_treesitter = false,
       },
     }
     kyoh86.ensure("momiji", function(m)
