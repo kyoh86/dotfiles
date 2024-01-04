@@ -1,9 +1,9 @@
-import { FilterArguments } from "https://deno.land/x/ddu_vim@v3.4.0/base/filter.ts";
+import { FilterArguments } from "https://deno.land/x/ddu_vim@v3.9.0/base/filter.ts";
 import {
   BaseFilter,
   DduItem,
   Item,
-} from "https://deno.land/x/ddu_vim@v3.4.0/types.ts";
+} from "https://deno.land/x/ddu_vim@v3.9.0/types.ts";
 
 type Params = Record<PropertyKey, never>;
 
