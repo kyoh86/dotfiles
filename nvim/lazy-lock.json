@@ -57,7 +57,7 @@
   "ddu-source-vim_function": { "branch": "main", "commit": "3077e31d40f5a57fd0e1f1f391a3f50148f14abc" },
   "ddu-source-zenn_dev": { "branch": "main", "commit": "8d2eabeac08f08a301b04d5a01cdcc6a8993a492" },
   "ddu-ui-ff": { "branch": "main", "commit": "ab3955434a81868d754ce4c360c69a334cc0891e" },
-  "ddu.vim": { "branch": "main", "commit": "dcaa48bde940f353534aefe789273aa5341ea860" },
+  "ddu.vim": { "branch": "main", "commit": "ee729b0e125b629309ac033119f468f5cd79b086" },
   "deepl.vim": { "branch": "main", "commit": "59df8cc17bb28989ce562bf4712c724d23baadcd" },
   "denops-docbase.vim": { "branch": "main", "commit": "3f3052a171d32ceac530cc4f3bf5dcca63bde034" },
   "denops.vim": { "branch": "main", "commit": "4f0bbc933fd700e0d9a0055c569fa45e193fca27" },
