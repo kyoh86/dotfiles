@@ -116,6 +116,7 @@
   "vim-jsonl": { "branch": "main", "commit": "aa3291a5067cdd7c8675e20d2eda0fcae243cc7a" },
   "vim-jst": { "branch": "master", "commit": "eb25d585c9ff0f5152cea4c64c2db2228c7347bf" },
   "vim-jsx-pretty": { "branch": "master", "commit": "6989f1663cc03d7da72b5ef1c03f87e6ddb70b41" },
+  "vim-matchup": { "branch": "master", "commit": "2550178c43464134ce65328da458905f70dbe041" },
   "vim-operator-jump_side": { "branch": "master", "commit": "7c1e86a411db676a9a4b508fb44188ad434137ae" },
   "vim-operator-replace": { "branch": "master", "commit": "1345a556a321a092716e149d4765a5e17c0e9f0f" },
   "vim-operator-user": { "branch": "master", "commit": "c3dfd41c1ed516b4b901c97562e644de62c367aa" },
