@@ -11,7 +11,7 @@ function update_deno_dependencies() {
         echo "\e[31mThere're changes in $dir\e[0m"
         continue
       fi
-      echo "\e[1m\e[31mPulling $dir...\e[0m"
+      echo "Pulling $dir..."
       git -C "$dir" pull
       if [ -n "$(git -C "$dir" status --porcelain)" ]; then
         echo "\e[31mThere're changes in $dir\e[0m"
