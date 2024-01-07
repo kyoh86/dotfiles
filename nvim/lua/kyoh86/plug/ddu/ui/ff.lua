@@ -114,10 +114,11 @@ local spec = {
       group = group,
       pattern = "ddu-ff",
       callback = function(ev)
+        vim.opt_local.signcolumn = "yes"
+
         local nmap = function(lh, rh)
           vim.keymap.set("n", lh, rh, { nowait = true, buffer = true, silent = true, remap = false })
         end
-        vim.opt_local.signcolumn = "yes"
         nmap("<c-w>", "<nop>")
         nmap("<c-o>", "<nop>")
         nmap("<c-j>", "<nop>")
