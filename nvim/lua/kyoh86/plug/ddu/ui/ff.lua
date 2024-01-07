@@ -12,7 +12,6 @@ local spec = {
   dependencies = { "ddu.vim" },
   config = function()
     kyoh86.ensure("momiji", function(m)
-      -- local m = require("momiji")
       vim.api.nvim_set_hl(0, "dduFilter", {
         fg = m.colors.lightgreen,
         bg = m.colors.black,
@@ -114,7 +113,7 @@ local spec = {
       group = group,
       pattern = "ddu-ff",
       callback = function(ev)
-        vim.opt_local.signcolumn = "yes"
+        vim.opt_local.signcolumn = "auto"
 
         local nmap = function(lh, rh)
           vim.keymap.set("n", lh, rh, { nowait = true, buffer = true, silent = true, remap = false })
