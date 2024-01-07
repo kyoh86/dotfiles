@@ -22,6 +22,7 @@ local spec = {
       })
 
       vim.api.nvim_set_hl(0, "dduCursorLine", { bg = m.colors.lightgreen, fg = m.colors.black, bold = true })
+      vim.api.nvim_set_hl(0, "dduSelectedSign", { fg = m.colors.yellow, bold = true })
 
       vim.api.nvim_set_hl(0, "dduPrompt", {
         fg = m.colors.lightgreen,
@@ -108,13 +109,15 @@ local spec = {
       group = group,
       callback = resize,
     })
+    vim.fn.sign_define("dduSelected", { text = "✔", texthl = "dduSelectedSign" })
     vim.api.nvim_create_autocmd("FileType", {
       group = group,
       pattern = "ddu-ff",
-      callback = function()
+      callback = function(ev)
         local nmap = function(lh, rh)
           vim.keymap.set("n", lh, rh, { nowait = true, buffer = true, silent = true, remap = false })
         end
+        vim.opt_local.signcolumn = "yes"
         nmap("<c-w>", "<nop>")
         nmap("<c-o>", "<nop>")
         nmap("<c-j>", "<nop>")
@@ -129,6 +132,17 @@ local spec = {
         nmap("<cr>", ddu_ui_action("itemAction"))
         nmap(">", ddu_ui_action("expandItem"))
         nmap("+", ddu_ui_action("chooseAction"))
+        nmap("<space>", function()
+          vim.fn["ddu#ui#do_action"]("toggleSelectItem")
+          local placed = vim.fn.sign_getplaced(ev.buf, { group = "dduSelected", lnum = "." })
+          if placed == nil or #placed[1].signs == 0 then
+            vim.fn.sign_place(0, "dduSelected", "dduSelected", ev.buf, { lnum = "." })
+          else
+            for _, p in pairs(placed[1].signs) do
+              vim.fn.sign_unplace("dduSelected", { buffer = ev.buf, id = p.id })
+            end
+          end
+        end)
       end,
     })
 
