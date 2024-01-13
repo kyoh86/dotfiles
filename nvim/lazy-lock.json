@@ -100,6 +100,7 @@
   "schemastore.nvim": { "branch": "main", "commit": "d9de9914da37b54a53edec6923e1893c2262e236" },
   "skkeleton": { "branch": "main", "commit": "aab00fd08d68e4b2d0aa633381270b22de05d8d5" },
   "typescript-vim": { "branch": "master", "commit": "eafdcf5e9ee73b43d92372d69dd84458bf98c5e3" },
+  "vim-altercmd": { "branch": "master", "commit": "682b47433cb27ac027e36742ba09177a4dc2f16d" },
   "vim-caser": { "branch": "master", "commit": "6bc9f41d170711c58e0157d882a5fe8c30f34bf6" },
   "vim-cinfo": { "branch": "main", "commit": "d8f28a47e30b54070e9a07edb031f42263a7407d" },
   "vim-dispatch": { "branch": "master", "commit": "6cc2691576f97d43f8751664d1a1a908b99927e5" },
