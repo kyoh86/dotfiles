@@ -155,11 +155,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.b.kyoh86_plug_lsp_inlay_hint_enabled = true
     end
     client.server_capabilities.semanticTokensProvider = nil
-    kyoh86.ensure("nvim-navic", function(navic)
-      if client.server_capabilities.documentSymbolProvider then
-        navic.attach(client, bufnr)
-      end
-    end)
     disable_lsp(client, bufnr)
   end,
 })

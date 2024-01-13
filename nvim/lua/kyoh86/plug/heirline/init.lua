@@ -27,11 +27,6 @@ end
 local spec = { {
   "rebelot/heirline.nvim",
   config = setup_heirline,
-  dependencies = { "momiji", "gitsigns.nvim", "nvim-web-devicons", "nvim-navic" },
-}, {
-  "SmiteshP/nvim-navic",
-  opts = {
-    separator = " \u{E0BD}",
-  },
+  dependencies = { "momiji", "gitsigns.nvim", "nvim-web-devicons" },
 } }
 return spec

@@ -33,11 +33,6 @@ return {
           end
         end,
       },
-      {
-        provider = function()
-          return require("nvim-navic").get_location()
-        end,
-      },
       condition = function()
         -- バッファがファイルを開いているかどうか
         local filename = vim.api.nvim_buf_get_name(0)
