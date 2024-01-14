@@ -44,7 +44,10 @@ local spec = {
     end
 
     vim.g["test#custom_alternate_file"] = custom_alternate_file
-    vim.g["test#javascript#denotest#executable"] = "NO_COLOR=true deno test"
+    vim.g["test#javascript#denotest#executable"] = "NO_COLOR=1 deno test"
+
+    -- register custom runners
+    vim.g["test#custom_runners"] = { javascript = { "denopstest" } }
   end,
 }
 return spec
