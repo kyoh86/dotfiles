@@ -110,3 +110,5 @@
 	program = gpg
 [commit]
 	gpgsign = true
+[advice]
+	skippedCherryPicks = false
