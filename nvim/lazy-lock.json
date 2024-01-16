@@ -22,6 +22,7 @@
   "ddc-source-input": { "branch": "main", "commit": "c79f63484ee44c563206030a0d3273fca17c6d90" },
   "ddc-source-line": { "branch": "main", "commit": "b3c609448cc3bde0adf6d4865ab078477b12acd5" },
   "ddc-source-lsp": { "branch": "main", "commit": "ad43a10726ebdacea80fafee5034247816fb099d" },
+  "ddc-source-nvim-lua": { "branch": "main", "commit": "651889a69980c33854c319aaa523423c43b5931c" },
   "ddc-source-vsnip": { "branch": "main", "commit": "81483f0d0e218193388e6bbc9b5ec6c3ceed1308" },
   "ddc-ui-inline": { "branch": "main", "commit": "009901128df03451a15853fab2712b50a376491f" },
   "ddc-ui-pum": { "branch": "main", "commit": "6fd98ba227889883bbf75405506c451feaae6ef8" },

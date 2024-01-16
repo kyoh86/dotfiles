@@ -9,6 +9,7 @@ export class Config extends BaseConfig {
     const sources: UserSource[] = [
       { name: "lsp" },
       { name: "vsnip" },
+      { name: "nvim-lua" },
     ];
 
     args.contextBuilder.patchGlobal({
@@ -40,6 +41,9 @@ export class Config extends BaseConfig {
           // dup: "force",
         },
         vsnip: {
+          mark: "vsnip",
+        },
+        ["nvim-lua"]: {
           mark: "vsnip",
         },
       },
