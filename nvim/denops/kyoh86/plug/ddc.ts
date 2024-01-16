@@ -8,6 +8,7 @@ export class Config extends BaseConfig {
   override config(args: ConfigArguments): Promise<void> {
     const sources: UserSource[] = [
       { name: "lsp" },
+      { name: "vsnip" },
     ];
 
     args.contextBuilder.patchGlobal({
@@ -33,10 +34,13 @@ export class Config extends BaseConfig {
           sorters: ["sorter_rank"],
           converters: ["converter_remove_overlap"],
         },
-        "lsp": {
+        lsp: {
           mark: "lsp",
           forceCompletionPattern: "\\.\\w*|::\\w*|->\\w*",
           // dup: "force",
+        },
+        vsnip: {
+          mark: "vsnip",
         },
       },
       // postFilters: ["sorter_head"],

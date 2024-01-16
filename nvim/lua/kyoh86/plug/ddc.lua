@@ -8,6 +8,15 @@ local spec = {
       --ref: ../../../denops/kyoh86/plug/ddc.ts
       vim.fn["ddc#custom#load_config"](vim.fn.stdpath("config")--[[@as string]] .. "/denops/kyoh86/plug/ddc.ts")
 
+      vim.fn["ddc#custom#patch_global"]("sourceParams", {
+        lsp = {
+          snippetEngine = function(body)
+            vim.fn["vsnip#anonymous"](body)
+          end,
+          enableResolveItem = true,
+          enableAdditionalTextEdit = true,
+        },
+      })
       --- ddcのKeymap設定
       local pumap = function(lh, rh)
         vim.keymap.set("i", lh, function()
@@ -64,9 +73,9 @@ local spec = {
   { "Shougo/ddc-source-lsp", dependencies = { "ddc.vim", "denops.vim" } },
   { "matsui54/ddc-buffer", dependencies = { "ddc.vim", "denops.vim" } },
   { "Shougo/ddc-ui-inline", dependencies = { "ddc.vim", "denops.vim" } },
+  { "uga-rosa/ddc-source-vsnip", dependencies = { "ddc.vim", "denops.vim", "vim-vsnip" } },
   {
     "hrsh7th/vim-vsnip",
-    enabled = false,
     config = function()
       vim.g.vsnip_snippet_dir = vim.fn.expand("~/.config/nvim/vsnip")
       vim.g.vsnip_snippet_dirs = {
