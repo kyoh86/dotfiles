@@ -1,0 +1,21 @@
+#:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json
+
+[denops-jsonc]
+prefix = "denopsjson"
+body = """{
+  "name": "$1",
+  "tasks" {
+    "test": "deno test --allow-env=DENOPS_TEST_DENOPS_PATH,DENOPS_TEST_VERBOSE,DENOPS_TEST_VIM_EXECUTABLE,DENOPS_TEST_NVIM_EXECUTABLE --allow-run=vim,nvim --allow-net=127.0.0.1:0 --allow-read",
+    "lint": "deno lint ./**/*.ts"
+  }
+}"""
+
+[deno-jsonc]
+prefix = "denojson"
+body = """{
+  "name": "$1",
+  "tasks" {
+    "test": "deno test",
+    "lint": "deno lint ./**/*.ts"
+  }
+}"""
