@@ -19,9 +19,11 @@ local spec = {
       },
     })
 
+    local format = "${this.title} ${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/issues\\/(\\d+)/, '$1/$2#$3')}"
     local map = {
       ["<leader>e"] = { action = "itemAction", params = { name = "edit" } },
       ["<leader>c"] = { action = "itemAction", params = { name = "checkout" } },
+      ["<leader>p"] = { action = "itemAction", params = { name = "append", params = { format = format } } },
     }
     helper.setup("github-issues", {
       sources = { {
