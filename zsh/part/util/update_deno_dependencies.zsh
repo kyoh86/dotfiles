@@ -30,12 +30,12 @@ function update_deno_dependencies() {
         echo "\e[31mFailed to cache in $dir\e[0m"
         continue
       fi
-      if ! NO_COLOR=1 deno lint "./$dir/"**/*.ts; then
+      if ! NO_COLOR=1 deno task lint; then
         echo "\e[31mThere're lints in $dir\e[0m"
         continue
       fi
       if [[ -n "./$dir/"**/*_test.ts(#qN) ]]; then
-        if ! NO_COLOR=1 deno test "./$dir/"**/*_test.ts; then
+        if ! NO_COLOR=1 deno task test; then
           echo "\e[31mFailed to test $dir\e[0m"
           continue
         fi
