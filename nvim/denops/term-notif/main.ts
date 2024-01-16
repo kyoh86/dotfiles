@@ -1,11 +1,11 @@
 /**
- * Zshの中から通知を受け取るプロキシサーバー。
+ * :terminalの中から通知を受け取るプロキシサーバー。
  *
- * このプロキシサーバーは、Zshからの通知を受け取ると、
+ * このプロキシサーバーは、terminalからの通知を受け取ると、
  * Denoのautocmdを使って、通知をVimに伝える。
- * autocmdの値は、Kyoh86ZshNotifReceived:<メッセージ>という形式になる。
+ * autocmdの値は、Kyoh86TermNotifReceived:<メッセージ>という形式になる。
  *
- * zsh側ではnotify.tsを呼び出すことで、引数をこのプロキシサーバーに送信することができる。
+ * シェル側ではnotify.tsを呼び出すことで、引数をこのプロキシサーバーに送信することができる。
  *
  * ref(通知送信スクリプト): ./notify.ts
  * ref(zshのコマンド終了通知): ../../../zsh/part/zsh_notify_done.zsh
@@ -30,13 +30,13 @@ export async function listen(denops: Denops): Promise<void> {
   await batch.batch(denops, async (denops) => {
     await vars.e.set(
       denops,
-      "KYOH86_ZSH_NOTIFY_ADDRESS",
+      "KYOH86_TERM_NOTIFY_ADDRESS",
       JSON.stringify(listener.addr),
     );
     const script = path.fromFileUrl(new URL("notify.ts", import.meta.url));
     await vars.e.set(
       denops,
-      "KYOH86_ZSH_NOTIFY_COMMAND",
+      "KYOH86_TERM_NOTIFY_COMMAND",
       script,
     );
   });
@@ -55,7 +55,7 @@ async function handleConnection(
     for await (
       const record of text.values()
     ) {
-      await autocmd.emit(denops, "User", `Kyoh86ZshNotifReceived:${record}`);
+      await autocmd.emit(denops, "User", `Kyoh86TermNotifReceived:${record}`);
     }
   } finally {
     // conn.close();
