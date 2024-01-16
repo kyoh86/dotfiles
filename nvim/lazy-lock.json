@@ -144,6 +144,7 @@
   "vim-zenn-autocmd": { "branch": "main", "commit": "db3b2ed450d9ad8ba908f4d04b7a883fe7270009" },
   "vital-Whisky": { "branch": "master", "commit": "668312be7825ee919451064f1eb5f83828e61233" },
   "vital.vim": { "branch": "master", "commit": "ba20feb97a42db563eebf57ef1881ffb9048b788" },
+  "which-key.nvim": { "branch": "main", "commit": "4433e5ec9a507e5097571ed55c02ea9658fb268a" },
   "wrapwidth": { "branch": "main", "commit": "e65440d29fe3f118d915828c792964f5250ab0ba" },
   "zen-mode.nvim": { "branch": "main", "commit": "50e2e2a36cc97847d9ab3b1a3555ba2ef6839b50" },
   "zenn-vim": { "branch": "main", "commit": "55a5457837c541a353dd92333d258e348b3d3e7f" },
