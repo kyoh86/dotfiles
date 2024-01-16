@@ -53,6 +53,14 @@ vim.api.nvim_create_autocmd("DirChanged", {
   end,
 })
 
+vim.api.nvim_create_autocmd("User", {
+  group = group,
+  pattern = "Kyoh86ZshNotifReceived:notify",
+  callback = function(ev)
+    notify_update()
+  end,
+})
+
 vim.api.nvim_create_autocmd({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave", "ModeChanged" }, {
   group = group,
   callback = notify_update,
