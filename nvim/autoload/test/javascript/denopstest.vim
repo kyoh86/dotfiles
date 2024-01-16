@@ -4,7 +4,7 @@ function! test#javascript#denopstest#test_file(file) abort
     return v:false
   endif
 
-  return filereadable('deno.json') || filereadable('deno.jsonc')
+  return (filereadable('deno.json') || filereadable('deno.jsonc') && isdorectory('denops'))
 endfunction
 
 " Returns test runner's arguments which will run the current file and/or line
