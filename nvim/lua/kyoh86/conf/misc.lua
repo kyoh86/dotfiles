@@ -12,7 +12,7 @@ vim.opt.scrolloff = 3 -- Show least &scrolloff lines before/after cursor
 vim.opt.sidescrolloff = 3
 vim.opt.signcolumn = "auto"
 vim.opt.more = false
-vim.opt.timeoutlen = 200
+vim.opt.timeoutlen = 500
 
 --- マウスを無効化
 vim.opt.mouse = {}
