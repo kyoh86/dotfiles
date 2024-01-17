@@ -15,36 +15,38 @@ local zenn_url = function(prefix)
   return nil
 end
 local zenn_keymap = function()
-  vim.keymap.set("n", "<leader>zna", "<cmd>ZennNewArticle<cr>", { remap = false, silent = true, desc = "create new aricle for the zenn.dev" })
-  vim.keymap.set("n", "<leader>zuzo", function()
+  vim.keymap.set("n", "<leader>zna", "<cmd>ZennNewArticle<cr>", { remap = false, silent = true, desc = "zenn.dev用の記事を追加する" })
+  vim.keymap.set("n", "<leader>xzz", function()
     local url = zenn_url()
     if url ~= nil then
       require("kyoh86.lib.open").gui(url)
     end
-  end, { remap = false, silent = true, desc = "open current aricle on the zenn.dev" })
-  vim.keymap.set("n", "<leader>zuzc", function()
+  end, { remap = false, silent = true, desc = "現在のバッファの記事をZenn.devで開く" })
+  vim.keymap.set("n", "<leader>yzz", function()
     local url = zenn_url()
     if url ~= nil then
       vim.fn.setreg("+", url)
     end
-  end, { remap = false, silent = true, desc = "open current aricle on the zenn.dev" })
-  vim.keymap.set("n", "<leader>zulo", function()
+  end, { remap = false, silent = true, desc = "現在のバッファの記事のZenn.devのURLをYankする" })
+  vim.keymap.set("n", "<leader>xzl", function()
     local url = zenn_url("http://localhost:8000/")
     if url ~= nil then
       require("kyoh86.lib.open").gui(url)
     end
-  end, { remap = false, silent = true, desc = "open current aricle on the zenn.dev" })
-  vim.keymap.set("n", "<leader>zulc", function()
+  end, { remap = false, silent = true, desc = "現在のバッファの記事をローカルプレビューで開く" })
+  vim.keymap.set("n", "<leader>yzl", function()
     local url = zenn_url("http://localhost:8000/")
     if url ~= nil then
       vim.fn.setreg("+", url)
     end
-  end, { remap = false, silent = true, desc = "open current aricle on the zenn.dev" })
+  end, { remap = false, silent = true, desc = "現在のバッファの記事のローカルプレビューのURLをYankする" })
 end
 local zenn_keymap_reset = function()
   pcall(vim.keymap.del, "n", "<leader>zna")
-  pcall(vim.keymap.del, "n", "<leader>zfa")
-  pcall(vim.keymap.del, "n", "<leader>fza")
+  pcall(vim.keymap.del, "n", "<leader>xzz")
+  pcall(vim.keymap.del, "n", "<leader>yzz")
+  pcall(vim.keymap.del, "n", "<leader>xzl")
+  pcall(vim.keymap.del, "n", "<leader>yzl")
 end
 ---@type LazySpec[]
 local spec = {

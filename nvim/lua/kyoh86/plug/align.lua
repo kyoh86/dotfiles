@@ -5,5 +5,6 @@ local spec = {
     start = "<leader>a",
     start_with_preview = "<leader>A",
   } },
+  config = true,
 }
 return spec

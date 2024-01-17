@@ -8,12 +8,12 @@ local spec = {
       pattern = "json",
       group = group,
       callback = function()
-        vim.keymap.set("n", "<leader>jc", function()
+        vim.keymap.set("n", "<leader>yj", function()
           vim.fn.setreg("+", require("jsonpath").get())
-        end, { desc = "copy json path", buffer = true })
-        vim.keymap.set("n", "<leader>jd", function()
+        end, { desc = "JSON-pathをYankする", buffer = true })
+        vim.keymap.set("n", "<leader>ij", function()
           print(require("jsonpath").get())
-        end, { desc = "echo json-path under the cursor", buffer = true })
+        end, { desc = "JSON-pathを表示する", buffer = true })
       end,
     })
   end,

@@ -67,17 +67,17 @@ if vim.opt_local.buftype:get() ~= "help" then
     if nextline and string.len(nextline) > 0 then
       vim.api.nvim_put({ nextline }, "l", true, true)
     end
-  end, { desc = "align tags" })
+  end, { desc = "タグを右寄せにする" })
 
   -- 章区切り
   local chapter = string.rep("=", text_width)
   vim.keymap.set("n", "<leader>==", function()
     vim.api.nvim_put({ chapter }, "l", true, true)
-  end, { desc = "put horizontal line" })
+  end, { desc = "水平線===を入れる" })
 
   -- 節区切り
   local section = string.rep("-", text_width)
   vim.keymap.set("n", "<leader>--", function()
     vim.api.nvim_put({ section }, "l", true, true)
-  end, { desc = "put horizontal line" })
+  end, { desc = "水平線---を入れる" })
 end

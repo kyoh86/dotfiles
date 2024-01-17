@@ -9,7 +9,7 @@ local spec = {
   },
   {
     "kyoh86/curtain.nvim",
-    keys = { { "<leader>wr", "<plug>(curtain-start)", desc = "resize current window" } },
+    keys = { { "<leader>wr", "<plug>(curtain-start)", desc = "ウインドウをリサイズする" } },
   },
   {
     "lambdalisue/guise.vim", -- Enhance $EDITOR behavior in terminal

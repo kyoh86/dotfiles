@@ -138,21 +138,21 @@ end, {
 vim.api.nvim_buf_create_user_command(0, "MarkdownToggleCheckbox", toggle_checkbox, {
   range = true,
   force = true,
-  desc = "toggle checkbox in the markdown",
+  desc = "Markdownのチェックボックスをトグルする",
 })
-vim.keymap.set({ "n", "i", "x" }, "<leader>cc", "<cmd>MarkdownToggleCheckbox<cr>", {
+vim.keymap.set({ "n", "i", "x" }, "<leader>mcc", "<cmd>MarkdownToggleCheckbox<cr>", {
   buffer = true,
-  desc = "toggle checkbox in the markdown",
+  desc = "Markdownのチェックボックスをトグルする",
 })
 
 vim.api.nvim_buf_create_user_command(0, "MarkdownRemoveCheckbox", remove_checkbox, {
   range = true,
   force = true,
-  desc = "remove checkbox in the markdown",
+  desc = "Markdownのチェックボックスを削除する",
 })
-vim.keymap.set({ "n", "i", "x" }, "<leader>cr", "<cmd>MarkdownRemoveCheckbox<cr>", {
+vim.keymap.set({ "n", "i", "x" }, "<leader>mcd", "<cmd>MarkdownRemoveCheckbox<cr>", {
   buffer = true,
-  desc = "remove checkbox in the markdown",
+  desc = "Markdownのチェックボックスを削除する",
 })
 
 --- teardown ftplugin
@@ -164,4 +164,4 @@ else
   undo = undo .. "|"
 end
 
-vim.b.undo_ftplugin = undo .. "setlocal tabstop< shiftwidth< conceallevel< comments< formatoptions<" .. "| delcommand -buffer MarkdownToggleCheckbox" .. "| delcommand -buffer MarkdownRemoveCheckbox" .. "| nunmap <buffer> <leader>cc" .. "| iunmap <buffer> <leader>cc" .. "| xunmap <buffer> <leader>cc" .. "| nunmap <buffer> <leader>cr" .. "| iunmap <buffer> <leader>cr" .. "| xunmap <buffer> <leader>cr" .. "| nunmap <buffer> gO" .. "| iunmap <buffer> <tab>" .. "| iunmap <buffer> <s-tab>" .. ""
+vim.b.undo_ftplugin = undo .. "setlocal tabstop< shiftwidth< conceallevel< comments< formatoptions<" .. "| delcommand -buffer MarkdownToggleCheckbox" .. "| delcommand -buffer MarkdownRemoveCheckbox" .. "| nunmap <buffer> <leader>mcc" .. "| iunmap <buffer> <leader>mcc" .. "| xunmap <buffer> <leader>mcc" .. "| nunmap <buffer> <leader>mcd" .. "| iunmap <buffer> <leader>mcd" .. "| xunmap <buffer> <leader>mcd" .. "| nunmap <buffer> gO" .. "| iunmap <buffer> <tab>" .. "| iunmap <buffer> <s-tab>" .. ""

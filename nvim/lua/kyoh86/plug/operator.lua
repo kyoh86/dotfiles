@@ -35,8 +35,8 @@ local spec = {
     "osyo-manga/vim-operator-jump_side",
     dependencies = { "vim-operator-user" },
     keys = {
-      { "[<leader>", "<plug>(operator-jump-head)", desc = "jumps to head of the textobj" },
-      { "]<leader>", "<plug>(operator-jump-tail)", desc = "jumps to tail of the textobj" },
+      { "[<leader>", "<plug>(operator-jump-head)", desc = "textobjの先頭に移動" },
+      { "]<leader>", "<plug>(operator-jump-tail)", desc = "textobjの末尾に移動" },
     },
   },
   {

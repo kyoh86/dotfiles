@@ -3,9 +3,9 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = "http",
   group = group,
   callback = function()
-    vim.keymap.set("n", "<leader>x", "<plug>RestNvim", { buffer = true, silent = true, desc = "Execute REST request" })
-    vim.keymap.set("n", "<leader>rp", "<plug>RestNvimPreview", { buffer = true, silent = true, desc = "Preview REST request" })
-    vim.keymap.set("n", "<leader>rl", "<plug>RestNvimLast", { buffer = true, silent = true, desc = "Show the last REST response" })
+    vim.keymap.set("n", "<leader>xx", "<plug>RestNvim", { buffer = true, silent = true, desc = "RESTリクエストを実行する" })
+    vim.keymap.set("n", "<leader>xr", "<plug>RestNvimPreview", { buffer = true, silent = true, desc = "RESTリクエストをプレビューする" })
+    vim.keymap.set("n", "<leader>ir", "<plug>RestNvimLast", { buffer = true, silent = true, desc = "最後のRESTレスポンスを表示する" })
   end,
 })
 

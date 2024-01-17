@@ -21,7 +21,7 @@ local spec = {
             end
             vim.schedule(func.bind_all(gitsigns.next_hunk))
             return "<Ignore>"
-          end, { expr = true, buffer = bufnr, desc = "jump to next git-diff hunk" })
+          end, { expr = true, buffer = bufnr, desc = "次のgit diffに移動する" })
 
           vim.keymap.set("n", "[g", function()
             if vim.wo.diff then
@@ -29,20 +29,14 @@ local spec = {
             end
             vim.schedule(func.bind_all(gitsigns.prev_hunk))
             return "<Ignore>"
-          end, { expr = true, buffer = bufnr, desc = "jump to next git-diff hunk" })
+          end, { expr = true, buffer = bufnr, desc = "前のgit diffに移動する" })
 
-          vim.keymap.set({ "n", "x" }, "<leader>gs", ":Gitsigns stage_hunk<CR>", { buffer = bufnr, noremap = true })
-          vim.keymap.set({ "n", "x" }, "<leader>gr", ":Gitsigns undo_stage_hunk<CR>", { buffer = bufnr, noremap = true })
-          vim.keymap.set("n", "<leader>gq", func.bind_all(gitsigns.setqflist, "all"), { buffer = bufnr, noremap = true, desc = "Populate the quickfix list with hunks" })
+          vim.keymap.set({ "n", "x" }, "<leader>gs", ":Gitsigns stage_hunk<CR>", { buffer = bufnr, noremap = true, desc = "カーソル位置の差分をGitに載せる" })
+          vim.keymap.set({ "n", "x" }, "<leader>gr", ":Gitsigns undo_stage_hunk<CR>", { buffer = bufnr, noremap = true, desc = "カーソル位置の差分をGitからリセットする" })
+          vim.keymap.set("n", "<leader>gq", func.bind_all(gitsigns.setqflist, "all"), { buffer = bufnr, noremap = true, desc = "このファイルのGit diffをQuickfixに載せる" })
         end,
       })
     end,
-    keys = {
-      "]g",
-      { "<leader>gs", mode = { "n", "x" } },
-      { "<leader>gr", mode = { "n", "x" } },
-      "<leader>gq",
-    },
     event = "BufReadPost",
   },
   {

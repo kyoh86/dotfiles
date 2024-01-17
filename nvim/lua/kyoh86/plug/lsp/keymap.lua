@@ -3,17 +3,17 @@ return function()
     vim.keymap.set(modes, lhr, rhr, { remap = false, silent = true, desc = desc })
   end
   -- show / edit actions
-  setmap("n", "<leader>li", function()
+  setmap("n", "<leader>lii", function()
     local bufnr = vim.api.nvim_get_current_buf()
     if vim.b[bufnr].kyoh86_plug_lsp_inlay_hint_enabled == true then
       vim.lsp.buf.inlay_hint(bufnr, nil)
     end
-  end, "displays inlay hints")
-  setmap("n", "<leader>lh", vim.lsp.buf.hover, "displays hover information about the symbol under the cursor in a floating window")
-  setmap("n", "<leader>ls", vim.lsp.buf.signature_help, "displays signature information about the symbol under the cursor in a floating window")
-  setmap("n", "<leader>lr", vim.lsp.buf.rename, "renames all references to the symbol under the cursor")
-  setmap("n", "]l", vim.diagnostic.goto_next, "move to the next diagnostic")
-  setmap("n", "[l", vim.diagnostic.goto_prev, "move to the previous diagnostic in the current buffer")
+  end, "inlay-hintを表示する")
+  setmap("n", "<leader>lih", vim.lsp.buf.hover, "カーソル下のシンボルの情報を表示する")
+  setmap("n", "<leader>lis", vim.lsp.buf.signature_help, "カーソル下のシンボルのシグネチャを表示する")
+  setmap("n", "<leader>lr", vim.lsp.buf.rename, "カーソル下のシンボルをリネームする")
+  setmap("n", "]l", vim.diagnostic.goto_next, "次のDiagnosticに移動する")
+  setmap("n", "[l", vim.diagnostic.goto_prev, "前のDiagnosticに移動する")
 
   local function range_from_selection(mode)
     -- workaround for https://github.com/neovim/neovim/issues/22629
@@ -50,16 +50,15 @@ return function()
       return
     end
     vim.lsp.buf.code_action({ range = range })
-  end, "selects a code action available at the current cursor position")
+  end, "コードアクションを選択する")
 
-  setmap("n", "<leader>ltf", vim.lsp.buf.type_definition, "jumps to the type definition of the symbol under the cursor")
-  setmap("n", "<leader>llr", vim.lsp.buf.references, "lists all the references to the symbol under the cursor in the quickfix window")
-  setmap("n", "<leader>lls", vim.lsp.buf.document_symbol, "lists all symbols in the current buffer in the quickfix window")
-  setmap("n", "<leader>llS", vim.lsp.buf.workspace_symbol, "lists all symbols in the current workspace in the quickfix window")
-  setmap("n", "<leader>llc", vim.lsp.buf.incoming_calls, "lists all the call sites of the symbol under the cursor in the quickfix window")
-  setmap("n", "<leader>llC", vim.lsp.buf.outgoing_calls, "lists all the items that are called by the symbol under the cursor in the quickfix window")
-  setmap("n", "<leader>lld", vim.diagnostic.setqflist, "add all diagnostics to the quickfix list")
+  setmap("n", "<leader>lqr", vim.lsp.buf.references, "カーソル下のシンボルの参照元をQuickfixに表示する")
+  setmap("n", "<leader>lqs", vim.lsp.buf.document_symbol, "現在のバッファのシンボルをQuickfixに表示する")
+  setmap("n", "<leader>lqS", vim.lsp.buf.workspace_symbol, "現在のワークスペースのシンボルをQuickfixに表示する")
+  setmap("n", "<leader>lqc", vim.lsp.buf.incoming_calls, "カーソル下のシンボルの呼び出し元をQuickfixに表示する")
+  setmap("n", "<leader>lqC", vim.lsp.buf.outgoing_calls, "カーソル下のシンボルの呼び出し先をQuickfixに表示する")
+  setmap("n", "<leader>lqd", vim.diagnostic.setqflist, "現在のバッファのDiagnosticをQuickfixに表示する")
 
   -- show diagnostics
-  setmap("n", "<leader>lll", vim.diagnostic.open_float, "show diagnostics in a floating window")
+  setmap("n", "<leader>lid", vim.diagnostic.open_float, "show diagnostics in a floating window")
 end

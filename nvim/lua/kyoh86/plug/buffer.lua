@@ -6,12 +6,6 @@ end
 ---@type LazySpec[]
 local spec = {
   {
-    "kyoh86/curtain.nvim",
-    keys = {
-      { "<leader>wr", "<plug>(curtain-start)", desc = "resize current window" },
-    },
-  },
-  {
     "kyoh86/bdelete-buffers.nvim",
     keys = {
       {
@@ -20,10 +14,9 @@ local spec = {
           require("bdelete").menu()
         end,
         silent = true,
-        desc = "show the menu to bdelete buffers",
+        desc = "バッファを閉じる",
       },
-      { "<A-q>", keep, silent = true, desc = "show the menu to bdelete buffers without closing windcow" },
-      { "<C-S-q>", keep, silent = true, desc = "show the menu to bdelete buffers without closing windcow" },
+      { "<A-q>", keep, silent = true, desc = "Windowを閉じずにバッファを閉じる" },
     },
   },
 }

@@ -20,12 +20,11 @@ local spec = {
     "GoTest",
   },
   keys = {
-    { "<leader>tg", "<cmd>TestVisit<cr>", silent = true, remap = false, desc = "open the last run test in the current buffer" },
-    { "<leader>tt", "<cmd>TestNearest<cr>", silent = true, remap = false, desc = "run a test nearest to the cursor (some test runners may not support this)" },
-    { "<leader>tn", "<cmd>TestNearest<cr>", silent = true, remap = false, desc = "run a test nearest to the cursor (some test runners may not support this)" },
-    { "<leader>tf", "<cmd>TestFile<cr>", silent = true, remap = false, desc = "run tests for the current file" },
-    { "<leader>ta", "<cmd>TestSuite<cr>", silent = true, remap = false, desc = "run test suite of the current file" },
-    { "<leader>tl", "<cmd>TestLast<cr>", silent = true, remap = false, desc = "run the last test" },
+    { "<leader>tg", "<cmd>TestVisit<cr>", silent = true, remap = false, desc = "最後に実行したテストに移動する" },
+    { "<leader>tn", "<cmd>TestNearest<cr>", silent = true, remap = false, desc = "カーソル下のテストを実行する" },
+    { "<leader>tf", "<cmd>TestFile<cr>", silent = true, remap = false, desc = "現在のファイルのテストを実行する" },
+    { "<leader>ta", "<cmd>TestSuite<cr>", silent = true, remap = false, desc = "すべてのテストを実行する" },
+    { "<leader>tt", "<cmd>TestLast<cr>", silent = true, remap = false, desc = "最後に実行したテストを再実行する" },
   },
   config = function()
     local custom_alternate_file = function(cmd)

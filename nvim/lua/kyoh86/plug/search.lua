@@ -35,7 +35,7 @@ local spec = {
             buffer = true,
             nowait = true,
             silent = true,
-            desc = "replace with quickfix",
+            desc = "QuickFixの内容を置換する",
           })
         end,
       })

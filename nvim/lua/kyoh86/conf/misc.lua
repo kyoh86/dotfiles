@@ -12,6 +12,7 @@ vim.opt.scrolloff = 3 -- Show least &scrolloff lines before/after cursor
 vim.opt.sidescrolloff = 3
 vim.opt.signcolumn = "auto"
 vim.opt.more = false
+vim.opt.timeoutlen = 200
 
 --- マウスを無効化
 vim.opt.mouse = {}
@@ -79,9 +80,9 @@ vim.keymap.set({ "o", "x" }, [[a"]], [[2i"]], { remap = false })
 vim.keymap.set({ "o", "x" }, [[a`]], [[2i`]], { remap = false })
 
 --- Tabを閉じる
-vim.keymap.set("n", "<C-w><Tab>", "<cmd>tabclose<cr>", { remap = false, desc = "Close current tab" })
+vim.keymap.set("n", "<C-w><Tab>", "<cmd>tabclose<cr>", { remap = false, desc = "タブを閉じる" })
 
 --- Quickfix
-vim.keymap.set("n", "<leader>qo", "<cmd>copen<cr><esc>", { remap = false, desc = "Open a window to show the current list of errors" })
-vim.keymap.set("n", "<leader>qk", "<cmd>colder<cr><esc>", { remap = false, desc = "Go to older error list" })
-vim.keymap.set("n", "<leader>qj", "<cmd>cnewer<cr><esc>", { remap = false, desc = "Go to newer error list" })
+vim.keymap.set("n", "<leader>qo", "<cmd>copen<cr><esc>", { remap = false, desc = "Quickfixを開く" })
+vim.keymap.set("n", "<leader>qk", "<cmd>colder<cr><esc>", { remap = false, desc = "古いQuickfixリストに戻る" })
+vim.keymap.set("n", "<leader>qj", "<cmd>cnewer<cr><esc>", { remap = false, desc = "次のQuickfixリストに進む" })
