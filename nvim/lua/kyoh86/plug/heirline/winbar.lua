@@ -33,11 +33,6 @@ return {
           end
         end,
       },
-      condition = function()
-        -- バッファがファイルを開いているかどうか
-        local filename = vim.api.nvim_buf_get_name(0)
-        return vim.fn.empty(vim.fn.fnamemodify(filename, "%:t")) == 0
-      end,
     },
 
     { provider = "%=" },
