@@ -34,7 +34,10 @@ local spec = {
         open = { opener = "wslview" },
       },
     }, {
-      startkey = "<leader>fgi",
+      start = {
+        key = "<leader>fgi",
+        desc = "GitHub Issues",
+      },
       localmap = map,
     })
     helper.setup("github-pulls", {
@@ -43,7 +46,10 @@ local spec = {
         params = { source = "cwd" },
       } },
     }, {
-      startkey = "<leader>fgp",
+      start = {
+        key = "<leader>fgp",
+        desc = "GitHub Pull Requests",
+      },
       localmap = map,
     })
     vim.api.nvim_create_user_command("DduSources", function()

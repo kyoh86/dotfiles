@@ -12,7 +12,10 @@ local spec = {
       },
     },
   }, {
-    startkey = "<leader>fgs",
+    start = {
+      key = "<leader>fgs",
+      desc = "Git Status",
+    },
     localmap = {
       ["<leader>x"] = { action = "itemAction", params = { name = "open", params = { command = "new" } } },
       ["<leader>v"] = { action = "itemAction", params = { name = "open", params = { command = "vnew" } } },

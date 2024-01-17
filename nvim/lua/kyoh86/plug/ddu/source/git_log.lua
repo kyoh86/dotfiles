@@ -25,7 +25,10 @@ local spec = {
         git_commit = { defaultAction = "custom:files" },
       },
     }, {
-      startkey = "<leader>fgl",
+      start = {
+        key = "<leader>fgl",
+        desc = "Git Log",
+      },
       filelike = true,
       localmap = {
         ["<leader>f"] = { action = "itemAction", params = { name = "fixupTo" } },

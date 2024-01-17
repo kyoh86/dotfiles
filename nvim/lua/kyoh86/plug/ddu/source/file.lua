@@ -9,14 +9,20 @@ local spec = {
       helper.setup("file-all", {
         sources = { { name = "file_rec" } },
       }, {
-        startkey = "<leader>faf",
+        start = {
+          key = "<leader>faf",
+          desc = "すべてのファイル",
+        },
         filelike = true,
       })
       -- setup source for nvim-configs
       helper.setup("nvim-config", {
         sources = { { name = "file_rec", options = { path = vim.env.XDG_CONFIG_HOME } } },
       }, {
-        startkey = "<leader><leader>c",
+        start = {
+          key = "<leader><leader>c",
+          desc = "nvim設定ファイル",
+        },
         filelike = true,
       })
     end,
@@ -30,7 +36,10 @@ local spec = {
         params = { cmd = { "rg", "--files", "--color", "never" } },
       } },
     }, {
-      startkey = "<leader>ff",
+      start = {
+        key = "<leader>ff",
+        desc = "ファイル",
+      },
       filelike = true,
     }),
   },

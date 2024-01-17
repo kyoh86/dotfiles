@@ -13,7 +13,10 @@ local spec = {
         },
       },
     }, {
-      startkey = "<leader>fpl",
+      start = {
+        key = "<leader>fpl",
+        desc = "プロジェクト",
+      },
       filelike = true,
       localmap = {
         ["<leader>e"] = { action = "itemAction", params = { name = "open" } },
@@ -29,7 +32,10 @@ local spec = {
         },
       },
     }, {
-      startkey = "<leader>fpr",
+      start = {
+        key = "<leader>fpr",
+        desc = "リポジトリ",
+      },
       localmap = {
         ["<leader>g"] = { action = "itemAction", params = { name = "get" } },
       },

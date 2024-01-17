@@ -12,7 +12,10 @@ local spec = {
       },
     },
   }, {
-    startkey = "<leader>fd",
+    start = {
+      key = "<leader>fd",
+      desc = "DocBase",
+    },
     filelike = true,
     localmap = {
       ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },

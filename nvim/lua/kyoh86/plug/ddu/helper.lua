@@ -21,8 +21,12 @@ end
 ---@field action string
 ---@field params table<string, any>
 
+---@class Kyoh86DduHelperKeymap
+---@field key string A key to start ddu
+---@field desc? string A description for the key
+
 ---@class Kyoh86DduHelperConfig
----@field startkey? string|string[] A key or keys to start ddu
+---@field start? Kyoh86DduHelperKeymap|Kyoh86DduHelperKeymap[] A key or keys to start ddu
 ---@field localmap? table<string, table> Local key maps for actions.
 ---@field filelike? boolean Set local maps for file-like kind.
 
@@ -51,13 +55,13 @@ end
 function M.setup(name, dduopts, config)
   vim.fn["ddu#custom#patch_local"](name, dduopts)
 
-  if config.startkey then
-    local keys = config.startkey or {}
-    if type(keys) == "string" then
-      keys = { keys }
+  if config.start then
+    local starts = config.start or {}
+    if not vim.tbl_islist(starts) then
+      starts = { starts }
     end
-    for _, key in pairs(keys) do
-      vim.keymap.set("n", key, func.bind_all(vim.fn["ddu#start"], { name = name }), { remap = false, desc = "Start ddu: " .. name })
+    for _, start in pairs(starts) do
+      vim.keymap.set("n", start.key, func.bind_all(vim.fn["ddu#start"], { name = name }), { remap = false, desc = start.desc and "[ddu] " .. start.desc or "Start ddu: " .. name })
     end
   end
 

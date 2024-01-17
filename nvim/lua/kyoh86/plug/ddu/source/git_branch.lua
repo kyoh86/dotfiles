@@ -31,7 +31,10 @@ local spec = {
         git_branch = { defaultAction = "switch" },
       },
     }, {
-      startkey = "<leader>fgb",
+      start = {
+        key = "<leader>fgb",
+        desc = "Git Branch",
+      },
       localmap = {
         ["<leader>d"] = { action = "itemAction", params = { name = "delete" } },
         ["<leader>c"] = { action = "itemAction", params = { name = "createFrom" } },

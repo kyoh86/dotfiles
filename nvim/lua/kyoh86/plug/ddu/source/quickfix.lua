@@ -5,7 +5,10 @@ local spec = { {
   "flow6852/ddu-source-qf",
   dependencies = { "ddu.vim" },
   config = helper.setup_func("quickfix", { sources = { { name = "qf" } } }, {
-    startkey = "<leader>fqc",
+    start = {
+      key = "<leader>fqc",
+      desc = "Quickfix",
+    },
     filelike = true,
   }),
 }, {
@@ -19,7 +22,10 @@ local spec = { {
       },
     },
   }, {
-    startkey = "<leader>fqh",
+    start = {
+      key = "<leader>fqh",
+      desc = "Quickfix履歴",
+    },
   }),
 } }
 return spec

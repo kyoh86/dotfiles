@@ -31,7 +31,10 @@ local spec = {
         },
       },
     }, {
-      startkey = "<leader>fza",
+      start = {
+        key = "<leader>fza",
+        desc = "Zenn.dev記事",
+      },
       filelike = true,
       localmap = {
         ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },

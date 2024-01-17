@@ -12,7 +12,10 @@ local spec = {
       },
     },
   }, {
-    startkey = "<leader>fh",
+    start = {
+      key = "<leader>fh",
+      desc = "ヘルプ",
+    },
   }),
 }
 return spec

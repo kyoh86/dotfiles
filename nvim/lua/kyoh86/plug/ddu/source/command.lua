@@ -12,7 +12,10 @@ local spec = {
       },
     },
   }, {
-    startkey = "<leader>f:",
+    start = {
+      key = "<leader>f:",
+      desc = "コマンド",
+    },
   }),
 }
 return spec

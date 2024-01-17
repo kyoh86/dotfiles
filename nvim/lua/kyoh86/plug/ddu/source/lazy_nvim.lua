@@ -12,7 +12,10 @@ local spec = {
       },
     },
   }, {
-    startkey = "<leader><leader>p",
+    start = {
+      key = "<leader><leader>p",
+      desc = "lazy.nvim プラグイン",
+    },
     filelike = true,
     localmap = {
       ["<leader>e"] = { action = "itemAction", params = { name = "open" } },

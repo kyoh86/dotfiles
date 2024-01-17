@@ -12,7 +12,10 @@ local spec = {
       },
     },
   }, {
-    startkey = "<leader>fvf",
+    start = {
+      key = "<leader>fvf",
+      desc = "Vim関数",
+    },
   }),
 }
 return spec

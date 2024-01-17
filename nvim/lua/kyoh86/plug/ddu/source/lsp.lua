@@ -40,14 +40,20 @@ local spec = {
         },
       },
     }, {
-      startkey = { "<leader>ld" },
+      start = {
+        key = "<leader>ld",
+        desc = "定義",
+      },
       filelike = true,
     })
 
     helper.setup("lsp-references", {
       sources = { { name = "lsp_references" } },
     }, {
-      startkey = "<leader>lr",
+      start = {
+        key = "<leader>lr",
+        desc = "参照",
+      },
       filelike = true,
     })
 
@@ -55,7 +61,10 @@ local spec = {
       sources = { { name = "lsp_workspaceSymbol" } },
       sourceOptions = { lsp = { volatile = true } },
     }, {
-      startkey = "<leader>lw",
+      start = {
+        key = "<leader>lw",
+        desc = "シンボル",
+      },
       filelike = true,
     })
 
@@ -74,7 +83,10 @@ local spec = {
         },
       },
     }, {
-      startkey = "<leader>lch",
+      start = {
+        key = "<leader>lch",
+        desc = "呼び出し階層",
+      },
       filelike = true,
     })
   end,

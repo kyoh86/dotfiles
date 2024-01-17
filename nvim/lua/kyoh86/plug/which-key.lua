@@ -10,11 +10,38 @@ local spec = {
       },
     })
     wk.register({
-      f = {
-        name = "Fuzzy Finder",
-      },
       ["\\"] = {
         name = "設定へのショートカット類",
+      },
+      c = {
+        name = "コメント/Caser",
+      },
+      f = {
+        name = "Fuzzy Finder",
+        a = {
+          name = "すべてのファイル",
+        },
+        e = {
+          name = "絵文字",
+        },
+        g = {
+          name = "Git/GitHub",
+        },
+        m = {
+          name = "MMR",
+        },
+        p = {
+          name = "プロジェクト/リポジトリ",
+        },
+        q = {
+          name = "Quickfix",
+        },
+        v = {
+          name = "Vim",
+        },
+        z = {
+          name = "Zenn.dev",
+        },
       },
       d = {
         name = "デバッグ(DAP)",

@@ -8,12 +8,18 @@ local spec = {
     helper.setup("emoji-emoji", {
       sources = { { name = "emoji", options = { defaultAction = "append" } } },
     }, {
-      startkey = "<leader>fee",
+      start = {
+        key = "<leader>fee",
+        desc = "絵文字",
+      },
     })
     helper.setup("emoji-slug", {
       sources = { { name = "emoji", options = { defaultAction = "append" }, params = { convertEmoji = false } } },
     }, {
-      startkey = "<leader>fes",
+      start = {
+        key = "<leader>fes",
+        desc = "絵文字slug",
+      },
     })
   end,
 }

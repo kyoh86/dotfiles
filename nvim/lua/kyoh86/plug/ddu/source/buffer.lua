@@ -19,7 +19,10 @@ local spec = {
 
     vim.fn["ddu#custom#action"]("kind", "file", "custom:bdelete", custom_bdelete)
     helper.setup("buffer", { sources = { { name = "buffer", options = { converters = { "buffer_terminal_title" } } } } }, {
-      startkey = "<leader>fb",
+      start = {
+        key = "<leader>fb",
+        desc = "バッファ",
+      },
       filelike = true,
       localmap = {
         ["<leader>d"] = { action = "itemAction", params = { name = "custom:bdelete" } },

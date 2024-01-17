@@ -12,7 +12,7 @@ local spec = {
       },
     },
   }, {
-    startkey = "<leader>f;",
+    start = { key = "<leader>f;", desc = "コマンド履歴" },
     localmap = {
       ["<leader>e"] = { action = "itemAction", params = { name = "edit" } },
     },
