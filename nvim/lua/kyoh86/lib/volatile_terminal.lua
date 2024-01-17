@@ -8,6 +8,9 @@ function M.open(opts)
   local bufnr = vim.api.nvim_get_current_buf()
   vim.b[bufnr].volaterm = 1
   vim.b[bufnr].volaterm_mode = "t"
+  opts.env = vim.tbl_extend("keep", opts.env or vim.empty_dict(), {
+    KYOH86_VOLATERM_BUFNR = bufnr,
+  })
   if not opts.keep then
     opts = vim.tbl_extend("keep", opts, {
       on_exit = function()

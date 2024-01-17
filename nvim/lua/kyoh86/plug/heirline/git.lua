@@ -55,7 +55,7 @@ vim.api.nvim_create_autocmd("DirChanged", {
 
 vim.api.nvim_create_autocmd("User", {
   group = group,
-  pattern = "Kyoh86TermNotifReceived:precmd",
+  pattern = "Kyoh86TermNotifReceived:precmd:*",
   callback = function(ev)
     notify_update()
   end,
