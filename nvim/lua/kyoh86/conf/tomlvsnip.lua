@@ -78,7 +78,9 @@ vim.api.nvim_create_autocmd("BufWritePost", {
   callback = function(ev)
     local path = vim.fn.resolve(vim.fn.fnamemodify(ev.file, ":p"))
     local candidates = snippet_dirs()
-    if not match_paths(vim.fn.fnamemodify(path, ":h"), candidates) then
+    if
+      not match_paths(vim.fn.fnamemodify(path, ":h") --[[@as string]], candidates)
+    then
       return
     end
     vim.fn["denops#request"]("tomlvsnip", "process", {
@@ -97,7 +99,9 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
   callback = function(ev)
     local path = vim.fn.resolve(vim.fn.fnamemodify(ev.file, ":p"))
     local candidates = snippet_dirs()
-    if not match_paths(vim.fn.fnamemodify(path, ":h"), candidates) then
+    if
+      not match_paths(vim.fn.fnamemodify(path, ":h") --[[@as string]], candidates)
+    then
       return
     end
     local func = require("kyoh86.lib.func")
