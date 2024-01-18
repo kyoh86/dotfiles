@@ -19,6 +19,7 @@
   "ddc-filter-sorter_rank": { "branch": "main", "commit": "fccbd5892dc57f44f07cddcbef9d465838b36cee" },
   "ddc-source-cmdline": { "branch": "main", "commit": "95f73c7c97d15378e0ef8dd0a63b6af19c71bdaf" },
   "ddc-source-cmdline-history": { "branch": "main", "commit": "8c5533bc5f5340a3c027672f75ba156c5ed2476e" },
+  "ddc-source-copilot": { "branch": "main", "commit": "8f350b80d7059397b47dd53a0f4b1825ba3f26c0" },
   "ddc-source-input": { "branch": "main", "commit": "c79f63484ee44c563206030a0d3273fca17c6d90" },
   "ddc-source-line": { "branch": "main", "commit": "b3c609448cc3bde0adf6d4865ab078477b12acd5" },
   "ddc-source-lsp": { "branch": "main", "commit": "ad43a10726ebdacea80fafee5034247816fb099d" },

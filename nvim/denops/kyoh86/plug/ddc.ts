@@ -7,15 +7,15 @@ import { ConfigArguments } from "https://deno.land/x/ddc_vim@v4.3.1/base/config.
 export class Config extends BaseConfig {
   override config(args: ConfigArguments): Promise<void> {
     const sources: UserSource[] = [
-      { name: "lsp" },
+      { name: "copilot" },
       { name: "vsnip" },
+      { name: "lsp" },
       { name: "nvim-lua" },
     ];
 
     args.contextBuilder.patchGlobal({
       ui: "pum",
       sources: sources,
-      autoCompleteEvents: ["InsertEnter", "TextChangedI", "TextChangedP"],
       cmdlineSources: {
         ":": ["cmdline", "cmdline-history"],
         "@": ["input", "cmdline-history"],
@@ -35,16 +35,20 @@ export class Config extends BaseConfig {
           sorters: ["sorter_rank"],
           converters: ["converter_remove_overlap"],
         },
+        copilot: {
+          mark: "[copilot]",
+          isVolatile: true,
+        },
         lsp: {
-          mark: "lsp",
+          mark: "[lsp]",
           forceCompletionPattern: "\\.\\w*|::\\w*|->\\w*",
           // dup: "force",
         },
         vsnip: {
-          mark: "vsnip",
+          mark: "[vsnip]",
         },
         ["nvim-lua"]: {
-          mark: "vsnip",
+          mark: "[nvim-lua]",
         },
       },
       // postFilters: ["sorter_head"],
