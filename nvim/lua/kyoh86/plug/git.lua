@@ -31,8 +31,23 @@ local spec = {
             return "<Ignore>"
           end, { expr = true, buffer = bufnr, desc = "前のgit diffに移動する" })
 
-          vim.keymap.set({ "n", "x" }, "<leader>gs", ":Gitsigns stage_hunk<CR>", { buffer = bufnr, noremap = true, desc = "カーソル位置の差分をGitに載せる" })
-          vim.keymap.set({ "n", "x" }, "<leader>gr", ":Gitsigns undo_stage_hunk<CR>", { buffer = bufnr, noremap = true, desc = "カーソル位置の差分をGitからリセットする" })
+          vim.api.nvim_create_user_command("GitsignsStageSelection", function(ev)
+            if ev.range == 0 then
+              local line = vim.fn.line(".")
+              require("gitsigns").stage_hunk({ line, line })
+            elseif ev.range == 1 then
+              require("gitsigns").stage_hunk({ ev.line1, ev.line1 })
+            elseif ev.range == 2 then
+              require("gitsigns").stage_hunk({ ev.line1, ev.line2 })
+            end
+          end, {
+            range = true,
+          })
+          vim.keymap.set({ "n" }, "<leader>gah", "<cmd>Gitsigns stage_hunk<cr>", { buffer = bufnr, noremap = true, desc = "カーソル位置のHunkをGitに載せる" })
+          vim.keymap.set({ "n" }, "<leader>gal", [[<cmd>GitsignsStageSelection<cr>]], { buffer = bufnr, noremap = true, desc = "カーソル行の差分をGitに載せる" })
+          vim.keymap.set({ "x" }, "<leader>ga", [[:GitsignsStageSelection<cr>]], { buffer = bufnr, noremap = true, desc = "選択行の差分をGitに載せる" })
+          vim.keymap.set({ "n", "x" }, "<leader>gr", "<cmd>Gitsigns undo_stage_hunk<cr>", { buffer = bufnr, noremap = true, desc = "カーソル位置の差分をGitからリセットする" })
+          vim.keymap.set({ "n" }, "<leader>gR", "<cmd>Gitsigns reset_buffer_index<cr>", { buffer = bufnr, noremap = true, desc = "カーソル位置の差分をGitからリセットする" })
           vim.keymap.set("n", "<leader>gq", func.bind_all(gitsigns.setqflist, "all"), { buffer = bufnr, noremap = true, desc = "このファイルのGit diffをQuickfixに載せる" })
         end,
       })
