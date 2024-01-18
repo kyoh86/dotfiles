@@ -57,11 +57,23 @@ local spec = {
       },
       l = {
         name = "LSP",
+        c = {
+          "Call/Code",
+        },
         i = {
           name = "コンテキスト情報表示",
         },
         q = {
           name = "Quickfix",
+        },
+      },
+      m = {
+        name = "マークダウン操作",
+        c = {
+          name = "チェックボックス操作",
+        },
+        t = {
+          name = "テーブル操作",
         },
       },
       t = {
