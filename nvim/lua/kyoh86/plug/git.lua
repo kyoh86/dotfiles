@@ -46,8 +46,9 @@ local spec = {
           vim.keymap.set({ "n" }, "<leader>gah", "<cmd>Gitsigns stage_hunk<cr>", { buffer = bufnr, noremap = true, desc = "カーソル位置のHunkをGitに載せる" })
           vim.keymap.set({ "n" }, "<leader>gal", [[<cmd>GitsignsStageSelection<cr>]], { buffer = bufnr, noremap = true, desc = "カーソル行の差分をGitに載せる" })
           vim.keymap.set({ "x" }, "<leader>ga", [[:GitsignsStageSelection<cr>]], { buffer = bufnr, noremap = true, desc = "選択行の差分をGitに載せる" })
-          vim.keymap.set({ "n", "x" }, "<leader>gr", "<cmd>Gitsigns undo_stage_hunk<cr>", { buffer = bufnr, noremap = true, desc = "カーソル位置の差分をGitからリセットする" })
-          vim.keymap.set({ "n" }, "<leader>gR", "<cmd>Gitsigns reset_buffer_index<cr>", { buffer = bufnr, noremap = true, desc = "カーソル位置の差分をGitからリセットする" })
+          vim.keymap.set({ "n" }, "<leader>gr", "<cmd>Gitsigns undo_stage_hunk<cr>", { buffer = bufnr, noremap = true, desc = "カーソル位置の差分をGitからリセットする" })
+          vim.keymap.set({ "x" }, "<leader>gr", ":Gitsigns undo_stage_hunk<cr>", { buffer = bufnr, noremap = true, desc = "洗濯業の差分をGitからリセットする" })
+          vim.keymap.set({ "n" }, "<leader>gR", "<cmd>Gitsigns reset_buffer_index<cr>", { buffer = bufnr, noremap = true, desc = "このファイルの差分をUnstageする" })
           vim.keymap.set("n", "<leader>gq", func.bind_all(gitsigns.setqflist, "all"), { buffer = bufnr, noremap = true, desc = "このファイルのGit diffをQuickfixに載せる" })
         end,
       })
