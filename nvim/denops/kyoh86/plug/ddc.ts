@@ -9,7 +9,16 @@ export class Config extends BaseConfig {
     const sources: UserSource[] = [
       { name: "copilot" },
       { name: "vsnip" },
-      { name: "lsp" },
+      {
+        name: "lsp",
+        params: {
+          snippetEngine: async (body: unknown) => {
+            await args.denops.call("vsnip#anonymous", body);
+          },
+          enableResolveItem: true,
+          enableAdditionalTextEdit: true,
+        },
+      },
       { name: "nvim-lua" },
     ];
 
@@ -42,7 +51,6 @@ export class Config extends BaseConfig {
         lsp: {
           mark: "[lsp]",
           forceCompletionPattern: "\\.\\w*|::\\w*|->\\w*",
-          // dup: "force",
         },
         vsnip: {
           mark: "[vsnip]",

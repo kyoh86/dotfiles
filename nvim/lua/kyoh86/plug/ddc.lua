@@ -8,15 +8,6 @@ local spec = {
       --ref: ../../../denops/kyoh86/plug/ddc.ts
       vim.fn["ddc#custom#load_config"](vim.fn.stdpath("config")--[[@as string]] .. "/denops/kyoh86/plug/ddc.ts")
 
-      vim.fn["ddc#custom#patch_global"]("sourceParams", {
-        lsp = {
-          snippetEngine = function(body)
-            vim.fn["vsnip#anonymous"](body)
-          end,
-          enableResolveItem = true,
-          enableAdditionalTextEdit = true,
-        },
-      })
       --- ddcのKeymap設定
       local pumap = function(lh, rh)
         vim.keymap.set("i", lh, function()
@@ -24,11 +15,11 @@ local spec = {
             return lh
           end
           rh()
-        end, { remap = false, expr = true })
+        end, { remap = true, expr = true })
       end
-      pumap("<CR>", func.bind_all(vim.fn["pum#map#confirm"]))
-      pumap("<ESC>", func.bind_all(vim.fn["ddc#hide"], "Manual"))
-      pumap("<C-e>", func.bind_all(vim.fn["ddc#map#extend"], vim.api.nvim_replace_termcodes("<C-y>", true, true, true)))
+      pumap("<cr>", func.bind_all(vim.fn["pum#map#confirm"]))
+      pumap("<esc>", func.bind_all(vim.fn["ddc#hide"], "Manual"))
+      pumap("<C-e>", func.bind_all(vim.fn["ddc#map#extend"], vim.api.nvim_replace_termcodes("<C-e>", true, true, true)))
       pumap("<C-n>", func.bind_all(vim.fn["pum#map#select_relative"], 1))
       pumap("<C-p>", func.bind_all(vim.fn["pum#map#select_relative"], -1))
       pumap("<C-o>", func.bind_all(vim.fn["pum#map#confirm_word"]))
@@ -78,13 +69,14 @@ local spec = {
   { "uga-rosa/ddc-source-vsnip", dependencies = { "ddc.vim", "denops.vim", "vim-vsnip" } },
   {
     "hrsh7th/vim-vsnip",
-    config = function()
+    init = function()
       vim.g.vsnip_snippet_dir = vim.fn.expand("~/.config/nvim/vsnip")
       vim.g.vsnip_snippet_dirs = {
         vim.g.vsnip_snippet_dir,
         vim.fn.expand("~/.config/aia/vsnip"),
       }
-
+    end,
+    config = function()
       -- Expand, jump forward or backward
       local expand = function()
         return vim.fn["vsnip#available"](1) ~= 0 and "<plug>(vsnip-expand-or-jump)" or "<c-l>"
