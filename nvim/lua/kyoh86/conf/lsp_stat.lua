@@ -25,7 +25,7 @@ end
 
 local function get_active_client_by_name(name)
   --- 指定した名前のActive Clientを取得する
-  for _, client in pairs(vim.lsp.get_active_clients()) do
+  for _, client in pairs(vim.lsp.get_clients()) do
     if client["name"] == name then
       return client
     end
@@ -38,7 +38,7 @@ local function select_active_client()
   local clients = {}
   local selection = { "Select language server client: " }
   local names = {}
-  for index, client in ipairs(vim.lsp.get_active_clients()) do
+  for index, client in ipairs(vim.lsp.get_clients()) do
     clients[client["name"]] = client
     table.insert(selection, index .. ": " .. client["name"])
     table.insert(names, client["name"])
@@ -59,7 +59,7 @@ local BUF_NAME_ESCAPED = "^\\[Lsp Status\\]$"
 
 local function show_message(name, content)
   local buf = vim.fn.bufnr(BUF_NAME_ESCAPED, false)
-  if buf == -1 then
+  if buf == nil or buf == -1 then
     buf = vim.api.nvim_create_buf(false, true)
     local group = vim.api.nvim_create_augroup("kyoh86-conf-lsp-stat", { clear = true })
     vim.api.nvim_create_autocmd("BufWinLeave", {
@@ -118,7 +118,7 @@ local function show_all()
     BUF_NAME,
     stringify(vim.tbl_map(function(client)
       return trim_status(client)
-    end, vim.lsp.get_active_clients()))
+    end, vim.lsp.get_clients()))
   )
 end
 
@@ -130,6 +130,6 @@ vim.api.nvim_create_user_command("LspStat", function(t)
   end
 end, { nargs = "?", desc = "show a LSP status" })
 
-vim.api.nvim_create_user_command("LspStatActive", function(t)
+vim.api.nvim_create_user_command("LspStatActive", function()
   show_all()
 end, { desc = "show active LSP statuses" })

@@ -23,11 +23,19 @@ vim.opt_local.comments = {
   "b:1.",
 }
 
+---@class CommandArgs
+---@field line1 integer
+---@field line2 integer
+
+---@param args CommandArgs
 local function get_range(args)
   -- get target range from user command args
   local from = args.line1
   local to = args.line2
   local another = vim.fn.line("v")
+  if another == nil then
+    return nil, nil
+  end
   if from == to and from ~= another then
     if another < from then
       from = another
@@ -42,11 +50,15 @@ end
 local LIST_PATTERN = [[^\s*\([\*+-]\|[0-9]\+\.\)\s\+]]
 local function toggle_checkbox(args)
   local from, to = get_range(args)
+  if from == nil or to == nil then
+    vim.notify("failed to get range to toggle checkbox", vim.log.levels.ERROR)
+    return
+  end
   local curpos = vim.fn.getcursorcharpos()
   local lines = vim.fn.getline(from, to)
 
   for lnum = from, to, 1 do
-    local line = lines[lnum - from + 1]
+    local line = lines[lnum - from + 1] --[[@as string]]
 
     if not vim.regex(LIST_PATTERN):match_str(line) then
       -- not list -> add list marker and blank box
@@ -72,10 +84,14 @@ end
 
 local function remove_checkbox(args)
   local from, to = get_range(args)
+  if from == nil or to == nil then
+    vim.notify("failed to get range to remove checkbox", vim.log.levels.ERROR)
+    return
+  end
   local lines = vim.fn.getline(from, to)
 
   for lnum = from, to, 1 do
-    local line = lines[lnum - from + 1]
+    local line = lines[lnum - from + 1] --[[@as string]]
 
     if vim.regex(LIST_PATTERN .. [[\[[ x]\]\s\+]]):match_str(line) then
       -- remove checkbox

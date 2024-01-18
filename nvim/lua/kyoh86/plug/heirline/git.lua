@@ -1,7 +1,7 @@
 --- feline(statusline)にCWDのGit情報を表示する
 
 local stat = {}
-local watch_handler = vim.uv.new_fs_event()
+local watch_handler = assert(vim.uv.new_fs_event())
 local gitdir = ""
 local group = vim.api.nvim_create_augroup("kyoh86-plug-heirline-git-status-update", { clear = true })
 local defer = require("kyoh86.lib.defer")
@@ -56,7 +56,7 @@ vim.api.nvim_create_autocmd("DirChanged", {
 vim.api.nvim_create_autocmd("User", {
   group = group,
   pattern = "Kyoh86TermNotifReceived:precmd:*",
-  callback = function(ev)
+  callback = function()
     notify_update()
   end,
 })
@@ -116,7 +116,7 @@ end
 
 local function get_git_stat(path)
   stop_watching()
-  local res = vim.fn.system("git -C '" .. path .. "' status --porcelain --branch --ahead-behind --untracked-files --renames")
+  local res = vim.fn.system("git -C '" .. path .. "' status --porcelain --branch --ahead-behind --untracked-files --renames") --[[@as string]]
   start_watching()
   local info = { has_git = false, ahead = 0, behind = 0, unmerged = 0, untracked = 0, staged = 0, unstaged = 0, dirty = false }
   if string.sub(res, 1, 7) == "fatal: " then

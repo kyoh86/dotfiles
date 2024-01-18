@@ -34,7 +34,7 @@ function M.view(init)
 
   vim.keymap.del("n", "<space>")
   vim.keymap.del("n", "<c-s-space>")
-  vim.keymap.del("n", "<esc>", "<plug>(fern-action-cancel)", keyopt)
+  vim.keymap.del("n", "<esc>")
   vim.keymap.del("n", "N")
   vim.keymap.del("n", "C")
   vim.keymap.del("n", "M")

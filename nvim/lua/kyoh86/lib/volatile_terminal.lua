@@ -23,11 +23,11 @@ function M.open(opts)
 end
 
 ---@class VolatermMods
----@field silent boolean |:silent|
----@field noautocmd boolean |:noautocmd|
----@field horizontal boolean |:horizontal|
----@field vertical boolean |:vertical|
----@field split "aboveleft"|"belowright"|"topleft"|"botright" Split modifier string, is an empty string when there's no split modifier See also: |:aboveleft| |:belowright| |:topleft| |:botright|
+---@field silent? boolean |:silent|
+---@field noautocmd? boolean |:noautocmd|
+---@field horizontal? boolean |:horizontal|
+---@field vertical? boolean |:vertical|
+---@field split? "aboveleft"|"belowright"|"topleft"|"botright" Split modifier string, is an empty string when there's no split modifier See also: |:aboveleft| |:belowright| |:topleft| |:botright|
 
 ---@param mods VolatermMods
 function M.split(size, mods, opts)
