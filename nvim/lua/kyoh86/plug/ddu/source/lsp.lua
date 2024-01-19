@@ -51,7 +51,7 @@ local spec = {
       sources = { { name = "lsp_references" } },
     }, {
       start = {
-        key = "<leader>lr",
+        key = "<leader>lfr",
         desc = "参照",
       },
       filelike = true,
@@ -62,7 +62,7 @@ local spec = {
       sourceOptions = { lsp = { volatile = true } },
     }, {
       start = {
-        key = "<leader>lw",
+        key = "<leader>lfw",
         desc = "シンボル",
       },
       filelike = true,
