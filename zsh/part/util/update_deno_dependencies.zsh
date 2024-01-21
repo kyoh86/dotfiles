@@ -1,26 +1,32 @@
 function _update_deno_dependencies() {
+  pushd "$1"
+  _update_deno_dependencies_core "$1"
+  popd
+}
+
+function _update_deno_dependencies_core() {
   local dir="$1"
   echo "\e[1m\e[31mUpdating $dir...\e[0m"
-  if [ -n "$(git -C "$dir" status --porcelain)" ]; then
+  if [ -n "$(git status --porcelain)" ]; then
     echo "\e[31mThere're changes in $dir\e[0m"
     return
   fi
   echo "Pulling $dir..."
-  git -C "$dir" pull
-  if [ -n "$(git -C "$dir" status --porcelain)" ]; then
+  git pull
+  if [ -n "$(git status --porcelain)" ]; then
     echo "\e[31mThere're changes in $dir\e[0m"
     return
   fi
   echo "No dirty changes in $dir"
-  if ! NO_COLOR=1 udd "./$dir/"**/*.ts; then
+  if ! NO_COLOR=1 udd ./**/*.ts; then
     echo "\e[31mFailed to update dependencies in $dir\e[0m"
     return
   fi
-  if [ -z "$(git -C "$dir" status --porcelain)" ]; then
+  if [ -z "$(git status --porcelain)" ]; then
     echo "There's no update in $dir"
     return
   fi
-  if ! NO_COLOR=1 deno cache "./$dir/"**/*.ts; then
+  if ! NO_COLOR=1 deno cache ./**/*.ts; then
     echo "\e[31mFailed to cache in $dir\e[0m"
     return
   fi
@@ -28,21 +34,21 @@ function _update_deno_dependencies() {
     echo "\e[31mThere're lints in $dir\e[0m"
     return
   fi
-  if [[ -n "./$dir/"**/*_test.ts(#qN) ]]; then
+  if [[ -n ./**/*_test.ts(#qN) ]]; then
     if ! NO_COLOR=1 deno task test; then
       echo "\e[31mFailed to test $dir\e[0m"
       return
     fi
   fi
-  if ! git -C "$dir" add .; then
+  if ! git add .; then
     echo "\e[31mFailed to stage changes in $dir\e[0m"
     return
   fi
-  if ! git -C "$dir" commit -m "Update dependencies"; then
+  if ! git commit -m "Update dependencies"; then
     echo "\e[31mFailed to commit changes in $dir\e[0m"
     return
   fi
-  if ! git -C "$dir" push; then
+  if ! git push; then
     echo "\e[31mFailed to push changes in $dir\e[0m"
     return
   fi
