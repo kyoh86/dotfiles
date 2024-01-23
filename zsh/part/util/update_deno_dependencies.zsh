@@ -30,6 +30,10 @@ function _update_deno_dependencies_core() {
     echo "\e[31mFailed to cache in $dir\e[0m"
     return
   fi
+  if ! NO_COLOR=1 deno task check; then
+    echo "\e[31mThere're problems in $dir\e[0m"
+    return
+  fi
   if ! NO_COLOR=1 deno task lint; then
     echo "\e[31mThere're lints in $dir\e[0m"
     return
