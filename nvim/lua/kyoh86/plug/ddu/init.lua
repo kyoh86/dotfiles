@@ -1,4 +1,3 @@
-local func = require("kyoh86.lib.func")
 ---@type LazySpec[]
 local spec = {
   {
@@ -17,6 +16,23 @@ local spec = {
           _ = {
             ignoreCase = true,
           },
+        },
+      })
+
+      -- Dotfiles内で定義したSourceなどの設定（※ddu.vim, denops.vimの読み込みに依存するため、この位置）
+      local helper = require("kyoh86.plug.ddu.helper")
+
+      helper.setup("aws-profile", {
+        sources = { { name = "aws_profile" } },
+        kindOptions = {
+          ["aws_profile"] = {
+            defaultAction = "setenv",
+          },
+        },
+      }, {
+        start = {
+          key = "<leader>fap",
+          desc = "AWS プロファイルの切り替え",
         },
       })
     end,

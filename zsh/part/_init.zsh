@@ -9,11 +9,12 @@ _source_part zsh_notify_done
 
 _source_part zsh_source
 
+_source_part aws_ssm
+_source_part aws_ec2
 _source_part gpg
 _source_part env
 _source_part ls
 _source_part tool
-_source_part ssm
 _source_part zmv
 _source_part sdkman
 _source_part pnpm
