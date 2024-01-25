@@ -29,6 +29,11 @@ local spec = {
             defaultAction = "setenv",
           },
         },
+        uiParams = {
+          ff = {
+            startAutoAction = false,
+          },
+        },
       }, {
         start = {
           key = "<leader>fap",
