@@ -66,7 +66,7 @@ local spec = {
   { "Shougo/ddc-source-copilot", dependencies = { "ddc.vim", "denops.vim" } },
   { "matsui54/ddc-buffer", dependencies = { "ddc.vim", "denops.vim" } },
   { "Shougo/ddc-ui-inline", dependencies = { "ddc.vim", "denops.vim" } },
-  { "uga-rosa/ddc-source-vsnip", dependencies = { "ddc.vim", "denops.vim", "vim-vsnip" } },
+  { "uga-rosa/ddc-source-vsnip", event = "VeryLazy", dependencies = { "ddc.vim", "denops.vim", "vim-vsnip" } },
   {
     "hrsh7th/vim-vsnip",
     init = function()
@@ -95,6 +95,7 @@ local spec = {
       vim.keymap.set("i", "<s-tab>", jump_prev, { expr = true, desc = "jump to previous snippet filler" })
       vim.keymap.set("s", "<s-tab>", jump_prev, { expr = true, desc = "jump to previous snippet filler" })
     end,
+    event = "VeryLazy",
   },
   {
     "matsui54/denops-popup-preview.vim",
