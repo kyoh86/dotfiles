@@ -4,6 +4,12 @@ local spec = {
   event = { "UIEnter" },
   config = function()
     local opt = {
+      blank = {
+        enable = false,
+      },
+      line_num = {
+        enable = false,
+      },
       chunk = {
         use_treesitter = false,
         chars = {

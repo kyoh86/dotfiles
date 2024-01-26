@@ -29,6 +29,7 @@ extension.lazydir = function(name)
   return vim.fs.normalize(vim.fn.stdpath("data") .. "/lazy/" .. name)
 end
 
+vim.treesitter.start = function() end
 vim.cmd.runtime({ args = { "lua/kyoh86/conf/*.lua" }, bang = true })
 
 _G["kyoh86"] = extension

@@ -227,7 +227,6 @@ end
 
 ---@type LazySpec[]
 local spec = {
-  -- { "hrsh7th/cmp-nvim-lsp", lazy = true },
   { "kyoh86/climbdir.nvim", lazy = true },
   -- make easier setup mason & lspconfig
   { "williamboman/mason-lspconfig.nvim", lazy = true },
@@ -255,7 +254,7 @@ local spec = {
       "schemastore.nvim",
       "neodev.nvim",
     },
-    event = { "VeryLazy" },
+    event = { "BufReadPre", "BufNewFile" },
   },
   -- install LSP's automatically
   "williamboman/mason.nvim",
