@@ -1,17 +1,13 @@
-vim.opt.clipboard = "unnamed"
+vim.opt.clipboard = ""
 vim.g.clipboard = {
   name = "win32yank-wsl",
   copy = {
     ["+"] = "win32yank.exe -i --crlf",
-    ["*"] = function(lines, regtype)
-      vim.g["kyoh86_clip_aster"] = { lines, regtype }
-    end,
+    ["*"] = "win32yank.exe -i --crlf",
   },
   paste = {
     ["+"] = "win32yank.exe -o --lf",
-    ["*"] = function(lines, regtype)
-      return vim.g["kyoh86_clip_aster"] or {}
-    end,
+    ["*"] = "win32yank.exe -o --lf",
   },
   cache_enabled = 1,
 }
