@@ -13,6 +13,7 @@ vim.opt.sidescrolloff = 3
 vim.opt.signcolumn = "auto"
 vim.opt.more = false
 vim.opt.timeoutlen = 500
+vim.opt.shortmess:append("I")
 
 --- マウスを無効化
 vim.opt.mouse = {}
