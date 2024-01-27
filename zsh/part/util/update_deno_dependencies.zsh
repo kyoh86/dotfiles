@@ -82,17 +82,16 @@ function update_deno_dependencies() {
 
   # 各ddu-*のディレクトリの中で、dirtyでなければgit pullを実行する。
   # pullした時点でもdirtyでなければ、deno dependenciesの更新を実行する。
-  if ! _update_deno_dependencies denops-util; then
-    return
-  fi
-  for dir in {ddu,denops}-*; do
-    if [ -d "$dir" ]; then
-      if ! _update_deno_dependencies "$dir"; then
-        # quit
-        break
+  if _update_deno_dependencies denops-util; then
+    for dir in {ddu,denops}-*; do
+      if [ -d "$dir" ]; then
+        if ! _update_deno_dependencies "$dir"; then
+          # quit
+          break
+        fi
       fi
-    fi
-  done
+    done
+  fi
 
   git-statuses
 
