@@ -73,17 +73,14 @@ local spec = {
   {
     "kana/vim-textobj-line",
     dependencies = { "vim-textobj-user" },
-    lazy = true,
   },
   {
     "inside/vim-textobj-jsxattr",
     dependencies = { "vim-textobj-user" },
-    lazy = true,
   },
   {
     "kana/vim-textobj-entire",
     dependencies = { "vim-textobj-user" },
-    lazy = true,
   },
   {
     "kana/vim-operator-replace",
