@@ -1,7 +1,9 @@
 function _update_deno_dependencies() {
   pushd "$1"
   _update_deno_dependencies_core "$1"
+  ret=$?
   popd
+  return $ret
 }
 
 function _update_deno_dependencies_core() {
@@ -44,6 +46,22 @@ function _update_deno_dependencies_core() {
       return
     fi
   fi
+  git --no-pager diff .
+  read "YN?Process? (y/n/q):"
+  case "${YN}" in
+    y|Y)
+      echo "do"
+      ;;
+    n|N)
+      echo "skip"
+      git restore .
+      return
+      ;;
+    q|Q)
+      echo "quit"
+      git restore .
+      return 1
+  esac
   if ! git add .; then
     echo "\e[31mFailed to stage changes in $dir\e[0m"
     return
@@ -64,10 +82,15 @@ function update_deno_dependencies() {
 
   # 各ddu-*のディレクトリの中で、dirtyでなければgit pullを実行する。
   # pullした時点でもdirtyでなければ、deno dependenciesの更新を実行する。
-  _update_deno_dependencies denops-util
+  if ! _update_deno_dependencies denops-util; then
+    return
+  fi
   for dir in {ddu,denops}-*; do
     if [ -d "$dir" ]; then
-      _update_deno_dependencies "$dir"
+      if ! _update_deno_dependencies "$dir"; then
+        # quit
+        break
+      fi
     fi
   done
 
