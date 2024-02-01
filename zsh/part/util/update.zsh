@@ -1,21 +1,20 @@
 # update all
 
 function update {
-    set -e
     if (($# > 0)); then
         while (($# > 0)); do
             update_$1
             shift
         done
     else
-        update_apt
-        update_paru
-        update_asdf
-        update_gordon
-        update_go
-        update_rust
-        update_coursier
-        update_neovim
+        update_apt || return 1
+        update_paru || return 1
+        update_asdf || return 1
+        update_gordon || return 1
+        update_go || return 1
+        update_rust || return 1
+        update_coursier || return 1
+        update_neovim || return 1
         echo "done"
     fi
 }
@@ -36,7 +35,7 @@ function update_paru {
     echo updating paru
     pushd ~
     if command -v paru >/dev/null 2>&1; then
-        zsh -c 'paru -Syyu --skipreview --clean --noconfirm'
+        zsh -c 'paru -Syyu --skipreview --noconfirm'
     fi
     popd
 }
@@ -113,14 +112,16 @@ function update_neovim {
     eval "$(luarocks --lua-version=5.1 path)"
     nvim_tmpdir="$(mktemp -d)"
     trap "sudo rm -rf $nvim_tmpdir" EXIT
-    git clone --depth 1 -b nightly https://github.com/neovim/neovim "$nvim_tmpdir/neovim"
+    echo cloning neovim
+    git -c advice.detachedHead=false clone --depth 1 -b nightly https://github.com/neovim/neovim "$nvim_tmpdir/neovim"
     pushd "$nvim_tmpdir/neovim"
     if command -v nvim >/dev/null 2>&1; then
         current="$(nvim --version | head -n1 | awk -F' |-' '{print $4}')"
         latest="$(git reflog show HEAD | head -n1 | awk '{print $1}')"
         if [ "${current}" = "${latest}" ]; then
             echo "it's up to date"
-            return 1
+            popd
+            return 0
         fi
     fi
     echo make
