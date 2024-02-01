@@ -19,7 +19,7 @@ local spec = {
       },
     })
 
-    local format = "${this.title} ${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
+    local format = "${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
     local map = {
       ["<leader>e"] = { action = "itemAction", params = { name = "edit" } },
       ["<leader>c"] = { action = "itemAction", params = { name = "checkout" } },
