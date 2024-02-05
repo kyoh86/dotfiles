@@ -30,6 +30,9 @@ local spec = {
           unique = true,
         },
       },
+      actionParams = {
+        browse = { opener = "wslview" },
+      },
     }, {
       start = {
         key = "<leader>fza",

@@ -11,6 +11,9 @@ local spec = {
         defaultAction = "cd",
       },
     },
+    actionParams = {
+      browse = { opener = "wslview" },
+    },
   }, {
     start = {
       key = "<leader><leader>p",
