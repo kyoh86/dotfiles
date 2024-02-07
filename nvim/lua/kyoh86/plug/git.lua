@@ -64,12 +64,22 @@ local spec = {
       vim.keymap.set("n", "<leader>gd>", "<Plug>(gin-diffget-l)", { desc = "Get a diff chunk from HEAD buffer" })
       vim.keymap.set("n", "<leader>gd<", "<Plug>(gin-diffget-r)", { desc = "Get a diff chunk from WORKTREE buffer" })
 
-      local group = vim.api.nvim_create_augroup("kyoh86-plug-git", { clear = true })
       vim.api.nvim_create_autocmd("FileType", {
-        group = group,
+        group = vim.api.nvim_create_augroup("kyoh86-plug-gin", { clear = true }),
         pattern = { "gitcommit", "markdown" },
         callback = function()
-          vim.keymap.set("n", "<leader>a", "Apply", { desc = "Apply a commit message and others" })
+          vim.keymap.set("n", "<leader>a", function()
+            if vim.b.gin_internal_proxy_waiter then
+              return "<cmd>Apply<cr>"
+            end
+            return "<leader>a"
+          end, { expr = true, desc = "Apply a commit message and others" })
+          vim.keymap.set("n", "<leader>c", function()
+            if vim.b.gin_internal_proxy_waiter then
+              return "<cmd>Cancel<cr>"
+            end
+            return "<leader>c"
+          end, { expr = true, desc = "Apply a commit message and others" })
         end,
       })
     end,
