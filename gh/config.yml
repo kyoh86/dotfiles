@@ -5,7 +5,7 @@ editor:
 # Aliases allow you to create nicknames for gh commands
 aliases:
     ssia: |
-      !gh issue create --title "$(eval 'echo $@')" --body "SSIA"
+        !gh issue create --title "$(eval 'echo $@')" --body "SSIA"
     co: pr checkout
     patch: '!echo ''{"ref":"''$(git symbolic-ref refs/remotes/origin/HEAD | awk -F''/'' ''{print $NF}'')''","inputs":{"method":"patch"}}'' | gh api -X POST repos/:owner/:repo/actions/workflows/release.yaml/dispatches --input -'
     me: api user --jq .login
