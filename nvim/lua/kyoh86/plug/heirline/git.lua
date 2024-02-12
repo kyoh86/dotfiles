@@ -179,20 +179,13 @@ local RemoteBranch = {
     if stat.remote ~= nil then
       return " \u{F427}" .. stat.remote
     else
-      return " \u{F6C8}"
+      return " \u{F0674} "
     end
   end,
 }
 
 local StatAhead = numeric_stat_module("\u{EAA1}", "ahead") -- x
 local StatBehind = numeric_stat_module("\u{EA9A}", "behind") -- x
-local StatUnfollow = {
-  provider = function()
-    if stat.branch ~= nil and stat.remote == nil then
-      return "\u{F6C8}" -- x
-    end
-  end,
-}
 local StatUnmerged = numeric_stat_module("\u{F06C4} ", "unmerged") --󰛄 x
 local StatStaged = numeric_stat_module("\u{F012C} ", "staged") -- 󰄬 x
 local StatUnstaged = numeric_stat_module("\u{F0415} ", "unstaged") -- 󰐕 x
@@ -212,7 +205,6 @@ local status = {
       -- Git status
       StatAhead,
       StatBehind,
-      StatUnfollow,
       StatUnmerged,
       StatStaged,
       StatUnstaged,
