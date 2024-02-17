@@ -148,7 +148,6 @@
   "vital.vim": { "branch": "master", "commit": "809b434305276dd3caf8094334dfa2d27d6fd6a6" },
   "which-key.nvim": { "branch": "main", "commit": "4433e5ec9a507e5097571ed55c02ea9658fb268a" },
   "wrapwidth": { "branch": "main", "commit": "1a37e483ca0c6aa608f92c2897a69e47bb6767f9" },
-  "zen-mode.nvim": { "branch": "main", "commit": "78557d972b4bfbb7488e17b5703d25164ae64e6a" },
   "zenn-vim": { "branch": "main", "commit": "55a5457837c541a353dd92333d258e348b3d3e7f" },
   "zsh-abbr": { "branch": "main", "commit": "c95e7d4b1bf2219dae908b54d49832ab16bf90eb" },
   "zsh-window-title": { "branch": "main", "commit": "0253f338b3ef74f3e3c2e833b906c602c94552a7" }
