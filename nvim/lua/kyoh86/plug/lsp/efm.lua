@@ -29,7 +29,8 @@ local markdownlint = { --[[https://github.com/DavidAnson/markdownlint]]
 local prettier = { --[[https://github.com/prettier/prettier]]
   prefix = "prettier",
   formatCanRange = true,
-  formatCommand = "prettier --stdin --stdin-filepath '${INPUT}' ${--range-start:charStart} ${--range-end:charEnd} ${--tab-width:tabSize} ${--use-tabs:!insertSpaces}",
+  formatCommand =
+  "prettier --stdin --stdin-filepath '${INPUT}' ${--range-start:charStart} ${--range-end:charEnd} ${--tab-width:tabSize} ${--use-tabs:!insertSpaces}",
   formatStdin = true,
   rootMarkers = { ".prettierrc", ".prettierrc.json", ".prettierrc.js", ".prettierrc.yml", ".prettierrc.yaml", ".prettierrc.json5", ".prettierrc.mjs", ".prettierrc.cjs", ".prettierrc.toml", "prettier.config.js", "prettier.config.cjs", "prettier.config.mjs" },
 }
@@ -44,7 +45,9 @@ local scalafmt = { --[[https://scalameta.org/scalafmt/docs/installation.html#edi
 local stylua = { --[[https://github.com/johnnymorganz/stylua]]
   prefix = "stylua",
   formatCanRange = true,
-  formatCommand = string.format("stylua --color Never ${--range-start:charStart} ${--range-end:charEnd} --config-path %q -", vim.env.XDG_CONFIG_HOME .. "/stylua/stylua.toml"),
+  formatCommand = string.format(
+  "stylua --color Never ${--range-start:charStart} ${--range-end:charEnd} --config-path %q -",
+    vim.env.XDG_CONFIG_HOME .. "/stylua/stylua.toml"),
   formatStdin = true,
   rootMarkers = { "stylua.toml", ".stylua.toml" },
 }

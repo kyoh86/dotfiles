@@ -29,6 +29,12 @@ local function setup_lsp_global()
     m.setup({
       efm = {},
       denols = {},
+      javascript = {
+        exclude = { "vtsls" },
+      },
+      typescript = {
+        exclude = { "vtsls" },
+      },
     })
   end)
 
@@ -84,7 +90,8 @@ local function setup_lsp_global()
   end)
 
   -- 随時表示されるDiagnosticsの設定
-  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, diagnostic_config)
+  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics,
+    diagnostic_config)
   vim.diagnostic.config(diagnostic_config)
 
   -- hoverの表示に表示元(source)を表示
@@ -201,10 +208,10 @@ local function register_lsp_servers()
   register("graphql", {})
   register("html", {})
   register("jsonls", require("kyoh86.plug.lsp.jsonls"))
-  register("lemminx", {}) -- XML
+  register("lemminx", {})      -- XML
   register("lua_ls", require("kyoh86.plug.lsp.luals"))
   register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
-  register("prismals", {}) -- Prisma (TypeScript DB ORM)
+  register("prismals", {})     -- Prisma (TypeScript DB ORM)
   register("pylsp", {})
   register("pyright", {})
   register("rust_analyzer", require("kyoh86.plug.lsp.rust"), true)
@@ -227,11 +234,11 @@ end
 
 ---@type LazySpec[]
 local spec = {
-  { "kyoh86/climbdir.nvim", lazy = true },
+  { "kyoh86/climbdir.nvim",              lazy = true },
   -- make easier setup mason & lspconfig
   { "williamboman/mason-lspconfig.nvim", lazy = true },
   -- make JSON LSP more strict
-  { "b0o/schemastore.nvim", lazy = true },
+  { "b0o/schemastore.nvim",              lazy = true },
   {
     -- make lua-lsp more gentle
     "folke/neodev.nvim",
@@ -288,7 +295,7 @@ local spec = {
       require("lsp_signature").setup(opts)
     end,
   },
-  { "williamboman/mason.nvim", lazy = true },
+  { "williamboman/mason.nvim",       lazy = true },
   { "lukas-reineke/lsp-format.nvim", lazy = true },
 }
 return spec
