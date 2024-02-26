@@ -51,6 +51,9 @@ local spec = {
         d = {
           name = "Diff",
         },
+        h = {
+          name = "GitHub",
+        },
       },
       i = {
         name = "コンテキスト情報表示",
