@@ -11,4 +11,6 @@ vim.g.clipboard = {
   },
   cache_enabled = 1,
 }
-vim.keymap.set("n", "Y", '"*y')
+vim.keymap.set("n", "gy", '"*y')
+vim.keymap.set("n", "gp", '"*p')
+vim.keymap.set("n", "gP", '"*P')
