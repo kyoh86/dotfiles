@@ -1,7 +1,6 @@
 -- efm-langserverの設定セットを作ってる人がいるので、参考にすると良い
 -- https://github.com/creativenull/efmls-configs-nvim/tree/main/lua/efmls-configs
 
--- TODO: deno fmtの設定を追加する
 local actionlint = { --[[https://github.com/rhysd/actionlint]]
   prefix = "actionlint",
   lintSource = "efm/actionlint",
@@ -10,6 +9,12 @@ local actionlint = { --[[https://github.com/rhysd/actionlint]]
   lintFormats = { "%f:%l:%c: %.%#: SC%n:%trror:%m", "%f:%l:%c: %.%#: SC%n:%tarning:%m", "%f:%l:%c: %.%#: SC%n:%tnfo:%m", "%f:%l:%c: %m" },
   requireMarker = true,
   rootMarkers = { ".github/" },
+}
+
+local denofmt = {
+  formatCommand = "deno fmt - --ext ${FILEEXT}",
+  formatStdin = true,
+  rootMarkers = { "deno.json", "deno.jsonc", "denops/" },
 }
 
 local gofmt = { --[[https://pkg.go.dev/cmd/gofmt]]
@@ -77,8 +82,8 @@ return {
       markdown = { textlint, markdownlint },
       scala = { scalafmt },
       terraform = { terraform_fmt },
-      typescript = { prettier },
-      typescriptreact = { prettier },
+      typescript = { prettier, denofmt },
+      typescriptreact = { prettier, denofmt },
       yaml = { actionlint },
     },
   },
