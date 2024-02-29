@@ -18,7 +18,7 @@ local spec = {
     end
 
     vim.fn["ddu#custom#action"]("kind", "file", "custom:bdelete", custom_bdelete)
-    helper.setup("buffer", { sources = { { name = "buffer", options = { converters = { "buffer_terminal_title" } } } } }, {
+    helper.setup("buffer", { sources = { { name = "buffer", options = { matchers = { "buffer_quickfix", "matcher_fzf" }, converters = { "buffer_terminal_title" } } } } }, {
       start = {
         key = "<leader>fb",
         desc = "バッファ",
