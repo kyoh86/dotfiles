@@ -145,7 +145,13 @@ vim.api.nvim_create_autocmd("LspAttach", {
     if client.server_capabilities.documentFormattingProvider then
       vim.api.nvim_create_autocmd("BufWritePre", {
         pattern = string.format("<buffer=%d>", bufnr),
-        callback = require("kyoh86.lib.func").bind_all(vim.lsp.buf.format),
+        callback = require("kyoh86.lib.func").bind_all(vim.lsp.buf.format, {
+          name = "efm",
+          timeout_ms = 2000,
+          -- filter = function(formatter_client)
+          --   return formatter_client.name ~= "tsserver" and formatter_client.name ~= "vtsls"
+          -- end,
+        }),
       })
     end
 
