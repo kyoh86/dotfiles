@@ -63,10 +63,12 @@ local spec = {
       vim.keymap.set("n", "<leader>gdg", "<Plug>(gin-diffget)", { desc = "Get a diff chunk from WORKTREE or HEAD buffer (prefer WORKTREE)" })
       vim.keymap.set("n", "<leader>gd>", "<Plug>(gin-diffget-l)", { desc = "Get a diff chunk from HEAD buffer" })
       vim.keymap.set("n", "<leader>gd<", "<Plug>(gin-diffget-r)", { desc = "Get a diff chunk from WORKTREE buffer" })
+      vim.keymap.set("n", "<leader>gs", "<cmd>GinStatus<cr>", { desc = "Get a diff chunk from WORKTREE buffer" })
 
+      local group = vim.api.nvim_create_augroup("kyoh86-plug-gin", { clear = true })
       vim.api.nvim_create_autocmd("FileType", {
-        group = vim.api.nvim_create_augroup("kyoh86-plug-gin", { clear = true }),
         pattern = { "gitcommit", "markdown" },
+        group = group,
         callback = function()
           vim.keymap.set("n", "<leader>a", function()
             if vim.b.gin_internal_proxy_waiter then
