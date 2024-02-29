@@ -112,3 +112,6 @@
 	gpgsign = true
 [advice]
 	skippedCherryPicks = false
+[sendemail]
+  assume8bitEncoding = UTF-8
+  confirm = auto
