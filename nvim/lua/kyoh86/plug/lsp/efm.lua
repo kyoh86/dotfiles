@@ -14,6 +14,7 @@ local actionlint = { --[[https://github.com/rhysd/actionlint]]
 local denofmt = {
   formatCommand = "deno fmt - --ext ${FILEEXT}",
   formatStdin = true,
+  requireMarker = true,
   rootMarkers = { "deno.json", "deno.jsonc", "denops/" },
 }
 
@@ -35,6 +36,7 @@ local prettier = { --[[https://github.com/prettier/prettier]]
   prefix = "prettier",
   formatCommand = "prettier --stdin --stdin-filepath '${INPUT}' ${--tab-width:tabSize} ${--use-tabs:!insertSpaces}",
   formatStdin = true,
+  requireMarker = true,
   rootMarkers = { ".prettierrc", ".prettierrc.json", ".prettierrc.js", ".prettierrc.yml", ".prettierrc.yaml", ".prettierrc.json5", ".prettierrc.mjs", ".prettierrc.cjs", ".prettierrc.toml", "prettier.config.js", "prettier.config.cjs", "prettier.config.mjs" },
 }
 
