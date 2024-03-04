@@ -124,8 +124,8 @@ local spec = {
       })
       vim.g["operator#sandwich#recipes"] = recipes
       vim.keymap.set({ "x", "n" }, "s", "<nop>", { remap = false, desc = "sandwich operations" })
-      vim.keymap.set("n", "sfa", "<plug>(operator-sandwich-add-query1st)<c-f>", { desc = "wrap target as argument" })
-      vim.keymap.set("x", "sfa", "<plug>(operator-sandwich-add)<c-f>", { desc = "wrap target as argument" })
+      vim.keymap.set("n", "saf", "<plug>(operator-sandwich-add-query1st)<c-f>", { desc = "wrap target as argument" })
+      vim.keymap.set("x", "saf", "<plug>(operator-sandwich-add)<c-f>", { desc = "wrap target as argument" })
       vim.keymap.set("n", "sc", "<plug>(operator-sandwich-replace)<plug>(operator-sandwich-release-count)<plug>(textobj-sandwich-query-a)", { silent = true, desc = "replace sandwich" })
       vim.keymap.set("n", "scb", "<plug>(operator-sandwich-replace)<plug>(operator-sandwich-release-count)<plug>(textobj-sandwich-auto-a)", { silent = true, desc = "replace sandwich for the typical brackets" })
     end,
