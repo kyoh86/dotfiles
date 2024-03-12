@@ -79,7 +79,6 @@ local spec = {
       uiParams = {
         ff = {
           displayTree = true,
-          startFilter = false,
         },
       },
     }, {
