@@ -14,17 +14,20 @@ local spec = {
         group = group,
         callback = function(ev)
           vim.keymap.set("n", "<leader>mta", "<plug>(table-mode-realign)", { buffer = ev.buf, remap = true, desc = "Markdownテーブルを整列する" })
+          vim.keymap.set("n", "<leader>mtt", "<cmd>TableModeToggle<cr>", { buffer = ev.buf, remap = true, desc = "Markdownテーブルモードを切り替える" })
           vim.keymap.set("n", "<leader>mte", "<cmd>TableModeEnable<cr>", { buffer = ev.buf, remap = true, desc = "Markdownテーブルモードを開始" })
           vim.keymap.set("n", "<leader>mtd", "<cmd>TableModeDisable<cr>", { buffer = ev.buf, remap = true, desc = "Markdownテーブルモードを終了" })
         end,
       })
     end,
     keys = {
+      "<leader>mtt",
       "<leader>mta",
       "<leader>mte",
       "<leader>mte",
     },
     cmd = {
+      "TableModeToggle",
       "TableModeEnable",
       "TableModeRealign",
       "TableModeDisable",
