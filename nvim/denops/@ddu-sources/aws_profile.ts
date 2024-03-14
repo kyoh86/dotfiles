@@ -8,7 +8,7 @@ import type {
   Actions,
   Item,
 } from "https://deno.land/x/ddu_vim@v3.10.3/types.ts";
-import { echoerrCommand } from "https://denopkg.com/kyoh86/denops-util@v0.0.6/command.ts";
+import { echoerrCommand } from "https://denopkg.com/kyoh86/denops-util@v0.0.7/command.ts";
 import { TextLineStream } from "https://deno.land/std@0.219.1/streams/text_line_stream.ts";
 import { environment } from "https://deno.land/x/denops_std@v6.4.0/variable/mod.ts";
 import { is, maybe } from "https://deno.land/x/unknownutil@v3.17.0/mod.ts";
@@ -26,27 +26,29 @@ export class Source extends BaseSource<Params, ActionData> {
   }: GatherArguments<Params>): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream<Item<ActionData>[]>({
       start: async (controller) => {
-        const { waitErr, pipeOut, finalize } = echoerrCommand(denops, "aws", {
+        const { wait, pipeOut, finalize } = echoerrCommand(denops, "aws", {
           args: ["configure", "list-profiles"],
         });
-        await pipeOut
-          .pipeThrough(new TextLineStream())
-          .pipeTo(
-            new WritableStream({
-              write: (chunk) => {
-                controller.enqueue([
-                  {
-                    word: chunk,
-                    action: {
-                      name: chunk,
+        await Promise.all([
+          pipeOut
+            .pipeThrough(new TextLineStream())
+            .pipeTo(
+              new WritableStream({
+                write: (chunk) => {
+                  controller.enqueue([
+                    {
+                      word: chunk,
+                      action: {
+                        name: chunk,
+                      },
                     },
-                  },
-                ]);
-              },
-            }),
-          )
+                  ]);
+                },
+              }),
+            ),
+          wait,
+        ])
           .finally(async () => {
-            await waitErr;
             await finalize();
             controller.close();
           });
