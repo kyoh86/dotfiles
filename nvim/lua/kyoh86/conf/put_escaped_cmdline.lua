@@ -2,7 +2,8 @@
 local func = require("kyoh86.lib.func")
 
 -- cmdtypeとcmdlineの内容に応じてエスケープして返す
-local function escape(cmdtype, cmdline, str)
+local function escape_for_cmdline(cmdline, str)
+  local cmdtype = vim.fn.getcmdtype()
   if cmdtype == "/" or cmdtype == "?" then
     return vim.fn.escape(str, "/")
   elseif cmdtype == ":" and cmdline:sub(1, 1) == "!" then
@@ -14,11 +15,16 @@ end
 
 -- テキストをエスケープして現在のcmdに貼り付ける
 -- @param text: string
-local function put_escaped_cmdline(text)
-  local cmdtype = vim.fn.getcmdtype()
+local function put_escaped_str_to_cmdline(text)
   local cmdline = vim.fn.getcmdline()
+  if cmdline == nil then
+    return
+  end
   local cmdpos = vim.fn.getcmdpos()
-  local escaped_text = escape(cmdtype, cmdline, text)
+  if cmdpos == nil then
+    return
+  end
+  local escaped_text = escape_for_cmdline(cmdline, text)
   local new_cmdline = cmdline:sub(1, cmdpos - 1) .. escaped_text .. cmdline:sub(cmdpos)
   vim.fn.setcmdline(new_cmdline, cmdpos + #escaped_text)
 end
@@ -44,20 +50,8 @@ local scopes = {
 
 -- カーソル周りのテキストをエスケープして現在のcmdに貼り付ける
 -- @param kind: "file"|"path"|"word"|"WORD"|"line"
-local function put_cmdline_scope(kind)
-  put_escaped_cmdline(scopes[kind]())
-end
-
--- レジスタのテキストをエスケープして現在のcmdに貼り付ける
--- @param regname: string
-local function put_cmdline_register(regname)
-  put_escaped_cmdline(vim.fn.getreg(regname))
-end
-
-local keymap_prefix = "<C-r><C-r>"
-
-for key in pairs(scopes) do
-  vim.keymap.set("c", keymap_prefix .. key, func.bind_all(put_cmdline_scope, key), {})
+local function put_escaped_scope_to_cmdline(kind)
+  put_escaped_str_to_cmdline(scopes[kind]())
 end
 
 local registers = vim.tbl_flatten({
@@ -69,6 +63,18 @@ local registers = vim.tbl_flatten({
   { [["]], [[-]], [[:]], [[.]], [[%]], [[#]], [[=]], [[*]], [[+]], [[_]], [[/]] },
 })
 
+-- レジスタのテキストをエスケープして現在のcmdに貼り付ける
+-- @param regname: string
+local function put_register_to_cmdline(regname)
+  put_escaped_str_to_cmdline(vim.fn.getreg(regname))
+end
+
+local keymap_prefix = "<C-r><C-r>"
+
+for key in pairs(scopes) do
+  vim.keymap.set("c", keymap_prefix .. key, func.bind_all(put_escaped_scope_to_cmdline, key), {})
+end
+
 for _, regname in ipairs(registers) do
-  vim.keymap.set("c", keymap_prefix .. regname, func.bind_all(put_cmdline_register, regname), {})
+  vim.keymap.set("c", keymap_prefix .. regname, func.bind_all(put_register_to_cmdline, regname), {})
 end
