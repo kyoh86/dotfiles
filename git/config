@@ -7,6 +7,7 @@
 	precomposeunicode = true
 	commentChar = %
 	untrackedCache = true
+  hooksPath = ~/.config/git/hooks
 
 [init]
 	defaultBranch = main

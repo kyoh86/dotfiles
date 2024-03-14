@@ -1,0 +1,15 @@
+exec < /dev/tty
+if [ -n "${PRECOMMIT_ADDRESS}" ]; then
+  dir="$(git rev-parse --show-toplevel | jq -R)"
+  ret="$(curl -XPOST -sSL "${PRECOMMIT_ADDRESS}" -d '{"dir":'"${dir}"'}')"
+  if [ -n "${ret}" ]; then
+    printf $"\e[1m\e[34mThere're dirty buffers.\nIf you needs, you should save them before commit:\e[0m\n" >&2
+    echo $ret >&2
+    printf $"\n\e[1m\e[31mIgnore and COMMIT? [y/N]:\e[0m " >&2
+    read ans
+    if [ "${ans}" != "y" ]; then
+      exit 1
+    fi
+  fi
+fi
+# vim: ft=zsh
