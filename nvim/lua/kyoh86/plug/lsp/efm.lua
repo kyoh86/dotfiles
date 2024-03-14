@@ -8,7 +8,7 @@ local actionlint = { --[[https://github.com/rhysd/actionlint]]
   lintStdin = true,
   lintFormats = { "%f:%l:%c: %.%#: SC%n:%trror:%m", "%f:%l:%c: %.%#: SC%n:%tarning:%m", "%f:%l:%c: %.%#: SC%n:%tnfo:%m", "%f:%l:%c: %m" },
   requireMarker = true,
-  rootMarkers = { ".github/" },
+  rootMarkers = { ".github/workflows" },
 }
 
 local denofmt = {
