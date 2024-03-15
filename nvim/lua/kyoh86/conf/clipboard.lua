@@ -11,6 +11,7 @@ vim.g.clipboard = {
   },
   cache_enabled = 1,
 }
+vim.keymap.set({ "n", "x" }, "gd", '"*d')
 vim.keymap.set({ "n", "x" }, "gy", '"*y')
 vim.keymap.set({ "n", "x" }, "gp", '"*p')
 vim.keymap.set({ "n", "x" }, "gP", '"*P')
