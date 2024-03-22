@@ -25,7 +25,7 @@ local spec = {
     })
 
     helper.setup("gogh-repo", {
-      sources = { { name = "gogh_repo" } },
+      sources = { { name = "gogh_repo", params = { limit = -1 } } },
       kindOptions = {
         gogh_repo = {
           defaultAction = "browse",
