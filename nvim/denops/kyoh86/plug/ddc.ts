@@ -8,6 +8,7 @@ export class Config extends BaseConfig {
   override config(args: ConfigArguments): Promise<void> {
     const sources: UserSource[] = [
       { name: "copilot" },
+      { name: "ollama" },
       { name: "vsnip" },
       {
         name: "lsp",
