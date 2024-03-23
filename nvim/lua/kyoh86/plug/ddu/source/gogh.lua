@@ -12,6 +12,9 @@ local spec = {
           defaultAction = "cd",
         },
       },
+      actionParams = {
+        browse = { opener = "wslview" },
+      },
     }, {
       start = {
         key = "<leader>fpl",
@@ -30,6 +33,9 @@ local spec = {
         gogh_repo = {
           defaultAction = "browse",
         },
+      },
+      actionParams = {
+        browse = { opener = "wslview" },
       },
     }, {
       start = {

@@ -30,9 +30,6 @@ local spec = {
         name = "github_repo_issue",
         params = { source = "cwd" },
       } },
-      actionParams = {
-        open = { opener = "wslview" },
-      },
     }, {
       start = {
         key = "<leader>fgi",
