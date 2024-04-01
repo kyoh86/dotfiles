@@ -1,7 +1,7 @@
 local M = {}
 local ft = require("kyoh86.plug.lsp.filetype")
 
-local function files()
+local function detect_files()
   return vim.fn.split(vim.fn.system("git ls-files"), "\n")
 end
 
@@ -22,15 +22,23 @@ local function populate_file(client, path)
 end
 
 function M.populate(client, options)
-  options = vim.tbl_deep_extend("force", { files = files }, options or {})
+  options = vim.tbl_deep_extend("force", { detect_files = detect_files }, options or {})
 
   if not vim.tbl_get(client.server_capabilities, "textDocumentSync", "openClose") then
     return
   end
 
-  local workspace_files = options.files()
+  local files = options.detect_files()
 
-  for _, path in ipairs(workspace_files) do
+  files = vim.tbl_filter(function(path)
+    return vim.fn.filereadable(path) == 1
+  end, files)
+
+  files = vim.tbl_map(function(path)
+    return vim.fn.fnamemodify(path, ":p")
+  end, files)
+
+  for _, path in ipairs(files) do
     populate_file(client, path)
   end
 end
