@@ -58,6 +58,12 @@ return function()
   setmap("n", "<leader>lqc", vim.lsp.buf.incoming_calls, "カーソル下のシンボルの呼び出し元をQuickfixに表示する")
   setmap("n", "<leader>lqC", vim.lsp.buf.outgoing_calls, "カーソル下のシンボルの呼び出し先をQuickfixに表示する")
   setmap("n", "<leader>lqd", vim.diagnostic.setqflist, "現在のバッファのDiagnosticをQuickfixに表示する")
+  setmap("n", "<leader>lqD", function()
+    for _, client in ipairs(vim.lsp.get_clients({ bufnr = vim.fn.bufnr() })) do
+      require("kyoh86.plug.lsp.workspace").populate(client)
+    end
+    vim.diagnostic.setqflist()
+  end, "現在のWorkspaceのDiagnosticをQuickfixに表示する")
 
   -- show diagnostics
   setmap("n", "<leader>lid", vim.diagnostic.open_float, "show diagnostics in a floating window")
