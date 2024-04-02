@@ -18,6 +18,11 @@ local spec = { {
     })
     helper.setup("mrr", {
       sources = { { name = "mr", params = { kind = "mrr" } } },
+      kindOptions = {
+        file = {
+          defaultAction = "cd",
+        },
+      },
     }, {
       start = {
         key = "<leader>fmr",
