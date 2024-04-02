@@ -206,7 +206,22 @@ local function register_lsp_servers()
   register("lua_ls", require("kyoh86.plug.lsp.luals"))
   register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
   register("prismals", {}) -- Prisma (TypeScript DB ORM)
-  register("pylsp", {})
+  register("pylsp", {
+    settings = {
+      pylsp = {
+        plugins = {
+          pycodestyle = { enabled = true, ignore = { "E501" } },
+          pydocstyle = { enabled = false },
+          pylint = { enabled = false },
+          flake8 = { enabled = false },
+          mypy = { enabled = false },
+          isort = { enabled = false },
+          yapf = { enabled = false },
+          black = { enabled = true },
+        },
+      },
+    },
+  })
   register("pyright", {})
   register("rust_analyzer", require("kyoh86.plug.lsp.rust"), true)
   register("sqlls", {})
