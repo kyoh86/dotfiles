@@ -41,7 +41,7 @@
   "ddu-source-buffer": { "branch": "main", "commit": "ad1b1cd3610d7b58941c1ff8632f2b9c389f6ac8" },
   "ddu-source-command": { "branch": "main", "commit": "7ee8ca09d494d3c49296f71661974d6233f4e086" },
   "ddu-source-command_history": { "branch": "main", "commit": "63840ec2d0e5678881f3473bb4649219b11a4232" },
-  "ddu-source-docbase": { "branch": "main", "commit": "7c5ac03f456d6977683f4ef38ef6c77479bc04ba" },
+  "ddu-source-docbase": { "branch": "main", "commit": "4aaae0aca183f428eb62cca774f9deb86928127b" },
   "ddu-source-emoji": { "branch": "main", "commit": "c2e5ef581751ffc40f47b9fadb2898037fd92bf0" },
   "ddu-source-file_external": { "branch": "main", "commit": "54fb945d0b4d25f8d36582a07893de6ffa0112d5" },
   "ddu-source-file_rec": { "branch": "main", "commit": "09ebb6274179e36e888fd2aba69edc96c8ab95b9" },

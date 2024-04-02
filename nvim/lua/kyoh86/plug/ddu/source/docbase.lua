@@ -5,7 +5,7 @@ local spec = {
   "kyoh86/ddu-source-docbase",
   dependencies = { "ddu.vim", "denops-docbase.vim" },
   config = helper.setup_func("docbase_posts", {
-    sources = { { name = "docbase_posts", params = { domain = "wacul" } } },
+    sources = { { name = "docbase_posts", params = { domain = "wacul" }, options = { sorters = { "sorter_docbase_post" } } } },
     kindOptions = {
       file = {
         defaultAction = "open",
