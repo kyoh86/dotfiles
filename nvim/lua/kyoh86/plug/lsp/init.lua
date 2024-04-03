@@ -40,9 +40,10 @@ local function setup_lsp_global()
       format = format_diagnostics,
       header = {},
       source = true,
-      scope = "cursor",
+      scope = "line",
     },
     signs = true,
+    severity_sort = true,
   }
 
   kyoh86.ensure("momiji", function(m)
