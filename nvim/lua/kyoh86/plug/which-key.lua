@@ -4,9 +4,10 @@ local spec = {
   config = function()
     local wk = require("which-key")
     wk.setup({
-      triggers = { "<leader>" },
+      triggers = { "<leader>", "s" },
       triggers_nowait = {
         "<leader>",
+        "s",
       },
     })
     wk.register({
@@ -100,6 +101,29 @@ local spec = {
     wk.register({
       t = "ターミナル",
     })
+    wk.register({
+      f = {
+        name = "関数呼び出し文の加工",
+        a = {
+          name = "関数呼び出しで包む",
+        },
+        d = {
+          name = "関数呼び出しから外に出す",
+        },
+      },
+      a = {
+        name = "Sandwich Add",
+      },
+      c = {
+        name = "Sandwich Replace",
+      },
+      d = {
+        name = "Sandwich Delete",
+      },
+      r = {
+        name = "Sandwich Replace",
+      },
+    }, { prefix = "s" })
   end,
 }
 return spec
