@@ -20,23 +20,39 @@ export async function main(denops: Denops): Promise<void> {
       }
       const params = JSON.parse(lines.join("\n"));
       const bufinfos = await fn.getbufinfo(denops, { bufmodified: true });
-      const bufs = await Promise.all(bufinfos.map(async (bufinfo) => {
+      const bufs = (await Promise.all(bufinfos.map(async (bufinfo) => {
         const buftype = await fn.getbufvar(denops, bufinfo.bufnr, "&buftype");
         return {
           name: bufinfo.name,
           bufnr: bufinfo.bufnr,
           buftype,
         };
-      }));
-      return new Response(
-        bufs
-          .filter((buf) =>
-            buf.buftype === "" && buf.name !== "" &&
-            buf.name.startsWith(params.dir)
-          )
-          .map((buf) => buf.name + "\n")
-          .join(),
-      );
+      })))
+        .filter((buf) =>
+          buf.buftype === "" && buf.name !== "" &&
+          buf.name.startsWith(params.dir)
+        );
+      if (bufs.length === 0) {
+        return new Response("ok");
+      }
+      const files = bufs
+        .map((buf) => buf.name + "\n")
+        .join();
+      const msg = [
+        bufs.length > 1 ? "There're dirty buffers." : "There's a dirty buffer.",
+        "If you needs, you should save them before commit:\n",
+        files,
+        "Ignoroe them and continue?",
+      ].join("\n");
+      switch (
+        await fn.confirm(denops, msg, "&Yes\n&No")
+      ) {
+        case 1: // Yes (Ignore them)
+          return new Response("ok");
+        case 2: // No (Suspend)
+          return new Response("skip");
+      }
+      return new Response("unsupported status", { status: 500 });
     },
     onListen: async ({ hostname, port }) => {
       await vars.e.set(
