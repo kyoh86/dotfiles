@@ -16,6 +16,7 @@ end, { remap = false, desc = "Create new issue in the current repository on GitH
 
 -- オペレータ関数
 function _G.create_github_issue_with_title()
+  local oldvalue = vim.fn.getreg('"')
   -- モーションの範囲を取得してレジスタにyank
   vim.api.nvim_command("normal! `[v`]y")
   local title = vim.fn.getreg('"')
@@ -25,7 +26,7 @@ function _G.create_github_issue_with_title()
   require("kyoh86.lib.volatile_terminal").split(0, {}, { exec = "gh issue new --title " .. title })
 
   -- レジスタの内容を元に戻す
-  vim.fn.setreg('"', title)
+  vim.fn.setreg('"', oldvalue)
 end
 
 -- オペレータの設定
