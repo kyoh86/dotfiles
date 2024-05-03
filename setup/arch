@@ -159,5 +159,20 @@ cargo install stylua
 # scalafmt
 coursier install scalafmt
 
+# AWS CLI
+AWS_CLI_TEMPDIR="$(mktemp -d)"
+pushd "$AWS_CLI_TEMPDIR"
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+git clone https://github.com/aws/session-manager-plugin.git
+cd session-manager-plugin
+gofmt -l "$(pwd)/src" | xargs -n1 gofmt -w
+make release
+mkdir -p $HOME/.local/bin
+mv "./bin/$(go env GOHOSTOS)_$(go env GOHOSTARCH)_plugin/session-manager-plugin" $HOME/.local/bin/session-manager-plugin
+popd
+rm -rf "$AWS_CLI_TEMPDIR"
+
 # actionlint
 go install github.com/rhysd/actionlint/cmd/actionlint@latest 
