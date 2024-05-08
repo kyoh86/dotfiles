@@ -49,6 +49,9 @@ export class Config extends BaseConfig {
           mark: "[copilot]",
           isVolatile: true,
         },
+        ollama: {
+          mark: "[ollama]",
+        },
         lsp: {
           mark: "[lsp]",
           forceCompletionPattern: "\\.\\w*|::\\w*|->\\w*",
