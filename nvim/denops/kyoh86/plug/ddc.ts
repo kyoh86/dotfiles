@@ -67,11 +67,6 @@ export class Config extends BaseConfig {
       sources: [],
     });
 
-    args.contextBuilder.patchFiletype("vim", {
-      // Enable specialBufferCompletion for cmdwin.
-      specialBufferCompletion: true,
-    });
-
     return Promise.resolve();
   }
 }

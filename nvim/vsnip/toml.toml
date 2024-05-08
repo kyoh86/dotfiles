@@ -1,8 +1,12 @@
+#:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json
+
+[vsnip-schema]
+prefix = "vsnip"
+body = "#:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json"
+
 [vsnip]
 prefix = "vsnip"
-body = """#:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json
-
-[$1]
+body = """[$1]
 prefix = "$1"
 body = \"\"\"
 $2\"\"\"

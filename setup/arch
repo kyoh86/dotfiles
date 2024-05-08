@@ -176,3 +176,6 @@ rm -rf "$AWS_CLI_TEMPDIR"
 
 # actionlint
 go install github.com/rhysd/actionlint/cmd/actionlint@latest 
+
+# molt (Update checker for deno dependencies)
+deno install --global --allow-env --allow-read --allow-write --allow-net --allow-run=git,deno --name molt jsr:@molt/cli

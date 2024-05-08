@@ -1,3 +1,5 @@
+#:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json
+
 [deno-import]
 body = "import {$2} from \"https://$1\""
 prefix = "denoimport"

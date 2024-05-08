@@ -1,7 +1,11 @@
 {
-    "async-readable-stream": {
-        "prefix": "asyncreadablestream",
-        "body": "new ReadableStream({\n  async start(controller) {\n    try {\n      $1\n    } finally {\n      controller.close()\n    }\n  },\n});"
+    "denops-test-boilerplate": {
+        "prefix": "denops-test-boilerplate",
+        "body": "import { test } from \"https://deno.land/x/denops_test@v1.6.2/mod.ts\";\nimport { assertEquals } from \"https://deno.land/std@0.223.0/assert/mod.ts\";\n\ntest({\n  mode: \"all\",\n  name: \"$1\",\n  fn: async (denops) => {\n    $1\n  },\n})\n"
+    },
+    "denops-test-one": {
+        "prefix": "denops-test-one",
+        "body": "test({\n  mode: \"all\",\n  name: \"$1\",\n  fn: async (denops) => {\n    $2\n  },\n})\n"
     },
     "ddu-kind": {
         "prefix": "ddukind",
@@ -9,7 +13,7 @@
     },
     "ddu-source": {
         "prefix": "ddusource",
-        "body": "import type {} from \"https://deno.land/x/denops_std@v5.0.2/mod.ts\";\nimport type { GatherArguments } from \"https://deno.land/x/ddu_vim@v3.6.0/base/source.ts\";\nimport { BaseSource } from \"https://deno.land/x/ddu_vim@v3.6.0/types.ts\";\nimport type { Item } from \"https://deno.land/x/ddu_vim@v3.6.0/types.ts\";\n\ntype ActionData = Record<PropertyKey, never>;\n\ntype Params = Record<PropertyKey, never>;\n\nexport class Source extends BaseSource<Params, ActionData> {\n  override kind = \"todo\";\n\n  override gather(\n    args: GatherArguments<Params>,\n  ): ReadableStream<Item<ActionData>[]> {\n    throw new Error(\"not implemented\");\n  }\n\n  override params(): Params {\n    return {};\n  }\n}\n"
+        "body": "import type {} from \"https://deno.land/x/denops_std@v5.0.2/mod.ts\";\nimport type { GatherArguments } from \"https://deno.land/x/ddu_vim@v3.6.0/base/source.ts\";\nimport { BaseSource } from \"https://deno.land/x/ddu_vim@v3.6.0/types.ts\";\nimport type { Item } from \"https://deno.land/x/ddu_vim@v3.6.0/types.ts\";\n\ntype ActionData = Record<PropertyKey, never>;\n\ntype Params = Record<PropertyKey, never>;\n\nexport class Source extends BaseSource<Params, ActionData> {\n  override kind = \"$1\";\n\n  override gather(\n    args: GatherArguments<Params>,\n  ): ReadableStream<Item<ActionData>[]> {\n    throw new Error(\"not implemented\");\n  }\n\n  override params(): Params {\n    return {};\n  }\n}\n"
     },
     "deno-import": {
         "body": "import {$2} from \"https://$1\"",
