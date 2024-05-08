@@ -64,6 +64,7 @@
   "ddu.vim": { "branch": "main", "commit": "65e8737c22f97dfe53a86369973b9ffca4702a8e" },
   "denops-docbase.vim": { "branch": "main", "commit": "8e0159fff0c6f4d04126744def8ad370fef28315" },
   "denops-ollama.vim": { "branch": "main", "commit": "0419cf300803e59e6d4608dfd6fe3c61c34de684" },
+  "denops-zenn_dev.vim": { "branch": "main", "commit": "ec3119d858256c2bee1b5eddd1ff7e950b1fa8e4" },
   "denops.vim": { "branch": "main", "commit": "2a393849db9531d14106dcd437f9b7deb5012057" },
   "dial.nvim": { "branch": "master", "commit": "27eb570085db2ef44bff4f620d3806039184651c" },
   "fern-git-status.vim": { "branch": "master", "commit": "151336335d3b6975153dad77e60049ca7111da8e" },
