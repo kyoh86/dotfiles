@@ -4,6 +4,7 @@ vim.opt_local.tabstop = indent_size
 vim.opt_local.shiftwidth = indent_size
 
 --- markdownのテキスト表示・編集にまつわる設定
+vim.opt.isfname:append("@-@")
 vim.opt_local.conceallevel = 0
 vim.opt_local.formatoptions:remove({ "c" })
 vim.opt_local.formatoptions:append({ j = true, r = true, o = true })
@@ -180,4 +181,4 @@ else
   undo = undo .. "|"
 end
 
-vim.b.undo_ftplugin = undo .. "setlocal tabstop< shiftwidth< conceallevel< comments< formatoptions<" .. "| delcommand -buffer MarkdownToggleCheckbox" .. "| delcommand -buffer MarkdownRemoveCheckbox" .. "| nunmap <buffer> <leader>mcc" .. "| iunmap <buffer> <leader>mcc" .. "| xunmap <buffer> <leader>mcc" .. "| nunmap <buffer> <leader>mcd" .. "| iunmap <buffer> <leader>mcd" .. "| xunmap <buffer> <leader>mcd" .. "| nunmap <buffer> gO" .. "| iunmap <buffer> <tab>" .. "| iunmap <buffer> <s-tab>" .. ""
+vim.b.undo_ftplugin = undo .. "setlocal tabstop< shiftwidth< conceallevel< comments< formatoptions<" .. "| set isfname<" .. "| delcommand -buffer MarkdownToggleCheckbox" .. "| delcommand -buffer MarkdownRemoveCheckbox" .. "| nunmap <buffer> <leader>mcc" .. "| iunmap <buffer> <leader>mcc" .. "| xunmap <buffer> <leader>mcc" .. "| nunmap <buffer> <leader>mcd" .. "| iunmap <buffer> <leader>mcd" .. "| xunmap <buffer> <leader>mcd" .. "| nunmap <buffer> gO" .. "| iunmap <buffer> <tab>" .. "| iunmap <buffer> <s-tab>" .. ""

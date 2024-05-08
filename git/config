@@ -29,6 +29,7 @@
 
 [diff]
 	compactionHeuristic = true
+  algorithm = histogram
 [merge]
 	ff = false
 	tool = vimdiff

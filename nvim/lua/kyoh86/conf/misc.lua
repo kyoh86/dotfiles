@@ -14,6 +14,7 @@ vim.opt.signcolumn = "auto"
 vim.opt.more = false
 vim.opt.timeoutlen = 500
 vim.opt.shortmess:append("I")
+vim.opt.diffopt:append("algorithm:histogram")
 
 --- マウスを無効化
 vim.opt.mouse = {}
