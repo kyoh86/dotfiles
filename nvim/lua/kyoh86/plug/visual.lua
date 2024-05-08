@@ -1,7 +1,7 @@
 ---@type LazySpec[]
 local spec = {
   {
-    "lambdalisue/readablefold.vim",
+    "lambdalisue/vim-readablefold",
     event = { "InsertEnter", "BufReadPre" },
   },
   {

@@ -1,6 +1,6 @@
 ---@type LazySpec
 local spec = {
-  "lambdalisue/kensaku.vim",
+  "lambdalisue/vim-kensaku",
   lazy = true,
 }
 return spec

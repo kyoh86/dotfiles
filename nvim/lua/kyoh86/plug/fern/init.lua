@@ -16,13 +16,13 @@ end
 
 ---@type LazySpec
 local spec = { {
-  "lambdalisue/fern-git-status.vim",
+  "lambdalisue/vim-fern-git-status",
   lazy = true,
 }, {
-  "lambdalisue/fern-hijack.vim",
+  "lambdalisue/vim-fern-hijack",
   lazy = true,
 }, {
-  "lambdalisue/fern.vim",
+  "lambdalisue/vim-fern",
   dependencies = {
     "fern-git-status.vim",
     "fern-hijack.vim",

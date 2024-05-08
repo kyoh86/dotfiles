@@ -12,7 +12,7 @@ local spec = {
     keys = { { "<leader>wr", "<plug>(curtain-start)", desc = "ウインドウをリサイズする" } },
   },
   {
-    "lambdalisue/guise.vim", -- Enhance $EDITOR behavior in terminal
+    "lambdalisue/vim-guise", -- Enhance $EDITOR behavior in terminal
     dependencies = { "denops.vim" },
   },
   {

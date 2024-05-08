@@ -56,7 +56,7 @@ local spec = {
     event = "BufReadPost",
   },
   {
-    "lambdalisue/gin.vim",
+    "lambdalisue/vim-gin",
     dependencies = { "denops.vim" },
     config = function()
       vim.keymap.set("n", "<leader>gdp", "<Plug>(gin-diffput)", { desc = "Put a diff chunk to WORKTREE buffer" })
