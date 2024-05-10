@@ -5,7 +5,7 @@ local spec = { {
   "lambdalisue/vim-mr",
 }, {
   "kuuote/ddu-source-mr",
-  dependencies = { "ddu.vim", "ddu-kind-file", "mr.vim" },
+  dependencies = { "ddu.vim", "ddu-kind-file", "vim-mr" },
   config = function()
     helper.setup("mrw", {
       sources = { { name = "mr", params = { kind = "mrw" } } },

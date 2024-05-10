@@ -24,8 +24,8 @@ local spec = { {
 }, {
   "lambdalisue/vim-fern",
   dependencies = {
-    "fern-git-status.vim",
-    "fern-hijack.vim",
+    "vim-fern-git-status",
+    "vim-fern-hijack",
   },
   config = function()
     vim.api.nvim_set_hl(0, "FernMarkedLine", { link = "PmenuSel" })
