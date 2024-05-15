@@ -6,6 +6,7 @@
   "capture.vim": { "branch": "master", "commit": "857ee11cfe1193948d3d45dcb8d511fded8533fb" },
   "cellwidths.nvim": { "branch": "main", "commit": "e2a068bb7ee99adc145f5adba6196ba16f83a92c" },
   "climbdir.nvim": { "branch": "main", "commit": "dcccc2f17a3014ec456976f10c8ebbe36c1148a9" },
+  "conflict-marker.vim": { "branch": "master", "commit": "11a4d42244755505b66b15cd4496a150432eb5e3" },
   "copilot.vim": { "branch": "release", "commit": "dfa657c80c915a6a3eb6d9010046a0576ad25a37" },
   "curtain.nvim": { "branch": "main", "commit": "88088eb1ef76c60c2d01a5fbf09d85a3c14d17b6" },
   "ddc-buffer": { "branch": "main", "commit": "695afcd0fa797bb98bb1a4b79ab44d71b215b530" },
