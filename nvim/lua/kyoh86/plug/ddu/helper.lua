@@ -57,7 +57,7 @@ function M.setup(name, dduopts, config)
 
   if config.start then
     local starts = config.start or {}
-    if not vim.tbl_islist(starts) then
+    if not vim.islist(starts) then
       starts = { starts }
     end
     for _, start in pairs(starts) do
