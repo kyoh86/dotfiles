@@ -14,14 +14,14 @@ vim.api.nvim_create_user_command("GitHubIssue", function(opts)
   local args = opts.args or {}
   local exec = "gh issue new"
   if #args == 1 then
-    exec = "gh issue new --title " .. args[1]
+    exec = "gh issue new --title " .. vim.fn.shellescape(args[1])
   elseif opts.range > 0 then
     local head = vim.fn.getpos("'<")
     local tail = vim.fn.getpos("'>")
     local lines = vim.fn.getregion(head, tail, { type = vim.fn.visualmode() })
-    local title = lines[1]
+    local title = vim.fn.shellescape(lines[1])
     if #lines > 1 then
-      local body = table.concat(lines, "\\n", 2)
+      local body = vim.fn.shellescape(table.concat(lines, "\n", 2))
       exec = "gh issue new --title " .. title .. " --body " .. body
     else
       exec = "gh issue new --title " .. title
