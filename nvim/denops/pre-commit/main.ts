@@ -42,7 +42,7 @@ export async function main(denops: Denops): Promise<void> {
         bufs.length > 1 ? "There're dirty buffers." : "There's a dirty buffer.",
         "If you needs, you should save them before commit:\n",
         files,
-        "Ignoroe them and continue?",
+        "Ignore them and continue?",
       ].join("\n");
       switch (
         await fn.confirm(denops, msg, "&Yes\n&No")
