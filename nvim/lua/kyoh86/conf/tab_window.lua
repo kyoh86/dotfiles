@@ -14,3 +14,7 @@ end
 local group = vim.api.nvim_create_augroup("kyoh86-conf-tab-window", {})
 vim.api.nvim_create_autocmd("TabLeave", { group = group, callback = tab_leave })
 vim.api.nvim_create_autocmd("TabEnter", { group = group, callback = tab_enter })
+
+--- タブの切り替え
+vim.keymap.set("n", "<leader><tab>", "<Cmd>tabnext<CR>")
+vim.keymap.set("n", "<leader><S-tab>", "<Cmd>tabprevious<CR>")
