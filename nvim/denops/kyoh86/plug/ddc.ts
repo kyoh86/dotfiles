@@ -7,8 +7,6 @@ import { ConfigArguments } from "https://deno.land/x/ddc_vim@v4.3.1/base/config.
 export class Config extends BaseConfig {
   override config(args: ConfigArguments): Promise<void> {
     const sources: UserSource[] = [
-      { name: "copilot" },
-      { name: "ollama" },
       { name: "vsnip" },
       {
         name: "lsp",
@@ -35,13 +33,6 @@ export class Config extends BaseConfig {
           matchers: ["matcher_head", "matcher_prefix", "matcher_length"],
           sorters: ["sorter_rank"],
           converters: ["converter_remove_overlap"],
-        },
-        copilot: {
-          mark: "[copilot]",
-          isVolatile: true,
-        },
-        ollama: {
-          mark: "[ollama]",
         },
         lsp: {
           mark: "[lsp]",

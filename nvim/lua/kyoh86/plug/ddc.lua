@@ -63,8 +63,6 @@ local spec = {
   { "Shougo/ddc-source-line", dependencies = { "ddc.vim", "denops.vim" } },
   { "Shougo/ddc-source-lsp", dependencies = { "ddc.vim", "denops.vim" } },
   { "Shougo/ddc-source-nvim-lua", dependencies = { "ddc.vim", "denops.vim" } },
-  { "Shougo/ddc-source-copilot", dependencies = { "ddc.vim", "denops.vim" } },
-  { "kyoh86/ddc-source-ollama", dependencies = { "ddc.vim", "denops.vim" } },
   { "matsui54/ddc-buffer", dependencies = { "ddc.vim", "denops.vim" } },
   { "Shougo/ddc-ui-inline", dependencies = { "ddc.vim", "denops.vim" } },
   { "uga-rosa/ddc-source-vsnip", event = "VeryLazy", dependencies = { "ddc.vim", "denops.vim", "vim-vsnip" } },
