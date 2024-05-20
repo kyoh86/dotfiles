@@ -3,8 +3,8 @@ local spec = {
   "github/copilot.vim",
   init = function()
     vim.g.copilot_no_maps = true
-    vim.keymap.set("i", "<c-x><c-c>", function()
-      vim.fn["copilot#Accept"]("")
+    vim.keymap.set("i", "<c-x><c-a>", function()
+      return vim.fn["copilot#Accept"]("<c-x><c-a>")
     end, {
       expr = true,
     })
