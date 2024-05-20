@@ -82,6 +82,7 @@ return {
       javascriptreact = { prettier },
       lua = { stylua },
       markdown = { textlint, markdownlint },
+      prisma = { prisma },
       scala = { scalafmt },
       terraform = { terraform_fmt },
       typescript = { prettier, denofmt },
