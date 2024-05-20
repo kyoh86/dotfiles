@@ -20,7 +20,7 @@ function _update_deno_dependencies_core() {
     return
   fi
   echo "No dirty changes in $dir"
-  if ! NO_COLOR=1 udd ./**/*.ts; then
+  if ! NO_COLOR=1 molt --write ./**/*.ts; then
     echo "\e[31mFailed to update dependencies in $dir\e[0m"
     return
   fi
