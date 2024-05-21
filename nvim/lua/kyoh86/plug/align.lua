@@ -1,7 +1,7 @@
 ---@type LazySpec
 local spec = {
   "echasnovski/mini.align",
-  opt = { mappings = {
+  opts = { mappings = {
     start = "<leader>a",
     start_with_preview = "<leader>A",
   } },
