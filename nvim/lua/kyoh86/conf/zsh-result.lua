@@ -2,7 +2,7 @@ vim.api.nvim_create_autocmd("User", {
   group = vim.api.nvim_create_augroup("kyoh86-conf-zsh-result", { clear = true }),
   pattern = "Kyoh86TermNotifReceived:precmd:*",
   callback = function(ev)
-    local terms = string.split(ev.match, ":")
+    local terms = vim.split(ev.match, ":")
     local ret, bufnr = terms[3], terms[4]
     if bufnr == nil or bufnr == "" then
       -- バッファ番号が分からないときは通知しない
