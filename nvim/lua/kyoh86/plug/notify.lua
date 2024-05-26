@@ -19,6 +19,5 @@ local spec = {
     vim.api.nvim_set_hl(0, "NotifyDEBUGTitle", { link = "DiagnosticHint" })
     vim.api.nvim_set_hl(0, "NotifyTRACETitle", { link = "DiagnosticHint" })
   end,
-  lazy = true,
 }
 return spec
