@@ -80,7 +80,6 @@ local spec = {
   },
   {
     "kyoh86/denops-zenn_dev.vim",
-    dev = true,
     config = function()
       vim.api.nvim_create_autocmd("User", {
         pattern = "DenopsPluginPost:zenn_dev",
