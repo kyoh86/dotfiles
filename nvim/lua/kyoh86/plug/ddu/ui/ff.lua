@@ -45,7 +45,7 @@ local spec = {
           end),
           split = "floating",
           floatingBorder = "rounded",
-          prompt = "▶ ",
+          prompt = "󰈲  ",
           highlights = {
             filterText = "dduFilter",
             floating = "Normal",
