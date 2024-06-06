@@ -89,7 +89,7 @@ local spec = {
 
     vim.fn.sign_define("dduSelected", { text = "✔", texthl = "dduSelectedSign" })
     vim.api.nvim_create_autocmd("FileType", {
-      group = group,
+      group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff", { clear = true }),
       pattern = "ddu-ff",
       callback = function(ev)
         vim.opt_local.signcolumn = "auto"
