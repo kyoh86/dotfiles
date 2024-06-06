@@ -9,6 +9,7 @@ local spec = {
     define("Rg", "Ripgrep")
     define("vh", "vertical help")
     define("vhelp", "vertical help")
+    define("cs", "cdo s")
   end,
 }
 return spec
