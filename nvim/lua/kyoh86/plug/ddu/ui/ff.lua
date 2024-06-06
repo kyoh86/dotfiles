@@ -40,6 +40,20 @@ local spec = {
       ui = "ff",
       uiParams = {
         ff = {
+          -- sizes >>>
+          winRow = "(&lines - min([70, &lines - 8]) - 3) / 2",
+          previewRow = "(&lines - min([70, &lines - 8]) - 3) / 2",
+
+          winHeight = "min([70, &lines - 8])",
+          previewHeight = "min([70, &lines - 8])",
+
+          winCol = "&columns / 10",
+          previewCol = "&columns / 2",
+
+          winWidth = "&columns * 4 / 10 - 2",
+          previewWidth = "&columns * 4 / 10 - 2",
+          -- <<< sizes
+
           onPreview = vim.fn["denops#callback#register"](function(args)
             vim.wo[args.previewWinId].cursorline = false
           end),
@@ -73,41 +87,6 @@ local spec = {
       },
     })
 
-    local function resize()
-      local lines = vim.opt.lines:get()
-      -- row = 'lines' minus below / 2
-      -- WINBAR LINE = 1
-      -- MESSAGE LINE = 1
-      -- STATUS LINE = 1
-      local height = math.min(70, lines - 8)
-      local row = math.floor((lines - height - 3) * 0.5)
-      local columns = vim.opt.columns:get()
-      local width, col = math.floor(columns * 0.8), math.floor(columns * 0.1)
-      local winWidth = math.floor(width / 2) - 1
-
-      local conf = {
-        winRow = row,
-        winWidth = winWidth,
-        winHeight = height,
-        winCol = col,
-        previewRow = row,
-        previewHeight = height,
-        previewWidth = winWidth,
-        previewCol = col + winWidth + 2,
-      }
-      vim.fn["ddu#custom#patch_global"]({
-        uiParams = {
-          ff = conf,
-        },
-      })
-    end
-    resize()
-
-    local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff", { clear = true })
-    vim.api.nvim_create_autocmd("VimResized", {
-      group = group,
-      callback = resize,
-    })
     vim.fn.sign_define("dduSelected", { text = "✔", texthl = "dduSelectedSign" })
     vim.api.nvim_create_autocmd("FileType", {
       group = group,
