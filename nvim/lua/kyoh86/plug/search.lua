@@ -20,6 +20,7 @@ local spec = {
     ft = "qf",
     config = function()
       local group = vim.api.nvim_create_augroup("kyoh86-plug-qfreplace-keymap", { clear = true })
+      vim.g.qfreplace_no_save = true
       vim.api.nvim_create_autocmd("FileType", {
         pattern = "qf",
         group = group,
