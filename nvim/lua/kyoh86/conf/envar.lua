@@ -21,6 +21,9 @@ vim.env.LANG = "ja_JP.UTF-8"
 vim.env.COLORTERM = "xterm-256color"
 vim.env.TERM = "xterm-256color"
 
+-- Neovim server name
+vim.env.NVIM_SERVER_NAME = vim.v.servername
+
 -- 基本のPath設定:
 
 path = {
