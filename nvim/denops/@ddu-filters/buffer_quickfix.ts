@@ -1,9 +1,9 @@
-import { FilterArguments } from "https://deno.land/x/ddu_vim@v3.10.3/base/filter.ts";
-import { getbufvar } from "https://deno.land/x/denops_std@v6.4.0/function/buffer.ts";
+import { FilterArguments } from "https://deno.land/x/ddu_vim@v4.1.0/base/filter.ts";
+import { getbufvar } from "https://deno.land/x/denops_std@v6.5.0/function/buffer.ts";
 import {
   BaseFilter,
   DduItem,
-} from "https://deno.land/x/ddu_vim@v3.10.3/types.ts";
+} from "https://deno.land/x/ddu_vim@v4.1.0/types.ts";
 
 const defaultParams = {
   highlightAdded: "diffAdded",

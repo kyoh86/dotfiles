@@ -10,11 +10,11 @@
  * ref(通知送信スクリプト): ./notify.ts
  * ref(zshのコマンド終了通知): ../../../zsh/part/zsh_notify_done.zsh
  */
-import type { Denops } from "https://deno.land/x/denops_std@v6.4.0/mod.ts";
-import * as batch from "https://deno.land/x/denops_std@v6.4.0/batch/mod.ts";
-import * as path from "https://deno.land/std@0.219.1/path/mod.ts";
-import * as autocmd from "https://deno.land/x/denops_std@v6.4.0/autocmd/mod.ts";
-import * as vars from "https://deno.land/x/denops_std@v6.4.0/variable/mod.ts";
+import type { Denops } from "https://deno.land/x/denops_std@v6.5.0/mod.ts";
+import * as batch from "https://deno.land/x/denops_std@v6.5.0/batch/mod.ts";
+import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
+import * as autocmd from "https://deno.land/x/denops_std@v6.5.0/autocmd/mod.ts";
+import * as vars from "https://deno.land/x/denops_std@v6.5.0/variable/mod.ts";
 
 export function main(denops: Denops): void {
   listen(denops).catch((e) =>
