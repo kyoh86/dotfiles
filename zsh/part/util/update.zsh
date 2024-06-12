@@ -127,6 +127,11 @@ function update_neovim {
     echo cloning neovim
     git -c advice.detachedHead=false clone --depth 1 -b nightly https://github.com/neovim/neovim "$nvim_tmpdir/neovim"
     pushd "$nvim_tmpdir/neovim"
+    if [ -n "$NVIM_PINNED_COMMIT" ]; then
+        echo "!!NEOVIM PINNED!!"
+        git fetch --depth 1 origin "$NVIM_PINNED_COMMIT"
+        git reset --hard FETCH_HEAD
+    fi
     if command -v nvim >/dev/null 2>&1; then
         current="$(nvim --version | head -n1 | awk -F' |-' '{print $4}')"
         latest="$(git reflog show HEAD | head -n1 | awk '{print $1}')"

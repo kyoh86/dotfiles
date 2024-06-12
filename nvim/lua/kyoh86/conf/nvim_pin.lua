@@ -1,0 +1,1 @@
+vim.env.NVIM_PINNED_COMMIT="cb6c0fda718e4503fc1bfc49a9fe92411f5f9005"
