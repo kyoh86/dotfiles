@@ -141,6 +141,8 @@ function update_neovim {
             return 0
         fi
     fi
+    echo clean
+    sudo rm -r /usr/local/share/nvim/
     echo make
     make CMAKE_BUILD_TYPE=Release
     echo install
