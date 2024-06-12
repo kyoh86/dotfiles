@@ -54,7 +54,7 @@ local function put_escaped_scope_to_cmdline(kind)
   put_escaped_str_to_cmdline(scopes[kind]())
 end
 
-local registers = vim.tbl_flatten({
+local registers = vim.iter({
   { [[a]], [[b]], [[c]], [[d]], [[e]], [[f]], [[g]], [[h]], [[i]], [[j]], [[k]], [[l]], [[m]] },
   { [[n]], [[o]], [[p]], [[q]], [[r]], [[s]], [[t]], [[u]], [[v]], [[w]], [[x]], [[y]], [[z]] },
   { [[A]], [[B]], [[C]], [[D]], [[E]], [[F]], [[G]], [[H]], [[I]], [[J]], [[K]], [[L]], [[M]] },
@@ -62,6 +62,7 @@ local registers = vim.tbl_flatten({
   { [[0]], [[1]], [[2]], [[3]], [[4]], [[5]], [[6]], [[7]], [[8]], [[9]] },
   { [["]], [[-]], [[:]], [[.]], [[%]], [[#]], [[=]], [[*]], [[+]], [[_]], [[/]] },
 })
+registers = registers:flatten():totable()
 
 -- レジスタのテキストをエスケープして現在のcmdに貼り付ける
 -- @param regname: string

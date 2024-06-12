@@ -68,7 +68,6 @@ export class Source extends BaseSource<Params, ActionData> {
           name: is.String,
         }),
       );
-      console.log("hoge");
       if (!action || !action.name) {
         console.error("invalid selected item (having no name)");
         return ActionFlags.None;
