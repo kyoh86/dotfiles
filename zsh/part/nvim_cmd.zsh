@@ -2,7 +2,7 @@
 if [ -n "${NVIM_SERVER_NAME}" ] ; then
   function nvim-remote-or-accept-line() {
     # バッファが:で始まる場合はNeovimに実行させ結果を表示する
-    if echo $BUFFER | grep --silent "^:"; then
+    if [ "$BUFFER[1]" = ":" ]; then
       # コマンドをNeovimに実行させ、出力を受けとる
       local RES="$(nvim --server ${NVIM_SERVER_NAME} --headless --remote-expr "execute(\"${BUFFER//\"/\\\"}\")" )"
 
