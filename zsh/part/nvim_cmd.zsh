@@ -4,7 +4,7 @@ if [ -n "${NVIM_SERVER_NAME}" ] ; then
     # バッファが:で始まる場合はNeovimに実行させ結果を表示する
     if [ "$BUFFER[1]" = ":" ]; then
       # コマンドをNeovimに実行させ、出力を受けとる
-      local RES="$(nvim --server ${NVIM_SERVER_NAME} --headless --remote-expr "execute(\"${BUFFER//\"/\\\"}\")" )"
+      local RES="$(nvim --server ${NVIM_SERVER_NAME} --headless --remote-expr "execute(v:lua.vim.base64.decode(\"$(echo "$BUFFER" | base64)\"))")"
 
       # 出力を表示する
       printf "$RES"
