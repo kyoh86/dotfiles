@@ -36,6 +36,13 @@ local spec = {
   {
     "previm/previm", -- previous some file-types
     dependencies = { "open-browser.vim" },
+    config = function()
+      vim.g.previm_enable_realtime = true
+      vim.g.previm_code_language_show = true
+      vim.g.previm_disable_default_css = true
+      vim.g.previm_custom_css_path = vim.fn.stdpath("config") .. "/css/github-markdown.css"
+      vim.g.previm_open_cmd = "wslview"
+    end,
   },
 }
 return spec

@@ -10,6 +10,7 @@ local spec = {
     define("vh", "vertical help")
     define("vhelp", "vertical help")
     define("cs", "cdo s")
+    define("previm", "PrevimOpen")
   end,
 }
 return spec
