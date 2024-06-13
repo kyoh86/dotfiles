@@ -35,7 +35,7 @@ local function setup_lsp_global()
       format = format_diagnostics,
     },
     float = {
-      focusable = false,
+      focusable = true,
       border = "rounded",
       format = format_diagnostics,
       header = {},
