@@ -23,6 +23,11 @@ local gofmt = { --[[https://pkg.go.dev/cmd/gofmt]]
   formatStdin = true,
 }
 
+local jqfmt = {
+  formatCommand = "jq .",
+  formatStdin = true,
+}
+
 local markdownlint = { --[[https://github.com/DavidAnson/markdownlint]]
   prefix = "markdownlint",
   lintSource = "efm/markdownlint",
@@ -79,6 +84,7 @@ return {
     languages = {
       go = { gofmt },
       javascript = { prettier },
+      json = { jqfmt },
       javascriptreact = { prettier },
       lua = { stylua },
       markdown = { textlint, markdownlint },
