@@ -3,6 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-docbase",
+  branch = "with-docbase-router",
   dependencies = { "ddu.vim", "denops-docbase.vim" },
   config = helper.setup_func("docbase_posts", {
     sources = { { name = "docbase_posts", params = { domain = "wacul" }, options = { sorters = { "sorter_docbase_post" } } } },
