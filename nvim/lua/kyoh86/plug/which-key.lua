@@ -22,6 +22,9 @@ local spec = {
         a = {
           name = "すべてのファイル",
         },
+        d = {
+          name = "DocBase",
+        },
         e = {
           name = "絵文字",
         },

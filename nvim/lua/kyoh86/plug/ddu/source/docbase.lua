@@ -3,24 +3,42 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-docbase",
-  branch = "with-docbase-router",
   dependencies = { "ddu.vim", "denops-docbase.vim" },
-  config = helper.setup_func("docbase_posts", {
-    sources = { { name = "docbase_posts", params = { domain = "wacul" }, options = { sorters = { "sorter_docbase_post" } } } },
-    kindOptions = {
-      file = {
-        defaultAction = "open",
+  config = function()
+    helper.setup("docbase_posts", {
+      sources = { { name = "docbase_posts", params = { domain = "wacul" }, options = { sorters = { "sorter_docbase_post" } } } },
+      kindOptions = {
+        file = {
+          defaultAction = "open",
+        },
       },
-    },
-  }, {
-    start = {
-      key = "<leader>fd",
-      desc = "DocBase",
-    },
-    filelike = true,
-    localmap = {
-      ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
-    },
-  }),
+    }, {
+      start = {
+        key = "<leader>fdp",
+        desc = "DocBase Posts",
+      },
+      filelike = true,
+      localmap = {
+        ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
+      },
+    })
+    helper.setup("docbase_templates", {
+      sources = { { name = "docbase_templates", params = { domain = "wacul" }, options = { sorters = { "sorter_docbase_post" } } } },
+      kindOptions = {
+        file = {
+          defaultAction = "open",
+        },
+      },
+    }, {
+      start = {
+        key = "<leader>fdt",
+        desc = "DocBase Templates",
+      },
+      filelike = true,
+      localmap = {
+        ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
+      },
+    })
+  end,
 }
 return spec
