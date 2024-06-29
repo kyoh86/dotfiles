@@ -7,7 +7,7 @@ local function open_cursor()
   end
   target = string.gsub(target --[[@as string]], [[\.+$]], "")
   if string.match(target, "^#%d+$") then
-    vim.print("opening GitHub Issue" .. target)
+    vim.print("opening GitHub Issue " .. target)
     -- target が #nnn というIssue番号の場合は、gh を呼んでIssueを開く
     local cmd = { "gh", "issue", "view", "--web", target:sub(2) }
     vim.fn.jobstart(cmd, {
@@ -18,7 +18,7 @@ local function open_cursor()
       end,
     })
   elseif string.match(target, "^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$") then
-    vim.print("opening GitHub Repo" .. target)
+    vim.print("opening GitHub Repo " .. target)
     -- targetがowner/repoの形ならgh を呼んでリポジトリを開く
     local cmd = { "gh", "repo", "view", "--web", target }
     vim.fn.jobstart(cmd, {
@@ -31,7 +31,7 @@ local function open_cursor()
   else
     local repo, number = string.match(target, "^([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)#(%d+)$")
     if repo and number then
-      vim.print("opening GitHub Issue" .. target)
+      vim.print("opening GitHub Issue " .. target)
       -- targetがowner/repo#nnnの形ならgh を呼んで指定のリポジトリのIssueを開く
       local cmd = { "gh", "issue", "view", "--repo", repo, "--web", number }
       vim.fn.jobstart(cmd, {
