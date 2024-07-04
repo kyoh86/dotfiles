@@ -4,11 +4,8 @@ local spec = {
   config = function()
     local wk = require("which-key")
     wk.setup({
-      triggers = { "<leader>", "s" },
-      triggers_nowait = {
-        "<leader>",
-        "s",
-      },
+      triggers = { "<leader>", "s", "]", "[" },
+      triggers_nowait = { "<leader>", "s", "]", "[" },
     })
     wk.register({
       ["\\"] = {
@@ -106,6 +103,20 @@ local spec = {
     })
     wk.register({
       t = "ターミナル",
+    })
+    wk.register({
+      x = {
+        name = "前のコンフリクトに移動",
+      },
+    }, {
+      prefix = "[",
+    })
+    wk.register({
+      x = {
+        name = "後ろのコンフリクトに移動",
+      },
+    }, {
+      prefix = "]",
     })
     wk.register({
       f = {
