@@ -134,6 +134,11 @@ local function disable_lsp(client, bufnr)
   end
 end
 
+-- フォーマットが重いときのためにnoautocmdでフォーマットをスキップできるコマンドを用意する
+vim.api.nvim_create_user_command("W", "noautocmd w", {})
+vim.api.nvim_create_user_command("Wa", "noautocmd wa", {})
+vim.api.nvim_create_user_command("WA", "noautocmd wa", {})
+
 --- Attach時の設定
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
@@ -144,6 +149,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     if client.server_capabilities.documentFormattingProvider then
+      -- ファイル保存時に自動でフォーマットする
       vim.api.nvim_create_autocmd("BufWritePre", {
         pattern = string.format("<buffer=%d>", bufnr),
         callback = function()
