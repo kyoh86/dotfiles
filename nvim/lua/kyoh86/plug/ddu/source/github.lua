@@ -19,12 +19,15 @@ local spec = {
       },
     })
 
-    local format = "${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
+    local linkFormat = "${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
+    local fullFormat = "${this.title} ${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
     local map = {
       ["<leader>e"] = { action = "itemAction", params = { name = "edit" } },
       ["<leader>c"] = { action = "itemAction", params = { name = "checkout" } },
-      ["<leader>p"] = { action = "itemAction", params = { name = "append", params = { format = format, avoid = "filename" } } },
-      ["<leader>P"] = { action = "itemAction", params = { name = "insert", params = { format = format, avoid = "filename" } } },
+      ["<leader>p"] = { action = "itemAction", params = { name = "append", params = { format = linkFormat, avoid = "filename" } } },
+      ["<leader>P"] = { action = "itemAction", params = { name = "insert", params = { format = linkFormat, avoid = "filename" } } },
+      ["<leader>f"] = { action = "itemAction", params = { name = "append", params = { format = fullFormat } } },
+      ["<leader>F"] = { action = "itemAction", params = { name = "insert", params = { format = fullFormat } } },
     }
     helper.setup("github-issues", {
       sources = { {
