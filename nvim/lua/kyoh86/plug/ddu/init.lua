@@ -23,12 +23,12 @@ local spec = {
       local helper = require("kyoh86.plug.ddu.helper")
 
       helper.setup("aws-profile", {
-        sources = { { name = "aws_profile" } },
-        kindOptions = {
-          ["aws_profile"] = {
+        sources = { {
+          name = "aws_profile",
+          options = {
             defaultAction = "setenv",
           },
-        },
+        } },
         uiParams = {
           ff = {
             startAutoAction = false,
