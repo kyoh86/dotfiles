@@ -11,6 +11,8 @@ local spec = {
     define("vhelp", "vertical help")
     define("cs", "cdo s")
     define("previm", "PrevimOpen")
+    define("lazy", "Lazy")
+    define("gin", "Gin")
   end,
 }
 return spec
