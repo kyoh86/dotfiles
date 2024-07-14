@@ -23,11 +23,15 @@ local spec = {
     local fullFormat = "${this.title} ${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
     local map = {
       ["<leader>e"] = { action = "itemAction", params = { name = "edit" } },
-      ["<leader>c"] = { action = "itemAction", params = { name = "checkout" } },
       ["<leader>p"] = { action = "itemAction", params = { name = "append", params = { format = linkFormat, avoid = "filename" } } },
       ["<leader>P"] = { action = "itemAction", params = { name = "insert", params = { format = linkFormat, avoid = "filename" } } },
       ["<leader>f"] = { action = "itemAction", params = { name = "append", params = { format = fullFormat } } },
       ["<leader>F"] = { action = "itemAction", params = { name = "insert", params = { format = fullFormat } } },
+    }
+    local nextState = {
+      open = "closed",
+      closed = "all",
+      all = "open",
     }
     helper.setup("github-issues", {
       sources = { {
@@ -39,7 +43,20 @@ local spec = {
         key = "<leader>fgi",
         desc = "GitHub Issues",
       },
-      localmap = map,
+      localmap = vim.tbl_extend("force", map, {
+        ["<leader>s"] = function()
+          local opts = vim.fn["ddu#custom#get_current"]("github-issues")
+          local state = nextState[opts.sourceParams.github_repo_issue.state]
+          vim.fn["ddu#ui#do_action"]("updateOptions", {
+            sourceParams = {
+              github_repo_issue = {
+                state = state,
+              },
+            },
+          })
+          vim.fn["ddu#ui#do_action"]("redraw", { method = "refreshItems" })
+        end,
+      }),
     })
     helper.setup("github-pulls", {
       sources = { {
@@ -51,7 +68,21 @@ local spec = {
         key = "<leader>fgp",
         desc = "GitHub Pull Requests",
       },
-      localmap = map,
+      localmap = vim.tbl_extend("force", map, {
+        ["<leader>c"] = { action = "itemAction", params = { name = "checkout" } },
+        ["<leader>s"] = function()
+          local opts = vim.fn["ddu#custom#get_current"]("github-pulls")
+          local state = nextState[opts.sourceParams.github_repo_pull.state]
+          vim.fn["ddu#ui#do_action"]("updateOptions", {
+            sourceParams = {
+              github_repo_pull = {
+                state = state,
+              },
+            },
+          })
+          vim.fn["ddu#ui#do_action"]("redraw", { method = "refreshItems" })
+        end,
+      }),
     })
     vim.api.nvim_create_user_command("DduSources", function()
       vim.fn["ddu#start"]({
