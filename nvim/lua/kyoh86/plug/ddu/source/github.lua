@@ -61,6 +61,9 @@ local spec = {
     helper.setup("github-my-issues", {
       sources = { {
         name = "github_my_issue",
+        options = {
+          columns = { "github_issue_full_name", "github_issue_title", "github_issue_state" },
+        },
       } },
     }, {
       start = {
