@@ -33,7 +33,7 @@ local spec = {
       closed = "all",
       all = "open",
     }
-    helper.setup("github-issues", {
+    helper.setup("github-repo-issues", {
       sources = { {
         name = "github_repo_issue",
         params = { source = "cwd" },
@@ -45,11 +45,35 @@ local spec = {
       },
       localmap = vim.tbl_extend("force", map, {
         ["<leader>s"] = function()
-          local opts = vim.fn["ddu#custom#get_current"]("github-issues")
+          local opts = vim.fn["ddu#custom#get_current"]("github-repo-issues")
           local state = nextState[opts.sourceParams.github_repo_issue.state]
           vim.fn["ddu#ui#do_action"]("updateOptions", {
             sourceParams = {
               github_repo_issue = {
+                state = state,
+              },
+            },
+          })
+          vim.fn["ddu#ui#do_action"]("redraw", { method = "refreshItems" })
+        end,
+      }),
+    })
+    helper.setup("github-my-issues", {
+      sources = { {
+        name = "github_my_issue",
+      } },
+    }, {
+      start = {
+        key = "<leader>fggi",
+        desc = "GitHub My Issues",
+      },
+      localmap = vim.tbl_extend("force", map, {
+        ["<leader>s"] = function()
+          local opts = vim.fn["ddu#custom#get_current"]("github-my-issues")
+          local state = nextState[opts.sourceParams.github_my_issue.state]
+          vim.fn["ddu#ui#do_action"]("updateOptions", {
+            sourceParams = {
+              github_my_issue = {
                 state = state,
               },
             },
