@@ -111,6 +111,31 @@ local spec = {
         end,
       }),
     })
+    helper.setup("github-my-pulls", {
+      sources = { {
+        name = "github_search_pull",
+        params = { hostname = "github.com", query = "is:pr is:open author:kyoh86" },
+      } },
+    }, {
+      start = {
+        key = "<leader>fggp",
+        desc = "GitHub My Pull Requests",
+      },
+      localmap = vim.tbl_extend("force", map, {
+        ["<leader>s"] = function()
+          local opts = vim.fn["ddu#custom#get_current"]("github-pulls")
+          local state = nextState[opts.sourceParams.github_repo_pull.state]
+          vim.fn["ddu#ui#do_action"]("updateOptions", {
+            sourceParams = {
+              github_repo_pull = {
+                state = state,
+              },
+            },
+          })
+          vim.fn["ddu#ui#do_action"]("redraw", { method = "refreshItems" })
+        end,
+      }),
+    })
     vim.api.nvim_create_user_command("DduSources", function()
       vim.fn["ddu#start"]({
         sources = { {
