@@ -19,6 +19,7 @@
     - https://docs.github.com/ja/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account
 1. Import GPG public & secret key
     - (see password manager)
+    - Set path for gpg: `export GNUPGHOME=$HOME/.config/gnupg`
     - Import public key: `gpg --import xxxxxxxx.pub`
     - Import secret key: `gpg --import xxxxxxxx`
     - See key-id for git/host.conf: `gpg --list-keys --keyid-format LONG`
@@ -49,7 +50,13 @@ Ubuntu:
 NOTE: Update Ubuntu before setup: https://zenn.dev/ryuu/articles/upgrade-ubuntu2204-wsl
 
 ```console
-$ ~/.config/setup/ubuntu
+$ ~/.config/setup/ubuntu24
+```
+
+### 4. Link to hosts
+
+```console
+$ ln -s /mnt/c/Users/xxxxx /home/kyoh86/Host
 ```
 
 ### 4. if I want to use this repository on another git user
@@ -81,7 +88,7 @@ $ git config sendEmail.smtpPass <generated app password>
 
 4. when I want to commit my change on another git user
 
-    1. make a commit and send it to myself
+  1. make a commit and send it to myself
 
 ```console
 $ git add .
@@ -89,15 +96,13 @@ $ git commit -m 'hoge'
 $ git send-email HEAD~
 ```
 
-    2. download email (Open Gmail.com -> Open the mail -> Download)
+  2. download email (Open Gmail.com -> Open the mail -> Download)
 
-    3. eat it (like below)
+  3. eat it (like below)
 
 ```console
 $ git am ~/Host/Downloads/*.patch
 ```
-
-
 
 ## my Ergodox layout
 

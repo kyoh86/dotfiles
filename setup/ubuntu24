@@ -1,0 +1,174 @@
+#!/bin/bash
+
+set -ex
+
+# Set locale
+sudo localedef -i /usr/share/i18n/locales/ja_JP -f UTF-8 /usr/lib/locale/ja_JP.UTF-8
+sudo localedef -i /usr/share/i18n/locales/en_US -f UTF-8 /usr/lib/locale/en_US.UTF-8
+sudo localedef --add-to-archive /usr/lib/locale/ja_JP.UTF-8
+sudo localedef --add-to-archive /usr/lib/locale/en_US.UTF-8
+sudo localectl set-locale LANG=ja_JP.UTF-8
+source /etc/locale.conf
+
+sudo apt update
+sudo apt upgrade --yes
+
+# Library
+sudo apt install --yes \
+    language-pack-ja
+
+# Compile & Build
+sudo apt install --yes \
+    make  \
+    cmake
+
+# Zsh
+sudo apt install --yes \
+    zsh \
+    zsh-autosuggestions \
+    zsh-syntax-highlighting
+chsh --shell "$(command -v zsh)"
+
+# Development Environment
+sudo apt install --yes \
+    binutils       \
+    coreutils      \
+    diffutils      \
+    direnv         \
+    findutils      \
+    httpie         \
+    inotify-tools  \
+    man-db         \
+    jq             \
+    ripgrep        \
+    tidy           \
+    tig            \
+    unzip
+
+    ## Direnv
+    sudo apt install --yes \
+        direnv
+
+    ## wslu (WSL Utilities includes wslview, etc.)
+    sudo apt install --yes \
+        wslu
+
+# for git send-email
+sudo apt install --yes  \
+  git-email             \
+  libio-socket-ssl-perl \
+  libauthen-sasl-perl
+
+# Programming Languages
+sudo apt install --yes
+    golang   \
+    rustup   \
+    lua5.4   \
+    luajit   \
+    luarocks
+
+    ## Deno
+    curl -fsSL https://deno.land/install.sh | sh
+    export PATH="$PATH:$HOME/.deno/bin"
+
+        ### molt (Update checker for Deno dependencies)
+        deno install --global --allow-env --allow-read --allow-write --allow-net --allow-run=git,deno --name molt jsr:@molt/cli
+
+# Rust
+rustup default stable
+
+    ## git-delta
+    cargo install git-delta
+
+    ## stylua
+    cargo install stylua
+
+# Docker
+sudo apt install --yes  \
+    docker-compose   \
+
+# ASDF
+git clone https://github.com/asdf-vm/asdf ~/.asdf --branch v0.14.0
+    export PATH="$PATH:$HOME/.asdf/bin"
+    
+    ## Python
+    asdf plugin add python
+    asdf install python latest
+    asdf global python latest system
+    
+    ## Node.js & npm
+    asdf plugin add nodejs
+    asdf install nodejs latest
+    asdf global nodejs latest system
+
+    # Scala (coursier)
+    asdf plugin add coursier
+    asdf install coursier latest
+    asdf global coursier latest system
+    export PATH="$PATH:$HOME/.asdf/shims"
+    export PATH="$PATH:$HOME/.local/share/coursier/bin"
+    coursier setup
+    coursier install metals
+
+    # postgresql
+    export LC_ALL=ja_JP.UTF-8
+    asdf plugin add postgres
+    asdf install postgres latest
+    asdf global postgres latest system
+
+    # sqlite
+    asdf plugin add sqlite
+    asdf install sqlite latest
+    asdf global sqlite latest system
+
+# GitHub CLI
+sudo mkdir -p -m 755 /etc/apt/keyrings
+wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+sudo apt update && sudo apt install gh --yes
+
+# Neovim
+sudo apt install --yes \
+    make    \
+    cmake   \
+    gettext
+eval "$(luarocks --lua-version=5.1 path)"
+nvim_tmpdir="$(mktemp -d)"
+trap "sudo rm -rf $nvim_tmpdir" EXIT
+git clone --depth 1 -b nightly https://github.com/neovim/neovim "$nvim_tmpdir/neovim"
+pushd "$nvim_tmpdir/neovim"
+make CMAKE_BUILD_TYPE=Release
+sudo make install
+popd
+
+# SKK
+skkdir="${HOME}/.local/share/skk"
+skkfile="SKK-JISYO.L"
+mkdir -p "${skkdir}"
+curl -L --output "${skkdir}/${skkfile}" "https://github.com/skk-dev/dict/blob/master/${skkfile}?raw=true"
+
+# gordon
+export PATH="$PATH:/home/kyoh86/go/bin:/home/kyoh86/.local/bin"
+go install github.com/kyoh86/gordon@latest
+gordon install kyoh86/gordon
+rm ~/go/bin/gordon
+    gordon restore ~/.config/gordon/bundle
+
+# AWS CLI
+AWS_CLI_TEMPDIR="$(mktemp -d)"
+pushd "$AWS_CLI_TEMPDIR"
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+git clone https://github.com/aws/session-manager-plugin.git
+cd session-manager-plugin
+gofmt -l "$(pwd)/src" | xargs -n1 gofmt -w
+make release
+mkdir -p $HOME/.local/bin
+mv "./bin/$(go env GOHOSTOS)_$(go env GOHOSTARCH)_plugin/session-manager-plugin" $HOME/.local/bin/session-manager-plugin
+popd
+rm -rf "$AWS_CLI_TEMPDIR"
+
+# actionlint
+go install github.com/rhysd/actionlint/cmd/actionlint@latest 
