@@ -86,16 +86,23 @@ rustup default stable
 # Docker
 sudo apt install --yes  \
     docker-compose   \
+# sudo groupadd docker # it may be error "groupadd: group 'docker' already exists" because docker AUR creates it. 
+sudo usermod -aG docker ${USER}
+newgrp docker
 
 # ASDF
 git clone https://github.com/asdf-vm/asdf ~/.asdf --branch v0.14.0
     export PATH="$PATH:$HOME/.asdf/bin"
-    
+
     ## Python
+    sudo apt reinstall --yes \
+      bzip2      \
+      libssl-dev \
+      openssl
     asdf plugin add python
-    asdf install python latest
+    CFLAGS=-I/usr/include/openssl LDFLAGS=-L/usr/lib asdf install python latest
     asdf global python latest system
-    
+
     ## Node.js & npm
     asdf plugin add nodejs
     asdf install nodejs latest
@@ -120,6 +127,11 @@ git clone https://github.com/asdf-vm/asdf ~/.asdf --branch v0.14.0
     asdf plugin add sqlite
     asdf install sqlite latest
     asdf global sqlite latest system
+
+    ## Node.js & npm
+    asdf plugin add terraform
+    asdf install terraform latest
+    asdf global terraform latest system
 
 # GitHub CLI
 sudo mkdir -p -m 755 /etc/apt/keyrings
@@ -171,4 +183,4 @@ popd
 rm -rf "$AWS_CLI_TEMPDIR"
 
 # actionlint
-go install github.com/rhysd/actionlint/cmd/actionlint@latest 
+go install github.com/rhysd/actionlint/cmd/actionlint@latest
