@@ -1,15 +1,71 @@
 #!/bin/bash
 
+# Usage:
+#
+# =============================================================
+# # 1. Prepare Ubuntu 24.04 in WSL:
+# =============================================================
+#
+# $ wsl --install --distribution Ubuntu-24.04 --no-launch
+#
+# =============================================================
+# # 2. Move the virtual machine storage too another location.
+# =============================================================
+#
+# If I need to move the virtual machine to another location, I can use the following command:
+#
+# ```console
+# $ wsl
+# $ mkdir -p E:\wsl\images
+# $ wsl --export Ubuntu-24.04 E:\wsl\images\Ubuntu-24.04.tar
+# $ wsl --unregister Ubuntu-24.04
+# $ wsl --import Ubuntu-24.04 E:\wsl\ubuntu24 E:\wsl\images\Ubuntu-24.04.tar
+# ```
+#
+# And then, you can start the virtual machine with the following command:
+#
+# ```console
+# $ wsl --distribution Ubuntu-24.04 --user kyoh86
+# ```
+#
+# =============================================================
+# # 3. Setup 
+# =============================================================
+#
+# In Ubuntu:
+# $ git clone https://github.com/kyoh86/dotfiles $HOME/Projects/github.com/kyoh86/dotfiles
+# $ cd $HOME/Projects/github.com/kyoh86/dotfiles
+# $ ./setup/ubuntu24
+#
+# =============================================================
+# # 4. Link to hosts
+# =============================================================
+#
+# In Ubuntu:
+# ```console
+# $ ln -s /mnt/c/Users/xxxxx /home/kyoh86/Host
+# ```
+
 set -ex
 
-# Set locale
-sudo localedef -i /usr/share/i18n/locales/ja_JP -f UTF-8 /usr/lib/locale/ja_JP.UTF-8
-sudo localedef -i /usr/share/i18n/locales/en_US -f UTF-8 /usr/lib/locale/en_US.UTF-8
-sudo localedef --add-to-archive /usr/lib/locale/ja_JP.UTF-8
-sudo localedef --add-to-archive /usr/lib/locale/en_US.UTF-8
-sudo localectl set-locale LANG=ja_JP.UTF-8
-source /etc/locale.conf
+cat - << EOS | sudo tee /etc/wsl.conf
+[boot]
+systemd = true
 
+[user]
+default = kyoh86
+
+[interop]
+appendWindowsPath = true
+EOS
+
+echo "Enter the **PUBLIC** email address for GitHub Account you want to use:"
+read GITHUB_EMAIL
+
+echo "Enter the user name for GitHub Account you want to use:"
+read GITHUB_NAME
+
+# Initial apt update & upgrade
 sudo apt update
 sudo apt upgrade --yes
 
@@ -17,17 +73,129 @@ sudo apt upgrade --yes
 sudo apt install --yes \
     language-pack-ja
 
+# Set locale
+sudo localedef -i /usr/share/i18n/locales/ja_JP -f UTF-8 /usr/lib/locale/ja_JP.UTF-8
+sudo localedef -i /usr/share/i18n/locales/en_US -f UTF-8 /usr/lib/locale/en_US.UTF-8
+sudo localedef --add-to-archive /usr/lib/locale/ja_JP.UTF-8 || :
+sudo localedef --add-to-archive /usr/lib/locale/en_US.UTF-8 || :
+sudo localectl set-locale LANG=ja_JP.UTF-8
+source /etc/locale.conf
+
 # Compile & Build
 sudo apt install --yes \
     make  \
     cmake
 
-# Zsh
+# Setup ZSH and make it default shell
+setup_zsh() {
+  CURRENT_LOGIN_SHELL="$(grep $USER /etc/passwd | cut -d: -f7)"
+  if [ "${CURRENT_LOGIN_SHELL##*/}" = "zsh" ]; then
+    return;
+  fi
+
+  sudo apt install --yes \
+      zsh \
+      zsh-autosuggestions \
+      zsh-syntax-highlighting
+  chsh --shell "$(command -v zsh)"
+}
+setup_zsh
+
+# Generate a new SSH key for github.com
+generate_ssh_key() {
+  SSH_KEY_PATH="${HOME}/.ssh/github_ed25519"
+  if [ -f "${SSH_KEY_PATH}" ]; then
+    return;
+  fi
+
+  mkdir -p ~/.ssh
+  ssh-keygen -t ed25519 -C "${GITHUB_EMAIL}" -f "${SSH_KEY_PATH}"
+
+  # ref: https://docs.github.com/ja/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+}
+generate_ssh_key
+
+# WSL Utilities includes wslview, etc
 sudo apt install --yes \
-    zsh \
-    zsh-autosuggestions \
-    zsh-syntax-highlighting
-chsh --shell "$(command -v zsh)"
+    wslu
+
+# Install GitHub CLI
+install_github_cli() {
+  if [ -x "$(command -v gh)" ]; then
+    return;
+  fi
+
+  sudo mkdir -p -m 755 /etc/apt/keyrings
+  wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+  sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+  sudo apt update && sudo apt install gh --yes
+}
+install_github_cli
+
+# Setup key and sign for GitHub CLI
+auth_github_cli() {
+  if gh auth status --hostname github.com; then
+    return;
+  fi
+  sudo apt install --yes wslu
+  yes 'n' | gh auth login --web --git-protocol https --hostname github.com --skip-ssh-key --scopes admin:public_key,admin:ssh_signing_key
+}
+auth_github_cli
+
+# Get profiles
+get_profiles() {
+  MACHINE_NAME="${NAME}"
+
+  source <(cat /etc/os-release | sed 's/^/local /')
+  OS_NAME="${NAME}"
+}
+
+# Upload SSH key (auth/sign) to GitHub
+upload_ssh_key() {
+  SSH_KEY_PATH="${HOME}/.ssh/github_ed25519.pub"
+  if [ ! -f "${SSH_KEY_PATH}" ]; then
+    return 1;
+  fi
+
+  get_profiles
+
+  AUTH_KEY_TITLE="git-auth/${OS_NAME}/${MACHINE_NAME}"
+  if gh api /user/keys --jq '.[].title' | grep -xFe "${AUTH_KEY_TITLE}" >/dev/null ; then
+    :
+  else
+    gh ssh-key add --title "${AUTH_KEY_TITLE}"  --type "authentication" "${SSH_KEY_PATH}"
+  fi
+
+  SIGN_KEY_TITLE="git-sign/${OS_NAME}/${MACHINE_NAME}"
+  if gh api /user/ssh_signing_keys --jq '.[].title' | grep -xFe "${SIGN_KEY_TITLE}" >/dev/null ; then
+    :
+  else
+    gh ssh-key add --title "${SIGN_KEY_TITLE}" --type "signing" "${SSH_KEY_PATH}"
+  fi
+}
+upload_ssh_key
+
+# Clone dotfiles
+clone_dotfiles() {
+  DOTFILES_DIR="${HOME}/Projects/github.com/kyoh86/dotfiles"
+  [ -d "${DOTFILES_DIR}" ] || git clone --branch ubuntu https://github.com/kyoh86/dotfiles "${DOTFILES_DIR}"
+  rm -rf ~/.config
+  ln -s "${DOTFILES_DIR}" ~/.config
+  cat << EOS > ~/.config/git/host.conf
+[user]
+  name = ${GITHUB_NAME}
+  email = ${GITHUB_EMAIL}
+  signingkey = ${HOME}/.ssh/github_ed25519.pub
+
+[github]
+  user = ${GITHUB_NAME}
+EOS
+}
+clone_dotfiles
+
+# Add the SSH key to the ssh-agent
+mkdir -p ~/.ssh && echo 'Include ~/.config/ssh/*.conf' >> ~/.ssh/config
 
 # Development Environment
 sudo apt install --yes \
@@ -49,10 +217,6 @@ sudo apt install --yes \
     sudo apt install --yes \
         direnv
 
-    ## wslu (WSL Utilities includes wslview, etc.)
-    sudo apt install --yes \
-        wslu
-
 # for git send-email
 sudo apt install --yes  \
   git-email             \
@@ -60,19 +224,19 @@ sudo apt install --yes  \
   libauthen-sasl-perl
 
 # Programming Languages
-sudo apt install --yes
-    golang   \
-    rustup   \
-    lua5.4   \
-    luajit   \
+sudo apt install --yes \
+    golang             \
+    rustup             \
+    lua5.4             \
+    luajit             \
     luarocks
 
     ## Deno
-    curl -fsSL https://deno.land/install.sh | sh
+    [ -x "$(command -v deno)" ] || curl -fsSL https://deno.land/install.sh | sh
     export PATH="$PATH:$HOME/.deno/bin"
 
         ### molt (Update checker for Deno dependencies)
-        deno install --global --allow-env --allow-read --allow-write --allow-net --allow-run=git,deno --name molt jsr:@molt/cli
+        deno install --global --allow-env --allow-read --allow-write --allow-net --allow-run=git,deno --name molt jsr:@molt/cli || :
 
 # Rust
 rustup default stable
@@ -88,16 +252,16 @@ sudo apt install --yes  \
     docker-compose   \
 # sudo groupadd docker # it may be error "groupadd: group 'docker' already exists" because docker AUR creates it. 
 sudo usermod -aG docker ${USER}
-newgrp docker
 
 # ASDF
-git clone https://github.com/asdf-vm/asdf ~/.asdf --branch v0.14.0
+[ -d ~/.asdf ] || git clone https://github.com/asdf-vm/asdf ~/.asdf --branch v0.14.0 || rm -rf ~/.asdf
     export PATH="$PATH:$HOME/.asdf/bin"
 
     ## Python
     sudo apt reinstall --yes \
       bzip2      \
       libssl-dev \
+      uuid-dev   \
       openssl
     asdf plugin add python
     CFLAGS=-I/usr/include/openssl LDFLAGS=-L/usr/lib asdf install python latest
@@ -118,6 +282,9 @@ git clone https://github.com/asdf-vm/asdf ~/.asdf --branch v0.14.0
     coursier install metals
 
     # postgresql
+    sudo apt install --yes \
+        libicu-dev \
+        pkgconf
     export LC_ALL=ja_JP.UTF-8
     asdf plugin add postgres
     asdf install postgres latest
@@ -133,26 +300,25 @@ git clone https://github.com/asdf-vm/asdf ~/.asdf --branch v0.14.0
     asdf install terraform latest
     asdf global terraform latest system
 
-# GitHub CLI
-sudo mkdir -p -m 755 /etc/apt/keyrings
-wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
-sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-sudo apt update && sudo apt install gh --yes
-
 # Neovim
-sudo apt install --yes \
-    make    \
-    cmake   \
-    gettext
-eval "$(luarocks --lua-version=5.1 path)"
-nvim_tmpdir="$(mktemp -d)"
-trap "sudo rm -rf $nvim_tmpdir" EXIT
-git clone --depth 1 -b nightly https://github.com/neovim/neovim "$nvim_tmpdir/neovim"
-pushd "$nvim_tmpdir/neovim"
-make CMAKE_BUILD_TYPE=Release
-sudo make install
-popd
+install_neovim() {
+  if [ -x "$(command -v nvim)" ]; then
+    return;
+  fi
+  sudo apt install --yes \
+      make    \
+      cmake   \
+      gettext
+  eval "$(luarocks --lua-version=5.1 path)"
+  nvim_tmpdir="$(mktemp -d)"
+  trap "sudo rm -rf $nvim_tmpdir" EXIT
+  git clone --depth 1 -b nightly https://github.com/neovim/neovim "$nvim_tmpdir/neovim"
+  pushd "$nvim_tmpdir/neovim"
+  make CMAKE_BUILD_TYPE=Release
+  sudo make install
+  popd
+}
+install_neovim
 
 # SKK
 skkdir="${HOME}/.local/share/skk"
@@ -164,23 +330,28 @@ curl -L --output "${skkdir}/${skkfile}" "https://github.com/skk-dev/dict/blob/ma
 export PATH="$PATH:/home/kyoh86/go/bin:/home/kyoh86/.local/bin"
 go install github.com/kyoh86/gordon@latest
 gordon install kyoh86/gordon
-rm ~/go/bin/gordon
-    gordon restore ~/.config/gordon/bundle
+gordon restore ~/.config/gordon/bundle
+rm -f ~/go/bin/gordon || :
 
 # AWS CLI
-AWS_CLI_TEMPDIR="$(mktemp -d)"
-pushd "$AWS_CLI_TEMPDIR"
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
-git clone https://github.com/aws/session-manager-plugin.git
-cd session-manager-plugin
-gofmt -l "$(pwd)/src" | xargs -n1 gofmt -w
-make release
-mkdir -p $HOME/.local/bin
-mv "./bin/$(go env GOHOSTOS)_$(go env GOHOSTARCH)_plugin/session-manager-plugin" $HOME/.local/bin/session-manager-plugin
-popd
-rm -rf "$AWS_CLI_TEMPDIR"
+install_aws_cli() {
+  if [ -x "$(command -v aws)" ]; then
+    return;
+  fi
+  AWS_CLI_TEMPDIR="$(mktemp -d)"
+  pushd "$AWS_CLI_TEMPDIR"
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip awscliv2.zip
+  sudo ./aws/install
+  git clone https://github.com/aws/session-manager-plugin.git
+  cd session-manager-plugin
+  gofmt -l "$(pwd)/src" | xargs -n1 gofmt -w
+  make release
+  mkdir -p $HOME/.local/bin
+  mv "./bin/$(go env GOHOSTOS)_$(go env GOHOSTARCH)_plugin/session-manager-plugin" $HOME/.local/bin/session-manager-plugin
+  popd
+  rm -rf "$AWS_CLI_TEMPDIR"
+}
 
 # actionlint
 go install github.com/rhysd/actionlint/cmd/actionlint@latest

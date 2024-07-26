@@ -109,7 +109,7 @@
 
 ;; signing
 [gpg]
-	program = gpg
+	format = ssh
 [commit]
 	gpgsign = true
 [advice]

@@ -1,6 +1,69 @@
 #!/bin/bash
 
-# do https://blog.yukirii.dev/wsl2-arch-linux/ the first, and call me.
+# Usage:
+#
+# =============================================================
+# # 0. Prepare Arch Linux in WSL:
+# =============================================================
+#
+# https://blog.yukirii.dev/wsl2-arch-linux/
+#
+# =============================================================
+# # 1. Setup git
+# =============================================================
+# 
+# 1. Generate a new SSH key
+#     - `mkdir -p ~/.ssh`
+#     - ssh-keygen
+#         - `github_email=xxxx`
+#         - `ssh-keygen -t ed25519 -C "${github_email}" -f "${HOME}/.ssh/github_ed25519"`
+#     - `echo 'Include ~/.config/ssh/*.conf' >> ~/.ssh/config`
+#     - seealso: https://docs.github.com/ja/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+# 2. Add a new SSH key to GitHub
+#     - https://docs.github.com/ja/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account
+# 3. Import GPG public & secret key
+#     - (see password manager)
+#     - Set path for gpg: `export GNUPGHOME=$HOME/.config/gnupg`
+#     - Import public key: `gpg --import xxxxxxxx.pub`
+#     - Import secret key: `gpg --import xxxxxxxx`
+#     - See key-id for git/host.conf: `gpg --list-keys --keyid-format LONG`
+# 4. Set user name & gpg key
+#     - Write `~/.config/git/host.conf` like below
+#
+# ```
+# [user]
+# 	name = kyoh86
+# 	email = xxx@example.com
+# 	signingkey = XXXXXXXXXXXXXXXX
+# 
+# [github]
+# 	user = kyoh86
+# ```
+# 
+# =============================================================
+# # 2. Clone dotfiles
+# =============================================================
+# 
+# ```console
+# $ git clone https://github.com/kyoh86/dotfiles ~/Projects/github.com/kyoh86/dotfiles
+# $ ln -s "$HOME/Projects/github.com/kyoh86/dotfiles" "$HOME/.config"
+# ```
+# 
+# =============================================================
+# # 3. Call setup
+# =============================================================
+# 
+# ```console
+# $ ~/.config/setup/arch
+# ```
+# 
+# =============================================================
+# # 4. Link to hosts
+# =============================================================
+# 
+# ```console
+# $ ln -s /mnt/c/Users/xxxxx /home/kyoh86/Host
+# ```
 
 set -ex
 
