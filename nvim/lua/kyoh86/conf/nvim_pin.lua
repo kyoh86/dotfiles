@@ -1,1 +1,1 @@
-vim.env.NVIM_PINNED_COMMIT = "cb6c0fda718e4503fc1bfc49a9fe92411f5f9005"
+-- vim.env.NVIM_PINNED_COMMIT = "bdff50dee56ebf6de58d58315920abf2f8e262f7"
