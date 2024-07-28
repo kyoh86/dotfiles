@@ -47,4 +47,5 @@ local spec = {
     wk.add({ "sr", group = "Sandwich Replace" })
   end,
 }
-return spec
+
+return {}
