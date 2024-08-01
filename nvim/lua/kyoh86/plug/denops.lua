@@ -11,7 +11,7 @@ local spec = {
       group = group,
       pattern = { "LazyInstall", "LazyUpdate" },
       callback = function()
-        vim.system({ "deno", "cache", kyoh86.lazydir("*/denops/**/*.ts") })
+        vim.fn["denops#cache#update"]()
         vim.notify("denops dependencies cached", vim.log.levels.INFO)
       end,
     })
