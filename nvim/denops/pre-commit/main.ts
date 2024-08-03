@@ -1,6 +1,6 @@
-import * as vars from "https://deno.land/x/denops_std@v6.5.0/variable/mod.ts";
-import * as fn from "https://deno.land/x/denops_std@v6.5.0/function/mod.ts";
-import type { Denops } from "https://deno.land/x/denops_std@v6.5.0/mod.ts";
+import * as vars from "jsr:@denops/std@~7.0.1/variable";
+import * as fn from "jsr:@denops/std@~7.0.1/function";
+import type { Denops } from "jsr:@denops/std@~7.0.1";
 
 const PRECOMMIT_ADDRESS = "PRECOMMIT_ADDRESS";
 

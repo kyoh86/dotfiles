@@ -1,7 +1,7 @@
 {
     "denops-test-boilerplate": {
         "prefix": "denops-test-boilerplate",
-        "body": "import { test } from \"https://deno.land/x/denops_test@v1.6.2/mod.ts\";\nimport { assertEquals } from \"https://deno.land/std@0.223.0/assert/mod.ts\";\n\ntest({\n  mode: \"all\",\n  name: \"$1\",\n  fn: async (denops) => {\n    $1\n  },\n})\n"
+        "body": "import { test } from \"https://deno.land/x/denops_test@v1.6.2/mod.ts\";\nimport { assertEquals } from \"https://deno.land/std@~0.223.0/assert/mod.ts\";\n\ntest({\n  mode: \"all\",\n  name: \"$1\",\n  fn: async (denops) => {\n    $1\n  },\n})\n"
     },
     "denops-test-one": {
         "prefix": "denops-test-one",

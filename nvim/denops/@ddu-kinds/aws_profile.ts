@@ -1,10 +1,7 @@
-import {
-  ActionFlags,
-  BaseKind,
-} from "https://deno.land/x/ddu_vim@v4.1.0/types.ts";
-import { environment } from "https://deno.land/x/denops_std@v6.5.0/variable/mod.ts";
-import type { Actions } from "https://deno.land/x/ddu_vim@v3.10.3/types.ts";
-import { is, maybe } from "https://deno.land/x/unknownutil@v3.18.1/mod.ts";
+import { ActionFlags, BaseKind } from "jsr:@shougo/ddu-vim@~5.0.0/types";
+import { environment } from "jsr:@denops/std@~7.0.1/variable";
+import type { Actions } from "jsr:@shougo/ddu-vim@~5.0.0/types";
+import { is, maybe } from "jsr:@core/unknownutil@~3.18.1";
 
 type Params = Record<PropertyKey, never>;
 

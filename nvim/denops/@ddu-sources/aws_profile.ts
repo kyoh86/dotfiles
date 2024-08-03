@@ -1,17 +1,11 @@
-import type {} from "https://deno.land/x/denops_std@v6.5.0/mod.ts";
-import type { GatherArguments } from "https://deno.land/x/ddu_vim@v4.1.0/base/source.ts";
-import {
-  ActionFlags,
-  BaseSource,
-} from "https://deno.land/x/ddu_vim@v4.1.0/types.ts";
-import type {
-  Actions,
-  Item,
-} from "https://deno.land/x/ddu_vim@v3.10.3/types.ts";
-import { echoerrCommand } from "https://denopkg.com/kyoh86/denops-util@master/command.ts";
-import { TextLineStream } from "https://deno.land/std@0.224.0/streams/text_line_stream.ts";
-import { environment } from "https://deno.land/x/denops_std@v6.5.0/variable/mod.ts";
-import { is, maybe } from "https://deno.land/x/unknownutil@v3.18.1/mod.ts";
+import type {} from "jsr:@denops/std@~7.0.1";
+import type { GatherArguments } from "jsr:@shougo/ddu-vim@~5.0.0/source";
+import { ActionFlags, BaseSource } from "jsr:@shougo/ddu-vim@~5.0.0/types";
+import type { Actions, Item } from "jsr:@shougo/ddu-vim@~5.0.0/types";
+import { echoerrCommand } from "jsr:@kyoh86/denops-util@~0.1.0/command";
+import { TextLineStream } from "jsr:@std/streams@~1.0.0";
+import { environment } from "jsr:@denops/std@~7.0.1/variable";
+import { is, maybe } from "jsr:@core/unknownutil@~3.18.1";
 
 type ActionData = {
   name: string;

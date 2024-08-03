@@ -1,15 +1,15 @@
-import { Denops } from "https://deno.land/x/denops_std@v6.5.0/mod.ts";
-import { execute } from "https://deno.land/x/denops_std@v6.5.0/helper/mod.ts";
+import { Denops } from "jsr:@denops/std@~7.0.1";
+import { execute } from "jsr:@denops/std@~7.0.1/helper";
 import {
   ensure,
   isArrayOf,
   isNumber,
   isString,
-} from "https://deno.land/x/unknownutil@v3.18.1/mod.ts";
-import { expandGlob } from "https://deno.land/std@0.224.0/fs/mod.ts";
-import { parse } from "https://deno.land/std@0.224.0/toml/parse.ts";
-import { stringify } from "https://deno.land/std@0.224.0/toml/stringify.ts";
-import { extname, join } from "https://deno.land/std@0.224.0/path/mod.ts";
+} from "jsr:@core/unknownutil@~3.18.1";
+import { expandGlob } from "jsr:@std/fs@~1.0.1";
+import { parse } from "jsr:@std/toml@~1.0.0";
+import { stringify } from "jsr:@std/toml@~1.0.0";
+import { extname, join } from "jsr:@std/path@~1.0.0";
 
 function deconvertText(text: string) {
   const obj = JSON.parse(text);
