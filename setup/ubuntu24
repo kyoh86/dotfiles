@@ -145,7 +145,7 @@ auth_github_cli() {
     return;
   fi
   sudo apt install --yes wslu
-  yes 'n' | gh auth login --web --git-protocol https --hostname github.com --skip-ssh-key --scopes admin:public_key,admin:ssh_signing_key
+  gh auth login --web --git-protocol https --hostname github.com --skip-ssh-key --scopes admin:public_key,admin:ssh_signing_key
 }
 auth_github_cli
 
