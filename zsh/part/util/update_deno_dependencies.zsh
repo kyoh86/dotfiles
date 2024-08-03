@@ -28,6 +28,10 @@ function _update_deno_dependencies_core() {
     echo "There's no update in $dir"
     return
   fi
+  if ! NO_COLOR=1 deno fmt; then
+    echo "\e[31mFailed to fmt in $dir\e[0m"
+    return
+  fi
   if ! NO_COLOR=1 deno cache ./**/*.ts; then
     echo "\e[31mFailed to cache in $dir\e[0m"
     return
