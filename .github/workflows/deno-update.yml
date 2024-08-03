@@ -1,0 +1,97 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Deno Update
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  update:
+    defaults:
+      run:
+        working-directory: ./nvim
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Update dependencies with molt
+        id: run-deno-molt
+        env:
+          NO_COLOR: true
+        run: |
+          {
+            echo 'MOLT_RESULT<<EOF'
+            deno run --allow-all jsr:@molt/cli --write $(find . -type f -name '*.mts' -o -name '*.cts' -o -name '*.mjs' -o -name '*.cjs' -o -name '*.ts' -o -name '*.js' -o -name '*.tsx' -o -name '*.jsx')
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+      - name: Verify formatting
+        run: deno fmt --check
+
+      - name: Check
+        run: deno task check
+
+      - name: Run linter
+        run: deno task lint
+
+      - name: Get Denops
+        run: |
+          git clone https://github.com/vim-denops/denops.vim /tmp/denops.vim
+          echo "DENOPS_TEST_DENOPS_PATH=/tmp/denops.vim" >> "$GITHUB_ENV"
+
+      - uses: rhysd/action-setup-vim@v1
+        id: vim
+        with:
+          version: v9.1.0400
+
+      - name: Export Vim Executable
+        run: |
+          echo "DENOPS_TEST_VIM_EXECUTABLE=${{ steps.vim.outputs.executable }}" >> "$GITHUB_ENV"
+
+      - name: Export Vim Version
+        run: |
+          ${{ steps.vim.outputs.executable }} --version
+
+      - uses: rhysd/action-setup-vim@v1
+        id: nvim
+        with:
+          neovim: true
+
+      - name: Export Neovim Executable
+        run: |
+          echo "DENOPS_TEST_NVIM_EXECUTABLE=${{ steps.nvim.outputs.executable }}" >> "$GITHUB_ENV"
+
+      - name: Export Neovim Version
+        run: |
+          ${{ steps.nvim.outputs.executable }} --version
+
+      - name: Run tests
+        run: deno task test
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(deps): Update deno dependencies"
+          title: Update Deno dependencies
+          body: |-
+            Some external modules are stale.
+            <details><summary>Details</summary><div>
+
+            ```
+            ${{ steps.run-deno-molt.outputs.MOLT_RESULT }}
+            ```
+
+            </div></details>
+          branch: molt-update
+          author: GitHub <noreply@github.com>
+          delete-branch: true

@@ -1,11 +1,6 @@
 import { Denops } from "jsr:@denops/std@~7.0.1";
 import { execute } from "jsr:@denops/std@~7.0.1/helper";
-import {
-  ensure,
-  isArrayOf,
-  isNumber,
-  isString,
-} from "jsr:@core/unknownutil@~3.18.1";
+import { ensure, is } from "jsr:@core/unknownutil@~4.0.0";
 import { expandGlob } from "jsr:@std/fs@~1.0.1";
 import { parse } from "jsr:@std/toml@~1.0.0";
 import { stringify } from "jsr:@std/toml@~1.0.0";
@@ -25,11 +20,11 @@ export function main(denops: Denops): void {
       unknownText: unknown,
       unknownIndent: unknown,
     ) => {
-      const path = ensure(unknownPath, isString);
-      const name = ensure(unknownName, isString);
-      const dirs = ensure(unknownDirs, isArrayOf(isString));
-      const text = ensure(unknownText, isString);
-      const indent = ensure(unknownIndent, isNumber);
+      const path = ensure(unknownPath, is.String);
+      const name = ensure(unknownName, is.String);
+      const dirs = ensure(unknownDirs, is.ArrayOf(is.String));
+      const text = ensure(unknownText, is.String);
+      const indent = ensure(unknownIndent, is.Number);
 
       const ext = extname(path);
       const extTrim = name.substring(0, name.length - ext.length);
@@ -56,8 +51,8 @@ export function main(denops: Denops): void {
     },
 
     deconvert: async (unknownPath: unknown, unknownText: unknown) => {
-      const name = ensure(unknownPath, isString);
-      const text = ensure(unknownText, isString);
+      const name = ensure(unknownPath, is.String);
+      const text = ensure(unknownText, is.String);
 
       const ext = extname(name);
       const newPath = name.substring(0, name.length - ext.length) + ".toml";
