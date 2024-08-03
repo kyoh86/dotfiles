@@ -6,12 +6,13 @@
 # # 0. Prepare Arch Linux in WSL:
 # =============================================================
 #
-# https://blog.yukirii.dev/wsl2-arch-linux/
+# https://zenn.dev/wagomu/articles/20240802wsl2-archlinux
+# https://zenn.dev/kyoh86/articles/4bf6513aabe517
 #
 # =============================================================
 # # 1. Setup git
 # =============================================================
-# 
+#
 # 1. Generate a new SSH key
 #     - `mkdir -p ~/.ssh`
 #     - ssh-keygen
@@ -67,140 +68,280 @@
 
 set -ex
 
+cat - << EOS | sudo tee /etc/wsl.conf
+[boot]
+systemd=true
+
+[user]
+default=kyoh86
+
+[interop]
+appendWindowsPath=true
+
+[wsl2]
+memory=16GB
+networkingMode=mirrored
+firewall=true
+autoProxy=true
+EOS
+
+echo "Enter the **PUBLIC** email address for GitHub Account you want to use:"
+read GITHUB_EMAIL
+
+echo "Enter the user name for GitHub Account you want to use:"
+read GITHUB_NAME
+
 sudo pacman -Syy
 
-# rust
-curl https://sh.rustup.rs -sSf | sh
-export PATH="${PATH}:/home/kyoh86/.cargo/bin"
-rustup default stable
+setup_yay() {
+  if [ -x "$(command -v yay)" ]; then
+    return;
+  fi
+  local DIR="$(mktemp -d)"
+  pushd "$DIR"
+    pacman -S --needed git base-devel
+    git clone https://aur.archlinux.org/yay.git
+    cd yay
+    makepkg -si
+  popd
+}
+
+install() {
+  yay -Sy --noconfirm --needed $*
+}
 
 # AUR helper
-sudo pacman -Sy --needed --noconfirm \
-  base-devel   \
-  openssh      \
-  git
-
-# paru
-if command -v paru ; then
-  :
-else
-  paru_tmpdir="$(mktemp -d)"
-  git clone https://aur.archlinux.org/paru.git "$paru_tmpdir"
-  cd "$paru_tmpdir"
-  makepkg -si --noconfirm
-  cd -
-fi
+setup_aur() {
+  install \
+    base-devel   \
+    openssh      \
+    git
+}
 
 # Compile & Build
-paru -Sy --noconfirm \
-  autoconf        \
-  gnupg           \
-  lsb-release     \
-  automake        \
-  cmake           \
-  make            \
-  fakeroot        \
-  gettext         \
-  kcc             \
-  ncurses         \
-  ninja
+setup_compilers() {
+  install      \
+    autoconf     \
+    automake     \
+    cmake        \
+    make         \
+    fakeroot     \
+    gettext      \
+    ninja
+}
+setup_compilers
 
-# Enhance Shell
-paru -Sy --noconfirm      \
-  binutils                \
-  coreutils               \
-  diffutils               \
-  findutils               \
-  direnv                  \
-  inotify-tools           \
-  man-db                  \
-  pass                    \
-  zsh                     \
-  zsh-autosuggestions     \
-  zsh-syntax-highlighting
+# Setup ZSH and make it default shell
+setup_zsh() {
+  install \
+      zsh \
+      zsh-autosuggestions \
+      zsh-syntax-highlighting
+
+  CURRENT_LOGIN_SHELL="$(grep $USER /etc/passwd | cut -d: -f7)"
+  if [ "${CURRENT_LOGIN_SHELL##*/}" = "zsh" ]; then
+    return;
+  fi
+
+  chsh --shell "$(command -v zsh)"
+}
+setup_zsh
+
+# Generate a new SSH key for github.com
+generate_ssh_key() {
+  SSH_KEY_PATH="${HOME}/.ssh/github_ed25519"
+  if [ -f "${SSH_KEY_PATH}" ]; then
+    return;
+  fi
+
+  mkdir -p ~/.ssh
+  ssh-keygen -t ed25519 -C "${GITHUB_EMAIL}" -f "${SSH_KEY_PATH}"
+
+  # ref: https://docs.github.com/ja/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+}
+generate_ssh_key
+
+# WSL Utilities includes wslview, etc.
+setup_wslutilities() {
+  sudo pacman-key --init
+  wget https://pkg.wslutiliti.es/public.key
+  sudo pacman-key --add public.key
+  sudo pacman-key --lsign-key 2D4C887EB08424F157151C493DD50AA7E055D853
+  if grep -e wslutilities /etc/pacman.conf ; then
+    :
+  else
+    echo "[wslutilities]" | sudo tee -a /etc/pacman.conf
+    echo "Server = https://pkg.wslutiliti.es/arch/" | sudo tee -a /etc/pacman.conf
+  fi
+  yay -Sy 
+  install wslu
+}
+setup_wslutilities
+
+# Install GitHub CLI
+install github-cli
+
+# Setup key and sign for GitHub CLI
+auth_github_cli() {
+  if gh auth status --hostname github.com; then
+    return;
+  fi
+  # NOTE: needs wslu
+  yes 'n' | gh auth login --web --git-protocol https --hostname github.com --skip-ssh-key --scopes admin:public_key,admin:ssh_signing_key
+}
+auth_github_cli
+
+# Get profiles
+get_profiles() {
+  MACHINE_NAME="${NAME}"
+
+  source <(cat /etc/os-release | sed 's/^/local /')
+  OS_NAME="${NAME}"
+}
+
+# Upload SSH key (auth/sign) to GitHub
+upload_ssh_key() {
+  SSH_KEY_PATH="${HOME}/.ssh/github_ed25519.pub"
+  if [ ! -f "${SSH_KEY_PATH}" ]; then
+    return 1;
+  fi
+
+  get_profiles
+
+  AUTH_KEY_TITLE="git-auth/${OS_NAME}/${MACHINE_NAME}"
+  if gh api /user/keys --jq '.[].title' | grep -xFe "${AUTH_KEY_TITLE}" >/dev/null ; then
+    :
+  else
+    gh ssh-key add --title "${AUTH_KEY_TITLE}"  --type "authentication" "${SSH_KEY_PATH}"
+  fi
+
+  SIGN_KEY_TITLE="git-sign/${OS_NAME}/${MACHINE_NAME}"
+  if gh api /user/ssh_signing_keys --jq '.[].title' | grep -xFe "${SIGN_KEY_TITLE}" >/dev/null ; then
+    :
+  else
+    gh ssh-key add --title "${SIGN_KEY_TITLE}" --type "signing" "${SSH_KEY_PATH}"
+  fi
+}
+upload_ssh_key
+
+# Clone dotfiles
+clone_dotfiles() {
+  DOTFILES_DIR="${HOME}/Projects/github.com/kyoh86/dotfiles"
+  [ -d "${DOTFILES_DIR}" ] || git clone --branch ubuntu https://github.com/kyoh86/dotfiles "${DOTFILES_DIR}"
+  rm -rf ~/.config
+  ln -s "${DOTFILES_DIR}" ~/.config
+  cat << EOS > ~/.config/git/host.conf
+[user]
+  name = ${GITHUB_NAME}
+  email = ${GITHUB_EMAIL}
+  signingkey = ${HOME}/.ssh/github_ed25519.pub
+
+[github]
+  user = ${GITHUB_NAME}
+EOS
+}
+clone_dotfiles
+
+# Add the SSH key to the ssh-agent
+mkdir -p ~/.ssh && echo 'Include ~/.config/ssh/*.conf' >> ~/.ssh/config
 
 # Development Environment
-paru -Sy --noconfirm \
-  asciinema          \
-  curl               \
-  httpie             \
-  jq                 \
-  openssh            \
-  patch              \
-  ripgrep            \
-  sed                \
-  tidy               \
-  tig                \
-  wget               \
-  github-cli         \
-  git-delta          \
-  mongosh-bin        \
-  aws-cli-v2
+install            \
+    aws-cli-v2     \
+    binutils       \
+    coreutils      \
+    diffutils      \
+    direnv         \
+    dnsutils       \
+    docker-compose \
+    findutils      \
+    git-delta      \
+    httpie         \
+    inotify-tools  \
+    jq             \
+    man-db         \
+    ripgrep        \
+    sed            \
+    telnet         \
+    tidy           \
+    tig            \
+    unzip          \
+    wget
+
+# Setup docker
+sudo groupadd docker
+sudo usermod -aG docker ${USER}
 
 # for git send-email
-paru -Sy --noconfirm \
+install              \
   perl-io-socket-ssl \
   perl-authen-sasl
 
 # Programming Languages
-paru -Sy --noconfirm \
-  go       \
-  deno     \
-  lua      \
-  coursier \
-  luajit   \
-  luarocks
+install       \
+    go        \
+    rustup    \
+    deno      \
+    lua5.4    \
+    luajit    \
+    luarocks
 
-# Docker
-paru -Sy --noconfirm \
-  docker             \
-  docker-compose     \
-# sudo groupadd docker # it may be error "groupadd: group 'docker' already exists" because docker AUR creates it. 
-sudo usermod -aG docker ${USER}
-newgrp docker
-
-# wslu (WSL Utilities includes wslview, etc.)
-sudo pacman-key --init
-wget https://pkg.wslutiliti.es/public.key
-sudo pacman-key --add public.key
-sudo pacman-key --lsign-key 2D4C887EB08424F157151C493DD50AA7E055D853
-if grep -e wslutilities /etc/pacman.conf ; then
-  :
-else
-  echo "[wslutilities]" | sudo tee -a /etc/pacman.conf
-  echo "Server = https://pkg.wslutiliti.es/arch/" | sudo tee -a /etc/pacman.conf
-fi
-paru -Sy && paru -S --noconfirm wslu
+    ### molt (Update checker for Deno dependencies)
+    deno install --global --allow-env --allow-read --allow-write --allow-net --allow-run=git,deno --name molt jsr:@molt/cli || :
+    install stylua
 
 # ASDF
-paru -Sy --noconfirm \
-  asdf-vm
+install asdf-vm
 . /opt/asdf-vm/asdf.sh
 
-# python
-asdf plugin add python
-asdf install python latest
-asdf global python latest system
+  # python
+  asdf plugin add python
+  asdf install python latest
+  asdf global python latest system
 
-# rust
-asdf plugin add rust
-asdf install rust latest
-asdf global rust latest system
+  # Node.js & npm
+  asdf plugin add nodejs
+  asdf install nodejs latest
+  asdf global nodejs latest system
 
-# node & npm
-asdf plugin add nodejs
-asdf install nodejs latest
-asdf global nodejs latest system
+  # postgresql
+  install        \
+      libicu-dev \
+      pkgconf
+  export LC_ALL=ja_JP.UTF-8
+  asdf plugin add postgres
+  asdf install postgres latest
+  asdf global postgres latest system
+
+  # sqlite
+  asdf plugin add sqlite
+  asdf install sqlite latest
+  asdf global sqlite latest system
+
+  ## Terraform
+  asdf plugin add terraform
+  asdf install terraform latest
+  asdf global terraform latest system
 
 # Neovim
-eval "$(luarocks --lua-version=5.1 path)"
-nvim_tmpdir="$(mktemp -d)"
-trap "sudo rm -rf $nvim_tmpdir" EXIT
-git clone --depth 1 -b nightly https://github.com/neovim/neovim "$nvim_tmpdir/neovim"
-pushd "$nvim_tmpdir/neovim"
-make CMAKE_BUILD_TYPE=Release
-sudo make install
-popd
+install_neovim() {
+  if [ -x "$(command -v nvim)" ]; then
+    return;
+  fi
+  install     \
+      make    \
+      cmake   \
+      gettext
+  eval "$(luarocks --lua-version=5.1 path)"
+  nvim_tmpdir="$(mktemp -d)"
+  trap "sudo rm -rf $nvim_tmpdir" EXIT
+  git clone --depth 1 -b nightly https://github.com/neovim/neovim "$nvim_tmpdir/neovim"
+  pushd "$nvim_tmpdir/neovim"
+  make CMAKE_BUILD_TYPE=Release
+  sudo make install
+  popd
+}
+install_neovim
 
 # SKK
 skkdir="${HOME}/.local/share/skk"
@@ -209,36 +350,11 @@ mkdir -p "${skkdir}"
 curl -L --output "${skkdir}/${skkfile}" "https://github.com/skk-dev/dict/blob/master/${skkfile}?raw=true"
 
 # gordon
-export PATH="$PATH:/home/kyoh86/go/bin"
+export PATH="$PATH:/home/kyoh86/go/bin:/home/kyoh86/.local/bin"
 go install github.com/kyoh86/gordon@latest
 gordon install kyoh86/gordon
-rm ~/go/bin/gordon
 gordon restore ~/.config/gordon/bundle
-
-
-# stylua
-cargo install stylua
-
-# scalafmt
-coursier install scalafmt
-
-# AWS CLI
-AWS_CLI_TEMPDIR="$(mktemp -d)"
-pushd "$AWS_CLI_TEMPDIR"
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
-git clone https://github.com/aws/session-manager-plugin.git
-cd session-manager-plugin
-gofmt -l "$(pwd)/src" | xargs -n1 gofmt -w
-make release
-mkdir -p $HOME/.local/bin
-mv "./bin/$(go env GOHOSTOS)_$(go env GOHOSTARCH)_plugin/session-manager-plugin" $HOME/.local/bin/session-manager-plugin
-popd
-rm -rf "$AWS_CLI_TEMPDIR"
+rm -f ~/go/bin/gordon || :
 
 # actionlint
 go install github.com/rhysd/actionlint/cmd/actionlint@latest 
-
-# molt (Update checker for deno dependencies)
-deno install --global --allow-env --allow-read --allow-write --allow-net --allow-run=git,deno --name molt jsr:@molt/cli

@@ -50,13 +50,19 @@ set -ex
 
 cat - << EOS | sudo tee /etc/wsl.conf
 [boot]
-systemd = true
+systemd=true
 
 [user]
-default = kyoh86
+default=kyoh86
 
 [interop]
-appendWindowsPath = true
+appendWindowsPath=true
+
+[wsl2]
+memory=16GB
+networkingMode=mirrored
+firewall=true
+autoProxy=true
 EOS
 
 echo "Enter the **PUBLIC** email address for GitHub Account you want to use:"
@@ -202,6 +208,8 @@ sudo apt install --yes \
     binutils       \
     coreutils      \
     diffutils      \
+    dnsutils       \
+    telnet         \
     direnv         \
     findutils      \
     httpie         \
@@ -295,7 +303,7 @@ sudo usermod -aG docker ${USER}
     asdf install sqlite latest
     asdf global sqlite latest system
 
-    ## Node.js & npm
+    ## Terraform
     asdf plugin add terraform
     asdf install terraform latest
     asdf global terraform latest system
