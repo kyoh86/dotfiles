@@ -1,7 +1,6 @@
 ---@type LazySpec
 local spec = {
   "vim-denops/denops.vim",
-  branch = "v7-pre",
   config = function(plugin)
     -- vim.g["denops#debug"] = 1
     vim.env.DENOPS_TEST_DENOPS_PATH = plugin.dir
