@@ -1,4 +1,4 @@
-import { Denops } from "jsr:@denops/std@~7.0.1";
+import type { Denops } from "jsr:@denops/std@~7.0.1";
 import { execute } from "jsr:@denops/std@~7.0.1/helper";
 import { ensure, is } from "jsr:@core/unknownutil@~4.0.0";
 import { expandGlob } from "jsr:@std/fs@~1.0.1";
