@@ -9,6 +9,7 @@ function update {
     else
         update_apt || return 1
         update_paru || return 1
+        update_yay || return 1
         update_asdf || return 1
         update_deno || return 1
         update_gordon || return 1
@@ -37,6 +38,17 @@ function update_paru {
     pushd ~
     if command -v paru >/dev/null 2>&1; then
         zsh -c 'paru -Syyu --skipreview --noconfirm'
+    fi
+    popd
+}
+# }}}
+
+# update yay {{{
+function update_paru {
+    echo updating yay
+    pushd ~
+    if command -v yay >/dev/null 2>&1; then
+        zsh -c 'yay -Syyu --skipreview --noconfirm'
     fi
     popd
 }
