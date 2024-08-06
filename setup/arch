@@ -66,11 +66,15 @@ firewall=true
 autoProxy=true
 EOS
 
-echo "Enter the **PUBLIC** email address for GitHub Account you want to use:"
-read GITHUB_EMAIL
+if [ -z "$GITHUB_EMAIL" ]; then
+	echo "Enter the **PUBLIC** email address for GitHub Account you want to use:"
+	read GITHUB_EMAIL
+fi
 
-echo "Enter the user name for GitHub Account you want to use:"
-read GITHUB_NAME
+if [ -z "$GITHUB_NAME" ]; then
+	echo "Enter the user name for GitHub Account you want to use:"
+	read GITHUB_NAME
+fi
 
 sudo pacman -Syy
 
@@ -147,6 +151,7 @@ generate_ssh_key
 # WSL Utilities includes wslview, etc.
 setup_wslutilities() {
   sudo pacman-key --init
+  install wget 
   wget https://pkg.wslutiliti.es/public.key
   sudo pacman-key --add public.key
   sudo pacman-key --lsign-key 2D4C887EB08424F157151C493DD50AA7E055D853
@@ -252,7 +257,7 @@ install            \
     wget
 
 # Setup docker
-sudo groupadd docker
+sudo groupadd -f docker
 sudo usermod -aG docker ${USER}
 
 # for git send-email
