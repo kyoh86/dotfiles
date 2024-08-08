@@ -1,0 +1,30 @@
+#!/bin/bash
+
+install() {
+  yay -S --noconfirm --needed \
+}
+
+setup_gnome() {
+  install gnome
+  sudo systemctl enable gdm.service
+}
+setup_gnome
+
+setup_fonts() {
+  install            \
+    noto-fonts       \
+    noto-fonts-cjk   \
+    noto-fonts-emoji \
+    noto-fonts-extra \
+    ttf-plemoljp
+}
+setup_fonts
+
+setup_ime() {
+  install             \
+    fcitx5-mozc-ut    \
+    fcitx5-ut         \
+    fcitx5-gtk        \
+    mozc-ut           \
+    fcitx5-configtool
+}
