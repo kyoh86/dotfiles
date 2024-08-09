@@ -11,12 +11,14 @@ install gnome
 sudo systemctl enable gdm.service
 
 # setup fonts
-install            \
-  noto-fonts       \
-  noto-fonts-cjk   \
-  noto-fonts-emoji \
-  noto-fonts-extra \
+install                           \
+  noto-fonts                      \
+  noto-fonts-cjk                  \
+  noto-fonts-emoji                \
+  noto-fonts-extra                \
+  ttf-nerd-fonts-symbols-mono     \
   ttf-plemoljp-bin
+sudo ln -s /usr/share/fontconfig/conf.avail/10-nerd-font-symbols.conf /etc/fonts/conf.d
 
 # Setup IME
 install             \
@@ -26,5 +28,13 @@ install             \
   mozc-ut           \
   fcitx5-configtool
 
-install    \
-  google-chrome
+install                   \
+  google-chrome           \
+  slack-desktop           \
+  wezterm                 \
+  wl-clipboard            \
+  gnome-browser-connector \
+  1password
+
+gnome-extensions install kimpanel@kde.org
+gnome-extensions enable  kimpanel@kde.org
