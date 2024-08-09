@@ -39,7 +39,7 @@ extension.glaze = function(name, get_variant)
   local src = vim.fs.joinpath(conf, "lua/kyoh86/glaze/syrup", name, variant .. ".lua")
   local dst = vim.fs.joinpath(conf, "lua/kyoh86/glaze/stain", name .. ".lua")
   local raw = vim.fn.readfile(src)
-  table.insert(raw, "vim.g.kyoh86_glaze_" .. name .. " = true")
+  table.insert(raw, 1, "vim.g.kyoh86_glaze_" .. name .. " = true")
   vim.fn.writefile(raw, dst)
   vim.cmd.luafile(dst)
 end
