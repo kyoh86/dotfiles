@@ -181,7 +181,7 @@ auth_github_cli
 
 # Get profiles
 get_profiles() {
-  MACHINE_NAME="${NAME}"
+  MACHINE_NAME="$(uname -n)"
 
   source <(cat /etc/os-release | sed 's/^/local /')
   OS_NAME="${NAME}"
