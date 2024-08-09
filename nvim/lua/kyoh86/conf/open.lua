@@ -1,3 +1,12 @@
+--- 外部ファイルを開く方法を設定する
+kyoh86.glaze("opener", function()
+  if vim.fn.executable("wslview") ~= 0 then
+    return "wslview"
+  elseif vim.fn.executable("xdg-open") ~= 0 then
+    return "xdg-open"
+  end
+  return ""
+end)
 --- カーソル下のファイルを関連付けられた外部ファイルで開いたりする
 local function open_cursor()
   local target = vim.fn.expand("<cfile>")

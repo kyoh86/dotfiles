@@ -31,7 +31,7 @@ local spec = {
         },
       },
       actionParams = {
-        browse = { opener = "wslview" },
+        browse = { opener = require("kyoh86.glaze.stain.opener") },
       },
     }, {
       start = {

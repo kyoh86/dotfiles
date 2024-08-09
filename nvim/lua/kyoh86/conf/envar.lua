@@ -138,7 +138,7 @@ push_path(home .. "/.deno/bin")
 push_path(dotfiles .. "/tig/clip")
 
 -- GitHub CLI:
-vim.env.BROWSER = "wslview"
+vim.env.BROWSER = require("kyoh86.glaze.stain.opener")
 
 -- .local/bin
 push_path(home .. "/.local/bin")
