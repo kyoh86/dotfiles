@@ -1,19 +1,19 @@
 local uv = vim.loop
 
-local AsyncStore = {}
-AsyncStore.__index = AsyncStore
+local Cache = {}
+Cache.__index = Cache
 
-function AsyncStore.new(filepath)
+function Cache.new(filepath)
   local self = setmetatable({
     store = {},
     waiters = {},
     filepath = filepath,
-  }, AsyncStore)
+  }, Cache)
   self:load() -- 初期化時に既存のデータをロード
   return self
 end
 
-function AsyncStore:set(key, value)
+function Cache:set(key, value)
   self.store[key] = value
   if self.waiters[key] then
     for _, waiter in ipairs(self.waiters[key]) do
@@ -24,7 +24,7 @@ function AsyncStore:set(key, value)
   self:serialize() -- 値を設定した後に永続化
 end
 
-function AsyncStore:get(key, callback)
+function Cache:get(key, callback)
   if self.store[key] then
     callback(self.store[key])
     return
@@ -36,23 +36,23 @@ function AsyncStore:get(key, callback)
   table.insert(self.waiters[key], callback)
 end
 
-function AsyncStore:has(key)
+function Cache:has(key)
   return self.store[key] ~= nil
 end
 
-function AsyncStore:del(key)
+function Cache:del(key)
   self.store[key] = nil
   self.waiters[key] = nil
   self:serialize() -- 値を削除した後に永続化
 end
 
-function AsyncStore:clear()
+function Cache:clear()
   self.store = {}
   self.waiters = {}
   self:serialize() -- すべてクリアした後に永続化
 end
 
-function AsyncStore:serialize()
+function Cache:serialize()
   local data = vim.json.encode(self.store)
   local file = uv.fs_open(self.filepath, "w", 438)
   if file then
@@ -63,7 +63,7 @@ function AsyncStore:serialize()
   end
 end
 
-function AsyncStore:load()
+function Cache:load()
   local file = uv.fs_open(self.filepath, "r", 438)
   if file then
     local stat = uv.fs_fstat(file)
@@ -83,4 +83,4 @@ function AsyncStore:load()
   end
 end
 
-return AsyncStore
+return Cache

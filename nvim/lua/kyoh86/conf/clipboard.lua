@@ -6,7 +6,7 @@ vim.keymap.set({ "n", "x" }, "gp", '"*p')
 vim.keymap.set({ "n", "x" }, "gP", '"*P')
 vim.keymap.set({ "n", "x" }, "g_", '"*_', { remap = true })
 
-local glaze = require("kyoh86.glaze")
+local glaze = require("kyoh86.lib.glaze")
 glaze.glaze("clipboard", function()
   if vim.fn.executable("win32yank.exe") ~= 0 then
     return "win32"

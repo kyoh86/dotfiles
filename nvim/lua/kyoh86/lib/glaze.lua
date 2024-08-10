@@ -1,6 +1,6 @@
-local AsyncStore = require("kyoh86.lib.async_store")
+local Cache = require("kyoh86.lib.cache")
 local file = vim.fs.joinpath(vim.fn.stdpath("cache") --[[@as string]], "kyoh86-glaze.json")
-local cache = AsyncStore.new(file)
+local cache = Cache.new(file)
 
 --- 焼付型の設定: 判定に時間がかかる処理の結果を、初回起動時に焼き付ける。
 ---
