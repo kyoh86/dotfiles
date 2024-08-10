@@ -27,9 +27,6 @@ local spec = {
           defaultAction = "cd",
         },
       },
-      actionParams = {
-        browse = { opener = require("kyoh86.glaze.stain.opener") },
-      },
     }, {
       start = {
         key = "<leader>fpl",
@@ -49,9 +46,6 @@ local spec = {
         gogh_repo = {
           defaultAction = "browse",
         },
-      },
-      actionParams = {
-        browse = { opener = require("kyoh86.glaze.stain.opener") },
       },
     }, {
       start = {

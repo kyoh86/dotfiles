@@ -11,9 +11,6 @@ local spec = {
         defaultAction = "cd",
       },
     },
-    actionParams = {
-      browse = { opener = require("kyoh86.glaze.stain.opener") },
-    },
   }, {
     start = {
       key = "<leader><leader>p",

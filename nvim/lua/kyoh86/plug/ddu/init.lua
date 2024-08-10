@@ -19,6 +19,15 @@ local spec = {
         },
       })
 
+      local glaze = require("kyoh86.glaze")
+      glaze.get("opener", function(opener)
+        vim.fn["ddu#custom#patch_global"]({
+          actionParams = {
+            browse = { opener = opener },
+          },
+        })
+      end)
+
       -- Dotfiles内で定義したSourceなどの設定（※ddu.vim, denops.vimの読み込みに依存するため、この位置）
       local helper = require("kyoh86.plug.ddu.helper")
 

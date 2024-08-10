@@ -138,7 +138,10 @@ push_path(home .. "/.deno/bin")
 push_path(dotfiles .. "/tig/clip")
 
 -- GitHub CLI:
-vim.env.BROWSER = require("kyoh86.glaze.stain.opener")
+local glaze = require("kyoh86.glaze")
+glaze.get("opener", function(opener)
+  vim.env.BROWSER = opener
+end)
 
 -- .local/bin
 push_path(home .. "/.local/bin")

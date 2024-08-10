@@ -72,7 +72,6 @@ function M.setup(name, dduopts, config)
       ["<leader>v"] = { action = "itemAction", params = { name = "open", params = { command = "vnew" } } },
       ["<leader>h"] = { action = "itemAction", params = { name = "open", params = { command = "new" } } },
       ["<leader>x"] = { action = "itemAction", params = { name = "open", params = { command = "new" } } },
-      ["<leader>b"] = { action = "itemAction", params = { name = "executeSystem", params = { method = require("kyoh86.glaze.stain.opener") } } },
     })
   end
   if next(map) ~= nil then
