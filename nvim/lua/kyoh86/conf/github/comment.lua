@@ -1,18 +1,29 @@
 local M = {}
 
---- 指定のIssueにコメントを付ける
----@param number number Issue番号
-function M.create(number)
-  local exec = string.format("gh issue comment --editor %d", number)
-  require("kyoh86.lib.volatile_terminal").split(0, {}, { exec = exec })
-end
+---@class GitHubCommentTarget
+---@field type "issue"|"pr"
+---@field repo? string
+---@field number number
 
---- 指定のリポジトリのIssueにコメントを付ける
----@param repo string リポジトリ
----@param number number Issue番号
-function M.create_for(repo, number)
-  local exec = string.format("gh --repo %q issue comment --editor %d", repo, number)
-  require("kyoh86.lib.volatile_terminal").split(0, {}, { exec = exec })
+--- コメントを付ける
+---@param target GitHubCommentTarget
+function M.create(target)
+  vim.print("hoge")
+  local words = {
+    "gh",
+    target.type,
+    "comment",
+    "--editor",
+    target.number,
+  }
+  vim.print("fuga")
+  if target.repo then
+    table.insert(words, "--repo")
+    table.insert(words, target.repo)
+  end
+  vim.print("piyo")
+  require("kyoh86.lib.volatile_terminal").split(0, {}, { exec = table.concat(words, " ") })
+  vim.print("tako")
 end
 
 return M

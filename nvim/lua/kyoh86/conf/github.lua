@@ -35,5 +35,17 @@ vim.api.nvim_set_keymap("x", "<Leader>ghi", "<Cmd>set opfunc=v:lua.create_github
 
 -- GitHub Issue のコメント追加 コマンド
 vim.api.nvim_create_user_command("GitHubIssueComment", function(opts)
-  require("kyoh86.conf.github.comment").create(opts.args[1])
-end, { nargs = 1, desc = "Create new issue comment on the issue in the current repository on GitHub" })
+  require("kyoh86.conf.github.comment").create({
+    type = "issue",
+    number = opts.args[1],
+  })
+end, { nargs = 1, desc = "Create new issue comment in the current repository" })
+
+-- GitHub Pull Request のコメント追加 コマンド
+vim.api.nvim_create_user_command("GitHubPullRequestComment", function(opts)
+  local target = { type = "pr" }
+  if #opts.args > 0 then
+    target.number = opts.args[1]
+  end
+  require("kyoh86.conf.github.comment").create(target)
+end, { nargs = "?", desc = "Create new pull-request comment in the current repository" })

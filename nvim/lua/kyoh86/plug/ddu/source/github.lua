@@ -5,7 +5,7 @@ local spec = {
   "kyoh86/ddu-source-github",
   dependencies = { "ddu.vim" },
   config = function()
-    local custom_comment = function(args)
+    local custom_comment = function(tp, args)
       if #args.items ~= 1 then
         vim.notify("invalid action: it can edit only one file at once", vim.log.levels.WARN, {})
         return 1
@@ -13,11 +13,17 @@ local spec = {
       local url = args.items[1].action.html_url
       local words = vim.iter(vim.split(url, "/", { plain = true })):rev():totable()
       local number, _, name, owner, _ = unpack(words)
-      require("kyoh86.conf.github.comment").create_for(owner .. "/" .. name, number)
+      require("kyoh86.conf.github.comment").create({ type = tp, repo = owner .. "/" .. name, number = number })
       return 0
     end
 
-    vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:comment", custom_comment)
+    vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:issue-comment", function(args)
+      return custom_comment("issue", args)
+    end)
+
+    vim.fn["ddu#custom#action"]("kind", "github_pull", "custom:pr-comment", function(args)
+      return custom_comment("pr", args)
+    end)
 
     vim.fn["ddu#custom#patch_global"]({
       kindOptions = {
@@ -58,8 +64,8 @@ local spec = {
         desc = "GitHub Issues",
       },
       localmap = vim.tbl_extend("force", map, {
-        ["<leader>c"] = { action = "itemAction", params = { name = "custom:comment" } },
-        ["<leader>s"] = function()
+        ["<leader>c"] = { action = "itemAction", params = { name = "custom:issue-comment" } },
+        ["<leader>t"] = function()
           local opts = vim.fn["ddu#custom#get_current"]("github-repo-issues")
           local state = nextState[opts.sourceParams.github_repo_issue.state]
           vim.fn["ddu#ui#do_action"]("updateOptions", {
@@ -86,8 +92,8 @@ local spec = {
         desc = "GitHub My Issues",
       },
       localmap = vim.tbl_extend("force", map, {
-        ["<leader>c"] = { action = "itemAction", params = { name = "custom:comment" } },
-        ["<leader>s"] = function()
+        ["<leader>c"] = { action = "itemAction", params = { name = "custom:issue-comment" } },
+        ["<leader>t"] = function()
           local opts = vim.fn["ddu#custom#get_current"]("github-my-issues")
           local state = nextState[opts.sourceParams.github_my_issue.state]
           vim.fn["ddu#ui#do_action"]("updateOptions", {
@@ -112,8 +118,9 @@ local spec = {
         desc = "GitHub Pull Requests",
       },
       localmap = vim.tbl_extend("force", map, {
-        ["<leader>c"] = { action = "itemAction", params = { name = "checkout" } },
-        ["<leader>s"] = function()
+        ["<leader>c"] = { action = "itemAction", params = { name = "custom:pr-comment" } },
+        ["<leader>s"] = { action = "itemAction", params = { name = "checkout" } },
+        ["<leader>t"] = function()
           local opts = vim.fn["ddu#custom#get_current"]("github-pulls")
           local state = nextState[opts.sourceParams.github_repo_pull.state]
           vim.fn["ddu#ui#do_action"]("updateOptions", {
@@ -138,7 +145,8 @@ local spec = {
         desc = "GitHub My Pull Requests",
       },
       localmap = vim.tbl_extend("force", map, {
-        ["<leader>s"] = function()
+        ["<leader>c"] = { action = "itemAction", params = { name = "custom:pr-comment" } },
+        ["<leader>t"] = function()
           local opts = vim.fn["ddu#custom#get_current"]("github-pulls")
           local state = nextState[opts.sourceParams.github_repo_pull.state]
           vim.fn["ddu#ui#do_action"]("updateOptions", {
