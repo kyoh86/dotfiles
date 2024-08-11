@@ -22,13 +22,13 @@ local spec = {
     vim.fn["ddu#custom#patch_global"]({
       kindOptions = {
         github_pull = {
-          defaultAction = "open",
+          defaultAction = "browse",
         },
         github_issue = {
-          defaultAction = "open",
+          defaultAction = "browse",
         },
         github_repo = {
-          defaultAction = "open",
+          defaultAction = "browse",
         },
       },
     })
@@ -54,7 +54,7 @@ local spec = {
       } },
     }, {
       start = {
-        key = "<leader>fgi",
+        key = "<leader>fghi",
         desc = "GitHub Issues",
       },
       localmap = vim.tbl_extend("force", map, {
@@ -82,7 +82,7 @@ local spec = {
       } },
     }, {
       start = {
-        key = "<leader>fggi",
+        key = "<leader>fghgi",
         desc = "GitHub My Issues",
       },
       localmap = vim.tbl_extend("force", map, {
@@ -108,7 +108,7 @@ local spec = {
       } },
     }, {
       start = {
-        key = "<leader>fgp",
+        key = "<leader>fghp",
         desc = "GitHub Pull Requests",
       },
       localmap = vim.tbl_extend("force", map, {
@@ -134,7 +134,7 @@ local spec = {
       } },
     }, {
       start = {
-        key = "<leader>fggp",
+        key = "<leader>fghgp",
         desc = "GitHub My Pull Requests",
       },
       localmap = vim.tbl_extend("force", map, {
@@ -152,6 +152,55 @@ local spec = {
         end,
       }),
     })
+
+    -- Start all GitHub contexts
+    local contextList = {
+      { title = "Issues in current repo", context = "github-repo-issues" },
+      { title = "Pull requests in current repo", context = "github-pulls" },
+      { title = "My issues", context = "github-my-issues" },
+      { title = "My pull requests", context = "github-my-pulls" },
+    }
+    local contextDict = vim.iter(contextList):fold({}, function(acc, item)
+      acc[item.title] = item.context
+      return acc
+    end)
+    local startContext = function(text)
+      local context = contextDict[text]
+      if not context or context == "" then
+        return
+      end
+
+      vim.fn["ddu#start"]({
+        name = context,
+        push = true,
+      })
+    end
+    local startContextId = vim.fn["denops#callback#register"](startContext, { once = false })
+    helper.setup("github", {
+      sources = { {
+        name = "custom-list",
+        params = {
+          texts = vim
+            .iter(contextList)
+            :map(function(item)
+              return item.title
+            end)
+            :totable(),
+          callbackId = startContextId,
+        },
+      } },
+      kindOptions = {
+        ["custom-list"] = {
+          defaultAction = "callback",
+        },
+      },
+    }, {
+      start = {
+        key = "<leader>fgh",
+        desc = "GitHub",
+      },
+    })
+
     vim.api.nvim_create_user_command("DduSources", function()
       vim.fn["ddu#start"]({
         sources = { {

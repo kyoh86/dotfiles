@@ -17,8 +17,8 @@ local spec = {
       vim.fn.setreg("+", vim.fn.expand("%:p"))
     end, { range = true, bang = true })
 
-    vim.keymap.set("n", "<leader>ygh", [[:call gitname#yank#hub_url("branch", {})]], { silent = true, desc = "バッファのGitHub URLをYankする" })
-    vim.cmd([[vnoremap <silent> <leader>ygh :call gitname#yank#hub_url("branch", { "range": 2 })<cr>]]) -- it cannot be mapped by vim.keymap
+    vim.keymap.set("n", "<leader>ygh", [[<cmd>call gitname#yank#hub_url("branch", {})]], { silent = true, desc = "バッファのGitHub URLをYankする" })
+    vim.cmd([[vnoremap <silent> <leader>ygh <cmd>call gitname#yank#hub_url("branch", { "range": 2 })<cr>]]) -- it cannot be mapped by vim.keymap
   end,
 }
 return spec

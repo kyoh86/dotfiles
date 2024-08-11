@@ -10,10 +10,11 @@ local spec = {
       group = group,
       pattern = { "LazyInstall", "LazyUpdate" },
       callback = function()
-        vim.fn["denops#cache#update"]()
+        vim.fn["denops#cache#update"]({ reload = true })
         vim.notify("denops dependencies cached", vim.log.levels.INFO)
       end,
     })
+    vim.api.nvim_create_user_command("DenopsCacheUpdate", [[call denops#cache#update({"reload": v:true})]], {})
   end,
 }
 return spec

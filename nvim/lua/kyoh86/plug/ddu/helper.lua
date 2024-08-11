@@ -61,7 +61,7 @@ function M.setup(name, dduopts, config)
       starts = { starts }
     end
     for _, start in pairs(starts) do
-      vim.keymap.set("n", start.key, func.bind_all(vim.fn["ddu#start"], { name = name }), { remap = false, desc = start.desc and start.desc .. " [ddu]" or "Start ddu: " .. name })
+      vim.keymap.set("n", start.key, func.bind_all(vim.fn["ddu#start"], { name = name }), { remap = false, desc = start.desc and "[ddu] " .. start.desc or "Start ddu: " .. name })
     end
   end
 
