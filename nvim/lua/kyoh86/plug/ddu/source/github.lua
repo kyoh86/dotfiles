@@ -5,6 +5,20 @@ local spec = {
   "kyoh86/ddu-source-github",
   dependencies = { "ddu.vim" },
   config = function()
+    local custom_comment = function(args)
+      if #args.items ~= 1 then
+        vim.notify("invalid action: it can edit only one file at once", vim.log.levels.WARN, {})
+        return 1
+      end
+      local url = args.items[1].action.html_url
+      local words = vim.iter(vim.split(url, "/", { plain = true })):rev():totable()
+      local number, _, name, owner, _ = unpack(words)
+      require("kyoh86.conf.github.comment").create_for(owner .. "/" .. name, number)
+      return 0
+    end
+
+    vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:comment", custom_comment)
+
     vim.fn["ddu#custom#patch_global"]({
       kindOptions = {
         github_pull = {
@@ -44,6 +58,7 @@ local spec = {
         desc = "GitHub Issues",
       },
       localmap = vim.tbl_extend("force", map, {
+        ["<leader>c"] = { action = "itemAction", params = { name = "custom:comment" } },
         ["<leader>s"] = function()
           local opts = vim.fn["ddu#custom#get_current"]("github-repo-issues")
           local state = nextState[opts.sourceParams.github_repo_issue.state]
@@ -71,6 +86,7 @@ local spec = {
         desc = "GitHub My Issues",
       },
       localmap = vim.tbl_extend("force", map, {
+        ["<leader>c"] = { action = "itemAction", params = { name = "custom:comment" } },
         ["<leader>s"] = function()
           local opts = vim.fn["ddu#custom#get_current"]("github-my-issues")
           local state = nextState[opts.sourceParams.github_my_issue.state]

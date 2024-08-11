@@ -1,50 +1,39 @@
--- GitHub PRの作成
+local group = vim.api.nvim_create_augroup("kyoh86-conf-github-auth", { clear = true })
+
+-- GitHub 認証情報の復帰またはログイン
+vim.api.nvim_create_autocmd("User", {
+  pattern = "DenopsPluginPost:github-auth",
+  group = group,
+  callback = function()
+    require("kyoh86.conf.github.auth").login()
+  end,
+})
+
+-- GitHub 認証情報をdduに引き渡す
+vim.api.nvim_create_autocmd("User", {
+  pattern = "DenopsPluginPost:ddu-source-github",
+  group = group,
+  callback = function()
+    require("kyoh86.conf.github.auth").auth_ddu()
+  end,
+})
+
+-- GitHub PRの作成 コマンド
 vim.api.nvim_create_user_command("GitHubPullRequest", function(opts)
-  local args = opts.args or {}
-  local exec = "gh pr new"
-  if #args == 1 then
-    exec = "gh pr new --title " .. args[1]
-  end
-  require("kyoh86.lib.volatile_terminal").split(0, {}, { exec = exec })
+  require("kyoh86.conf.github.pr").create_command(opts)
 end, { nargs = "?", desc = "Create new pull-request in the current repository on GitHub" })
 
--- GitHub Issue の作成
-
+-- GitHub Issue の作成 コマンド
 vim.api.nvim_create_user_command("GitHubIssue", function(opts)
-  local args = opts.args or {}
-  local exec = "gh issue new"
-  if #args == 1 then
-    exec = "gh issue new --title " .. vim.fn.shellescape(args[1])
-  elseif opts.range > 0 then
-    local head = vim.fn.getpos("'<")
-    local tail = vim.fn.getpos("'>")
-    local lines = vim.fn.getregion(head, tail, { type = vim.fn.visualmode() })
-    local title = vim.fn.shellescape(lines[1])
-    if #lines > 1 then
-      local body = vim.fn.shellescape(table.concat(lines, "\n", 2))
-      exec = "gh issue new --title " .. title .. " --body " .. body
-    else
-      exec = "gh issue new --title " .. title
-    end
-  end
-  require("kyoh86.lib.volatile_terminal").split(0, {}, { exec = exec })
+  require("kyoh86.conf.github.issue").create_command(opts)
 end, { nargs = "?", range = true, desc = "Create new pull-request in the current repository on GitHub" })
 
--- オペレータ関数
-function _G.create_github_issue_with_title()
-  local oldvalue = vim.fn.getreg('"')
-  -- モーションの範囲を取得してレジスタにyank
-  vim.api.nvim_command("normal! `[v`]y")
-  local title = vim.fn.getreg('"')
-  title = vim.fn.shellescape(title)
-
-  -- ターミナルでGitHub Issueコマンドを実行
-  require("kyoh86.lib.volatile_terminal").split(0, {}, { exec = "gh issue new --title " .. title })
-
-  -- レジスタの内容を元に戻す
-  vim.fn.setreg('"', oldvalue)
-end
-
--- オペレータの設定
+-- GitHub Issue の作成 オペレータ
+_G["create_github_issue_with_title"] = require("kyoh86.conf.github.issue").create_operator
 vim.api.nvim_set_keymap("n", "<Leader>ghi", "<Cmd>set opfunc=v:lua.create_github_issue_with_title<CR>g@", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("x", "<Leader>ghi", "<Cmd>set opfunc=v:lua.create_github_issue_with_title<CR>g@", { noremap = true, silent = true })
+
+-- GitHub Issue のコメント追加 コマンド
+vim.api.nvim_create_user_command("GitHubIssueComment", function(opts)
+  require("kyoh86.conf.github.comment").create(opts.args[1])
+end, { nargs = 1, desc = "Create new issue comment on the issue in the current repository on GitHub" })
