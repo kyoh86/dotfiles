@@ -148,18 +148,21 @@ vim.api.nvim_create_autocmd("LspAttach", {
       return
     end
 
-    if client.server_capabilities.documentFormattingProvider then
-      -- ファイル保存時に自動でフォーマットする
-      vim.api.nvim_create_autocmd("BufWritePre", {
-        pattern = string.format("<buffer=%d>", bufnr),
-        callback = function()
-          vim.lsp.buf.format({
-            name = "efm",
-            timeout_ms = 2000,
-          })
-        end,
-      })
-    end
+    -- ファイル保存時に自動でフォーマットする
+    -- vtslsがassignされている場合はvtsls、efmがアサインされている場合はefm
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      desc = "ファイル保存時に自動でフォーマットする",
+      group = vim.api.nvim_create_augroup(string.format("kyoh86-plug-lsp-format-buf-%d", bufnr), { clear = true }),
+      buffer = bufnr,
+      callback = function()
+        local vtsls = vim.lsp.get_clients({ bufnr = bufnr, name = "vtsls" })
+        local name = #vtsls > 0 and "vtsls" or "efm"
+        vim.lsp.buf.format({
+          name = name,
+          timeout_ms = 2000,
+        })
+      end,
+    })
 
     if client.server_capabilities.inlayHintProvider then
       vim.b.kyoh86_plug_lsp_inlay_hint_enabled = true
@@ -208,6 +211,7 @@ local function register_lsp_servers()
   register("graphql", {})
   register("html", {})
   register("jsonls", require("kyoh86.plug.lsp.jsonls"))
+  register("jqls", {})
   register("lemminx", {}) -- XML
   register("lua_ls", require("kyoh86.plug.lsp.luals"))
   register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
