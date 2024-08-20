@@ -44,7 +44,7 @@ function update_paru {
 # }}}
 
 # update yay {{{
-function update_paru {
+function update_yay {
     echo updating yay
     pushd ~
     if command -v yay >/dev/null 2>&1; then
