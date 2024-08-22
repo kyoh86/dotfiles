@@ -84,7 +84,7 @@ setup_yay() {
   fi
   local DIR="$(mktemp -d)"
   pushd "$DIR"
-    sudo pacman -S --needed git base-devel
+    sudo pacman -S --needed --no-confirm git base-devel
     git clone https://aur.archlinux.org/yay.git
     cd yay
     makepkg -si
@@ -181,7 +181,7 @@ auth_github_cli
 
 # Get profiles
 get_profiles() {
-  MACHINE_NAME="$(uname -n)"
+  MACHINE_NAME="$(hostname)"
 
   source <(cat /etc/os-release | sed 's/^/local /')
   OS_NAME="${NAME}"
