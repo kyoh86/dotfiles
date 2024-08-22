@@ -38,7 +38,6 @@ vim.opt.smarttab = true
 vim.opt.autoindent = true
 
 --- Wrapping設定
-vim.opt.wrap = false
 vim.opt.textwidth = 0 -- never limit length of each line
 
 --- テキスト表示の設定
