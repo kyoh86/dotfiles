@@ -5,7 +5,7 @@ import type { Actions, Item } from "jsr:@shougo/ddu-vim@~5.0.0/types";
 import { echoerrCommand } from "jsr:@kyoh86/denops-util@~0.1.0/command";
 import { TextLineStream } from "jsr:@std/streams@~1.0.0";
 import { environment } from "jsr:@denops/std@~7.0.1/variable";
-import { is, maybe } from "jsr:@core/unknownutil@~4.0.0";
+import { is, maybe } from "jsr:@core/unknownutil@~4.3.0";
 
 type ActionData = {
   name: string;
