@@ -1,7 +1,6 @@
 ---@type LazySpec
 local spec = {
   "kyoh86/denops-docbase.vim",
-  branch = "denops-v7",
   dependencies = { "denops.vim" },
   config = function()
     vim.api.nvim_create_autocmd("User", {
