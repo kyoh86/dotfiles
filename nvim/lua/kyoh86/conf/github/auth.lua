@@ -13,6 +13,17 @@ function M.login()
   end
 end
 
+-- GitHubの認証を得る
+function M.relogin()
+  local glaze = require("kyoh86.lib.glaze")
+  -- ref: ../../../../denops/github-auth/main.ts
+  vim.fn["denops#request_async"]("github-auth", "login", {}, function(v)
+    glaze.set("github-auth", v)
+  end, function(e)
+    vim.notify("failed to login\n" .. vim.json.encode(e), vim.log.levels.WARN)
+  end)
+end
+
 -- GitHubの認証をddu-source-githubに渡す
 function M.auth_ddu()
   local glaze = require("kyoh86.lib.glaze")

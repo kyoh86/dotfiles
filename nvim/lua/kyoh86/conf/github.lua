@@ -18,6 +18,10 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
+vim.api.nvim_create_user_command("GitHubLogin", function(opts)
+  require("kyoh86.conf.github.auth").relogin()
+end, { desc = "Login to GitHub" })
+
 -- GitHub PRの作成 コマンド
 vim.api.nvim_create_user_command("GitHubPullRequest", function(opts)
   require("kyoh86.conf.github.pr").create_command(opts)
