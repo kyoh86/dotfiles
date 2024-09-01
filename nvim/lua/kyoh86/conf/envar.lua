@@ -93,7 +93,7 @@ push_path(home .. "/perl5/bin")
 
 -- Git:
 push_path("/usr/local/share/git-core/contrib/diff-highlight")
-
+vim.env.GIT_SSH_COMMAND = "ssh -4"
 -- Rg:
 vim.env.RIPGREP_CONFIG_PATH = dotfiles .. "/ripgrep/config"
 

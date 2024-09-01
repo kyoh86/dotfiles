@@ -21,7 +21,7 @@ end)
 ---@type LazyConfig
 local opts = {
   dev = { path = require("kyoh86.conf.lazy").dev_path },
-  concurrency = 1,
+  concurrency = 2,
   performance = {
     rtp = {
       disabled_plugins = {
