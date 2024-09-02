@@ -7,7 +7,6 @@ local spec = {
       pattern = "DenopsPluginPost:docbase",
       callback = function()
         vim.fn["docbase#setup#maps"]()
-        vim.fn["docbase#setup#commands"]()
       end,
     })
   end,
