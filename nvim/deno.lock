@@ -6,12 +6,14 @@
       "jsr:@core/unknownutil@^3.17.2": "jsr:@core/unknownutil@3.18.1",
       "jsr:@core/unknownutil@^3.18.0": "jsr:@core/unknownutil@3.18.1",
       "jsr:@core/unknownutil@^4.0.0": "jsr:@core/unknownutil@4.3.0",
+      "jsr:@core/unknownutil@^4.3.0": "jsr:@core/unknownutil@4.3.0",
       "jsr:@core/unknownutil@~4.0.0": "jsr:@core/unknownutil@4.0.3",
       "jsr:@core/unknownutil@~4.3.0": "jsr:@core/unknownutil@4.3.0",
       "jsr:@denops/core@^7.0.0": "jsr:@denops/core@7.0.1",
       "jsr:@denops/std@7.0.0": "jsr:@denops/std@7.0.0",
-      "jsr:@denops/std@^7.0.0": "jsr:@denops/std@7.0.3",
+      "jsr:@denops/std@^7.0.0": "jsr:@denops/std@7.1.1",
       "jsr:@denops/std@~7.0.1": "jsr:@denops/std@7.0.3",
+      "jsr:@denops/std@~7.1.0": "jsr:@denops/std@7.1.1",
       "jsr:@denops/test@~3.0.1": "jsr:@denops/test@3.0.4",
       "jsr:@kyoh86/denops-util@~0.1.0": "jsr:@kyoh86/denops-util@0.1.0",
       "jsr:@lambdalisue/async@2.1.1": "jsr:@lambdalisue/async@2.1.1",
@@ -26,7 +28,9 @@
       "jsr:@lambdalisue/systemopen@~1.0.0": "jsr:@lambdalisue/systemopen@1.0.0",
       "jsr:@lambdalisue/unreachable@^1.0.1": "jsr:@lambdalisue/unreachable@1.0.1",
       "jsr:@shougo/ddc-vim@~6.0.0": "jsr:@shougo/ddc-vim@6.0.1",
+      "jsr:@shougo/ddc-vim@~7.0.0": "jsr:@shougo/ddc-vim@7.0.0",
       "jsr:@shougo/ddu-vim@~5.0.0": "jsr:@shougo/ddu-vim@5.0.0",
+      "jsr:@shougo/ddu-vim@~6.1.0": "jsr:@shougo/ddu-vim@6.1.0",
       "jsr:@std/assert@1.0.0": "jsr:@std/assert@1.0.0",
       "jsr:@std/assert@1.0.0-rc.2": "jsr:@std/assert@1.0.0-rc.2",
       "jsr:@std/assert@~1.0.1": "jsr:@std/assert@1.0.2",
@@ -87,6 +91,17 @@
           "jsr:@lambdalisue/errorutil@^1.0.0",
           "jsr:@lambdalisue/itertools@^1.1.2",
           "jsr:@lambdalisue/unreachable@^1.0.1",
+          "jsr:@std/fs@^1.0.0",
+          "jsr:@std/path@^1.0.2",
+          "jsr:@std/semver@^1.0.0",
+          "jsr:@std/ulid@^1.0.0"
+        ]
+      },
+      "@denops/std@7.1.1": {
+        "integrity": "9178027fc9192034842ac4d8d7219ce65ea80cb115b722e681e5c3630b503cb8",
+        "dependencies": [
+          "jsr:@core/unknownutil@^4.3.0",
+          "jsr:@denops/core@^7.0.0",
           "jsr:@std/fs@^1.0.0",
           "jsr:@std/path@^1.0.2",
           "jsr:@std/semver@^1.0.0",
@@ -179,6 +194,12 @@
           "jsr:@std/testing@~0.225.3"
         ]
       },
+      "@shougo/ddc-vim@7.0.0": {
+        "integrity": "e2c53f04a7ca7deb38ac21ed67c1a449b103369b6987526851c4170424f3732c",
+        "dependencies": [
+          "jsr:@denops/std@~7.1.0"
+        ]
+      },
       "@shougo/ddu-vim@5.0.0": {
         "integrity": "9ea644d3b7c7064e21df6f57985bcd2422386b1724c04820a650adb5c173dd88",
         "dependencies": [
@@ -187,6 +208,12 @@
           "jsr:@lambdalisue/async@2.1.1",
           "jsr:@std/assert@1.0.0",
           "jsr:@std/path@1.0.1"
+        ]
+      },
+      "@shougo/ddu-vim@6.1.0": {
+        "integrity": "772a042b413b3f3c0e072ff390221494e2ee04c2c252827693d34b454fd05eac",
+        "dependencies": [
+          "jsr:@denops/std@~7.1.0"
         ]
       },
       "@std/assert@1.0.0": {

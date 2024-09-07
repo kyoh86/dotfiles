@@ -1,6 +1,6 @@
-import * as vars from "jsr:@denops/std@~7.0.1/variable";
-import * as fn from "jsr:@denops/std@~7.0.1/function";
-import type { Denops } from "jsr:@denops/std@~7.0.1";
+import * as vars from "jsr:@denops/std@~7.1.0/variable";
+import * as fn from "jsr:@denops/std@~7.1.0/function";
+import type { Denops } from "jsr:@denops/std@~7.1.0";
 
 const PRECOMMIT_ADDRESS = "PRECOMMIT_ADDRESS";
 
