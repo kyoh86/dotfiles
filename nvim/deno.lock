@@ -43,14 +43,13 @@
       "jsr:@std/collections@^1.0.5": "jsr:@std/collections@1.0.5",
       "jsr:@std/encoding@~1.0.1": "jsr:@std/encoding@1.0.2",
       "jsr:@std/fs@^1.0.0": "jsr:@std/fs@1.0.1",
-      "jsr:@std/fs@~1.0.1": "jsr:@std/fs@1.0.3",
+      "jsr:@std/fs@~1.0.1": "jsr:@std/fs@1.0.1",
       "jsr:@std/internal@^1.0.0": "jsr:@std/internal@1.0.1",
       "jsr:@std/internal@^1.0.1": "jsr:@std/internal@1.0.1",
       "jsr:@std/path@1.0.1": "jsr:@std/path@1.0.1",
       "jsr:@std/path@^1.0.1": "jsr:@std/path@1.0.2",
       "jsr:@std/path@^1.0.2": "jsr:@std/path@1.0.2",
-      "jsr:@std/path@^1.0.4": "jsr:@std/path@1.0.4",
-      "jsr:@std/path@~1.0.0": "jsr:@std/path@1.0.4",
+      "jsr:@std/path@~1.0.0": "jsr:@std/path@1.0.2",
       "jsr:@std/path@~1.0.2": "jsr:@std/path@1.0.2",
       "jsr:@std/semver@0.224.3": "jsr:@std/semver@0.224.3",
       "jsr:@std/semver@^1.0.0": "jsr:@std/semver@1.0.1",
@@ -257,12 +256,6 @@
           "jsr:@std/path@^1.0.2"
         ]
       },
-      "@std/fs@1.0.3": {
-        "integrity": "3cb839b1360b0a42d8b367c3093bfe4071798e6694fa44cf1963e04a8edba4fe",
-        "dependencies": [
-          "jsr:@std/path@^1.0.4"
-        ]
-      },
       "@std/internal@1.0.1": {
         "integrity": "6f8c7544d06a11dd256c8d6ba54b11ed870aac6c5aeafff499892662c57673e6"
       },
@@ -271,9 +264,6 @@
       },
       "@std/path@1.0.2": {
         "integrity": "a452174603f8c620bd278a380c596437a9eef50c891c64b85812f735245d9ec7"
-      },
-      "@std/path@1.0.4": {
-        "integrity": "48dd5d8389bcfcd619338a01bdf862cb7799933390146a54ae59356a0acc7105"
       },
       "@std/semver@0.224.3": {
         "integrity": "7bb34b5ad46de2c0c73de0ca3e30081ef64b4361f66abd57c84ff1011c6a1233"
@@ -288,12 +278,6 @@
         "integrity": "187c3c875675221f5355807a735e51b0f8769caade2cbca6d7f4fa710ea4ace4",
         "dependencies": [
           "jsr:@std/bytes@^1.0.2-rc.3"
-        ]
-      },
-      "@std/streams@1.0.4": {
-        "integrity": "a1a5b01c74ca1d2dcaacfe1d4bbb91392e765946d82a3471bd95539adc6da83a",
-        "dependencies": [
-          "jsr:@std/bytes@^1.0.2"
         ]
       },
       "@std/testing@0.225.3": {
@@ -375,19 +359,5 @@
   },
   "remote": {
     "https://esm.sh/@octokit/auth-oauth-device@7.1.1": "525fdcef0c08325d571c771a7643d36a6dd63324c5da4003cde72dc6ceccac4d"
-  },
-  "workspace": {
-    "dependencies": [
-      "jsr:@core/unknownutil@~4.3.0",
-      "jsr:@denops/std@~7.1.0",
-      "jsr:@kyoh86/denops-util@~0.1.0",
-      "jsr:@lambdalisue/systemopen@~1.0.0",
-      "jsr:@shougo/ddc-vim@~7.0.0",
-      "jsr:@shougo/ddu-vim@~6.1.0",
-      "jsr:@std/fs@~1.0.1",
-      "jsr:@std/path@~1.0.0",
-      "jsr:@std/streams@~1.0.0",
-      "jsr:@std/toml@~1.0.0"
-    ]
   }
 }
