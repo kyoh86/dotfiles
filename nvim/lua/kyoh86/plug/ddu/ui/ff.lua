@@ -90,8 +90,9 @@ local spec = {
       callback = redraw,
     })
 
-    local function ddu_ui_action(actionName)
-      return f.bind_all(vim.fn["ddu#ui#do_action"], actionName, vim.empty_dict())
+    local function ddu_ui_action(actionName, ...)
+      local args = { ... }
+      return f.bind_all(vim.fn["ddu#ui#do_action"], actionName, #args == 0 and vim.empty_dict() or args[1])
     end
 
     vim.api.nvim_create_autocmd("FileType", {
@@ -117,18 +118,10 @@ local spec = {
         nmap("<cr>", ddu_ui_action("itemAction"))
         nmap(">", ddu_ui_action("expandItem"))
         nmap("+", ddu_ui_action("chooseAction"))
-        nmap("<C-y>", function()
-          vim.fn["ddu#ui#do_action"]("previewExecute", { command = [[execute "normal! \<C-y>"]] })
-        end)
-        nmap("<C-e>", function()
-          vim.fn["ddu#ui#do_action"]("previewExecute", { command = [[execute "normal! \<C-e>"]] })
-        end)
-        nmap("<C-d>", function()
-          vim.fn["ddu#ui#do_action"]("previewExecute", { command = [[execute "normal! \<C-d>"]] })
-        end)
-        nmap("<C-u>", function()
-          vim.fn["ddu#ui#do_action"]("previewExecute", { command = [[execute "normal! \<C-u>"]] })
-        end)
+        nmap("<C-y>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<C-y>"]] }))
+        nmap("<C-e>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<C-e>"]] }))
+        nmap("<C-d>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<C-d>"]] }))
+        nmap("<C-u>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<C-u>"]] }))
         nmap("<space>", function()
           vim.fn["ddu#ui#do_action"]("toggleSelectItem")
           local placed = vim.fn.sign_getplaced(ev.buf, { group = "dduSelected", lnum = "." })

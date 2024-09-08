@@ -4,7 +4,7 @@
 --- lazy.nvim 本体をインストールする
 pcall(function()
   local lazypath = kyoh86.lazydir("lazy.nvim") -- lazydir is defined in preload.lua
-  if not vim.loop.fs_stat(lazypath) then
+  if not vim.uv.fs_stat(lazypath) then
     vim.fn.system({
       "git",
       "clone",

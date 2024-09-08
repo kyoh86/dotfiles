@@ -1,5 +1,3 @@
-local func = require("kyoh86.lib.func")
-
 --- 空バッファを無視して閉じる
 local wipeout_queue = {}
 
@@ -24,5 +22,5 @@ end
 
 vim.api.nvim_create_autocmd("ExitPre", {
   group = vim.api.nvim_create_augroup("kyoh86-conf-quitable", {}),
-  callback = func.bind_all(quit_empty_buffers),
+  callback = quit_empty_buffers,
 })

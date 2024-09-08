@@ -130,6 +130,4 @@ vim.api.nvim_create_user_command("LspStat", function(t)
   end
 end, { nargs = "?", desc = "show a LSP status" })
 
-vim.api.nvim_create_user_command("LspStatActive", function()
-  show_all()
-end, { desc = "show active LSP statuses" })
+vim.api.nvim_create_user_command("LspStatActive", show_all, { desc = "show active LSP statuses" })

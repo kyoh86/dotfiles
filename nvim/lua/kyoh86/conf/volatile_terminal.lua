@@ -17,16 +17,12 @@ local group = vim.api.nvim_create_augroup("kyoh86-conf-volatile-terminal-mode", 
 vim.api.nvim_create_autocmd("BufLeave", {
   pattern = "term://*",
   group = group,
-  callback = function()
-    save_mode()
-  end,
+  callback = save_mode,
 })
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "term://*",
   group = group,
-  callback = function()
-    restore_mode()
-  end,
+  callback = restore_mode,
 })
 vim.api.nvim_create_autocmd("TermOpen", {
   group = group,
@@ -38,15 +34,8 @@ vim.api.nvim_create_autocmd("TermOpen", {
   end,
 })
 
-vim.keymap.set("n", "tx", function()
-  volaterm.split(0, {})
-end, { remap = false, silent = true, desc = "open a terminal in a splitted window" })
-vim.keymap.set("n", "tv", function()
-  volaterm.split(0, { vertical = true })
-end, { remap = false, silent = true, desc = "open a terminal in a vertical-splitted window" })
-vim.keymap.set("n", "tcx", function()
-  volaterm.split(0, {}, { cwd = vim.fn.expand("%:p:h") })
-end, { remap = false, silent = true, desc = "open a terminal in a splitted window from current working directory" })
-vim.keymap.set("n", "tcv", function()
-  volaterm.split(0, { vertical = true }, { cwd = vim.fn.expand("%:p:h") })
-end, { remap = false, silent = true, desc = "open a terminal in a vertical-splitted window from current working directory" })
+local f = require("kyoh86.lib.func")
+vim.keymap.set("n", "tx", f.bind_all(volaterm.split, 0, {}), { remap = false, silent = true, desc = "open a terminal in a splitted window" })
+vim.keymap.set("n", "tv", f.bind_all(volaterm.split, 0, { vertical = true }), { remap = false, silent = true, desc = "open a terminal in a vertical-splitted window" })
+vim.keymap.set("n", "tcx", f.bind_all(volaterm.split, 0, {}, { cwd = vim.fn.expand("%:p:h") }), { remap = false, silent = true, desc = "open a terminal in a splitted window from current working directory" })
+vim.keymap.set("n", "tcv", f.bind_all(volaterm.split, 0, { vertical = true }, { cwd = vim.fn.expand("%:p:h") }), { remap = false, silent = true, desc = "open a terminal in a vertical-splitted window from current working directory" })

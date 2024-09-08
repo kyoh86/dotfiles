@@ -1,4 +1,5 @@
 return function()
+  local f = require("kyoh86.lib.func")
   local setmap = function(modes, lhr, rhr, desc)
     vim.keymap.set(modes, lhr, rhr, { remap = false, silent = true, desc = desc })
   end
@@ -12,12 +13,8 @@ return function()
   setmap("n", "<leader>lih", vim.lsp.buf.hover, "カーソル下のシンボルの情報を表示する")
   setmap("n", "<leader>lis", vim.lsp.buf.signature_help, "カーソル下のシンボルのシグネチャを表示する")
   setmap("n", "<leader>lr", vim.lsp.buf.rename, "カーソル下のシンボルをリネームする")
-  setmap("n", "]l", function()
-    vim.diagnostic.jump({ count = 1 })
-  end, "次のDiagnosticに移動する")
-  setmap("n", "[l", function()
-    vim.diagnostic.jump({ count = -1 })
-  end, "前のDiagnosticに移動する")
+  setmap("n", "]l", f.bind_all(vim.diagnostic.jump, { count = 1 }), "次のDiagnosticに移動する")
+  setmap("n", "[l", f.bind_all(vim.diagnostic.jump, { count = -1 }), "前のDiagnosticに移動する")
 
   local function range_from_selection(mode)
     -- workaround for https://github.com/neovim/neovim/issues/22629

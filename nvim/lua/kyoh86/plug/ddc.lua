@@ -3,7 +3,7 @@ local spec = {
   {
     "Shougo/ddc.vim",
     config = function()
-      local func = require("kyoh86.lib.func")
+      local f = require("kyoh86.lib.func")
       --- ddc本体の設定の読み込み
       --ref: ../../../denops/kyoh86/plug/ddc.ts
       vim.fn["ddc#custom#load_config"](vim.fn.stdpath("config")--[[@as string]] .. "/denops/kyoh86/plug/ddc.ts")
@@ -17,14 +17,14 @@ local spec = {
           rh()
         end, { remap = true, expr = true })
       end
-      pumap("<cr>", func.bind_all(vim.fn["pum#map#confirm"]))
-      pumap("<esc>", func.bind_all(vim.fn["ddc#hide"], "Manual"))
-      pumap("<C-e>", func.bind_all(vim.fn["ddc#map#extend"], vim.api.nvim_replace_termcodes("<C-e>", true, true, true)))
-      pumap("<C-n>", func.bind_all(vim.fn["pum#map#select_relative"], 1))
-      pumap("<C-p>", func.bind_all(vim.fn["pum#map#select_relative"], -1))
-      pumap("<C-o>", func.bind_all(vim.fn["pum#map#confirm_word"]))
+      pumap("<cr>", f.bind_all(vim.fn["pum#map#confirm"]))
+      pumap("<esc>", f.bind_all(vim.fn["ddc#hide"], "Manual"))
+      pumap("<C-e>", f.bind_all(vim.fn["ddc#map#extend"], vim.api.nvim_replace_termcodes("<C-e>", true, true, true)))
+      pumap("<C-n>", f.bind_all(vim.fn["pum#map#select_relative"], 1))
+      pumap("<C-p>", f.bind_all(vim.fn["pum#map#select_relative"], -1))
+      pumap("<C-o>", f.bind_all(vim.fn["pum#map#confirm_word"]))
 
-      vim.keymap.set("i", "<C-Space>", func.bind_all(vim.fn["ddc#map#manual_complete"]), {})
+      vim.keymap.set("i", "<C-Space>", f.bind_all(vim.fn["ddc#map#manual_complete"]), {})
 
       --- pumの設定
       vim.fn["pum#set_option"]({

@@ -5,9 +5,7 @@ local spec = {
   config = function()
     vim.api.nvim_create_autocmd("User", {
       pattern = "DenopsPluginPost:docbase",
-      callback = function()
-        vim.fn["docbase#setup#maps"]()
-      end,
+      callback = require("kyoh86.lib.func").vind_all(vim.fn["docbase#setup#maps"]),
     })
   end,
 }

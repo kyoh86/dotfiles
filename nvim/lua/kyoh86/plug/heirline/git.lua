@@ -33,7 +33,7 @@ end
 
 local function stop_watching()
   if watch_handler then
-    vim.uv.fs_event_stop(watch_handler)
+    watch_handler:stop()
   end
 end
 
@@ -56,9 +56,7 @@ vim.api.nvim_create_autocmd("DirChanged", {
 vim.api.nvim_create_autocmd("User", {
   group = group,
   pattern = "Kyoh86TermNotifReceived:precmd:*",
-  callback = function()
-    notify_update()
-  end,
+  callback = require("kyoh86.lib.func").vind_all(notify_update),
 })
 
 vim.api.nvim_create_autocmd({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave", "ModeChanged" }, {

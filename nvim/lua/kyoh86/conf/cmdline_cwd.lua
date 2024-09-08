@@ -12,22 +12,9 @@ local function inscmdline(ins)
   vim.fn.setcmdline(left .. ins .. right, pos + #ins)
 end
 
-vim.keymap.set("c", "<C-x>t", function()
-  inscmdline(vim.fn.expand("%:t")--[[@as string]])
-end)
-
-vim.keymap.set("c", "<C-x>p", function()
-  inscmdline(vim.fn.expand("%:p")--[[@as string]])
-end)
-
-vim.keymap.set("c", "<C-x>pp", function()
-  inscmdline(vim.fn.expand("%:p")--[[@as string]])
-end)
-
-vim.keymap.set("c", "<C-x>ph", function()
-  inscmdline(vim.fn.expand("%:p:h")--[[@as string]])
-end)
-
-vim.keymap.set("c", "<C-x>h", function()
-  inscmdline(vim.fn.expand("%:h")--[[@as string]])
-end)
+local f = require("kyoh86.lib.func")
+vim.keymap.set("c", "<C-x>t", f.bind_all(inscmdline, vim.fn.expand("%:t")))
+vim.keymap.set("c", "<C-x>p", f.bind_all(inscmdline, vim.fn.expand("%:p")))
+vim.keymap.set("c", "<C-x>pp", f.bind_all(inscmdline, vim.fn.expand("%:p")))
+vim.keymap.set("c", "<C-x>ph", f.bind_all(inscmdline, vim.fn.expand("%:p:h")))
+vim.keymap.set("c", "<C-x>h", f.bind_all(inscmdline, vim.fn.expand("%:h")))
