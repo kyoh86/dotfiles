@@ -1,11 +1,3 @@
-local func = require("kyoh86.lib.func")
-
---- Create caller for ddu#ui#do_action
----@param actionName string
-local function ddu_ui_action(actionName)
-  return func.bind_all(vim.fn["ddu#ui#do_action"], actionName, vim.empty_dict())
-end
-
 ---@type LazySpec
 local spec = {
   "Shougo/ddu-ui-ff",
@@ -87,9 +79,23 @@ local spec = {
       },
     })
 
+    local augroup = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff", { clear = true })
     vim.fn.sign_define("dduSelected", { text = "✔", texthl = "dduSelectedSign" })
+
+    local f = require("kyoh86.lib.func")
+
+    local redraw = f.vind_all(vim.fn["ddu#ui#do_action"], "redraw", { method = "uiRedraw" })
+    vim.api.nvim_create_autocmd("VimResized", {
+      group = augroup,
+      callback = redraw,
+    })
+
+    local function ddu_ui_action(actionName)
+      return f.bind_all(vim.fn["ddu#ui#do_action"], actionName, vim.empty_dict())
+    end
+
     vim.api.nvim_create_autocmd("FileType", {
-      group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff", { clear = true }),
+      group = augroup,
       pattern = "ddu-ff",
       callback = function(ev)
         vim.opt_local.signcolumn = "auto"
