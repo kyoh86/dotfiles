@@ -23,6 +23,8 @@
     - https://wiki.archlinux.jp/index.php/%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E8%A8%AD%E5%AE%9A
     - 有線
         - systemd-networkd, systemd-resolved, dhcpcdを有効化しておく
+        - DNSはIPv6が安定しないことが多いので、Public DNSを設定しておく
+            - 
         - dhcpcd用にDHCPをオンにしておく
         - ネットワークインターフェース名はip aで拾っておく
         - ip link set <interface name> up でインターフェース立ち上げ
@@ -36,3 +38,12 @@ Name=<インターフェイス名>
 [Network]
 DHCP=yes
 ```
+
+## Public DNS
+
+| 運営組織         | 優先/代替 | IPv4    | IPv6                 | ドメイン名                       |
+| ---              | ---       | ---     | ---                  | ---                              |
+| Google           | 優先      | 8.8.8.8 | 2001:4860:4860::8888 | google-public-dns-a.google.com   |
+|                  | 代替      | 8.8.4.4 | 2001:4860:4860::8844 | google-public-dns-b.google.com   |
+| Cloudflare/APNIC | 優先      | 1.1.1.1 | 2606:4700:4700::1111 | 1dot1dot1dot1.cloudflare-dns.com |
+|                  | 代替      | 1.0.0.1 | 2606:4700:4700::1001 | 1dot1dot1dot1.cloudflare-dns.com |
