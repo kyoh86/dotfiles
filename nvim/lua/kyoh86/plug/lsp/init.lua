@@ -1,5 +1,4 @@
 local setup_keymap = require("kyoh86.plug.lsp.keymap")
-local setup_context = require("kyoh86.plug.lsp.context")
 
 --- LSPで表示されるDiagnosticsのフォーマット
 local function format_diagnostics(diag)
@@ -168,12 +167,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.b.kyoh86_plug_lsp_inlay_hint_enabled = true
     end
 
-    if client.server_capabilities.documentSymbolProvider then
-      kyoh86.ensure("nvim-navic", function(m)
-        m.attach(client, bufnr)
-      end)
-    end
-
     client.server_capabilities.semanticTokensProvider = nil
     disable_lsp(client, bufnr)
   end,
@@ -280,7 +273,6 @@ local spec = {
       register_lsp_servers()
       setup_lsp_global()
       setup_keymap()
-      setup_context()
     end,
     dependencies = {
       --- "cmp-nvim-lsp",
