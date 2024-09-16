@@ -35,7 +35,6 @@ local spec = {
   },
   {
     "previm/previm", -- previous some file-types
-    dependencies = { "open-browser.vim" },
     config = function()
       vim.g.previm_enable_realtime = true
       vim.g.previm_code_language_show = true

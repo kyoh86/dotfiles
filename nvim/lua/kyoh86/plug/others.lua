@@ -34,15 +34,6 @@ local spec = {
     "tyru/capture.vim",
     cmd = "Capture",
   },
-  {
-    "tyru/open-browser.vim",
-    lazy = true,
-  },
-  {
-    "tyru/open-browser-github.vim",
-    cmd = { "OpenGithubFile", "OpenGithubIssue", "OpenGithubProject", "OpenGithubPullReq" },
-    dependencies = { "open-browser.vim" },
-  },
   "delphinus/vim-firestore",
   -- for Plugin Development      ==================================================
   { "prabirshrestha/async.vim", cmd = "AsyncEmbed" },
