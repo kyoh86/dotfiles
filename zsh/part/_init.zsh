@@ -16,6 +16,7 @@ _source_part gcloud
 _source_part env
 _source_part ls
 _source_part nvim_cmd
+_source_part nvim_startuptime
 _source_part tool
 _source_part zmv
 _source_part sdkman
