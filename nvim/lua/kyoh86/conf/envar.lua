@@ -9,8 +9,7 @@ end
 local config_home = vim.fn.substitute(vim.fn.stdpath("config")--[[@as string]], "/" .. app_name .. "$", "", "") -- ${xdg-CONFIG-home}/nvim
 local data_home = vim.fn.substitute(vim.fn.stdpath("data")--[[@as string]], "/" .. app_name .. "$", "", "") -- ${xdg-DATA-home}/nvim
 local cache_home = vim.fn.substitute(vim.fn.stdpath("cache")--[[@as string]], "/" .. app_name .. "$", "", "") -- ${xdg-CACHE-home}/nvim
-local home = vim.env.HOME
-local path = {}
+local path = require("kyoh86.conf.envar.path")
 
 vim.env.XDG_CONFIG_HOME = config_home
 vim.env.XDG_DATA_HOME = data_home
@@ -26,44 +25,28 @@ vim.env.NVIM_SERVER_NAME = vim.v.servername
 
 -- 基本のPath設定:
 
-path = {
-  "/usr/local/bin",
-  "/usr/local/sbin",
-  vim.env.PATH,
-  "/bin",
-  "/usr/bin",
-  "/sbin",
-  "/usr/sbin",
-}
-
---- Pathに追加する
----@path new string  New path to add
-local function push_path(new)
-  table.insert(path, 1, new)
-end
-
 -- dotfiles自体の在り処を環境変数として設定
-local dotfiles = home .. "/.config"
+local dotfiles = path.home .. "/.config"
 vim.env.DOTFILES = dotfiles
 vim.env.DOTS = dotfiles
 
 -- Zsh:
-vim.env.ZDOTDIR = home .. "/.config/zsh"
+vim.env.ZDOTDIR = path.home .. "/.config/zsh"
 
 -- Groovy:
 vim.env.GROOVY_HOME = "/usr/local/opt/groovy/libexec"
 
 -- Go:
 vim.env.GO111MODULE = "on"
-vim.env.GOPATH = home .. "/go"
-push_path("/usr/local/go/bin")
-push_path(vim.env.GOPATH .. "/bin")
+vim.env.GOPATH = path.home .. "/go"
+path.ins("/usr/local/go/bin")
+path.ins(vim.env.GOPATH .. "/bin")
 
 -- Go AWS Library
 vim.env.AWS_SDK_LOAD_CONFIG = 1
 
 -- Generator-go-project:
-vim.env.GO_PROJECT_ROOT = home .. "/Projects"
+vim.env.GO_PROJECT_ROOT = path.home .. "/Projects"
 
 -- Python:
 vim.env.ASDF_PYTHON_DEFAULT_PACKAGES_FILE = config_home .. "/asdf/python/default-packages"
@@ -79,20 +62,20 @@ end
 vim.env.LIBRARY_PATH = library_path
 
 -- Node:
-push_path("./node_modules/.bin")
+path.ins("./node_modules/.bin")
 
 -- GNU commands:
-push_path("/usr/local/opt/gzip/bin")
-push_path("/usr/local/opt/openssl/bin")
+path.ins("/usr/local/opt/gzip/bin")
+path.ins("/usr/local/opt/openssl/bin")
 
 -- Yarn:
-push_path(home .. "/.yarn/bin")
+path.ins(path.home .. "/.yarn/bin")
 
 -- Perl:
-push_path(home .. "/perl5/bin")
+path.ins(path.home .. "/perl5/bin")
 
 -- Git:
-push_path("/usr/local/share/git-core/contrib/diff-highlight")
+path.ins("/usr/local/share/git-core/contrib/diff-highlight")
 vim.env.GIT_SSH_COMMAND = "ssh -4"
 -- Rg:
 vim.env.RIPGREP_CONFIG_PATH = dotfiles .. "/ripgrep/config"
@@ -113,38 +96,41 @@ elseif vim.fn.has("linux") == 1 then
 end
 
 -- Rust:
-push_path(home .. "/.cargo/bin")
+path.ins(path.home .. "/.cargo/bin")
 vim.env.CARGO_NET_GIT_FETCH_WITH_CLI = "true"
 
 -- ASDF:
-push_path(home .. "/.asdf/bin")
-push_path(home .. "/.asdf/shims")
+path.ins(path.home .. "/.asdf/bin")
+path.ins(path.home .. "/.asdf/shims")
+
+-- Snap:
+path.ins("/snap/bin")
 
 -- JAVA (using Coursier)
-push_path(home .. "/.local/share/coursier/bin")
+path.ins(path.home .. "/.local/share/coursier/bin")
 vim.uv
   .new_async(vim.schedule_wrap(function()
     if vim.fn.executable("coursier") then
       vim.env.JAVA_HOME = vim.fn.trim(vim.fn.system("coursier java-home"))
     end
-    push_path(vim.env.JAVA_HOME .. "/bin")
+    path.ins(vim.env.JAVA_HOME .. "/bin")
   end))
   :send()
 
 -- Deno:
-push_path(home .. "/.deno/bin")
+path.ins(path.home .. "/.deno/bin")
 
 -- Tig:
-push_path(dotfiles .. "/tig/clip")
+path.ins(dotfiles .. "/tig/clip")
 
--- GitHub CLI:
+-- browser
 local glaze = require("kyoh86.lib.glaze")
 glaze.get("opener", function(opener)
   vim.env.BROWSER = opener
 end)
 
 -- .local/bin
-push_path(home .. "/.local/bin")
-push_path(home .. "/.local/sbin")
+path.ins(path.home .. "/.local/bin")
+path.ins(path.home .. "/.local/sbin")
 
-vim.env.PATH = table.concat(path, ":")
+path.apply()
