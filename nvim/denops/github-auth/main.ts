@@ -1,6 +1,6 @@
-import type { Entrypoint } from "jsr:@denops/std@~7.1.0";
-import { batch } from "jsr:@denops/std@~7.1.0/batch";
-import { echo } from "jsr:@denops/std@~7.1.0/helper";
+import type { Entrypoint } from "jsr:@denops/std@~7.3.0";
+import { batch } from "jsr:@denops/std@~7.3.0/batch";
+import { echo } from "jsr:@denops/std@~7.3.0/helper";
 import { systemopen } from "jsr:@lambdalisue/systemopen@~1.0.0";
 
 import {
