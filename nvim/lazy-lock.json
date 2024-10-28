@@ -130,6 +130,7 @@
   "vim-readablefold": { "branch": "master", "commit": "72cfecc1cd4057245e931184d3653908dea7ef99" },
   "vim-ripgrep": { "branch": "main", "commit": "b727e8faa47c10ce1871f16a47fff57ebbbd84a4" },
   "vim-sandwich": { "branch": "master", "commit": "74cf93d58ccc567d8e2310a69860f1b93af19403" },
+  "vim-svelte-plugin": { "branch": "master", "commit": "fcc81292340c0969e83131021c5a6c9aa0c741dc" },
   "vim-swap": { "branch": "master", "commit": "9358bfdc5e377aa13e7c2c2dd8699ba32b0dcf83" },
   "vim-table-mode": { "branch": "master", "commit": "e4365bde024f73e205eefa2fb78e3029ddb92ea9" },
   "vim-terraform": { "branch": "master", "commit": "24de93afb05078bac6a2e966402cc1f672277708" },

@@ -88,6 +88,7 @@ return {
       javascript = { prettier },
       json = { jq },
       javascriptreact = { prettier },
+      svelte = { prettier },
       lua = { stylua },
       markdown = { textlint, markdownlint },
       scala = { scalafmt },
