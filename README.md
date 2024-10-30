@@ -14,3 +14,7 @@ see: [./doc/another_git.md](./doc/another_git.md)
 https://configure.ergodox-ez.com/ergodox-ez/layouts/MZajL/latest/0
 
 :memo: if you want to change layout, login and edit it.
+
+## My Keyball61
+
+[./KEYBALL.md](./KEYBALL.md)
