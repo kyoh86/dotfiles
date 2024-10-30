@@ -20,7 +20,7 @@ function _update_deno_dependencies_core() {
     return
   fi
   echo "No dirty changes in $dir"
-  if ! NO_COLOR=1 molt --write ./**/*.ts; then
+  if ! NO_COLOR=1 deno run --allow-env --allow-read --allow-write --allow-net --allow-run=git,deno jsr:@molt/cli --write ./**/*.ts; then
     echo "\e[31mFailed to update dependencies in $dir\e[0m"
     return
   fi
@@ -51,21 +51,6 @@ function _update_deno_dependencies_core() {
     fi
   fi
   git --no-pager diff .
-  read "YN?Process? (y/n/q):"
-  case "${YN}" in
-    y|Y)
-      echo "do"
-      ;;
-    n|N)
-      echo "skip"
-      git restore .
-      return
-      ;;
-    q|Q)
-      echo "quit"
-      git restore .
-      return 1
-  esac
   if ! git add .; then
     echo "\e[31mFailed to stage changes in $dir\e[0m"
     return
