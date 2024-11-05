@@ -7,6 +7,7 @@ vim.cmd.language({ "messages", "en_US.UTF-8" })
 vim.opt.number = true -- Show the line number
 vim.opt.numberwidth = 2
 vim.opt.showcmd = true
+vim.opt.wrap = false
 vim.opt.showtabline = 1
 vim.opt.scrolloff = 3 -- Show least &scrolloff lines before/after cursor
 vim.opt.sidescrolloff = 3
