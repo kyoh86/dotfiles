@@ -20,6 +20,7 @@
     "jsr:@lambdalisue/streamtools@1": "1.0.1",
     "jsr:@lambdalisue/systemopen@1.0": "1.0.0",
     "jsr:@shougo/ddc-vim@7.1": "7.1.0",
+    "jsr:@shougo/ddc-vim@8.0": "8.0.0",
     "jsr:@shougo/ddu-vim@6.4": "6.4.0",
     "jsr:@std/assert@~1.0.1": "1.0.7",
     "jsr:@std/async@1": "1.0.8",
@@ -129,6 +130,12 @@
       "integrity": "3ce20b145cdd87f3250c2c11da81a511519e3e1f31624d0d41f4af3f0cbae6d0",
       "dependencies": [
         "jsr:@denops/std@7.1"
+      ]
+    },
+    "@shougo/ddc-vim@8.0.0": {
+      "integrity": "295cf499871bfb42be2f1d767137ec7107996e0e8642fa8abbe1203f1d90f43a",
+      "dependencies": [
+        "jsr:@denops/std@7.3"
       ]
     },
     "@shougo/ddu-vim@6.4.0": {
