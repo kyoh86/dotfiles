@@ -31,3 +31,4 @@
 /zsh/.zcompcache
 
 *.log
+deno.lock
