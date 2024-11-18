@@ -13,7 +13,6 @@ vim.opt.scrolloff = 3 -- Show least &scrolloff lines before/after cursor
 vim.opt.sidescrolloff = 3
 vim.opt.signcolumn = "auto"
 vim.opt.more = false
-vim.opt.timeoutlen = 500
 vim.opt.shortmess:append("I")
 vim.opt.diffopt:append("algorithm:histogram")
 

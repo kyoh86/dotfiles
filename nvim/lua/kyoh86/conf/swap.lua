@@ -30,7 +30,7 @@ local function get_swap_files()
 end
 
 vim.api.nvim_create_user_command("SwapClean", function()
-  for _, file in vim.iter(get_swap_files()) do
+  for file in vim.iter(get_swap_files()) do
     vim.print("deleting " .. file)
     vim.fs.rm(file)
   end

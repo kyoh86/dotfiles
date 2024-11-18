@@ -193,6 +193,7 @@ local function register_lsp_servers()
 
   register("angularls", {})
   register("ansiblels", {})
+  register("astro", {})
   register("bashls", {})
   register("cssls", {})
   register("cssmodules_ls", {})

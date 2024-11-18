@@ -17,6 +17,7 @@ vim.env.XDG_CACHE_HOME = cache_home
 
 -- 基本環境設定:
 vim.env.LANG = "ja_JP.UTF-8"
+vim.env.LC_ALL = "en_US.UTF-8"
 vim.env.COLORTERM = "xterm-256color"
 vim.env.TERM = "xterm-256color"
 
