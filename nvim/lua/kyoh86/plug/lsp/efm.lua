@@ -18,6 +18,12 @@ local denofmt = {
   rootMarkers = { "deno.json", "deno.jsonc", "denops/" },
 }
 
+local biomefmt = {
+  formatCommand = "biome check --apply --stdin-file-path '${INPUT}'",
+  formatStdin = true,
+  rootMarkers = { "rome.json", "biome.json", "package.json" },
+}
+
 local gofmt = { --[[https://pkg.go.dev/cmd/gofmt]]
   formatCommand = "gofmt",
   formatStdin = true,
@@ -86,6 +92,7 @@ return {
     languages = {
       go = { gofmt },
       javascript = { prettier },
+      astro = { biomefmt },
       json = { jq },
       javascriptreact = { prettier },
       svelte = { prettier },

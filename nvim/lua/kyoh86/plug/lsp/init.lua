@@ -195,6 +195,7 @@ local function register_lsp_servers()
   register("ansiblels", {})
   register("astro", {})
   register("bashls", {})
+  register("biome", {})
   register("cssls", {})
   register("cssmodules_ls", {})
   register("denols", require("kyoh86.plug.lsp.denols"), true) -- uses global deno, so it should not be installed by Mason
