@@ -1,3 +1,4 @@
+
 name: '新しい記事のエントリー'
 description: 'Issue を作ることで新しい記事のエントリーをすることができます。'
 labels: ['article']
@@ -5,7 +6,7 @@ body:
   - type: 'markdown'
     attributes:
       value: |
-        ## Vim駅伝とは
+        ## [Vim駅伝](https://vim-jp.org/ekiden/)とは
 
         - リレー形式で記事をリンクする営み
             - 既定の日付枠にURLを載せるだけ
@@ -13,6 +14,8 @@ body:
             - 要: GitHubのアカウント
             - 著者名は設定可能
         - 季節ごとに投稿数ランキングが集計される
+
+        [詳細](https://vim-jp.org/ekiden/about/)
 
         ## どんなものを書けば良いの？
 
@@ -36,7 +39,7 @@ body:
 
         ## 参加方法
 
-        - スケジュールのうち、「募集中」となっている日付から「参加する」
+        - [スケジュール](https://vim-jp.org/ekiden/)のうち、「募集中」となっている日付から「参加する」
         - GitHubのフォーマットに従ってIssueを作成
             - Issueタイトルに公開年月日を記入
             - タイトルと注意事項への同意が必要
