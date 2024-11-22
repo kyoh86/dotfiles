@@ -18,3 +18,7 @@ fi
 
 # SDKMAN
 [[ -s "${HOME}/.sdkman/bin/sdkman-init.sh" ]] && source "${HOME}/.sdkman/bin/sdkman-init.sh"
+
+# LANG
+export LC_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
