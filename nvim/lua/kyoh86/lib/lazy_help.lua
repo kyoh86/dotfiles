@@ -5,7 +5,7 @@ local function collect_file(plugin_name, dir, source_name, source_type)
   if source_type ~= "file" then
     return
   end
-  if not string.find(source_name, "%.txt$") and string.find(source_name, "%...x$") then
+  if not string.find(source_name, "%.md$") and not string.find(source_name, "%.txt$") and not string.find(source_name, "%...x$") then
     return
   end
   local dst = vim.fs.joinpath(help_doc_dir, plugin_name .. "---" .. string.gsub(source_name, "/", "---"))
