@@ -24,6 +24,8 @@ local opts = {
   concurrency = 6,
   performance = {
     rtp = {
+      reset = false,
+      paths = { require("kyoh86.lib.lazy_help").help_dir },
       disabled_plugins = {
         --- 不要な標準プラグインを無効化
         "gzip",
@@ -40,6 +42,13 @@ local opts = {
     },
   },
 }
+
+vim.api.nvim_create_autocmd("User", {
+  group = vim.api.nvim_create_augroup("kyoh86-lazy-help-doc", { clear = true }),
+  pattern = { "LazyInstall", "LazyUpdate" },
+  callback = require("kyoh86.lib.lazy_help").collect,
+})
+
 kyoh86.ensure("lazy", function(m)
   m.setup({
     { import = "kyoh86.plug" },
