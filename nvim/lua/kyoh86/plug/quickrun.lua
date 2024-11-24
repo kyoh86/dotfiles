@@ -46,5 +46,8 @@ local spec = {
   keys = {
     { "<plug>(quickrun)", mode = { "n", "v" } },
   },
+  cmd = {
+    "QuickRun",
+  },
 }
 return spec
