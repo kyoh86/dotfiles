@@ -23,7 +23,7 @@ local Diagnostics = {
       -- 0 is just another output, we can decide to print it or not!
       return self.errors > 0 and (self.error_icon .. self.errors .. " ")
     end,
-    hl = { bg = "red", fg = "lightwhite" },
+    hl = { bg = "red", fg = "brightwhite" },
   },
   {
     provider = function(self)
@@ -41,7 +41,7 @@ local Diagnostics = {
     provider = function(self)
       return self.hints > 0 and (self.hint_icon .. self.hints)
     end,
-    hl = { bg = "grayscale3", fg = "lightwhite" },
+    hl = { bg = "gradation3", fg = "brightwhite" },
   },
 }
 return Diagnostics

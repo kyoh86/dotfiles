@@ -5,17 +5,19 @@ local spec = {
   "kyoh86/ddu-filter-converter_hl_dir",
   dependencies = { "ddu.vim" },
   config = function()
-    kyoh86.ensure("momiji", function(m)
-      vim.api.nvim_set_hl(0, "dduDir1", { fg = m.colors.green })
-      vim.api.nvim_set_hl(0, "dduDir2", { fg = m.colors.lightgreen })
-      vim.fn["ddu#custom#patch_global"]({
-        filterParams = {
-          converter_hl_dir = {
-            hlGroup = { "dduDir1", "dduDir2" },
-          },
+    require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
+      kyoh86.ensure(colors_name, function(m)
+        vim.api.nvim_set_hl(0, "dduDir1", { fg = m.colors.red })
+        vim.api.nvim_set_hl(0, "dduDir2", { fg = m.colors.yellow })
+      end)
+    end, true)
+    vim.fn["ddu#custom#patch_global"]({
+      filterParams = {
+        converter_hl_dir = {
+          hlGroup = { "dduDir1", "dduDir2" },
         },
-      })
-    end)
+      },
+    })
     vim.fn["ddu#custom#patch_global"]({
       sourceOptions = {
         _ = {

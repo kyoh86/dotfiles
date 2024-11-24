@@ -37,12 +37,12 @@
 ;; interactive ================================================================
 
 [pager]
-    diff = delta --color-only --syntax-theme zenburn
-    log = delta --color-only --syntax-theme zenburn
-    reflog = delta --color-only --syntax-theme zenburn
-    show = delta --color-only --syntax-theme zenburn
+    diff = delta --color-only
+    log = delta --color-only
+    reflog = delta --color-only
+    show = delta --color-only
 [interactive]
-	diffFilter = delta --color-only --syntax-theme zenburn
+	diffFilter = delta --color-only
 [filter "media"]
 	clean = git-media-clean %f
 	smudge = git-media-smudge %f
@@ -50,32 +50,6 @@
 	clean = git lfs clean %f
 	smudge = git lfs smudge %f
 	required = true
-
-;; colors =====================================================================
-
-[color]
-	diff = auto
-	status = auto
-	branch = auto
-	ui = auto
-[color "status"]
-	added = green
-	changed = red
-	untracked = blue
-	unmerged = yellow
-	branch = cyan
-	localBranch = cyan
-	remoteBranch = red
-	nobranch = magenta
-[color "diff"]
-	meta = blue
-	frag = white
-	func = cyan
-[color "remote"]
-	hint = white
-	warning = yellow
-	success = blue
-	error = red
 
 ;; others =====================================================================
 

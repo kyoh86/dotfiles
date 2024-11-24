@@ -14,7 +14,7 @@ local spec = {
         },
       })
     end,
-    dependencies = { "momiji" }, -- depends for "search" handlers
+    dependencies = { "sakura", "momiji" }, -- depends for "search" handlers
   },
 }
 return spec

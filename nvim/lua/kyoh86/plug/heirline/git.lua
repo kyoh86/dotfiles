@@ -209,7 +209,7 @@ local status = {
       StatUntracked,
       Padding,
 
-      hl = { fg = "yellow", bg = "black" },
+      hl = { fg = "yellow", bg = "background", bold = true },
       condition = function()
         return stat.dirty
       end,

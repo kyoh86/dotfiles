@@ -45,37 +45,43 @@ local function setup_lsp_global()
     severity_sort = true,
   }
 
-  kyoh86.ensure("momiji", function(m)
-    vim.cmd(string.format(
-      [[
+  require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
+    kyoh86.ensure(colors_name, function(m)
+      vim.cmd(string.format(
+        [[
       highlight DiagnosticFloatingOk    guibg=%s ctermbg=%s guifg=%s ctermfg=%s
       highlight DiagnosticFloatingHint  guibg=%s ctermbg=%s guifg=%s ctermfg=%s
       highlight DiagnosticFloatingInfo  guibg=%s ctermbg=%s guifg=%s ctermfg=%s
       highlight DiagnosticFloatingWarn  guibg=%s ctermbg=%s guifg=%s ctermfg=%s
       highlight DiagnosticFloatingError guibg=%s ctermbg=%s guifg=%s ctermfg=%s
     ]],
-      m.palette.black.gui,
-      m.palette.black.cterm,
-      m.palette.lightgreen.gui,
-      m.palette.lightgreen.cterm,
-      m.palette.black.gui,
-      m.palette.black.cterm,
-      m.palette.grayscale3.gui,
-      m.palette.grayscale3.cterm,
-      m.palette.black.gui,
-      m.palette.black.cterm,
-      m.palette.lightblue.gui,
-      m.palette.lightblue.cterm,
-      m.palette.black.gui,
-      m.palette.black.cterm,
-      m.palette.lightred.gui,
-      m.palette.lightred.cterm,
-      m.palette.black.gui,
-      m.palette.black.cterm,
-      m.palette.red.gui,
-      m.palette.red.cterm
-    ))
-  end)
+        m.palette.black.gui,
+        m.palette.black.cterm,
+        m.palette.brightgreen.gui,
+        m.palette.brightgreen.cterm,
+        m.palette.black.gui,
+        m.palette.black.cterm,
+        m.palette.gradation3.gui,
+        m.palette.gradation3.cterm,
+        m.palette.black.gui,
+        m.palette.black.cterm,
+        m.palette.brightblue.gui,
+        m.palette.brightblue.cterm,
+        m.palette.black.gui,
+        m.palette.black.cterm,
+        m.palette.brightred.gui,
+        m.palette.brightred.cterm,
+        m.palette.black.gui,
+        m.palette.black.cterm,
+        m.palette.red.gui,
+        m.palette.red.cterm
+      ))
+      -- highlightを設定する
+      vim.api.nvim_set_hl(0, "LspInlayHint", {
+        fg = m.colors.brightgreen,
+      })
+    end)
+  end, true)
 
   -- 随時表示されるDiagnosticsの設定
   vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, diagnostic_config)
@@ -101,14 +107,6 @@ local function setup_lsp_global()
       m[name].setup(config)
     end)
   end
-
-  -- highlightを設定する
-  kyoh86.ensure("momiji", function(m)
-    -- local m = require("momiji")
-    vim.api.nvim_set_hl(0, "LspInlayHint", {
-      fg = m.colors.lightgreen,
-    })
-  end)
 end
 
 --- Attach時の設定: 特定のBuffer名と特定のClient名の組み合わせで、LSP Clientを無効化する

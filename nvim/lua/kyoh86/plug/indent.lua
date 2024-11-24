@@ -1,7 +1,7 @@
 ---@type LazySpec
 local spec = {
   "shellRaining/hlchunk.nvim",
-  event = { "UIEnter" },
+  event = { "BufReadPre", "BufNewFile" },
   config = function()
     local opt = {
       blank = {
@@ -21,14 +21,25 @@ local spec = {
         },
       },
     }
-    kyoh86.ensure("momiji", function(m)
-      opt.chunk.style = {
-        { fg = m.colors.lightmagenta },
-      }
-      opt.line_num = {
-        style = m.colors.lightmagenta,
-      }
-    end)
+    if vim.opt.background == "light" then
+      kyoh86.ensure("sakura", function(m)
+        opt.chunk.style = {
+          { fg = m.colors.magenta },
+        }
+        opt.line_num = {
+          style = m.colors.magenta,
+        }
+      end)
+    else
+      kyoh86.ensure("momiji", function(m)
+        opt.chunk.style = {
+          { fg = m.colors.brightmagenta },
+        }
+        opt.line_num = {
+          style = m.colors.brightmagenta,
+        }
+      end)
+    end
     require("hlchunk").setup(opt)
   end,
 }

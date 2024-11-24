@@ -79,7 +79,7 @@ return tbl_merge(build_domains(), {
   initial_cols = 120,
   initial_rows = 36,
   font = wezterm.font_with_fallback({ "PlemolJP Console HS", "Symbols Nerd Font Mono" }),
-  color_scheme = "momiji",
+  color_scheme = "sakura",
   hide_tab_bar_if_only_one_tab = true,
   disable_default_mouse_bindings = true,
   window_padding = { left = 0, right = 0, top = 0, bottom = 0 },

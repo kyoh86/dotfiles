@@ -16,9 +16,9 @@ return {
         Ruler,
         hl = function(self)
           if conditions.is_active() then
-            return { fg = "lightwhite", bg = self.mode_colors.deep }
+            return { fg = "foreground", bg = self.mode_colors.deep }
           else
-            return { fg = "grayscale2", bg = "grayscale4" }
+            return { fg = "gradation2", bg = "gradation4" }
           end
         end,
       },
@@ -27,9 +27,9 @@ return {
         provider = "\u{E0BC}", -- 
         hl = function(self)
           if conditions.is_active() then
-            return { fg = self.mode_colors.deep, bg = self.mode_colors.light }
+            return { fg = self.mode_colors.deep, bg = self.mode_colors.bright }
           else
-            return { fg = "grayscale4", bg = "grayscale2" }
+            return { fg = "gradation4", bg = "gradation2" }
           end
         end,
       },
@@ -43,9 +43,9 @@ return {
 
     hl = function(self)
       if conditions.is_active() then
-        return { fg = "black", bg = self.mode_colors.light }
+        return { fg = "background", bg = self.mode_colors.bright }
       else
-        return { fg = "grayscale4", bg = "grayscale2" }
+        return { fg = "gradation4", bg = "gradation2" }
       end
     end,
   },

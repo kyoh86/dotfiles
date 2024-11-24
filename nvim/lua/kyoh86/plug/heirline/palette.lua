@@ -26,19 +26,19 @@ function M.set(palette)
     M.palette[name] = color[1]
   end
   M.modes = {
-    n = { deep = M.palette.green, light = M.palette.lightgreen },
-    i = { deep = M.palette.blue, light = M.palette.lightblue },
-    r = { deep = M.palette.cyan, light = M.palette.lightcyan },
-    v = { deep = M.palette.yellow, light = M.palette.lightyellow },
-    [""] = { deep = M.palette.yellow, light = M.palette.lightyellow },
-    V = { deep = M.palette.yellow, light = M.palette.lightyellow },
-    s = { deep = M.palette.magenta, light = M.palette.lightmagenta },
-    S = { deep = M.palette.magenta, light = M.palette.lightmagenta },
-    [""] = { deep = M.palette.magenta, light = M.palette.lightmagenta },
-    R = { deep = M.palette.magenta, light = M.palette.lightmagenta },
-    c = { deep = M.palette.red, light = M.palette.lightred },
-    ["!"] = { deep = M.palette.red, light = M.palette.lightred },
-    t = { deep = M.palette.red, light = M.palette.lightred },
+    n = { deep = M.palette.green, bright = M.palette.brightgreen },
+    i = { deep = M.palette.blue, bright = M.palette.brightblue },
+    r = { deep = M.palette.cyan, bright = M.palette.brightcyan },
+    v = { deep = M.palette.yellow, bright = M.palette.brightyellow },
+    [""] = { deep = M.palette.yellow, bright = M.palette.brightyellow },
+    V = { deep = M.palette.yellow, bright = M.palette.brightyellow },
+    s = { deep = M.palette.magenta, bright = M.palette.brightmagenta },
+    S = { deep = M.palette.magenta, bright = M.palette.brightmagenta },
+    [""] = { deep = M.palette.magenta, bright = M.palette.brightmagenta },
+    R = { deep = M.palette.magenta, bright = M.palette.brightmagenta },
+    c = { deep = M.palette.red, bright = M.palette.brightred },
+    ["!"] = { deep = M.palette.red, bright = M.palette.brightred },
+    t = { deep = M.palette.red, bright = M.palette.brightred },
   }
   require("heirline").load_colors(M.palette)
 end

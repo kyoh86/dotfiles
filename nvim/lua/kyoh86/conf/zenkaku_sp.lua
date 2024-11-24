@@ -4,9 +4,11 @@
 vim.api.nvim_create_autocmd("ColorScheme", {
   group = vim.api.nvim_create_augroup("kyoh86-conf-zenkaku-sp", { clear = true }),
   callback = function()
-    kyoh86.ensure("momiji", function(m)
-      vim.api.nvim_set_hl(0, "ZenkakuSpace", { bg = m.colors.lightred })
-    end)
+    require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
+      kyoh86.ensure(colors_name, function(m)
+        vim.api.nvim_set_hl(0, "ZenkakuSpace", { bg = m.colors.brightred })
+      end)
+    end, true)
   end,
 })
 vim.api.nvim_set_hl(0, "ZenkakuSpace", { link = "Error" })

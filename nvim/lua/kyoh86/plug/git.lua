@@ -3,12 +3,14 @@ local func = require("kyoh86.lib.func")
 local spec = {
   {
     "lewis6991/gitsigns.nvim",
-    dependencies = { "plenary.nvim", "momiji" },
+    dependencies = { "plenary.nvim", "sakura", "momiji" },
     config = function()
-      local palette = vim.g.momiji_colors
-      vim.api.nvim_set_hl(0, "GitSignsAddNr", { fg = palette.grayscale1, bg = palette.lightgreen })
-      vim.api.nvim_set_hl(0, "GitSignsChangeNr", { fg = palette.grayscale1, bg = palette.lightcyan })
-      vim.api.nvim_set_hl(0, "GitSignsDeleteNr", { fg = palette.grayscale1, bg = palette.lightred })
+      require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
+        local palette = vim.g[colors_name .. "_colors"]
+        vim.api.nvim_set_hl(0, "GitSignsAddNr", { fg = palette.gradation1, bg = palette.brightgreen })
+        vim.api.nvim_set_hl(0, "GitSignsChangeNr", { fg = palette.gradation1, bg = palette.brightcyan })
+        vim.api.nvim_set_hl(0, "GitSignsDeleteNr", { fg = palette.gradation1, bg = palette.brightred })
+      end, true)
       local gitsigns = require("gitsigns")
       gitsigns.setup({
         signcolumn = true,

@@ -3,30 +3,36 @@ local spec = {
   "Shougo/ddu-ui-ff",
   dependencies = { "ddu.vim" },
   config = function()
-    kyoh86.ensure("momiji", function(m)
-      vim.api.nvim_set_hl(0, "dduFilter", {
-        fg = m.colors.lightgreen,
-        bg = m.colors.black,
-        bold = true,
-        underline = true,
-        italic = true,
-      })
+    require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
+      kyoh86.ensure(colors_name, function(m)
+        vim.api.nvim_set_hl(0, "dduFilter", {
+          fg = m.colors.brightgreen,
+          bg = m.colors.black,
+          bold = true,
+          underline = true,
+          italic = true,
+          force = true,
+        })
 
-      vim.api.nvim_set_hl(0, "dduCursorLine", { bg = m.colors.lightgreen, fg = m.colors.black, bold = true })
-      vim.api.nvim_set_hl(0, "dduSelectedSign", { fg = m.colors.yellow, bold = true })
+        vim.api.nvim_set_hl(0, "dduCursorLine", { bg = m.colors.brightgreen, fg = m.colors.black, bold = true, force = true })
 
-      vim.api.nvim_set_hl(0, "dduPrompt", {
-        fg = m.colors.lightgreen,
-        bg = m.colors.black,
-      })
-      vim.api.nvim_set_hl(0, "dduBorder", {
-        fg = m.colors.lightgreen,
-      })
-    end, function()
-      vim.api.nvim_set_hl(0, "dduFilter", { link = "Normal" })
-      vim.api.nvim_set_hl(0, "dduPrompt", { link = "Normal" })
-      vim.api.nvim_set_hl(0, "dduBorder", { link = "Normal" })
-    end)
+        vim.api.nvim_set_hl(0, "dduSelectedSign", { fg = m.colors.yellow, bold = true, force = true })
+
+        vim.api.nvim_set_hl(0, "dduPrompt", {
+          fg = m.colors.brightgreen,
+          bg = m.colors.black,
+          force = true,
+        })
+        vim.api.nvim_set_hl(0, "dduBorder", {
+          fg = m.colors.brightgreen,
+          force = true,
+        })
+      end, function()
+        vim.api.nvim_set_hl(0, "dduFilter", { link = "Normal", force = true })
+        vim.api.nvim_set_hl(0, "dduPrompt", { link = "Normal", force = true })
+        vim.api.nvim_set_hl(0, "dduBorder", { link = "Normal", force = true })
+      end)
+    end, true)
 
     vim.fn["ddu#custom#patch_global"]({
       ui = "ff",

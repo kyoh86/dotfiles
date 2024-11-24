@@ -5,11 +5,13 @@ local spec = {
   "kyoh86/ddu-source-git_branch",
   dependencies = { "ddu.vim" },
   config = function()
-    kyoh86.ensure("momiji", function(m)
-      vim.api.nvim_set_hl(0, "dduColumnGitBranchRemote", { fg = m.colors.blue })
-      vim.api.nvim_set_hl(0, "dduColumnGitBranchLocal", { fg = m.colors.red })
-      vim.api.nvim_set_hl(0, "dduColumnGitBranchAuthor", { fg = m.colors.green })
-    end)
+    require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
+      kyoh86.ensure(colors_name, function(m)
+        vim.api.nvim_set_hl(0, "dduColumnGitBranchRemote", { fg = m.colors.blue })
+        vim.api.nvim_set_hl(0, "dduColumnGitBranchLocal", { fg = m.colors.red })
+        vim.api.nvim_set_hl(0, "dduColumnGitBranchAuthor", { fg = m.colors.green })
+      end)
+    end, true)
     helper.setup("git-branch", {
       sources = { {
         name = "git_branch",

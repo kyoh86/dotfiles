@@ -9,14 +9,14 @@ return {
     {
       Mode,
       hl = function(self)
-        return { fg = "lightwhite", bg = self.mode_colors.deep }
+        return { fg = "brightwhite", bg = self.mode_colors.deep }
       end,
     },
     {
       -- 左の終端
       provider = "\u{E0B0}", -- [[ ]]
       hl = function(self)
-        return { fg = self.mode_colors.deep, bg = self.mode_colors.light }
+        return { fg = self.mode_colors.deep, bg = self.mode_colors.bright }
       end,
     },
 
@@ -38,15 +38,14 @@ return {
     {
       Git,
       -- condition = conditions.is_git_repo,
-      hl = function(self)
-        return { fg = self.mode_colors.light, bg = "black", bold = true }
-      end,
+      hl = { fg = "foreground", bg = "background", bold = true },
     },
+    update = { "ColorScheme", "ModeChanged", "DirChanged" },
     init = function(self)
       self.mode_colors = palette.mode_colors()
     end,
     hl = function(self)
-      return { fg = "black", bg = self.mode_colors.light }
+      return { fg = "black", bg = self.mode_colors.bright }
     end,
   },
 }
