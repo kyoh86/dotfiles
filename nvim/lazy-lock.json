@@ -97,6 +97,7 @@
   "skkeleton": { "branch": "main", "commit": "2cdd414c1bfa8c363505b8dfc9f50ef2f446ea61" },
   "vim-altercmd": { "branch": "master", "commit": "682b47433cb27ac027e36742ba09177a4dc2f16d" },
   "vim-caser": { "branch": "master", "commit": "6bc9f41d170711c58e0157d882a5fe8c30f34bf6" },
+  "vim-chameleon": { "branch": "support-win", "commit": "2092b463e9302564469a023f506b39c3f30466b9" },
   "vim-cinfo": { "branch": "main", "commit": "d8f28a47e30b54070e9a07edb031f42263a7407d" },
   "vim-dispatch": { "branch": "master", "commit": "a2ff28abdb2d89725192db5b8562977d392a4d3f" },
   "vim-fern": { "branch": "main", "commit": "95218a9eeb5bf25ff30196b8700eeb64b8f3aeba" },
