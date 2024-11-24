@@ -1,4 +1,62 @@
-if vim.opt_local.buftype:get() ~= "help" then
+if vim.opt_local.buftype:get() == "help" then
+  --- 参照中ヘルプの利便性向上
+
+  --- Neovim本体のヘルプドキュメントを開いてるか判定する
+  local function is_runtime_doc()
+    local filepath = vim.fn.expand("%:p")
+    local vimruntime = vim.env.VIMRUNTIME
+    return vimruntime and filepath:find(vim.fs.joinpath(vimruntime, "doc")) ~= nil
+  end
+
+  --- 指定行からタグを抽出する
+  local function get_tag_from_line(line)
+    return line:match("%*([^%*]+)%*")
+  end
+
+  --- 直近のタグを検索
+  local function find_closest_tag()
+    -- 現在行でタグを抽出
+    local current_line = vim.api.nvim_get_current_line()
+    local tag = get_tag_from_line(current_line)
+
+    -- 現在行にタグがなければ直前のタグを検索
+    if not tag then
+      local tag_pos = vim.fn.search("\\*.*\\*", "bn")
+      if tag_pos > 0 then
+        local tag_line = vim.fn.getline(tag_pos)
+        tag = get_tag_from_line(tag_line)
+      end
+    end
+
+    return tag
+  end
+
+  --- Neovim docsのURLを生成
+  local function generate_neovim_doc_url()
+    local base_url = "https://neovim.io/doc/user/"
+    local helpfile = vim.fn.expand("%:t:r")
+    local tag = find_closest_tag()
+    if tag then
+      return string.format("%s%s.html#%s", base_url, helpfile, tag)
+    else
+      return string.format("%s%s.html", base_url, helpfile)
+    end
+  end
+
+  --- Neovim docsを開く
+  local function open_neovim_doc()
+    -- Neovim本体のヘルプドキュメントでない場合はスキップ
+    if not is_runtime_doc() then
+      print("This is not a runtime doc file. Skipping.")
+      return
+    end
+
+    local doc_url = generate_neovim_doc_url()
+    vim.ui.open(doc_url)
+  end
+
+  vim.keymap.set("n", "<leader>w", open_neovim_doc)
+else
   --- 編集中ヘルプの見た目変更
 
   --- インデント設定
