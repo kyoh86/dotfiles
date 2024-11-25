@@ -55,7 +55,7 @@ if vim.opt_local.buftype:get() == "help" then
     vim.ui.open(doc_url)
   end
 
-  vim.keymap.set("n", "<leader>w", open_neovim_doc, { buffer = true })
+  vim.keymap.set("n", "<leader>b", open_neovim_doc, { buffer = true })
 else
   --- 編集中ヘルプの見た目変更
 
