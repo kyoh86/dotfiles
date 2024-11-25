@@ -1,0 +1,23 @@
+[ddu-filter]
+prefix = "ddufilter"
+body = """
+import {
+  BaseFilter,
+  type FilterArguments,
+} from "jsr:@shougo/ddu-vim@~7.0.0/filter";
+import type { DduFilterItems } from "jsr:@shougo/ddu-vim@~7.0.0/types";
+
+export type ActionData = Record<PropertyKey, never>;
+
+type Params = Record<PropertyKey, never>;
+
+export class Filter extends BaseFilter<Params> {
+  override filter(
+    {}: FilterArguments<Params>,
+  ): DduFilterItems | Promise<DduFilterItems> {
+    throw new Error("not implemented");
+  }
+  override params(): Params {
+    return {};
+  }
+}"""
