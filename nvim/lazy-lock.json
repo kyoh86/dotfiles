@@ -148,6 +148,7 @@
   "vital-Whisky": { "branch": "master", "commit": "2aeb450388edb01cb7add88ddffb905151521dbc" },
   "vital.vim": { "branch": "master", "commit": "4a434307694f9a8083608d8614553fb77f4c869b" },
   "wezterm-types": { "branch": "main", "commit": "1518752906ba3fac0060d9efab6e4d3ec15d4b5a" },
+  "which-key.nvim": { "branch": "main", "commit": "68e37e12913a66b60073906f5d3f14dee0de19f2" },
   "wrapwidth": { "branch": "main", "commit": "c592b47c6665e004f508b8ca01ec1fcf07493cbe" },
   "yats.vim": { "branch": "master", "commit": "b325c449a2db4d9ee38aa441afa850a815982e8b" },
   "zsh-abbr": { "branch": "main", "commit": "510cf85ce7c1a3a0cf8e81aefe83b8c79c2ae09c" },
