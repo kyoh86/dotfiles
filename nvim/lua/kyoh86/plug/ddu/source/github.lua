@@ -87,6 +87,7 @@ local spec = {
         name = "github_my_issue",
         options = {
           columns = { "github_issue_full_name", "github_issue_title", "github_issue_state" },
+          matchers = { "matcher_github_issue_like", "matcher_fzf" },
         },
       } },
     }, {
@@ -114,6 +115,9 @@ local spec = {
       sources = { {
         name = "github_repo_pull",
         params = { source = "cwd" },
+        options = {
+          matchers = { "matcher_github_issue_like", "matcher_fzf" },
+        },
       } },
     }, {
       start = {
@@ -141,6 +145,9 @@ local spec = {
       sources = { {
         name = "github_search_pull",
         params = { hostname = "github.com", query = "is:pr is:open author:kyoh86" },
+        options = {
+          matchers = { "matcher_github_issue_like", "matcher_fzf" },
+        },
       } },
     }, {
       start = {
