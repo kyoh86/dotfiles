@@ -57,6 +57,9 @@ local spec = {
       sources = { {
         name = "github_repo_issue",
         params = { source = "cwd" },
+        options = {
+          matchers = { "matcher_github_issue_like", "matcher_fzf" },
+        },
       } },
     }, {
       start = {
