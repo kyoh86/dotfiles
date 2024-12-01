@@ -1,4 +1,4 @@
-import { environment } from "jsr:@denops/std@~7.3.0/variable";
+import { environment } from "jsr:@denops/std@~7.4.0/variable";
 import { ActionFlags, type Actions } from "jsr:@shougo/ddu-vim@~7.0.0/types";
 import { BaseKind } from "jsr:@shougo/ddu-vim@~7.0.0/kind";
 import { is, maybe } from "jsr:@core/unknownutil@~4.3.0";
