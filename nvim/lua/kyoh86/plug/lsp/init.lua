@@ -228,6 +228,7 @@ local function register_lsp_servers()
   register("rust_analyzer", require("kyoh86.plug.lsp.rust"), true)
   register("sqlls", {})
   register("stylelint_lsp", {})
+  register("svelte", {})
   register("taplo", {}) -- TOML
   register("terraformls", {})
   register("tflint", {})

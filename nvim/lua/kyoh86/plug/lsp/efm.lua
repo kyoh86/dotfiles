@@ -95,7 +95,7 @@ return {
       astro = { biomefmt },
       json = { jq },
       javascriptreact = { prettier },
-      svelte = { prettier },
+      svelte = { prettier, biomefmt },
       lua = { stylua },
       markdown = { textlint, markdownlint },
       scala = { scalafmt },
