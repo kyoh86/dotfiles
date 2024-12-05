@@ -46,16 +46,6 @@ local spec = {
     wk.add({ "sd", group = "Sandwich Delete" })
     wk.add({ "sr", group = "Sandwich Replace" })
   end,
-  event = "VeryLazy",
-  keys = {
-    {
-      "<leader>?",
-      function()
-        require("which-key").show({ global = false })
-      end,
-      desc = "Buffer Local Keymaps (which-key)",
-    },
-  },
 }
 
-return spec
+return {}
