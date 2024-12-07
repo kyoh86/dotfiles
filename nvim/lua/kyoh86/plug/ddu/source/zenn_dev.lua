@@ -10,6 +10,11 @@ local spec = {
         sources = { {
           name = "zenn_dev_article",
         } },
+        uiParams = {
+          ff = {
+            reversed = true,
+          },
+        },
         sourceOptions = {
           _ = {
             matchers = { "merge" },
