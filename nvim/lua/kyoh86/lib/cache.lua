@@ -1,5 +1,3 @@
-local uv = vim.loop
-
 local Cache = {}
 Cache.__index = Cache
 
@@ -54,21 +52,21 @@ end
 
 function Cache:serialize()
   local data = vim.json.encode(self.store)
-  local file = uv.fs_open(self.filepath, "w", 438)
+  local file = vim.uv.fs_open(self.filepath, "w", 438)
   if file then
-    uv.fs_write(file, data, -1)
-    uv.fs_close(file)
+    vim.uv.fs_write(file, data, -1)
+    vim.uv.fs_close(file)
   else
     error("ファイルを開けませんでした: " .. self.filepath)
   end
 end
 
 function Cache:load()
-  local file = uv.fs_open(self.filepath, "r", 438)
+  local file = vim.uv.fs_open(self.filepath, "r", 438)
   if file then
-    local stat = uv.fs_fstat(file)
+    local stat = vim.uv.fs_fstat(file)
     if stat then
-      local content = uv.fs_read(file, stat.size, 0)
+      local content = vim.uv.fs_read(file, stat.size, 0)
       if content then
         self.store = vim.json.decode(content) or {}
       else
@@ -77,7 +75,7 @@ function Cache:load()
     else
       self.store = {}
     end
-    uv.fs_close(file)
+    vim.uv.fs_close(file)
   else
     self.store = {}
   end

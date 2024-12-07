@@ -2,7 +2,11 @@ local group = vim.api.nvim_create_augroup("kyoh86-lib-scheme-changed", { clear =
 
 --- Backgroundオプションがdark/lightで切り替わった時に呼び出される関数を登録する
 --- @param f fun(name) 呼び出される関数
-local function onBackgroundChanged(f, init, opt)
+local function onBackgroundChanged(
+  f,
+  _ --[[init]],
+  opt
+)
   --- @param value string オプション値
   local w = function(value)
     if not value or value == "" then

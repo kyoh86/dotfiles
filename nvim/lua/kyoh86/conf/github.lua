@@ -18,7 +18,7 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
-vim.api.nvim_create_user_command("GitHubLogin", function(opts)
+vim.api.nvim_create_user_command("GitHubLogin", function()
   require("kyoh86.conf.github.auth").relogin()
 end, { desc = "Login to GitHub" })
 

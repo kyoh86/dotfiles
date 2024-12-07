@@ -223,7 +223,7 @@ function RegPrinter.new()
   return setmetatable({ line = 1, option = "l" }, { __index = RegPrinter })
 end
 
----@type object
+---@type vim.regex
 local valid_reg = vim.regex([[^[a-zA-Z0-9\*+]$]])
 
 ---@param target string  Output target

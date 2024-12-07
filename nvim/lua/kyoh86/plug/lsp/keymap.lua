@@ -10,8 +10,6 @@ return function()
       vim.lsp.buf.inlay_hint(bufnr, nil)
     end
   end, "inlay-hintを表示する")
-  setmap("n", "<leader>lih", vim.lsp.buf.hover, "カーソル下のシンボルの情報を表示する")
-  setmap("n", "<leader>lis", vim.lsp.buf.signature_help, "カーソル下のシンボルのシグネチャを表示する")
   setmap("n", "<leader>lr", vim.lsp.buf.rename, "カーソル下のシンボルをリネームする")
   setmap("n", "]l", f.bind_all(vim.diagnostic.jump, { count = 1 }), "次のDiagnosticに移動する")
   setmap("n", "[l", f.bind_all(vim.diagnostic.jump, { count = -1 }), "前のDiagnosticに移動する")

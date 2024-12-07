@@ -189,7 +189,6 @@ local StatStaged = numeric_stat_module("\u{F012C} ", "staged") -- 󰄬 x
 local StatUnstaged = numeric_stat_module("\u{F0415} ", "unstaged") -- 󰐕 x
 local StatUntracked = numeric_stat_module(" \u{F0205} ", "untracked") -- 󰈅 x
 
----@type StatusLine
 local status = {
   {
     {
