@@ -17,19 +17,19 @@ local spec = {
         numhl = false,
         sign_priority = 1,
         on_attach = function(bufnr)
-          vim.keymap.set("n", "]g", function()
+          vim.keymap.set("n", "<leader>jgdn", function()
             if vim.wo.diff then
-              return "]g"
+              return "<leader>jgdn"
             end
-            vim.schedule(func.bind_all(gitsigns.next_hunk))
+            vim.schedule(func.bind_all(gitsigns.nav_hunk, "next"))
             return "<Ignore>"
           end, { expr = true, buffer = bufnr, desc = "次のgit diffに移動する" })
 
-          vim.keymap.set("n", "[g", function()
+          vim.keymap.set("n", "<leader>jgdp", function()
             if vim.wo.diff then
-              return "[g"
+              return "<leader>jgdp"
             end
-            vim.schedule(func.bind_all(gitsigns.prev_hunk))
+            vim.schedule(func.bind_all(gitsigns.nav_hunk, "prev"))
             return "<Ignore>"
           end, { expr = true, buffer = bufnr, desc = "前のgit diffに移動する" })
 

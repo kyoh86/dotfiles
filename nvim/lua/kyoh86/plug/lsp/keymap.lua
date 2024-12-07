@@ -11,8 +11,12 @@ return function()
     end
   end, "inlay-hintを表示する")
   setmap("n", "<leader>lr", vim.lsp.buf.rename, "カーソル下のシンボルをリネームする")
-  setmap("n", "]l", f.bind_all(vim.diagnostic.jump, { count = 1 }), "次のDiagnosticに移動する")
-  setmap("n", "[l", f.bind_all(vim.diagnostic.jump, { count = -1 }), "前のDiagnosticに移動する")
+
+  -- see: /usr/local/share/nvim/runtime/lua/vim/_defaults.lua
+  vim.keymap.set("n", "<leader>jdN", f.bind_all(vim.diagnostic.jump, { count = math.huge, wrap = false }), { desc = "Jump to the last diagnostic in the current buffer" })
+  vim.keymap.set("n", "<leader>jdn", f.bind_all(vim.diagnostic.jump, { count = vim.v.count1 }), { desc = "Jump to the next diagnostic in the current buffer" })
+  vim.keymap.set("n", "<leader>jdp", f.bind_all(vim.diagnostic.jump, { count = -vim.v.count1 }), { desc = "Jump to the previous diagnostic in the current buffer" })
+  vim.keymap.set("n", "<leader>jdP", f.bind_all(vim.diagnostic.jump, { count = -math.huge, wrap = false }), { desc = "Jump to the first diagnostic in the current buffer" })
 
   local function range_from_selection(mode)
     -- workaround for https://github.com/neovim/neovim/issues/22629

@@ -12,8 +12,8 @@ local spec = {
     end, true)
     vim.g.conflict_marker_enable_matchit = 0
     vim.g.conflict_marker_enable_mappings = 0
-    vim.keymap.set("n", "[x", "<Plug>(conflict-marker-prev-hunk)", { remap = true })
-    vim.keymap.set("n", "]x", "<Plug>(conflict-marker-next-hunk)", { remap = true })
+    vim.keymap.set("n", "<leader>jgcp", "<Plug>(conflict-marker-prev-hunk)", { remap = true, desc = "前のコンフリクトマーカーに移動する" })
+    vim.keymap.set("n", "<leader>jgcn", "<Plug>(conflict-marker-next-hunk)", { remap = true, desc = "次のコンフリクトマーカーに移動する" })
     vim.keymap.set("n", "<leader>gct", "<Plug>(conflict-marker-themselves)", { remap = true, desc = "後を適用する" })
     vim.keymap.set("n", "<leader>gco", "<Plug>(conflict-marker-ourselves)", { remap = true, desc = "前を適用する" })
     vim.keymap.set("n", "<leader>gcb", "<Plug>(conflict-marker-both)", { remap = true, desc = "両方を適用する" })
