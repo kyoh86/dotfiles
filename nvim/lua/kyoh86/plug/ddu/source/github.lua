@@ -56,11 +56,17 @@ local spec = {
     helper.setup("github-repo-issues", {
       sources = { {
         name = "github_repo_issue",
-        params = { source = "cwd" },
+        params = { source = "cwd", state = "all" },
         options = {
           matchers = { "matcher_github_issue_like", "matcher_fzf" },
         },
       } },
+      uiParams = {
+        ff = {
+          inputFunc = "kyoh86#ddu#source#github#input#cancel",
+        },
+      },
+      input = "is:open ",
     }, {
       start = {
         key = "<leader>fghi",
@@ -85,11 +91,18 @@ local spec = {
     helper.setup("github-my-issues", {
       sources = { {
         name = "github_my_issue",
+        params = { state = "all" },
         options = {
           columns = { "github_issue_full_name", "github_issue_title", "github_issue_state" },
           matchers = { "matcher_github_issue_like", "matcher_fzf" },
         },
       } },
+      uiParams = {
+        ff = {
+          inputFunc = "kyoh86#ddu#source#github#input#cancel",
+        },
+      },
+      input = "is:open ",
     }, {
       start = {
         key = "<leader>fghgi",
@@ -114,11 +127,17 @@ local spec = {
     helper.setup("github-pulls", {
       sources = { {
         name = "github_repo_pull",
-        params = { source = "cwd" },
+        params = { source = "cwd", state = "all" },
         options = {
           matchers = { "matcher_github_issue_like", "matcher_fzf" },
         },
       } },
+      uiParams = {
+        ff = {
+          inputFunc = "kyoh86#ddu#source#github#input#cancel",
+        },
+      },
+      input = "is:open ",
     }, {
       start = {
         key = "<leader>fghp",
@@ -144,11 +163,17 @@ local spec = {
     helper.setup("github-my-pulls", {
       sources = { {
         name = "github_search_pull",
-        params = { hostname = "github.com", query = "is:pr is:open author:kyoh86" },
+        params = { hostname = "github.com", query = "is:pr is:open author:kyoh86", state = "all" },
         options = {
           matchers = { "matcher_github_issue_like", "matcher_fzf" },
         },
       } },
+      uiParams = {
+        ff = {
+          inputFunc = "kyoh86#ddu#source#github#input#cancel",
+        },
+      },
+      input = "is:open ",
     }, {
       start = {
         key = "<leader>fghgp",
