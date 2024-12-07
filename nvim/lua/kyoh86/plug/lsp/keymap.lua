@@ -10,6 +10,8 @@ return function()
       vim.lsp.buf.inlay_hint(bufnr, nil)
     end
   end, "inlay-hintを表示する")
+  setmap("n", "<leader>lih", f.bind_all(vim.lsp.buf.hover, { border = "single" }), "カーソル下のシンボルの情報を表示する")
+  setmap("n", "<leader>lis", f.bind_all(vim.lsp.buf.signature_help, { border = "single" }), "カーソル下のシンボルのシグネチャを表示する")
   setmap("n", "<leader>lr", vim.lsp.buf.rename, "カーソル下のシンボルをリネームする")
 
   -- see: /usr/local/share/nvim/runtime/lua/vim/_defaults.lua

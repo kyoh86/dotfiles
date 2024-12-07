@@ -1,34 +1,5 @@
 local setup_keymap = require("kyoh86.plug.lsp.keymap")
 
---- LSPで表示されるDiagnosticsのフォーマット
-local function format_diagnostics(diag)
-  if diag.code then
-    return string.format("[%s](%s): %s", diag.source, diag.code, diag.message)
-  else
-    return string.format("[%s]: %s", diag.source, diag.message)
-  end
-end
-
-local diagnostic_config = {
-  underline = true,
-  update_in_insert = true,
-  virtual_text = {
-    severity = vim.diagnostic.severity.WARN,
-    source = true,
-    format = format_diagnostics,
-  },
-  float = {
-    focusable = true,
-    border = "rounded",
-    format = format_diagnostics,
-    header = {},
-    source = true,
-    scope = "line",
-  },
-  signs = true,
-  severity_sort = true,
-}
-
 --- Globalな設定
 local lsp_server_list = {}
 local lsp_config_table = {}
@@ -84,7 +55,23 @@ local function setup_lsp_global()
   end, true)
 
   -- 随時表示されるDiagnosticsの設定
-  vim.diagnostic.config(diagnostic_config)
+  vim.diagnostic.config({
+    underline = true,
+    update_in_insert = true,
+    virtual_text = {
+      severity = vim.diagnostic.severity.WARN,
+      source = true,
+    },
+    float = {
+      focusable = true,
+      border = "rounded",
+      header = {},
+      source = true,
+      scope = "line",
+    },
+    signs = true,
+    severity_sort = true,
+  })
 
   -- サーバー毎の設定を反映させる
   -- NOTE: mason, mason-lspconfig より後にsetupを呼び出す必要がある
@@ -146,27 +133,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
         })
       end,
     })
-
-    local f = require("kyoh86.lib.func")
-    -- hoverの表示に表示元(source)を表示
-    vim.keymap.set(
-      "n",
-      "<leader>lih",
-      f.bind_all(vim.lsp.buf.hover, {
-        border = "single",
-        title = " " .. client.name .. " ",
-      }),
-      { remap = false, silent = true, desc = "カーソル下のシンボルの情報を表示する" }
-    )
-    vim.keymap.set(
-      "n",
-      "<leader>lis",
-      f.bind_all(vim.lsp.buf.signature_help, {
-        border = "single",
-        title = " " .. client.name .. " ",
-      }),
-      { remap = false, silent = true, desc = "カーソル下のシンボルのシグネチャを表示する" }
-    )
 
     if client.server_capabilities.inlayHintProvider then
       vim.b.kyoh86_plug_lsp_inlay_hint_enabled = true
