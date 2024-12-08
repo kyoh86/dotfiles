@@ -28,6 +28,16 @@ local spec = {
       end)
     end, true)
 
+    local custom_preview = function(args)
+      if #args.items ~= 1 then
+        vim.notify("invalid action: it can show only one file at once", vim.log.levels.WARN, {})
+        return 1
+      end
+      local action = args.items[1].action
+      vim.cmd(string.format("pedit +%d %s", action.lnum, action.path))
+      return 0
+    end
+    vim.fn["ddu#custom#action"]("kind", "lsp", "custom:preview", custom_preview)
     helper.setup("lsp-definition", {
       sync = true,
       sources = {
@@ -47,6 +57,9 @@ local spec = {
         desc = "定義",
       },
       filelike = true,
+      localmap = {
+        ["<leader>p"] = { action = "itemAction", params = { name = "custom:preview" } },
+      },
     })
 
     helper.setup("lsp-references", {
