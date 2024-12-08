@@ -10,6 +10,7 @@ aliases:
     last: |
       !gh browse "$(git rev-parse HEAD)" $@
     me: api user --jq .login
-    my: '!gh $1 list --assignee "@me"'
     topic: api "search/repositories?q=topic:$1%20fork:true" --jq ".items[].full_name" --paginate
+    issue mine: issue list --assignee @me
+    pr mine: pr list --assignee @me
 version: "1"
