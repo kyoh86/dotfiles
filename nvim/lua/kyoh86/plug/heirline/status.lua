@@ -40,7 +40,10 @@ return {
       -- condition = conditions.is_git_repo,
       hl = { fg = "foreground", bg = "background", bold = true },
     },
-    update = { "ColorScheme", "ModeChanged", "DirChanged" },
+    update = {
+      "User",
+      pattern = "UpdateHeirlineGitStatus",
+    },
     init = function(self)
       self.mode_colors = palette.mode_colors()
     end,
