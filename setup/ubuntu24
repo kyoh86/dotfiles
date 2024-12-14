@@ -328,6 +328,13 @@ install_neovim() {
 }
 install_neovim
 
+# zenhan.exe
+install_zenhan() {
+  gh --repo kyoh86/zenhan release download -p '*.exe' -O ~/.local/bin/zenhan.exe
+  chmod +x ~/.local/bin/zenhan.exe 
+}
+install_zenhan
+
 # SKK
 skkdir="${HOME}/.local/share/skk"
 skkfile="SKK-JISYO.L"
