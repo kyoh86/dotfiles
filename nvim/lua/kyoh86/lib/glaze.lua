@@ -15,9 +15,10 @@ local function set(name, value)
   return cache:set(name, value)
 end
 
---- 焼き付けた内容を設定として使用する
+--- 焼き付けた内容を設定として使用する。
+--- 取得した値(str)はcallbackを介して渡されるが、もし値に不備があった場合はfail()を呼ぶと保存された値が消去される。
 ---@param name string 対象設定の名前
----@param callback fun(str)
+---@param callback fun(value: string, fail: fun())
 local function get(name, callback)
   cache:get(name, callback)
 end

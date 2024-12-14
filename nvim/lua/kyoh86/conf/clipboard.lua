@@ -15,7 +15,7 @@ glaze.glaze("clipboard", function()
   end
   return ""
 end)
-glaze.get("clipboard", function(env)
+glaze.get("clipboard", function(env, fail)
   if env == "win32" then
     vim.g.clipboard = {
       name = "win32yank-wsl",
@@ -42,5 +42,7 @@ glaze.get("clipboard", function(env)
       },
       cache_enabled = 1,
     }
+  else
+    fail()
   end
 end)

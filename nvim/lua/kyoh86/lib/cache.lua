@@ -1,13 +1,15 @@
 local Cache = {}
 Cache.__index = Cache
 
-function Cache.new(filepath)
+--- Cache values in the file.
+--- @param file string Storing file path.
+function Cache.new(file)
   local self = setmetatable({
     store = {},
     waiters = {},
-    filepath = filepath,
+    filepath = file,
   }, Cache)
-  self:load() -- 初期化時に既存のデータをロード
+  self:load() -- Load the data from stored file on init.
   return self
 end
 
@@ -19,12 +21,19 @@ function Cache:set(key, value)
     end
     self.waiters[key] = nil
   end
-  self:serialize() -- 値を設定した後に永続化
+  self:serialize() -- Save the data to the file when the value set.
 end
 
+--- Get a cached value. Wait the value untill it is stored if the value is not stored yet.
+--- A value will be passed via callback, but if the value is invalid, it can call fail() to clear the value from cache.
+---
+---@param key string A key of the value.
+---@param callback fun(value: string, fail: fun()) A callback to receive a value.
 function Cache:get(key, callback)
   if self.store[key] then
-    callback(self.store[key])
+    callback(self.store[key], function()
+      self:del(key)
+    end)
     return
   end
 
@@ -41,13 +50,13 @@ end
 function Cache:del(key)
   self.store[key] = nil
   self.waiters[key] = nil
-  self:serialize() -- 値を削除した後に永続化
+  self:serialize() -- Save the data to the file when the value is deleted.
 end
 
 function Cache:clear()
   self.store = {}
   self.waiters = {}
-  self:serialize() -- すべてクリアした後に永続化
+  self:serialize() -- Save the data to the file when the values are cleared.
 end
 
 function Cache:serialize()

@@ -27,8 +27,12 @@ end
 -- GitHubの認証をddu-source-githubに渡す
 function M.auth_ddu()
   local glaze = require("kyoh86.lib.glaze")
-  glaze.get("github-auth", function(value)
-    vim.fn["ddu#source#github#ensure_login"](value)
+  glaze.get("github-auth", function(value, fail)
+    local status, err = pcall(vim.fn["ddu#source#github#ensure_login"], value)
+    if not status then
+      vim.notify("failed to login GitHub with glazed token " .. vim.inspect(err), vim.log.levels.WARN)
+      fail()
+    end
   end)
 end
 
