@@ -1,32 +1,41 @@
 local Cache = require("kyoh86.lib.cache")
+
+-- Use Neovim's cache directory for persistent storage of settings.
 local file = vim.fs.joinpath(vim.fn.stdpath("cache") --[[@as string]], "kyoh86-glaze.json")
 local cache = Cache.new(file)
 
---- 設定が焼き付けられているか確認する
----@param name string 対象設定の名前
+--- Check if a specific setting has been "baked" into the cache.
+--- If a setting is "baked", it means its value has been computed and stored for subsequent accesses.
+--- @param name string The name of the setting.
+--- @return boolean True if the setting exists in the cache, false otherwise.
 local function has(name)
   return cache:has(name)
 end
 
---- 設定値を直接セットする
----@param name string 対象設定の名前
----@param value any 対象設定の値
+--- Store a given setting value directly in the cache, overwriting any existing value.
+--- After calling this, the value will be persisted and immediately available for future retrievals.
+--- @param name string The name of the setting.
+--- @param value any The value to store.
 local function set(name, value)
-  return cache:set(name, value)
+  cache:set(name, value)
 end
 
---- 焼き付けた内容を設定として使用する。
---- 取得した値(str)はcallbackを介して渡されるが、もし値に不備があった場合はfail()を呼ぶと保存された値が消去される。
----@param name string 対象設定の名前
----@param callback fun(value: string, fail: fun())
+--- Retrieve a cached setting value. If the value is not yet available, the callback will be invoked once it becomes available.
+--- If the retrieved value is invalid for any reason, the callback can call `fail()` to remove it from the cache.
+---
+--- @param name string The name of the setting.
+--- @param callback fun(value: string, fail: fun()) A callback function that receives the value once available.
+---        `fail()` can be called within the callback to remove the cached entry if it is deemed invalid.
 local function get(name, callback)
   cache:get(name, callback)
 end
 
---- 焼付型の設定: 判定に時間がかかる処理の結果を、初回起動時に焼き付ける。
+--- "Bakes" a setting value into the cache. If the setting is already cached, this does nothing.
+--- Otherwise, it computes the value (which may be expensive) and stores it for future use.
+--- Use this to speed up initialization by avoiding repeated expensive computations.
 ---
----@param name string 対象設定の名前
----@param get_variant fun():any 判定関数
+--- @param name string The name of the setting.
+--- @param get_variant fun():any A function that computes the setting value when it isn't already cached.
 local function glaze(name, get_variant)
   if cache:has(name) then
     return
@@ -34,7 +43,8 @@ local function glaze(name, get_variant)
   set(name, get_variant())
 end
 
---- 焼き付けた内容を完全にリセットする
+--- Reset all cached settings, clearing all previously stored values.
+--- After calling this, you will need to "bake" or set values again.
 local function reset()
   cache:clear()
 end

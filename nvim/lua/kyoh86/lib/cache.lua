@@ -1,15 +1,16 @@
 local Cache = {}
 Cache.__index = Cache
 
---- Cache values in the file.
---- @param file string Storing file path.
+--- Create a new Cache instance backed by a specified file.
+--- This will load any previously stored data from the file.
+--- @param file string The filepath where the cache will be persisted.
 function Cache.new(file)
   local self = setmetatable({
     store = {},
     waiters = {},
     filepath = file,
   }, Cache)
-  self:load() -- Load the data from stored file on init.
+  self:load() -- Load existing data from the file during initialization.
   return self
 end
 
@@ -24,11 +25,12 @@ function Cache:set(key, value)
   self:serialize() -- Save the data to the file when the value set.
 end
 
---- Get a cached value. Wait the value untill it is stored if the value is not stored yet.
---- A value will be passed via callback, but if the value is invalid, it can call fail() to clear the value from cache.
+--- Retrieve a cached value. If the value is not yet available, the callback
+--- will be queued and invoked once the value is set. If the returned value is invalid,
+--- the callback can invoke `fail()` to remove the entry from the cache.
 ---
----@param key string A key of the value.
----@param callback fun(value: string, fail: fun()) A callback to receive a value.
+--- @param key string The key associated with the cached value.
+--- @param callback fun(value: string, fail: fun()) Called when the value is available. `value` is the cached data, and `fail()` removes the key from the cache if invalid.
 function Cache:get(key, callback)
   if self.store[key] then
     callback(self.store[key], function()
@@ -43,35 +45,48 @@ function Cache:get(key, callback)
   table.insert(self.waiters[key], callback)
 end
 
+--- Check whether a value is stored under the given key.
+--- @param key string The key to check.
+--- @return boolean True if a value is stored, false otherwise.
 function Cache:has(key)
   return self.store[key] ~= nil
 end
 
+--- Remove the value associated with the specified key.
+--- After removal, the updated store is persisted to the file.
 function Cache:del(key)
   self.store[key] = nil
   self.waiters[key] = nil
-  self:serialize() -- Save the data to the file when the value is deleted.
+  self:serialize() -- Persist the updated data to the file after deletion.
 end
 
+--- Clear all stored values, making the cache empty.
+--- The change is then persisted to the file.
 function Cache:clear()
   self.store = {}
   self.waiters = {}
-  self:serialize() -- Save the data to the file when the values are cleared.
+  self:serialize() -- Persist the now-empty store to the file.
 end
 
+--- Serialize the current store and write it to the file in JSON format.
+--- If the file does not exist, it will be created.
 function Cache:serialize()
   local data = vim.json.encode(self.store)
-  local file = vim.uv.fs_open(self.filepath, "w", 438)
+  local FILE_MODE = 438 -- equivalent to octal 0666 permissions
+  local file = vim.uv.fs_open(self.filepath, "w", FILE_MODE)
   if file then
     vim.uv.fs_write(file, data, -1)
     vim.uv.fs_close(file)
   else
-    error("ファイルを開けませんでした: " .. self.filepath)
+    error("Failed to open cached file: " .. self.filepath)
   end
 end
 
+--- Load previously stored values from the file into the cache.
+--- If the file is missing, empty, or invalid, the store defaults to an empty table.
 function Cache:load()
-  local file = vim.uv.fs_open(self.filepath, "r", 438)
+  local FILE_MODE = 438 -- equivalent to octal 0666 permissions
+  local file = vim.uv.fs_open(self.filepath, "r", FILE_MODE)
   if file then
     local stat = vim.uv.fs_fstat(file)
     if stat then
