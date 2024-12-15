@@ -1,4 +1,3 @@
-
 import { restoreAuthentication, storeAuthentication } from "./auth.ts";
 import { Octokit as OctokitCore } from "npm:@octokit/core@6.1.2";
 import { restEndpointMethods } from "npm:@octokit/plugin-rest-endpoint-methods@13.2.6";
