@@ -64,6 +64,3 @@ export const main: Entrypoint = async (denops) => {
 
   denops.dispatcher = await router.dispatch(denops, dispatcher);
 };
-
-// 使い方（Neovim側コマンドライン）
-// :Denops <plugin-name> showIssue owner repo 1234
