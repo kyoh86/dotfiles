@@ -17,8 +17,24 @@ local spec = {
       return 0
     end
 
+    local custom_view = function(args)
+      if #args.items ~= 1 then
+        vim.notify("invalid action: it can edit only one file at once", vim.log.levels.WARN, {})
+        return 1
+      end
+      local url = args.items[1].action.html_url
+      local words = vim.iter(vim.split(url, "/", { plain = true })):rev():totable()
+      local number, _, name, owner, _ = unpack(words)
+      vim.cmd.drop("github://issue/view;owner=" .. owner .. "&repo=" .. name .. "&num=" .. number)
+      return 0
+    end
+
     vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:issue-comment", function(args)
       return custom_comment("issue", args)
+    end)
+
+    vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view", function(args)
+      return custom_view(args)
     end)
 
     vim.fn["ddu#custom#action"]("kind", "github_pull", "custom:pr-comment", function(args)
@@ -31,7 +47,7 @@ local spec = {
           defaultAction = "browse",
         },
         github_issue = {
-          defaultAction = "browse",
+          defaultAction = "custom:view",
         },
         github_repo = {
           defaultAction = "browse",
