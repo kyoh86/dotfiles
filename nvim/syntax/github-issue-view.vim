@@ -6,34 +6,48 @@ syntax include @Markdown syntax/markdown.vim
 " ---------------------------------------------
 "  タイトル部分
 "  例: #1234 [open] Title of the Issue
-syntax region githubIssueTitle start=/^TITLE:>=\+$/ end=/^\(META:>=\+$\)\@=/
-    \ contains=githubIssueTitleMarkerStart,githubIssueNumber,githubIssueStateOpen,githubIssueStateClosed
-    \ keepend
-syntax match githubIssueTitleMarkerStart /^TITLE:>=\+/ contained
-syntax match githubIssueNumber /^#\d\+/ contained nextgroup=githubIssueStateOpen,githubIssueStateClosed
-syntax match githubIssueStateOpen /\[open\]/ contained
-syntax match githubIssueStateClosed /\[closed\]/ contained
+syntax region githubIssueTitle start=/\m\(^\)\@<=TITLE:>=\+$/ end=/\m^\(META:>=\+$\)\@=/
+      \ keepend
+      \ contains=githubIssueTitleMarkerStart,githubIssueNumber,githubIssueStateOpen,githubIssueStateClosed
+      \ nextgroup=githubIssueMeta
+syntax match githubIssueTitleMarkerStart /^TITLE:>=\+/
+      \ contained
+syntax match githubIssueNumber /^#\d\+/ 
+      \ contained
+      \ nextgroup=githubIssueStateOpen,githubIssueStateClosed
+syntax match githubIssueStateOpen /\[open\]/
+      \ contained
+syntax match githubIssueStateClosed /\[closed\]/
+      \ contained
 
 " ---------------------------------------------
 "  メタ情報
-syntax region githubIssueMeta start=/\(^\)\@<=META:>=\+$/ end=/^\(BODY:>=\+$\)\@=/
-    \ contains=githubIssueMetaMarkerStart,githubIssueMetaKey,githubIssueMetaDelimiter
-    \ keepend
-syntax match githubIssueMetaMarkerStart /^META:>=\+$/ contained
+syntax region githubIssueMeta start=/\m\(^\)\@<=META:>=\+$/ end=/\m^\(BODY:>=\+$\)\@=/
+      \ contains=githubIssueMetaMarkerStart,githubIssueMetaKey,githubIssueMetaDelimiter,githubIssueMetaValue
+      \ keepend
+      \ nextgroup=githubIssueBody
+syntax match githubIssueMetaMarkerStart /^META:>=\+$/
+      \ contained
 " RepositoryなどのKey:Value行
-syntax match githubIssueMetaKey /\v^\[[^\]]*\]/ contained nextgroup=githubIssueMetaDelimiter
-syntax match githubIssueMetaDelimiter /\v\s:\s/ contained nextgroup=githubIssueMetaValue
+syntax match githubIssueMetaKey /\m^\[[^\]]*\]/
+      \ contained
+      \ nextgroup=githubIssueMetaDelimiter
+syntax match githubIssueMetaDelimiter /\m\s:\s/
+      \ contained
+      \ nextgroup=githubIssueMetaValue
+syntax match githubIssueMetaValue /\( : \)\@<=.*$/
+      \ containedin=githubIssueMeta
 
 " ---------------------------------------------
 "  ボディ
-syntax region githubIssueBody start=/\(^\)\@<=BODY:>=\+$/ end=/^\(COMMENTS (\d\+):>=\+$\)\@=/
+syntax region githubIssueBody start=/\m\(^\)\@<=BODY:>=\+$/ end=/\m^\(COMMENTS (\d\+):>=\+$\)\@=/
     \ contains=githubIssueBodyMarkerStart,@Markdown
     \ keepend
 syntax match githubIssueBodyMarkerStart /^BODY:>=\+/ contained
 
 " ---------------------------------------------
 "  コメント
-syntax region githubIssueComment start=/^COMMENTS (\d\+):>=\+$/ end=/^<:COMMENTS$/
+syntax region githubIssueComment start=/\m^COMMENTS (\d\+):>=\+$/ end=/\m^<:COMMENTS$/
     \ contains=githubIssueCommentMarkerStart,githubIssueCommentMeta
     \ keepend
 syntax match githubIssueCommentMarkerStart /^COMMENTS (\d\+):>=\+$/ 

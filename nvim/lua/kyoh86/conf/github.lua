@@ -2,7 +2,7 @@ local group = vim.api.nvim_create_augroup("kyoh86-conf-github-auth", { clear = t
 
 -- GitHub 認証情報の復帰またはログイン
 vim.api.nvim_create_autocmd("User", {
-  pattern = "DenopsPluginPost:github-auth",
+  pattern = "DenopsPluginPost:github",
   group = group,
   callback = function()
     require("kyoh86.conf.github.auth").login()
