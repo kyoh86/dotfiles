@@ -1,6 +1,6 @@
 ---@type LazySpec
 local spec = {
-  "bfrg/vim-jq",
+  "vito-c/jq.vim",
   config = function()
     table.insert(vim.g.markdown_fenced_languages, "jq")
   end,
