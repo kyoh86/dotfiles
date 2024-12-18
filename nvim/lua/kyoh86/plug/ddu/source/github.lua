@@ -178,8 +178,8 @@ local spec = {
     })
     helper.setup("github-my-pulls", {
       sources = { {
-        name = "github_search_pull",
-        params = { hostname = "github.com", query = "is:pr is:open author:kyoh86", state = "all" },
+        name = "github_my_pull",
+        params = { hostname = "github.com", role = "created", state = "all" },
         options = {
           matchers = { "matcher_github_issue_like", "matcher_fzf" },
         },
@@ -209,6 +209,30 @@ local spec = {
           })
           vim.fn["ddu#ui#do_action"]("redraw", { method = "refreshItems" })
         end,
+      }),
+    })
+
+    helper.setup("github-search-issues", {
+      sources = { {
+        name = "github_search_issue",
+        params = { hostname = "github.com" },
+      } },
+      input = "is:open ",
+    }, {
+      localmap = vim.tbl_extend("force", map, {
+        ["<leader>c"] = { action = "itemAction", params = { name = "custom:issue-comment" } },
+      }),
+    })
+
+    helper.setup("github-search-pulls", {
+      sources = { {
+        name = "github_search_pull",
+        params = { hostname = "github.com" },
+      } },
+      input = "is:open ",
+    }, {
+      localmap = vim.tbl_extend("force", map, {
+        ["<leader>c"] = { action = "itemAction", params = { name = "custom:issue-comment" } },
       }),
     })
 
@@ -264,7 +288,7 @@ local spec = {
       vim.fn["ddu#start"]({
         sources = { {
           name = "github_search_repo",
-          params = { query = "topic:ddu-source" },
+          options = { input = "topic:ddu-source" },
         } },
       })
     end, {})
@@ -272,7 +296,7 @@ local spec = {
       vim.fn["ddu#start"]({
         sources = { {
           name = "github_search_repo",
-          params = { query = "topic:ddu-filter" },
+          options = { input = "topic:ddu-filter" },
         } },
       })
     end, {})
@@ -280,7 +304,7 @@ local spec = {
       vim.fn["ddu#start"]({
         sources = { {
           name = "github_search_repo",
-          params = { query = "topic:ddu-kind" },
+          options = { input = "topic:ddu-kind" },
         } },
       })
     end, {})

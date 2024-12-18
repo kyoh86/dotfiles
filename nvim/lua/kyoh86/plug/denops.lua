@@ -14,7 +14,17 @@ local spec = {
         vim.notify("denops dependencies cached", vim.log.levels.INFO)
       end,
     })
-    vim.api.nvim_create_user_command("DenopsCacheUpdate", [[call denops#cache#update({"reload": v:true})]], {})
+
+    -- recommended by denops.vim: see :help denops-recommended
+    local f = require("kyoh86.lib.func")
+    -- Interrupt the process of plugins via <C-c>
+    vim.keymap.set({ "n", "i", "c" }, "<c-c>", "<cmd>call denops#interrupt()<cr><c-c>", { remap = false, silent = true })
+    -- Restart Denops server
+    vim.api.nvim_create_user_command("DenopsRestart", f.bind_all(vim.fn["denops#server#restart"]), {})
+    -- Fix Deno module cache issue
+    local update = f.bind_all(vim.fn["denops#cache#update"], { reload = true })
+    vim.api.nvim_create_user_command("DenopsCacheUpdate", update, {})
+    vim.api.nvim_create_user_command("DenopsFixCache", update, {})
   end,
 }
 return spec
