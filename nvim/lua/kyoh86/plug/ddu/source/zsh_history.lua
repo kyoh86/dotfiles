@@ -3,7 +3,6 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddc-source-zsh-history", -- It also contains the source of the ddu plugin.
-  dev = true,
   dependencies = { "ddu.vim", "lazy.nvim" },
   config = function()
     helper.setup("zsh_history", {
