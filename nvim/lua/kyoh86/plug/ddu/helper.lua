@@ -23,6 +23,7 @@ end
 
 ---@class Kyoh86DduHelperKeymap
 ---@field key string A key to start ddu
+---@field modes? string|string[] A mode or modes for key to start ddu
 ---@field desc? string A description for the key
 
 ---@class Kyoh86DduHelperConfig
@@ -61,7 +62,7 @@ function M.setup(name, dduopts, config)
       starts = { starts }
     end
     for _, start in pairs(starts) do
-      vim.keymap.set("n", start.key, func.bind_all(vim.fn["ddu#start"], { name = name }), { remap = false, desc = start.desc and "[ddu] " .. start.desc or "Start ddu: " .. name })
+      vim.keymap.set(start.modes and start.modes or "n", start.key, func.bind_all(vim.fn["ddu#start"], { name = name }), { remap = false, desc = start.desc and "[ddu] " .. start.desc or "Start ddu: " .. name })
     end
   end
 

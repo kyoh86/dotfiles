@@ -4,24 +4,25 @@ import type { ConfigArguments } from "jsr:@shougo/ddc-vim@~9.1.0/config";
 
 export class Config extends BaseConfig {
   override config(args: ConfigArguments): Promise<void> {
-    const sources: UserSource[] = [
-      { name: "vsnip" },
-      {
-        name: "lsp",
-        params: {
-          snippetEngine: async (body: unknown) => {
-            await args.denops.call("vsnip#anonymous", body);
-          },
-          enableResolveItem: true,
-          enableAdditionalTextEdit: true,
+    const vsnip: UserSource = { name: "vsnip" };
+    const lsp: UserSource = {
+      name: "lsp",
+      params: {
+        snippetEngine: async (body: unknown) => {
+          await args.denops.call("vsnip#anonymous", body);
         },
+        enableResolveItem: true,
+        enableAdditionalTextEdit: true,
       },
-      { name: "nvim-lua" },
-    ];
+    };
+    const nvim_lua: UserSource = { name: "nvim-lua" };
 
     args.contextBuilder.patchGlobal({
       ui: "pum",
-      sources: sources,
+      sources: [
+        vsnip,
+        lsp,
+      ],
       sourceOptions: {
         _: {
           ignoreCase: true,
@@ -39,15 +40,24 @@ export class Config extends BaseConfig {
         vsnip: {
           mark: "[vsnip]",
         },
-        ["nvim-lua"]: {
-          mark: "[nvim-lua]",
-        },
       },
-      // postFilters: ["sorter_head"],
     });
 
     args.contextBuilder.patchFiletype("ddu-ff-filter", {
       sources: [],
+    });
+
+    args.contextBuilder.patchFiletype("lua", {
+      sources: [
+        vsnip,
+        lsp,
+        nvim_lua,
+      ],
+      sourceOptions: {
+        ["nvim-lua"]: {
+          mark: "[nvim-lua]",
+        },
+      },
     });
 
     return Promise.resolve();
