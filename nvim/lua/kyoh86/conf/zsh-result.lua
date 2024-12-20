@@ -3,8 +3,8 @@ vim.api.nvim_create_autocmd("User", {
   pattern = "Kyoh86TermNotifReceived:precmd:*",
   callback = function(ev)
     local terms = vim.split(ev.match, ":")
-    local ret, bufnr = terms[3], terms[4]
-    if bufnr == nil or bufnr == "" then
+    local ret, bufnr, command = unpack(terms, 3)
+    if not bufnr or bufnr == "" then
       -- バッファ番号が分からないときは通知しない
       return
     end
@@ -12,10 +12,24 @@ vim.api.nvim_create_autocmd("User", {
       -- Terminalバッファが隠れてたときだけ通知する
       return
     end
-    if ret == "0" then
-      vim.notify("Process done in terminal (in buffer " .. bufnr .. ")", vim.log.levels.INFO)
-    else
-      vim.notify("Process failed(" .. ret .. ") in terminal (in buffer " .. bufnr .. ")", vim.log.levels.ERROR)
+
+    local level = vim.log.levels.INFO
+    local msg = { "Process" }
+    if command and command ~= "" then
+      if vim.fn.strcharlen(command) > 30 then
+        command = vim.fn.strcharpart(command, 0, 30) .. "..."
+      end
+      table.insert(msg, "(" .. command .. ")")
     end
+    if ret == "0" then
+      table.insert(msg, "done")
+    else
+      table.insert(msg, "failed")
+      table.insert(msg, "(" .. ret .. ")")
+      level = vim.log.levels.ERROR
+    end
+    table.insert(msg, "in")
+    table.insert(msg, "bufnr:" .. bufnr)
+    vim.notify(table.concat(msg, " "), level)
   end,
 })

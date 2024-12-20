@@ -5,7 +5,7 @@
 # autocmdを受けて処理の終了を通知してる: ../../nvim/lua/kyoh86/conf/zsh-result.lua
 if [ -n "${NVIM_SERVER_NAME}" ] ; then
   function _notify_precmd_to_nvim() {
-    nvim --server ${NVIM_SERVER_NAME} --headless --remote-send "<cmd>doautocmd User Kyoh86TermNotifReceived:precmd:$?:$KYOH86_VOLATERM_BUFNR<cr>"
+    nvim --server ${NVIM_SERVER_NAME} --headless --remote-send "<cmd>doautocmd User Kyoh86TermNotifReceived:precmd:$?:$KYOH86_VOLATERM_BUFNR:$history[$(($HISTCMD-1))]<cr>"
   }
   add-zsh-hook precmd _notify_precmd_to_nvim
 fi
