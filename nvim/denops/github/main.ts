@@ -1,5 +1,5 @@
 import type { Entrypoint } from "jsr:@denops/std@~7.4.0";
-import { Router } from "jsr:@kyoh86/denops-router@0.3.0";
+import { Router } from "jsr:@kyoh86/denops-router@0.3.3";
 import { login } from "./handler/login.ts";
 import {
   issueViewBrowse,
