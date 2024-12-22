@@ -25,7 +25,7 @@
   "ddc-source-lsp": { "branch": "main", "commit": "b928f9212f6ef536119e9aa155a1e266dcad7890" },
   "ddc-source-nvim-lua": { "branch": "main", "commit": "651889a69980c33854c319aaa523423c43b5931c" },
   "ddc-source-vsnip": { "branch": "main", "commit": "81483f0d0e218193388e6bbc9b5ec6c3ceed1308" },
-  "ddc-source-zsh-history": { "branch": "main", "commit": "2332a4cbc50bca5b2e1aced25080b606c3cee11c" },
+  "ddc-source-zsh-history": { "branch": "main", "commit": "a44812b64c0078073860470072667b03307bd1d0" },
   "ddc-ui-inline": { "branch": "main", "commit": "89920d6a7da7068f91c49bd38f1ec008eedca815" },
   "ddc-ui-pum": { "branch": "main", "commit": "7e568274b3c22ca8d1742ddec43ea3a63d6ab7e9" },
   "ddc.vim": { "branch": "main", "commit": "c760d4acefc234f80b2feccb88ee36bf099aae0c" },
