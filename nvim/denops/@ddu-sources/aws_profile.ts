@@ -1,11 +1,11 @@
 import type {} from "jsr:@denops/std@~7.4.0";
-import type { GatherArguments } from "jsr:@shougo/ddu-vim@~9.1.0/source";
+import type { GatherArguments } from "jsr:@shougo/ddu-vim@~9.2.0/source";
 import {
   ActionFlags,
   type Actions,
   type Item,
-} from "jsr:@shougo/ddu-vim@~9.1.0/types";
-import { BaseSource } from "jsr:@shougo/ddu-vim@~9.1.0/source";
+} from "jsr:@shougo/ddu-vim@~9.2.0/types";
+import { BaseSource } from "jsr:@shougo/ddu-vim@~9.2.0/source";
 import { echoerrCommand } from "jsr:@kyoh86/denops-util@~0.1.0/command";
 import { TextLineStream } from "jsr:@std/streams@~1.0.0";
 import { environment } from "jsr:@denops/std@~7.4.0/variable";
