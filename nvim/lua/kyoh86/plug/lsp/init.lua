@@ -16,62 +16,14 @@ local function setup_lsp_global()
     })
   end)
 
+  -- highlightを設定する
   require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
     kyoh86.ensure(colors_name, function(m)
-      vim.cmd(string.format(
-        [[
-      highlight DiagnosticFloatingOk    guibg=%s ctermbg=%s guifg=%s ctermfg=%s
-      highlight DiagnosticFloatingHint  guibg=%s ctermbg=%s guifg=%s ctermfg=%s
-      highlight DiagnosticFloatingInfo  guibg=%s ctermbg=%s guifg=%s ctermfg=%s
-      highlight DiagnosticFloatingWarn  guibg=%s ctermbg=%s guifg=%s ctermfg=%s
-      highlight DiagnosticFloatingError guibg=%s ctermbg=%s guifg=%s ctermfg=%s
-    ]],
-        m.palette.black.gui,
-        m.palette.black.cterm,
-        m.palette.brightgreen.gui,
-        m.palette.brightgreen.cterm,
-        m.palette.black.gui,
-        m.palette.black.cterm,
-        m.palette.gradation3.gui,
-        m.palette.gradation3.cterm,
-        m.palette.black.gui,
-        m.palette.black.cterm,
-        m.palette.brightblue.gui,
-        m.palette.brightblue.cterm,
-        m.palette.black.gui,
-        m.palette.black.cterm,
-        m.palette.brightred.gui,
-        m.palette.brightred.cterm,
-        m.palette.black.gui,
-        m.palette.black.cterm,
-        m.palette.red.gui,
-        m.palette.red.cterm
-      ))
-      -- highlightを設定する
       vim.api.nvim_set_hl(0, "LspInlayHint", {
         fg = m.colors.brightgreen,
       })
     end)
   end, true)
-
-  -- 随時表示されるDiagnosticsの設定
-  vim.diagnostic.config({
-    underline = true,
-    update_in_insert = true,
-    virtual_text = {
-      severity = vim.diagnostic.severity.WARN,
-      source = true,
-    },
-    float = {
-      focusable = true,
-      border = "rounded",
-      header = {},
-      source = true,
-      scope = "line",
-    },
-    signs = true,
-    severity_sort = true,
-  })
 
   -- サーバー毎の設定を反映させる
   -- NOTE: mason, mason-lspconfig より後にsetupを呼び出す必要がある
@@ -169,16 +121,16 @@ local function register_lsp_servers()
   register("biome", {})
   register("cssls", {})
   register("cssmodules_ls", {})
-  register("denols", require("kyoh86.plug.lsp.denols"), true) -- uses global deno, so it should not be installed by Mason
+  register("denols", require("kyoh86.plug.lsp.server.denols"), true) -- uses global deno, so it should not be installed by Mason
   register("dockerls", {})
-  register("efm", require("kyoh86.plug.lsp.efm"))
+  register("efm", require("kyoh86.plug.lsp.server.efm"))
   register("eslint", {})
-  register("gopls", require("kyoh86.plug.lsp.gopls"))
+  register("gopls", require("kyoh86.plug.lsp.server.gopls"))
   register("html", {})
-  register("jsonls", require("kyoh86.plug.lsp.jsonls"))
+  register("jsonls", require("kyoh86.plug.lsp.server.jsonls"))
   register("jqls", {})
   register("lemminx", {}) -- XML
-  register("lua_ls", require("kyoh86.plug.lsp.luals"))
+  register("lua_ls", require("kyoh86.plug.lsp.server.luals"))
   register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
   register("prismals", {}) -- Prisma (TypeScript DB ORM)
   register("pylsp", {
@@ -198,7 +150,7 @@ local function register_lsp_servers()
     },
   })
   register("pyright", {})
-  register("rust_analyzer", require("kyoh86.plug.lsp.rust"), true)
+  register("rust_analyzer", require("kyoh86.plug.lsp.server.rust"), true)
   register("sqlls", {})
   register("stylelint_lsp", {})
   register("svelte", {})
@@ -206,7 +158,7 @@ local function register_lsp_servers()
   register("terraformls", {})
   register("tflint", {})
   register("vimls", {})
-  register("vtsls", require("kyoh86.plug.lsp.vtsls"))
+  register("vtsls", require("kyoh86.plug.lsp.server.vtsls"))
   register("yamlls", {
     settings = {
       yaml = {
