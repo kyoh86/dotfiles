@@ -1,6 +1,6 @@
-import type { FilterArguments } from "jsr:@shougo/ddu-vim@~9.2.0/filter";
-import type { DduItem, Item } from "jsr:@shougo/ddu-vim@~9.2.0/types";
-import { BaseFilter } from "jsr:@shougo/ddu-vim@~9.2.0/filter";
+import type { FilterArguments } from "jsr:@shougo/ddu-vim@~9.3.0/filter";
+import type { DduItem, Item } from "jsr:@shougo/ddu-vim@~9.3.0/types";
+import { BaseFilter } from "jsr:@shougo/ddu-vim@~9.3.0/filter";
 
 type Params = Record<PropertyKey, never>;
 
