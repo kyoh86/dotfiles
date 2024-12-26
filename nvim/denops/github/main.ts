@@ -1,5 +1,5 @@
 import type { Entrypoint } from "jsr:@denops/std@~7.4.0";
-import { Router } from "jsr:@kyoh86/denops-router@0.3.3";
+import { Router } from "jsr:@kyoh86/denops-router@0.3.5";
 import { login } from "./handler/login.ts";
 import {
   issueViewBrowse,
@@ -21,7 +21,7 @@ export const main: Entrypoint = async (denops) => {
   };
 
   const router = new Router("github");
-  router.handle("issue/view", {
+  router.addHandler("issue/view", {
     load: async (buf) => {
       await loadIssueViewer(denops, buf);
     },
@@ -44,7 +44,7 @@ export const main: Entrypoint = async (denops) => {
     },
   });
 
-  router.handle("issue/edit", {
+  router.addHandler("issue/edit", {
     load: async (buf) => {
       await loadIssueEditor(denops, buf);
     },
@@ -53,7 +53,7 @@ export const main: Entrypoint = async (denops) => {
     },
   });
 
-  router.handle("issue/comment", {
+  router.addHandler("issue/comment", {
     load: async (buf) => {
       await loadIssueComment(denops, buf);
     },

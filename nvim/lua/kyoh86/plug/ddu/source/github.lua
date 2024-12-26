@@ -17,7 +17,7 @@ local spec = {
       return 0
     end
 
-    local custom_view = function(args)
+    local custom_view = function(args, split)
       if #args.items ~= 1 then
         vim.notify("invalid action: it can edit only one file at once", vim.log.levels.WARN, {})
         return 1
@@ -25,8 +25,24 @@ local spec = {
       local url = args.items[1].action.html_url
       local words = vim.iter(vim.split(url, "/", { plain = true })):rev():totable()
       local number, _, name, owner, _ = unpack(words)
-      vim.cmd.drop("github://issue/view;owner=" .. owner .. "&repo=" .. name .. "&num=" .. number)
+      vim.fn["denops#github#issue#view#open"](owner, name, number, { split = split })
       return 0
+    end
+
+    local custom_view_above = function(args)
+      return custom_view(args, "above")
+    end
+
+    local custom_view_below = function(args)
+      return custom_view(args, "below")
+    end
+
+    local custom_view_left = function(args)
+      return custom_view(args, "left")
+    end
+
+    local custom_view_right = function(args)
+      return custom_view(args, "right")
     end
 
     vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:issue-comment", function(args)
@@ -34,7 +50,23 @@ local spec = {
     end)
 
     vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view", function(args)
-      return custom_view(args)
+      return custom_view_above(args)
+    end)
+
+    vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view:above", function(args)
+      return custom_view_above(args)
+    end)
+
+    vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view:below", function(args)
+      return custom_view_below(args)
+    end)
+
+    vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view:left", function(args)
+      return custom_view_left(args)
+    end)
+
+    vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view:right", function(args)
+      return custom_view_right(args)
     end)
 
     vim.fn["ddu#custom#action"]("kind", "github_pull", "custom:pr-comment", function(args)
@@ -59,6 +91,9 @@ local spec = {
     local fullFormat = "${this.title} ${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
     local map = {
       ["<leader>e"] = { action = "itemAction", params = { name = "edit" } },
+      ["<leader>v"] = { action = "itemAction", params = { name = "custom:view:left" } },
+      ["<leader>x"] = { action = "itemAction", params = { name = "custom:view:above" } },
+      ["<leader>h"] = { action = "itemAction", params = { name = "custom:view:above" } },
       ["<leader>p"] = { action = "itemAction", params = { name = "append", params = { format = linkFormat, avoid = "filename" } } },
       ["<leader>P"] = { action = "itemAction", params = { name = "insert", params = { format = linkFormat, avoid = "filename" } } },
       ["<leader>f"] = { action = "itemAction", params = { name = "append", params = { format = fullFormat } } },
