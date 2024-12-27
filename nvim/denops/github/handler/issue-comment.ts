@@ -8,6 +8,8 @@ import { getbufline, setbufvar } from "jsr:@denops/std@~7.4.0/function";
 import { getIssueIdentifier } from "./issue-buf.ts";
 
 export async function loadIssueComment(denops: Denops, buf: Buffer) {
+  await option.endofline.setBuffer(denops, buf.bufnr, false);
+  await option.fixendofline.setBuffer(denops, buf.bufnr, false);
   await option.filetype.setBuffer(denops, buf.bufnr, "markdown");
   await option.bufhidden.setBuffer(denops, buf.bufnr, "wipe");
 }

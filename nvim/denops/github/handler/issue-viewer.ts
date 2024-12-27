@@ -76,10 +76,9 @@ async function fetchAndFormatIssue(
   // BODY部分
   // Issue本文（issue.body）をMarkdownと想定
   // 空行を適宜挟む
-  const body = issue.body?.split("\n") ?? [];
   const bodySection = [
     `BODY:>=========================================================================`,
-    ...body.map((line) => `  ${line.trimEnd()}`.trimEnd()),
+    ...issue.body?.split(/\r?\n/)?.map((l) => indentLine(l)) ?? [],
     ``,
   ];
 
@@ -87,13 +86,13 @@ async function fetchAndFormatIssue(
   const commentsSectionHeader = comments.length > 0
     ? [
       `COMMENTS (${comments.length}):>=================================================================`,
-      "",
     ]
     : [];
 
   const commentLines: string[] = [];
   if (comments.length > 0) {
     for (let i = 0; i < comments.length; i++) {
+      commentLines.push(``);
       const c = comments[i];
       // コメントヘッダ行の例:
       // `-- #1 @charlie 2024-12-12 09:15 [Author, Owner] ------------------------------`
@@ -116,11 +115,10 @@ async function fetchAndFormatIssue(
       commentLines.push(`${numberLine}${metaStr} ${sep}`);
       commentLines.push("");
       // コメント本文
-      const cBody = c.body?.split("\n") ?? [];
+      const cBody = c.body?.split(/\r?\n/) ?? [];
       for (const cl of cBody) {
-        commentLines.push(`  ${cl}`);
+        commentLines.push(indentLine(cl));
       }
-      commentLines.push(``);
     }
   }
 
@@ -135,6 +133,10 @@ async function fetchAndFormatIssue(
       ...commentLines,
     ],
   };
+}
+
+function indentLine(line: string, level: number = 1): string {
+  return line.trim() === "" ? line : `${"  ".repeat(level)}${line}`;
 }
 
 async function setKeymap(denops: Denops, buf: Buffer) {
@@ -183,7 +185,7 @@ export async function loadIssueViewer(denops: Denops, buf: Buffer) {
     (helper) => {
       helper.define(
         "User",
-        `denops-github:issue:comment-new;owner=${owner}&repo=${repo}&num=${num}`,
+        `denops-github:issue:*;owner=${owner}&repo=${repo}&num=${num}`,
         `execute bufwinnr(${buf.bufnr}) .. "windo e"`,
         { nested: true },
       );

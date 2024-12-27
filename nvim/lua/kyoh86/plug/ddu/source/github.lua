@@ -25,7 +25,7 @@ local spec = {
       local url = args.items[1].action.html_url
       local words = vim.iter(vim.split(url, "/", { plain = true })):rev():totable()
       local number, _, name, owner, _ = unpack(words)
-      vim.fn["denops#github#issue#view#open"](owner, name, number, { split = split })
+      vim.fn["denops#github#issue#view"](owner, name, number, { split = split })
       return 0
     end
 
@@ -33,16 +33,8 @@ local spec = {
       return custom_view(args, "above")
     end
 
-    local custom_view_below = function(args)
-      return custom_view(args, "below")
-    end
-
     local custom_view_left = function(args)
       return custom_view(args, "left")
-    end
-
-    local custom_view_right = function(args)
-      return custom_view(args, "right")
     end
 
     vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:issue-comment", function(args)
@@ -57,16 +49,8 @@ local spec = {
       return custom_view_above(args)
     end)
 
-    vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view:below", function(args)
-      return custom_view_below(args)
-    end)
-
     vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view:left", function(args)
       return custom_view_left(args)
-    end)
-
-    vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view:right", function(args)
-      return custom_view_right(args)
     end)
 
     vim.fn["ddu#custom#action"]("kind", "github_pull", "custom:pr-comment", function(args)
