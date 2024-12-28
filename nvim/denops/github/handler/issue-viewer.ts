@@ -57,8 +57,7 @@ async function fetchAndFormatIssue(
     .join(", ");
   const assignees = issue.assignees?.map((a) => `@${a.login}`).join(", ") || "";
   const milestone = issue.milestone?.title ?? "";
-  const repoFullName =
-    `${issue.repository?.owner.login}/${issue.repository?.name}`;
+  const repoFullName = `${owner}/${repo}`;
   const openedBy = `@${issue.user?.login ?? "unknown"} on ${
     localTimeString(issue.created_at)
   }`;
