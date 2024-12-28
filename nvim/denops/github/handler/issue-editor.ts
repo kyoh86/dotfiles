@@ -1,5 +1,5 @@
 import type { Denops } from "jsr:@denops/std@~7.4.0";
-import type { Buffer } from "jsr:@kyoh86/denops-router@0.3.5";
+import type { Buffer } from "jsr:@kyoh86/denops-router@0.3.6";
 import { getClient } from "../client.ts";
 import * as autocmd from "jsr:@denops/std@~7.4.0/autocmd";
 import * as buffer from "jsr:@denops/std@~7.4.0/buffer";

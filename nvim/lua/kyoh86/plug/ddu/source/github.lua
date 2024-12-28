@@ -29,28 +29,20 @@ local spec = {
       return 0
     end
 
-    local custom_view_above = function(args)
-      return custom_view(args, "above")
-    end
-
-    local custom_view_left = function(args)
-      return custom_view(args, "left")
-    end
-
     vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:issue-comment", function(args)
       return custom_comment("issue", args)
     end)
 
     vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view", function(args)
-      return custom_view_above(args)
+      return custom_view(args, "none")
     end)
 
     vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view:above", function(args)
-      return custom_view_above(args)
+      return custom_view(args, "above")
     end)
 
     vim.fn["ddu#custom#action"]("kind", "github_issue", "custom:view:left", function(args)
-      return custom_view_left(args)
+      return custom_view(args, "left")
     end)
 
     vim.fn["ddu#custom#action"]("kind", "github_pull", "custom:pr-comment", function(args)
