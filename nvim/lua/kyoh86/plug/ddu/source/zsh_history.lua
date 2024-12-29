@@ -23,6 +23,10 @@ local spec = {
         modes = "t",
         key = "<c-x><c-y>",
         desc = "ZSH History",
+      }, {
+        modes = "t",
+        key = "<c-r>",
+        desc = "ZSH History",
       } },
     })
   end,
