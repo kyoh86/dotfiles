@@ -66,6 +66,7 @@ local spec = {
     local linkFormat = "${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
     local fullFormat = "${this.title} ${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
     local map = {
+      ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
       ["<leader>e"] = { action = "itemAction", params = { name = "edit" } },
       ["<leader>v"] = { action = "itemAction", params = { name = "custom:view:left" } },
       ["<leader>x"] = { action = "itemAction", params = { name = "custom:view:above" } },
