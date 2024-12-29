@@ -65,6 +65,7 @@
   "ddu-ui-ff": { "branch": "main", "commit": "db8d93672ccab2554ae4ce9977d0376a1aa5edcc" },
   "ddu.vim": { "branch": "main", "commit": "d198836a241ba5e761ca3b00eeadd71c69158c74" },
   "denops-docbase.vim": { "branch": "main", "commit": "eabae6ee0488e0c45e25a7c3150ec51c9e759287" },
+  "denops-jqplay.vim": { "branch": "main", "commit": "cd692b403f6782a299c87f3b64a6a7d6d9acfcd0" },
   "denops-ollama.vim": { "branch": "main", "commit": "306e9cdc8d853d200a8d9b8d045358055631d936" },
   "denops-zenn_dev.vim": { "branch": "main", "commit": "120036968c7002a58015bf4594e77e107076a319" },
   "denops.vim": { "branch": "main", "commit": "4ff8f353ee54ee67288c1099242444ccb0ab5b69" },
