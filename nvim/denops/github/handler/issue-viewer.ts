@@ -95,11 +95,11 @@ async function fetchAndFormatIssue(
   const commentLines: string[] = [];
   if (comments.length > 0) {
     for (let i = 0; i < comments.length; i++) {
-      commentLines.push(``);
+      commentLines.push(`:`);
       const c = comments[i];
       // コメントヘッダ行の例:
-      // `-- #1 @charlie 2024-12-12 09:15 [Author, Owner] ------------------------------`
-      const numberLine = `-- #${i + 1} @${c.user?.login ?? "unknown"} ${
+      // `-- C-#1 @charlie 2024-12-12 09:15 [Author, Owner] ------------------------------`
+      const numberLine = `-- C-#${i + 1} @${c.user?.login ?? "unknown"} ${
         localTimeString(c.created_at)
       }`;
       // Edited/Author/Ownerフラグの抽出 (ここでは例として簡易的に)

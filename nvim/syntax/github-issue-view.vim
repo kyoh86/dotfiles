@@ -47,16 +47,15 @@ syntax match githubIssueBodyMarkerStart /^BODY:>=\+/ contained
 
 " ---------------------------------------------
 "  コメント
-syntax region githubIssueComment start=/\m^COMMENTS (\d\+):>=\+$/ end=/\m^<:COMMENTS$/
-    \ contains=githubIssueCommentMarkerStart,githubIssueCommentMeta
-    \ keepend
 syntax match githubIssueCommentMarkerStart /^COMMENTS (\d\+):>=\+$/ 
-      \ contained
       \ contains=githubIssueCommentCount
 syntax match githubIssueCommentCount /\(^COMMENTS (\)\@<=\d\+\():>=\+$\)\@=/
 
 " コメントブロック識別
-syntax match githubIssueCommentMeta /^-- #\d\+ @[^ ]\+ \d\{4,\}-\d\d-\d\d \d\d:\d\d\( \[[a-zA-Z]\+\(, [a-zA-Z]\+\)*\]\)\? -\+$/
+syntax region githubIssueComment start=/\m\(^\)\@<=-- C-#\d\+ / end=/\m\(^\)\@<=: /
+      \ contains=githubIssueCommentMeta,@Markdown
+      \ keepend
+syntax match githubIssueCommentMeta /^-- C-#\d\+ @[^ ]\+ \d\{4,\}-\d\d-\d\d \d\d:\d\d\( \[[a-zA-Z]\+\(, [a-zA-Z]\+\)*\]\)\? -\+$/
       \ contained
       \ contains=githubIssueCommentMetaNumber,githubIssueCommentMetaAuthor,githubIssueCommentFlag
 
@@ -94,7 +93,6 @@ highlight link githubIssueBody               Normal
 highlight link githubIssueBodyMarkerStart    Label
 
 " コメントセクション関連
-highlight link githubIssueComment            Normal
 highlight link githubIssueCommentMarkerStart Label
 highlight link githubIssueCommentCount       Number
 highlight link githubIssueCommentMeta        Label
