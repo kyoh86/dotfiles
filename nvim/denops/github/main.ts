@@ -1,5 +1,5 @@
 import type { Entrypoint } from "jsr:@denops/std@~7.4.0";
-import { Router } from "jsr:@kyoh86/denops-router@0.3.7";
+import { Router } from "jsr:@kyoh86/denops-router@0.4.0";
 import { login } from "./handler/login.ts";
 import {
   issueViewBrowse,
@@ -22,8 +22,8 @@ export const main: Entrypoint = async (denops) => {
 
   const router = new Router("github");
   router.addHandler("issue/view", {
-    load: async (buf) => {
-      await loadIssueViewer(denops, buf);
+    load: async (ctx, buf) => {
+      await loadIssueViewer(denops, ctx, buf);
     },
     actions: {
       prev: async (buf) => {
@@ -45,19 +45,19 @@ export const main: Entrypoint = async (denops) => {
   });
 
   router.addHandler("issue/edit", {
-    load: async (buf) => {
-      await loadIssueEditor(denops, buf);
+    load: async (ctx, buf) => {
+      await loadIssueEditor(denops, ctx, buf);
     },
-    save: async (buf) => {
+    save: async (_ctx, buf) => {
       await saveIssueEditor(denops, buf);
     },
   });
 
   router.addHandler("issue/comment", {
-    load: async (buf) => {
-      await loadIssueComment(denops, buf);
+    load: async (ctx, buf) => {
+      await loadIssueComment(denops, ctx, buf);
     },
-    save: async (buf) => {
+    save: async (_ctx, buf) => {
       await saveIssueComment(denops, buf);
     },
   });

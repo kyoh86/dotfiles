@@ -1,5 +1,5 @@
 import type { Denops } from "jsr:@denops/std@~7.4.0";
-import type { Buffer } from "jsr:@kyoh86/denops-router@0.3.7";
+import type { Buffer, LoadContext } from "jsr:@kyoh86/denops-router@0.4.0";
 import { getClient } from "../client.ts";
 import * as autocmd from "jsr:@denops/std@~7.4.0/autocmd";
 import * as buffer from "jsr:@denops/std@~7.4.0/buffer";
@@ -7,7 +7,11 @@ import * as option from "jsr:@denops/std@~7.4.0/option";
 import { getbufline, setbufvar } from "jsr:@denops/std@~7.4.0/function";
 import { getIssueIdentifier } from "./issue-buf.ts";
 
-export async function loadIssueEditor(denops: Denops, buf: Buffer) {
+export async function loadIssueEditor(
+  denops: Denops,
+  _ctx: LoadContext,
+  buf: Buffer,
+) {
   const { owner, repo, num } = getIssueIdentifier(buf);
 
   const client = await getClient();
@@ -23,7 +27,6 @@ export async function loadIssueEditor(denops: Denops, buf: Buffer) {
     await buffer.replace(denops, buf.bufnr, body.split(/\r?\n/));
     await option.undolevels.setBuffer(denops, buf.bufnr, lv);
   }
-  buffer.ensure;
   await option.endofline.setBuffer(denops, buf.bufnr, false);
   await option.fixendofline.setBuffer(denops, buf.bufnr, false);
   await option.filetype.setBuffer(denops, buf.bufnr, "markdown");

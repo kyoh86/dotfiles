@@ -1,5 +1,9 @@
 import type { Denops } from "jsr:@denops/std@~7.4.0";
-import type { Buffer, Router } from "jsr:@kyoh86/denops-router@0.3.7";
+import type {
+  Buffer,
+  LoadContext,
+  Router,
+} from "jsr:@kyoh86/denops-router@0.4.0";
 import * as buffer from "jsr:@denops/std@~7.4.0/buffer";
 import * as option from "jsr:@denops/std@~7.4.0/option";
 import * as autocmd from "jsr:@denops/std@~7.4.0/autocmd";
@@ -169,11 +173,18 @@ async function setKeymap(denops: Denops, buf: Buffer) {
   });
 }
 
-export async function loadIssueViewer(denops: Denops, buf: Buffer) {
+export async function loadIssueViewer(
+  denops: Denops,
+  ctx: LoadContext,
+  buf: Buffer,
+) {
   const { owner, repo, num } = getIssueIdentifier(buf);
 
   const { url, body: lines } = await fetchAndFormatIssue(owner, repo, num);
   await buffer.replace(denops, buf.bufnr, lines);
+  if (!ctx.firstTime) {
+    return;
+  }
   await setKeymap(denops, buf);
   await setbufvar(denops, buf.bufnr, "denops_github_issue_url", url);
 
@@ -182,6 +193,7 @@ export async function loadIssueViewer(denops: Denops, buf: Buffer) {
     denops,
     `denops-github:issue:buffer:${buf.bufnr}`,
     (helper) => {
+      helper.remove("*");
       helper.define(
         "User",
         `denops-github:issue:*;owner=${owner}&repo=${repo}&num=${num}`,

@@ -1,5 +1,5 @@
 import type { Denops } from "jsr:@denops/std@~7.4.0";
-import type { Buffer } from "jsr:@kyoh86/denops-router@0.3.7";
+import type { Buffer, LoadContext } from "jsr:@kyoh86/denops-router@0.4.0";
 import { getClient } from "../client.ts";
 import * as option from "jsr:@denops/std@~7.4.0/option";
 import * as buffer from "jsr:@denops/std@~7.4.0/buffer";
@@ -7,7 +7,11 @@ import * as autocmd from "jsr:@denops/std@~7.4.0/autocmd";
 import { getbufline, setbufvar } from "jsr:@denops/std@~7.4.0/function";
 import { getIssueIdentifier } from "./issue-buf.ts";
 
-export async function loadIssueComment(denops: Denops, buf: Buffer) {
+export async function loadIssueComment(
+  denops: Denops,
+  _ctx: LoadContext,
+  buf: Buffer,
+) {
   await option.endofline.setBuffer(denops, buf.bufnr, false);
   await option.fixendofline.setBuffer(denops, buf.bufnr, false);
   await option.filetype.setBuffer(denops, buf.bufnr, "markdown");
