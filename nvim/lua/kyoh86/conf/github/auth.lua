@@ -11,7 +11,6 @@ end
 -- GitHubの認証を得る
 function M.relogin(glaze)
   glaze = glaze or require("kyoh86.lib.glaze")
-  vim.print("relogin")
   -- ref: ../../../../denops/github/handler/login.ts
   vim.fn["denops#request_async"]("github", "login", {}, function(v)
     vim.validate("github-auth", v, "table")
