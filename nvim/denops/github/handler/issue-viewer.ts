@@ -3,7 +3,7 @@ import type {
   Buffer,
   LoadContext,
   Router,
-} from "jsr:@kyoh86/denops-router@0.4.0";
+} from "jsr:@kyoh86/denops-router@0.4.2";
 import * as buffer from "jsr:@denops/std@~7.4.0/buffer";
 import * as option from "jsr:@denops/std@~7.4.0/option";
 import * as autocmd from "jsr:@denops/std@~7.4.0/autocmd";
