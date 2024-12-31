@@ -182,6 +182,8 @@ export async function loadIssueViewer(
 
   const { url, body: lines } = await fetchAndFormatIssue(owner, repo, num);
   await buffer.replace(denops, buf.bufnr, lines);
+  await option.filetype.setBuffer(denops, buf.bufnr, "github-issue-view");
+  await option.syntax.setBuffer(denops, buf.bufnr, "github-issue-view");
   if (!ctx.firstTime) {
     return;
   }
@@ -202,7 +204,6 @@ export async function loadIssueViewer(
       );
     },
   );
-  await option.filetype.setBuffer(denops, buf.bufnr, "github-issue-view");
   // filetypeに応じたsyntax設定は別ファイルで行う
   // ref: ../../../syntax/github-issue-view.vim
 }
