@@ -16,7 +16,7 @@ const ClientID = "Iv23liIclzYxPQJBSI7d";
 export const main: Entrypoint = async (denops) => {
   const dispatcher = {
     login: async () => {
-      await login(denops, ClientID);
+      return await login(denops, ClientID);
     },
   };
 

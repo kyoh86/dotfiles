@@ -4,20 +4,22 @@ local M = {}
 function M.login()
   local glaze = require("kyoh86.lib.glaze")
   if not glaze.has("github-auth") then
-    -- ref: ../../../../denops/github/handler/login.ts
-    vim.fn["denops#request_async"]("github", "login", {}, function(v)
-      glaze.set("github-auth", v)
-    end, function(e)
-      vim.notify("failed to login\n" .. vim.json.encode(e), vim.log.levels.WARN)
-    end)
+    M.relogin(glaze)
   end
 end
 
 -- GitHubの認証を得る
-function M.relogin()
-  local glaze = require("kyoh86.lib.glaze")
+function M.relogin(glaze)
+  glaze = glaze or require("kyoh86.lib.glaze")
+  vim.print("relogin")
   -- ref: ../../../../denops/github/handler/login.ts
   vim.fn["denops#request_async"]("github", "login", {}, function(v)
+    vim.validate("github-auth", v, "table")
+    vim.validate("github-auth.clientType", v.clientType, "string")
+    vim.validate("github-auth.clientId", v.clientId, "string")
+    vim.validate("github-auth.type", v.type, "string")
+    vim.validate("github-auth.tokenType", v.tokenType, "string")
+    vim.validate("github-auth.token", v.token, "string")
     glaze.set("github-auth", v)
   end, function(e)
     vim.notify("failed to login\n" .. vim.json.encode(e), vim.log.levels.WARN)
