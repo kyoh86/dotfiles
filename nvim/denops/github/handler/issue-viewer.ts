@@ -18,6 +18,7 @@ import { mapDispatch } from "./util.ts";
 import { getbufvar, setbufvar } from "jsr:@denops/std@~7.4.0/function";
 import { ensure, is } from "jsr:@core/unknownutil@4";
 import { systemopen } from "jsr:@lambdalisue/systemopen@~1.0.0";
+import { query as queryIssue } from "../query/issue.ts";
 
 // Issueを取得してフォーマットする関数
 async function fetchAndFormatIssue(
@@ -28,18 +29,7 @@ async function fetchAndFormatIssue(
   const client = await getClient();
 
   // Issue情報の取得
-  const { data: issue } = await client.rest.issues.get({
-    owner,
-    repo,
-    issue_number,
-  });
-  // コメント一覧の取得
-  const { data: comments } = await client.rest.issues.listComments({
-    owner,
-    repo,
-    issue_number,
-    per_page: 100,
-  });
+  const issue = await queryIssue(client, owner, repo, issue_number);
 
   // Issueの基本情報整形
   const stateText = issue.state === "open" ? "[open]" : "[closed]";
@@ -59,11 +49,11 @@ async function fetchAndFormatIssue(
   // ラベル、アサイン、マイルストーン、URLなど
   const labels = issue.labels.map((l) => typeof l === "string" ? l : l.name)
     .join(", ");
-  const assignees = issue.assignees?.map((a) => `@${a.login}`).join(", ") || "";
+  const assignees = issue.assignees.map((a) => `@${a.login}`).join(", ") || "";
   const milestone = issue.milestone?.title ?? "";
   const repoFullName = `${owner}/${repo}`;
-  const openedBy = `@${issue.user?.login ?? "unknown"} on ${
-    localTimeString(issue.created_at)
+  const openedBy = `@${issue.author.login ?? "unknown"} on ${
+    localTimeString(issue.createdAt)
   }`;
   const metaSection = [
     `META:>=========================================================================`,
@@ -72,7 +62,7 @@ async function fetchAndFormatIssue(
     ...(labels.length > 0 ? [`[Labels]       : ${labels}`] : []),
     ...(assignees.length > 0 ? [`[Assignees]    : ${assignees}`] : []),
     ...(milestone != "" ? [`[Milestone]    : ${milestone}`] : []),
-    `[URL]          : ${issue.html_url}`,
+    `[URL]          : ${issue.url}`,
     ``,
   ];
 
@@ -86,29 +76,29 @@ async function fetchAndFormatIssue(
   ];
 
   // COMMENTS部分
-  const commentsSectionHeader = comments.length > 0
+  const commentsSectionHeader = issue.comments.length > 0
     ? [
-      `COMMENTS (${comments.length}):>=================================================================`,
+      `COMMENTS (${issue.comments.length}):>=================================================================`,
     ]
     : [];
 
   const commentLines: string[] = [];
-  if (comments.length > 0) {
-    for (let i = 0; i < comments.length; i++) {
+  if (issue.comments.length > 0) {
+    for (let i = 0; i < issue.comments.length; i++) {
       commentLines.push(`:`);
-      const c = comments[i];
+      const c = issue.comments[i];
       // コメントヘッダ行の例:
       // `-- C-#1 @charlie 2024-12-12 09:15 [Author, Owner] ------------------------------`
-      const numberLine = `-- C-#${i + 1} @${c.user?.login ?? "unknown"} ${
-        localTimeString(c.created_at)
+      const numberLine = `-- C-#${i + 1} @${c.author.login ?? "unknown"} ${
+        localTimeString(c.createdAt)
       }`;
       // Edited/Author/Ownerフラグの抽出 (ここでは例として簡易的に)
       const metaFlags: string[] = [];
-      if (c.author_association === "OWNER") metaFlags.push("Owner");
-      if (c.author_association === "COLLABORATOR") metaFlags.push("Author"); // 例: collaboratorをAuthor相当とする
+      if (c.authorAssociation === "OWNER") metaFlags.push("Owner");
+      if (c.authorAssociation === "COLLABORATOR") metaFlags.push("Author"); // 例: collaboratorをAuthor相当とする
       if (
-        localTimeString(c.updated_at) &&
-        localTimeString(c.updated_at) !== localTimeString(c.created_at)
+        localTimeString(c.updatedAt) &&
+        localTimeString(c.updatedAt) !== localTimeString(c.createdAt)
       ) {
         metaFlags.push("Edited");
       }
@@ -126,7 +116,7 @@ async function fetchAndFormatIssue(
   }
 
   return {
-    url: issue.html_url,
+    url: issue.url,
     body: [
       ...titleSection,
       ``,

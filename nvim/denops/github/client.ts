@@ -1,11 +1,22 @@
 import { restoreAuthentication, storeAuthentication } from "./auth.ts";
 import { Octokit as OctokitCore } from "npm:@octokit/core@6.1.2";
-import { restEndpointMethods } from "npm:@octokit/plugin-rest-endpoint-methods@13.2.6";
-import { paginateRest } from "npm:@octokit/plugin-paginate-rest@11.3.6";
-
-export const Octokit = OctokitCore.plugin(restEndpointMethods).plugin(
+import {
+  type Api,
+  restEndpointMethods,
+} from "npm:@octokit/plugin-rest-endpoint-methods@13.2.6";
+import {
+  type PaginateInterface,
   paginateRest,
-);
+} from "npm:@octokit/plugin-paginate-rest@11.3.6";
+import {
+  paginateGraphQL,
+  type paginateGraphQLInterface,
+} from "npm:@octokit/plugin-paginate-graphql@5.2.4";
+
+export const Octokit = OctokitCore
+  .plugin(restEndpointMethods)
+  .plugin(paginateRest)
+  .plugin(paginateGraphQL);
 import { createOAuthDeviceAuth } from "npm:@octokit/auth-oauth-device@7.1.1";
 import { systemopen } from "jsr:@lambdalisue/systemopen@~1.0.0";
 type Verification = {
@@ -57,7 +68,13 @@ export async function authenticate(
 
 const ClientID = "Iv1.784dcbad252102e3";
 
-export async function getClient() {
+export type Client =
+  & OctokitCore
+  & Api
+  & { paginate: PaginateInterface }
+  & paginateGraphQLInterface;
+
+export async function getClient(): Promise<Client> {
   return new Octokit({
     authStrategy: createOAuthDeviceAuth,
     auth: await authenticate(),
