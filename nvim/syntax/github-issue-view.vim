@@ -52,10 +52,16 @@ syntax match githubIssueCommentMarkerStart /^COMMENTS (\d\+):>=\+$/
 syntax match githubIssueCommentCount /\(^COMMENTS (\)\@<=\d\+\():>=\+$\)\@=/
 
 " コメントブロック識別
-syntax region githubIssueComment start=/\m\(^\)\@<=-- C-#\d\+ / end=/\m\(^\)\@<=: /
+syntax region githubIssueComment start=/\m\(^\)\@<=-- C-#\d\+ / end=/\m\(^\)\@<=:/
       \ contains=githubIssueCommentMeta,@Markdown
       \ keepend
-syntax match githubIssueCommentMeta /^-- C-#\d\+ @[^ ]\+ \d\{4,\}-\d\d-\d\d \d\d:\d\d\( \[[a-zA-Z]\+\(, [a-zA-Z]\+\)*\]\)\? -\+$/
+" コメントブロック識別（Folded）
+syntax region githubIssueCommentMinimized start=/\m\(^\)\@<=-- M-#\d\+ / end=/\m\(^\)\@<=:/
+      \ contains=githubIssueCommentMeta,@Markdown
+      \ fold
+      \ keepend
+
+syntax match githubIssueCommentMeta /^-- [CM]-#\d\+ @[^ ]\+ \d\{4,\}-\d\d-\d\d \d\d:\d\d\( \[[a-zA-Z]\+\(, [a-zA-Z]\+\)*\]\)\? -\+$/
       \ contained
       \ contains=githubIssueCommentMetaNumber,githubIssueCommentMetaAuthor,githubIssueCommentFlag
 
@@ -64,11 +70,17 @@ syntax match githubIssueCommentMetaAuthor  /@[^ ]\+/ contained
 
 syntax region githubIssueCommentFlag start="\[" end="\]"
       \ contained
-      \ contains=githubIssueCommentFlagEdited,githubIssueCommentFlagAuthor,githubIssueCommentFlagOwner
+      \ contains=githubIssueCommentFlagEdited,githubIssueCommentFlagAuthor,githubIssueCommentFlagOwner,githubIssueCommentFlagAbuse,githubIssueCommentFlagOffTopic,githubIssueCommentFlagOutdated,githubIssueCommentFlagResolved,githubIssueCommentFlagDuplicate,githubIssueCommentFlagSpam
 
-syntax keyword githubIssueCommentFlagEdited Edited contained
-syntax keyword githubIssueCommentFlagAuthor Author contained
-syntax keyword githubIssueCommentFlagOwner  Owner  contained
+syntax keyword githubIssueCommentFlagEdited    Edited    contained
+syntax keyword githubIssueCommentFlagAuthor    Author    contained
+syntax keyword githubIssueCommentFlagOwner     Owner     contained
+syntax keyword githubIssueCommentFlagAbuse     ABUSE     contained
+syntax keyword githubIssueCommentFlagOffTopic  OFF_TOPIC contained
+syntax keyword githubIssueCommentFlagOutdated  OUTDATED  contained
+syntax keyword githubIssueCommentFlagResolved  RESOLVED  contained
+syntax keyword githubIssueCommentFlagDuplicate DUPLICATE contained
+syntax keyword githubIssueCommentFlagSpam      SPAM      contained
 
 " ---------------------------------------------
 "  ハイライト
@@ -93,12 +105,18 @@ highlight link githubIssueBody               Normal
 highlight link githubIssueBodyMarkerStart    Label
 
 " コメントセクション関連
-highlight link githubIssueCommentMarkerStart Label
-highlight link githubIssueCommentCount       Number
-highlight link githubIssueCommentMeta        Label
-highlight link githubIssueCommentMetaNumber  Number
-highlight link githubIssueCommentMetaAuthor  Identifier
-highlight link githubIssueCommentFlag        Type
-highlight link githubIssueCommentFlagEdited  Keyword
-highlight link githubIssueCommentFlagAuthor  Keyword
-highlight link githubIssueCommentFlagOwner   Keyword
+highlight link githubIssueCommentMarkerStart   Label
+highlight link githubIssueCommentCount         Number
+highlight link githubIssueCommentMeta          Label
+highlight link githubIssueCommentMetaNumber    Number
+highlight link githubIssueCommentMetaAuthor    Identifier
+highlight link githubIssueCommentFlag          Type
+highlight link githubIssueCommentFlagEdited    Keyword
+highlight link githubIssueCommentFlagAuthor    Keyword
+highlight link githubIssueCommentFlagOwner     Keyword
+highlight link githubIssueCommentFlagAbuse     Keyword
+highlight link githubIssueCommentFlagOffTopic  Keyword
+highlight link githubIssueCommentFlagOutdated  Keyword
+highlight link githubIssueCommentFlagResolved  Keyword
+highlight link githubIssueCommentFlagDuplicate Keyword
+highlight link githubIssueCommentFlagSpam      Keyword

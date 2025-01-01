@@ -34,7 +34,7 @@ async function fetchAndFormatIssue(
   // Issueの基本情報整形
   const stateText = issue.state === "open" ? "[open]" : "[closed]";
   const titleSection = [
-    `TITLE:>=======================================================================`,
+    `TITLE:>`.padEnd(80, "="),
     `#${issue.number} ${stateText} ${issue.title}`,
   ];
 
@@ -56,7 +56,7 @@ async function fetchAndFormatIssue(
     localTimeString(issue.createdAt)
   }`;
   const metaSection = [
-    `META:>=========================================================================`,
+    `META:>`.padEnd(80, "="),
     `[Repository]   : ${repoFullName}`,
     `[Opened by]    : ${openedBy}`,
     ...(labels.length > 0 ? [`[Labels]       : ${labels}`] : []),
@@ -70,7 +70,7 @@ async function fetchAndFormatIssue(
   // Issue本文（issue.body）をMarkdownと想定
   // 空行を適宜挟む
   const bodySection = [
-    `BODY:>=========================================================================`,
+    `BODY:>`.padEnd(80, "="),
     ...issue.body?.split(/\r?\n/)?.map((l) => indentLine(l)) ?? [],
     ``,
   ];
@@ -78,7 +78,7 @@ async function fetchAndFormatIssue(
   // COMMENTS部分
   const commentsSectionHeader = issue.comments.length > 0
     ? [
-      `COMMENTS (${issue.comments.length}):>=================================================================`,
+      `COMMENTS (${issue.comments.length}):>`.padEnd(80, "="),
     ]
     : [];
 
@@ -89,9 +89,10 @@ async function fetchAndFormatIssue(
       const c = issue.comments[i];
       // コメントヘッダ行の例:
       // `-- C-#1 @charlie 2024-12-12 09:15 [Author, Owner] ------------------------------`
-      const numberLine = `-- C-#${i + 1} @${c.author.login ?? "unknown"} ${
-        localTimeString(c.createdAt)
-      }`;
+      // `-- M-#1 @charlie 2024-12-12 09:15 [Author, Owner, OUTDATED] --------------------
+      const numberLine = `-- ${c.isMinimized ? "M" : "C"}-#${i + 1} @${
+        c.author.login ?? "unknown"
+      } ${localTimeString(c.createdAt)}`;
       // Edited/Author/Ownerフラグの抽出 (ここでは例として簡易的に)
       const metaFlags: string[] = [];
       if (c.authorAssociation === "OWNER") metaFlags.push("Owner");
@@ -102,10 +103,10 @@ async function fetchAndFormatIssue(
       ) {
         metaFlags.push("Edited");
       }
+      if (c.isMinimized) metaFlags.push(c.minimizedReason ?? "Minimized");
 
       const metaStr = metaFlags.length > 0 ? ` [${metaFlags.join(", ")}]` : "";
-      const sep = "--------------------------------";
-      commentLines.push(`${numberLine}${metaStr} ${sep}`);
+      commentLines.push(`${numberLine}${metaStr} `.padEnd(80, "-"));
       commentLines.push("");
       // コメント本文
       const cBody = c.body?.split(/\r?\n/) ?? [];
