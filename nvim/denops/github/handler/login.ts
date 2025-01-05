@@ -5,8 +5,8 @@ import { systemopen } from "jsr:@lambdalisue/systemopen@~1.0.0";
 
 import {
   createOAuthDeviceAuth,
-} from "https://esm.sh/@octokit/auth-oauth-device@7.1.1";
-import type { OnVerificationCallback } from "https://esm.sh/v135/@octokit/auth-oauth-device@7.1.1/dist-types/types.d.ts";
+} from "https://esm.sh/@octokit/auth-oauth-device@7.1.2";
+import type { OnVerificationCallback } from "https://esm.sh/v135/@octokit/auth-oauth-device@7.1.2/dist-types/types.d.ts";
 
 export async function login(denops: Denops, clientID: string) {
   const options: {
