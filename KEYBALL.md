@@ -1,18 +1,31 @@
 # Keyball Setup
 
-How to etup Keyball61
+How to setup Keyball61
 
 See also: https://github.com/Yowkees/keyball/blob/main/qmk_firmware/keyboards/keyball/readme.md
 
-## In GitHub Actions
+## Customize Keymap
+
+1. Clone Repository
+    - `git clone https://github.com/kyoh86/keyball --branch kyoh86-ow keyball`
+1. Edit Keymap
+    - `qmk_firmware/keyboards/keyball/keyball61/keymaps/kyoh86/config.h`
+    - `qmk_firmware/keyboards/keyball/keyball61/keymaps/kyoh86/keymap.c`
+1. Build Firmware (See below)
+
+## View Keymap
+
+https://remap-keys.app/
+
+## Build Farmware In GitHub Actions
 
 https://github.com/kyoh86/keyball/actions/workflows/build-user.yml
 
 ```console
-gh workflow run --ref kyoh86-ow --field keyboard=keyball61 --field keymap=kyoh86
+gh --repo kyoh86/keyball workflow run build-user.yml --ref kyoh86-ow --field keyboard=keyball61 --field keymap=kyoh86
 ```
 
-## By Manual
+## Build Farmware By Manual
 
 ### 0. Install qmk tool
 
