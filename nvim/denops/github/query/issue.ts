@@ -156,7 +156,7 @@ export async function query(
       comments: is.ObjectOf({
         nodes: is.ArrayOf(is.Unknown),
         pageInfo: is.ObjectOf({
-          endCursor: is.String,
+          endCursor: is.UnionOf([is.Null, is.String]),
           hasNextPage: is.Boolean,
         }),
       }),
