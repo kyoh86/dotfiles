@@ -3,11 +3,11 @@ import { Octokit as OctokitCore } from "npm:@octokit/core@6.1.3";
 import {
   type Api,
   restEndpointMethods,
-} from "npm:@octokit/plugin-rest-endpoint-methods@13.2.6";
+} from "npm:@octokit/plugin-rest-endpoint-methods@13.3.0";
 import {
   type PaginateInterface,
   paginateRest,
-} from "npm:@octokit/plugin-paginate-rest@11.3.6";
+} from "npm:@octokit/plugin-paginate-rest@11.4.0";
 import {
   paginateGraphQL,
   type paginateGraphQLInterface,
