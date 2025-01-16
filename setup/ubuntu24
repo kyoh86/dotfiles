@@ -367,6 +367,7 @@ install_aws_cli() {
   popd
   rm -rf "$AWS_CLI_TEMPDIR"
 }
+install_aws_cli
 
 # actionlint
 go install github.com/rhysd/actionlint/cmd/actionlint@latest
