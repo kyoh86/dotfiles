@@ -106,12 +106,18 @@ local function register_lsp_servers()
     },
   }
 
-  local function register(name, config, skip_mason)
-    config.capabilities = capabilities
-    if not skip_mason then
+  --- サーバーの設定を登録する
+  --- @param name string
+  --- @param config table|nil
+  --- @param skip_install? true
+  local function register(name, config, skip_install)
+    if not skip_install then
       table.insert(lsp_server_list, name)
     end
-    lsp_config_table[name] = config
+    if config then
+      config.capabilities = capabilities
+      lsp_config_table[name] = config
+    end
   end
 
   register("angularls", {})
