@@ -71,5 +71,9 @@ return function()
   end, "現在のWorkspaceのDiagnosticをQuickfixに表示する")
 
   -- show diagnostics
-  setmap("n", "<leader>lid", vim.diagnostic.open_float, "show diagnostics in a floating window")
+  setmap("n", "<leader>lid", function()
+    local new_config = not vim.diagnostic.config().virtual_lines
+    vim.diagnostic.config({ virtual_lines = new_config })
+  end, "Toggle showing diagnostics in virtual lines")
+  setmap("n", "<leader>lif", vim.diagnostic.open_float, "show diagnostics in a floating window")
 end
