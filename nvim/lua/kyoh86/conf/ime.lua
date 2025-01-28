@@ -1,27 +1,54 @@
 --- Insertモードから抜けるときにIMEを自動でオフにする
-local uname = vim.uv.os_uname()
+local glaze = require("kyoh86.lib.glaze")
+
 local group = vim.api.nvim_create_augroup("kyoh86-conf-ime", {})
-if uname.sysname == "Linux" then
-  if os.getenv("WSL_DISTRO_NAME") ~= "" then
+glaze.get("os_uname_sysname", function(
+  sysname,
+  _ --[[fail]]
+)
+  glaze.glaze("ime", function()
+    if sysname == "Linux" then
+      if os.getenv("WSL_DISTRO_NAME") ~= "" then
+        if vim.fn.executable("zenhan.exe") == 1 then
+          return "zenhan"
+        end
+      else
+        if vim.fn.executable("ibus") == 1 then
+          return "ibus"
+        elseif vim.fn.executable("fcitx-remote") == 1 then
+          return "fcitx"
+        end
+      end
+    elseif sysname == "Mac" then
+      return "mac"
+    end
+    return ""
+  end)
+end)
+
+glaze.get("ime", function(
+  ime,
+  _ --[[fail]]
+)
+  if ime == "zenhan" then
     vim.api.nvim_create_autocmd("InsertLeave", {
       group = group,
       command = "silent! !zenhan.exe 0",
     })
-  elseif vim.fn.executable("ibus") == 1 then
+  elseif ime == "ibus" then
     vim.api.nvim_create_autocmd("InsertLeave", {
       group = group,
       command = "silent! !ibus engine 'xkb:us::eng'",
     })
-  elseif vim.fn.executable("fcitx-remote") == 1 then
+  elseif ime == "fcitx" then
     vim.api.nvim_create_autocmd("InsertLeave", {
       group = group,
       command = "silent! !fcitx-remote -c",
     })
+  elseif ime == "mac" then
+    vim.api.nvim_create_autocmd("InsertLeave", {
+      group = group,
+      command = [[silent! !osascript -e 'tell application "System Events"' -e 'key code 102' -e 'end tell']],
+    })
   end
-elseif uname.sysname == "Mac" then
-  vim.api.nvim_create_autocmd("InsertLeave", {
-    group = group,
-    command = [[silent! !osascript -e 'tell application "System Events"' -e 'key code 102' -e 'end tell']],
-  })
-end
-
+end)

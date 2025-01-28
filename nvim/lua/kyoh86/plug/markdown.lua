@@ -40,10 +40,15 @@ local spec = {
       vim.g.previm_code_language_show = true
       vim.g.previm_disable_default_css = true
       vim.g.previm_custom_css_path = vim.fn.stdpath("config") .. "/css/github-markdown.css"
-      local glaze = require("kyoh86.lib.glaze")
-      glaze.get("opener", function(opener)
-        vim.g.previm_open_cmd = opener
-      end)
+      if os.getenv("WSL_DISTRO_NAME") ~= "" then
+        vim.g.previm_wsl_mode = true
+        vim.g.previm_open_cmd = "explorer.exe"
+      else
+        local glaze = require("kyoh86.lib.glaze")
+        glaze.get("opener", function(opener)
+          vim.g.previm_open_cmd = opener
+        end)
+      end
     end,
   },
 }
