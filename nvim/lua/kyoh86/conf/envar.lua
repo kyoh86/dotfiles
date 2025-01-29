@@ -135,4 +135,7 @@ end)
 path.ins(path.home .. "/.local/bin")
 path.ins(path.home .. "/.local/sbin")
 
+-- .config/bin
+path.ins(config_home .. "/bin")
+
 path.apply()

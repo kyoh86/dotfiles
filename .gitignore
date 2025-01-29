@@ -4,6 +4,7 @@
 
 !/README.md
 !/KEYBALL.md
+!/bin/
 !/docker-linux/config.json
 !/efm-langserver
 !/fcitx5

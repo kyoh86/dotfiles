@@ -1,0 +1,26 @@
+#!/bin/zsh
+new_branch=$1
+default_branch="$(
+  if configured="$(git config --local kyoh86.defaultBranch)" 
+    then
+      echo "$configured"
+    else
+      if git config --local remote.upstream.fetch > /dev/null 
+        then
+          if branch="$(git ls-remote -q --symref upstream | awk 'NR==1 && match($2, /^refs\/heads\/(.+)$/, a) { print a[1] }')" 
+            then
+              echo "upstream/$branch"
+          fi
+        else
+          if branch="$(git ls-remote -q --symref origin | awk 'NR==1 && match($2, /^refs\/heads\/(.+)$/, a) { print a[1] }')" 
+            then
+              echo "origin/$branch"
+          fi
+      fi
+  fi
+)"
+if [ -n "$default_branch" ]
+  then
+    git config --local kyoh86.defaultBranch "$default_branch"
+    git switch --no-track -c "$new_branch" "$default_branch"
+fi
