@@ -16,6 +16,7 @@ vim.api.nvim_create_autocmd("User", {
     local level = vim.log.levels.INFO
     local msg = { "Process" }
     if command and command ~= "" then
+      command = vim.fn.trim(vim.base64.decode(command))
       if vim.fn.strcharlen(command) > 30 then
         command = vim.fn.strcharpart(command, 0, 30) .. "..."
       end
