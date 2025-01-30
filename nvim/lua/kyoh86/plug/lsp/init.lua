@@ -246,5 +246,21 @@ local spec = {
     end,
   },
   { "williamboman/mason.nvim", lazy = true },
+  {
+    "artemave/workspace-diagnostics.nvim",
+    dependencies = {
+      "nvim-lspconfig",
+    },
+    config = function()
+      vim.api.nvim_set_keymap("n", "<leader>lxd", "", {
+        noremap = true,
+        callback = function()
+          for _, client in ipairs(vim.lsp.get_clients()) do
+            require("workspace-diagnostics").populate_workspace_diagnostics(client, 0)
+          end
+        end,
+      })
+    end,
+  },
 }
 return spec

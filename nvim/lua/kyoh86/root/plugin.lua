@@ -50,5 +50,6 @@ vim.api.nvim_create_autocmd("User", {
 kyoh86.ensure("lazy", function(m)
   m.setup({
     { import = "kyoh86.plug" },
+    install = { colorscheme = { "default" } },
   }, opts)
 end)
