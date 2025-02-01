@@ -1,7 +1,7 @@
-import type { FilterArguments } from "jsr:@shougo/ddu-vim@~9.4.0/filter";
+import type { FilterArguments } from "jsr:@shougo/ddu-vim@~9.5.0/filter";
 import { getbufvar } from "jsr:@denops/std@~7.4.0/function";
-import type { DduItem } from "jsr:@shougo/ddu-vim@~9.4.0/types";
-import { BaseFilter } from "jsr:@shougo/ddu-vim@~9.4.0/filter";
+import type { DduItem } from "jsr:@shougo/ddu-vim@~9.5.0/types";
+import { BaseFilter } from "jsr:@shougo/ddu-vim@~9.5.0/filter";
 
 const defaultParams = {
   highlightAdded: "diffAdded",
