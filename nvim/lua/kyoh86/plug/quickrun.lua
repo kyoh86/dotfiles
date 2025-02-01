@@ -43,11 +43,5 @@ end
 ---@type LazySpec
 local spec = {
   "thinca/vim-quickrun",
-  keys = {
-    { "<plug>(quickrun)", mode = { "n", "v" } },
-  },
-  cmd = {
-    "QuickRun",
-  },
 }
 return spec
