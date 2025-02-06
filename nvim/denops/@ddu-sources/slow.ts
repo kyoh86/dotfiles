@@ -17,26 +17,26 @@ export class Source extends BaseSource<Params, ActionData> {
   override gather(
     {}: GatherArguments<Params>,
   ): ReadableStream<Item<ActionData>[]> {
+    let timer: number | undefined = undefined;
+    const cancel = () => {
+      if (timer) clearInterval(timer);
+    };
     return new ReadableStream<Item<ActionData>[]>({
+      cancel,
       start: async (controller) => {
         return await new Promise((resolve) => {
           let i = 0;
-          const id = setInterval(() => {
-            try {
-              controller.enqueue([
-                {
-                  word: `foo-${i}`,
-                  action: { text: `foo-${i}` },
-                },
-              ]);
-              i++;
-              if (i > 5) {
-                resolve(0);
-                clearInterval(id);
-              }
-            } catch {
-              resolve(1);
-              clearInterval(id);
+          timer = setInterval(() => {
+            controller.enqueue([
+              {
+                word: `foo-${i}`,
+                action: { text: `foo-${i}` },
+              },
+            ]);
+            i++;
+            if (i > 5) {
+              resolve(0);
+              cancel();
             }
           }, 1000);
         }).finally(() => {
