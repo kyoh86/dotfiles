@@ -11,7 +11,6 @@ return {
       nilness = true,
       unusedparams = true,
       unusedwrite = true,
-      fieldalignment = true,
     },
     codelenses = {
       gc_details = true,
