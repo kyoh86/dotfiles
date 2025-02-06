@@ -122,8 +122,10 @@ generate_ssh_key() {
 generate_ssh_key
 
 # WSL Utilities includes wslview, etc
+sudo add-apt-repository ppa:wslutilities/wslu
+sudo apt update
 sudo apt install --yes \
-    wslu
+  wslu
 
 # Install GitHub CLI
 install_github_cli() {
