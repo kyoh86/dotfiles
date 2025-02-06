@@ -6,12 +6,13 @@ import {
   type Item,
 } from "jsr:@shougo/ddu-vim@~9.5.0/types";
 import { BaseSource } from "jsr:@shougo/ddu-vim@~9.5.0/source";
+import type { ActionData as WordActionData } from "jsr:@shougo/ddu-kind-word@~0.4.1";
 import { echoerrCommand } from "jsr:@kyoh86/denops-util@~0.1.0/command";
 import { TextLineStream } from "jsr:@std/streams@~1.0.0";
 import { environment } from "jsr:@denops/std@~7.4.0/variable";
 import { is, maybe } from "jsr:@core/unknownutil@~4.3.0";
 
-type ActionData = {
+type ActionData = WordActionData & {
   name: string;
 };
 
@@ -32,12 +33,13 @@ export class Source extends BaseSource<Params, ActionData> {
             .pipeThrough(new TextLineStream())
             .pipeTo(
               new WritableStream({
-                write: (chunk) => {
+                write: (text) => {
                   controller.enqueue([
                     {
-                      word: chunk,
+                      word: text,
                       action: {
-                        name: chunk,
+                        name: text,
+                        text,
                       },
                     },
                   ]);
