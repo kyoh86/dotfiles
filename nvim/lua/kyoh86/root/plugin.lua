@@ -48,10 +48,10 @@ vim.api.nvim_create_autocmd("User", {
 })
 
 kyoh86.ensure("lazy", function(m)
-  m.setup({
+  m.setup(vim.tbl_extend("force", {
     spec = {
       { import = "kyoh86.plug" },
     },
     install = { colorscheme = { "default" } },
-  }, opts)
+  }, opts))
 end)
