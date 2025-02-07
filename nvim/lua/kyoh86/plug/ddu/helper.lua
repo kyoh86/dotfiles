@@ -6,9 +6,9 @@ local ddu_ui_map = {}
 ---call mapped function for named ddu-ui
 ---UNDONE: support |:map-arguments|
 ---UNDONE: support map-mode
----@param ui_name string ddu_ui_name
 ---@param lh string
-local function ddu_ui_call_map(ui_name, lh)
+local function ddu_ui_call_map(lh)
+  local ui_name = vim.b["ddu_ui_name"]
   local rh = (ddu_ui_map[ui_name] or {})[lh]
   if type(rh) == "table" then
     vim.fn["ddu#ui#do_action"](rh.action, rh.params)
@@ -75,19 +75,27 @@ function M.setup(name, dduopts, config)
       ["<leader>x"] = { action = "itemAction", params = { name = "open", params = { command = "new" } } },
     })
   end
-  if next(map) ~= nil then
-    local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff-map-" .. name, {})
-    ddu_ui_set_map(name, map)
-    vim.api.nvim_create_autocmd("FileType", {
-      group = group,
-      pattern = "ddu-ff",
-      callback = function()
-        for lh in pairs(map) do
-          vim.keymap.set("n", lh, func.bind_all(ddu_ui_call_map, vim.b["ddu_ui_name"], lh), { nowait = true, remap = false, buffer = true })
-        end
-      end,
-    })
+  if next(map) == nil then
+    return
   end
+
+  local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff-map-" .. name, {})
+  ddu_ui_set_map(name, map)
+  vim.api.nvim_create_autocmd("FileType", {
+    group = group,
+    pattern = "ddu-ff",
+    callback = function(ev)
+      local ok, res = pcall(vim.api.nvim_buf_get_var, ev.buf, "ddu_ui_name")
+      if not (ok and res == name) then
+        return
+      end
+      for lh in pairs(map) do
+        vim.keymap.set("n", lh, function()
+          ddu_ui_call_map(lh)
+        end, { nowait = true, remap = false, buffer = true })
+      end
+    end,
+  })
 end
 
 return M
