@@ -11,7 +11,7 @@ local spec = {
         return 1
       end
       vim.fn["ddu#start"]({
-        name = args.options.name,
+        name = "git-diff-tree",
         push = true,
         sources = { { name = "git_diff_tree", params = { commitHash = args.items[1].action.hash } } },
       })

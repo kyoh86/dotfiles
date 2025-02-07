@@ -12,7 +12,7 @@ local spec = {
       end
       local path = args.items[1].action.path
       vim.fn["ddu#start"]({
-        name = args.options.name,
+        name = "file-all",
         push = true,
         sources = { { name = "file_rec", options = { path = path } } },
       })

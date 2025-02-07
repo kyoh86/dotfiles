@@ -58,7 +58,7 @@ local spec = {
         branch = refName.remote .. "/" .. branch
       end
       vim.fn["ddu#start"]({
-        name = args.options.name,
+        name = "git-log",
         push = true,
         sources = { { name = "git_log", params = { startingCommit = { branch } } } },
       })
