@@ -1,13 +1,6 @@
 ---@type LazySpec[]
 local spec = {
   {
-    "bfredl/nvim-miniyank",
-    keys = {
-      { "p", "<plug>(miniyank-autoput)", mode = "", desc = "autoput with miniyank" },
-      { "P", "<plug>(miniyank-autoPut)", mode = "", desc = "autoput with miniyank" },
-    },
-  },
-  {
     "kyoh86/curtain.nvim",
     keys = { { "<leader>wr", "<plug>(curtain-start)", desc = "ウインドウをリサイズする" } },
   },
