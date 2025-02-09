@@ -3,7 +3,7 @@ import { Octokit as OctokitCore } from "npm:@octokit/core@6.1.3";
 import {
   type Api,
   restEndpointMethods,
-} from "npm:@octokit/plugin-rest-endpoint-methods@13.3.0";
+} from "npm:@octokit/plugin-rest-endpoint-methods@13.3.1";
 import {
   type PaginateInterface,
   paginateRest,

@@ -1,22 +1,22 @@
 {
-    "table driven test function": {
-        "prefix": "testtablefunc",
-        "description": "Snippet for table driven test",
-        "body": "\"func Test$1(t *testing.T) {\n\tfor _, testcase := range []struct {\n\t\ttitle string\n\t\t$2\n\t}{\n\t\t{\n\t\t\ttitle: \"$3\",\n\t\t\t$4\n\t\t},\n\t} {\n\t\tt.Run(testcase.title, func(t *testing.T) {\n\t\t\t$0\n\t\t})\n\t}\n}"
-    },
-    "table driven test": {
-        "prefix": "testtable",
-        "description": "Snippet for table driven test",
-        "body": "for _, testcase := range []struct {\n\t\ttitle\tstring\n\t\t$2\n\t}{\n\t\t{\n\t\t\ttitle: \"$3\",\n\t\t\t$4\n\t\t},\n\t} {\n\t\tt.Run(testcase.title, func(t *testing.T) {\n\t\t\t$0\n\t\t})\n\t}"
-    },
-    "sub test": {
-        "prefix": "testsub",
-        "description": "Snippet for sub-test",
-        "body": "t.Run(\"$1\", func(t *testing.T) {\n\t$2\n})"
-    },
-    "test fatal error": {
-        "prefix": "ifterr",
-        "description": "Snippet for fatal error in test",
-        "body": "if err != nil {\n\tt.Fatal(err)\n}"
-    }
+  "table driven test function": {
+    "prefix": "testtablefunc",
+    "description": "Snippet for table driven test",
+    "body": "\"func Test$1(t *testing.T) {\n\tfor _, testcase := range []struct {\n\t\ttitle string\n\t\t$2\n\t}{\n\t\t{\n\t\t\ttitle: \"$3\",\n\t\t\t$4\n\t\t},\n\t} {\n\t\tt.Run(testcase.title, func(t *testing.T) {\n\t\t\t$0\n\t\t})\n\t}\n}"
+  },
+  "table driven test": {
+    "prefix": "testtable",
+    "description": "Snippet for table driven test",
+    "body": "for _, testcase := range []struct {\n\t\ttitle\tstring\n\t\t$2\n\t}{\n\t\t{\n\t\t\ttitle: \"$3\",\n\t\t\t$4\n\t\t},\n\t} {\n\t\tt.Run(testcase.title, func(t *testing.T) {\n\t\t\t$0\n\t\t})\n\t}"
+  },
+  "sub test": {
+    "prefix": "testsub",
+    "description": "Snippet for sub-test",
+    "body": "t.Run(\"$1\", func(t *testing.T) {\n\t$2\n})"
+  },
+  "test fatal error": {
+    "prefix": "ifterr",
+    "description": "Snippet for fatal error in test",
+    "body": "if err != nil {\n\tt.Fatal(err)\n}"
+  }
 }

@@ -1,38 +1,38 @@
 {
-    "ddu-kind": {
-        "prefix": "ddukind",
-        "body": "import {\n  BaseKind,\n} from \"jsr:@shougo/ddu-vim@~7.0.0/kind\";\nimport {\n  ActionFlags,\n  type Actions,\n} from \"jsr:@shougo/ddu-vim@~7.0.0/types\";\n\nexport type ActionData = Record<PropertyKey, never>;\n\ntype Params = Record<PropertyKey, never>;\n\nexport class Kind extends BaseKind<Params> {\n  override actions: Actions<Params> = {\n    $1: async (args) => {\n      $2\n      return ActionFlags.None;\n    },\n  };\n  params(): Params {\n    return {};\n  }\n}"
-    },
-    "ddu-filter": {
-        "prefix": "ddufilter",
-        "body": "import {\n  BaseFilter,\n  type FilterArguments,\n} from \"jsr:@shougo/ddu-vim@~7.0.0/filter\";\nimport type { DduFilterItems } from \"jsr:@shougo/ddu-vim@~7.0.0/types\";\n\nexport type ActionData = Record<PropertyKey, never>;\n\ntype Params = Record<PropertyKey, never>;\n\nexport class Filter extends BaseFilter<Params> {\n  override filter(\n    {}: FilterArguments<Params>,\n  ): DduFilterItems | Promise<DduFilterItems> {\n    throw new Error(\"not implemented\");\n  }\n  override params(): Params {\n    return {};\n  }\n}"
-    },
-    "ddu-source": {
-        "prefix": "ddusource",
-        "body": "import type {} from \"jsr:@denops/std@~7.3.2\";\nimport { BaseSource, type GatherArguments } from \"jsr:@shougo/ddu-vim@~7.0.0/source\";\nimport type { Item} from \"jsr:@shougo/ddu-vim@~7.0.0/types\";\n\ntype ActionData = Record<PropertyKey, never>;\n\ntype Params = Record<PropertyKey, never>;\n\nexport class Source extends BaseSource<Params, ActionData> {\n  override kind = \"\";\n\n  override gather(\n    args: GatherArguments<Params>,\n  ): ReadableStream<Item<ActionData>[]> {\n    throw new Error(\"not implemented\");\n  }\n\n  override params(): Params {\n    return {};\n  }\n}"
-    },
-    "deno-import": {
-        "body": "import {$2} from \"https://$1\"",
-        "prefix": "denoimport"
-    },
-    "deno-import-type": {
-        "body": "import type {$2} from \"https://$1\"",
-        "prefix": "denoimporttype"
-    },
-    "deno-local-import": {
-        "body": "import {$2} from \"$1\"",
-        "prefix": "denolocalimport"
-    },
-    "deno-local-import-type": {
-        "body": "import type {$2} from \"$1\"",
-        "prefix": "denolocalimporttype"
-    },
-    "denops-test-boilerplate": {
-        "prefix": "denops-test-boilerplate",
-        "body": "import { test } from \"https://deno.land/x/denops_test@v1.6.2/mod.ts\";\nimport { assertEquals } from \"https://deno.land/std@~0.223.0/assert/mod.ts\";\n\ntest({\n  mode: \"all\",\n  name: \"$1\",\n  fn: async (denops) => {\n    $1\n  },\n})\n"
-    },
-    "denops-test-one": {
-        "prefix": "denops-test-one",
-        "body": "test({\n  mode: \"all\",\n  name: \"$1\",\n  fn: async (denops) => {\n    $2\n  },\n})\n"
-    }
+  "ddu-kind": {
+    "prefix": "ddukind",
+    "body": "import {\n  BaseKind,\n} from \"jsr:@shougo/ddu-vim@~7.0.0/kind\";\nimport {\n  ActionFlags,\n  type Actions,\n} from \"jsr:@shougo/ddu-vim@~7.0.0/types\";\n\nexport type ActionData = Record<PropertyKey, never>;\n\ntype Params = Record<PropertyKey, never>;\n\nexport class Kind extends BaseKind<Params> {\n  override actions: Actions<Params> = {\n    $1: async (args) => {\n      $2\n      return ActionFlags.None;\n    },\n  };\n  params(): Params {\n    return {};\n  }\n}"
+  },
+  "ddu-filter": {
+    "prefix": "ddufilter",
+    "body": "import {\n  BaseFilter,\n  type FilterArguments,\n} from \"jsr:@shougo/ddu-vim@~7.0.0/filter\";\nimport type { DduFilterItems } from \"jsr:@shougo/ddu-vim@~7.0.0/types\";\n\nexport type ActionData = Record<PropertyKey, never>;\n\ntype Params = Record<PropertyKey, never>;\n\nexport class Filter extends BaseFilter<Params> {\n  override filter(\n    {}: FilterArguments<Params>,\n  ): DduFilterItems | Promise<DduFilterItems> {\n    throw new Error(\"not implemented\");\n  }\n  override params(): Params {\n    return {};\n  }\n}"
+  },
+  "ddu-source": {
+    "prefix": "ddusource",
+    "body": "import type {} from \"jsr:@denops/std@~7.3.2\";\nimport { BaseSource, type GatherArguments } from \"jsr:@shougo/ddu-vim@~7.0.0/source\";\nimport type { Item} from \"jsr:@shougo/ddu-vim@~7.0.0/types\";\n\ntype ActionData = Record<PropertyKey, never>;\n\ntype Params = Record<PropertyKey, never>;\n\nexport class Source extends BaseSource<Params, ActionData> {\n  override kind = \"\";\n\n  override gather(\n    args: GatherArguments<Params>,\n  ): ReadableStream<Item<ActionData>[]> {\n    throw new Error(\"not implemented\");\n  }\n\n  override params(): Params {\n    return {};\n  }\n}"
+  },
+  "deno-import": {
+    "body": "import {$2} from \"https://$1\"",
+    "prefix": "denoimport"
+  },
+  "deno-import-type": {
+    "body": "import type {$2} from \"https://$1\"",
+    "prefix": "denoimporttype"
+  },
+  "deno-local-import": {
+    "body": "import {$2} from \"$1\"",
+    "prefix": "denolocalimport"
+  },
+  "deno-local-import-type": {
+    "body": "import type {$2} from \"$1\"",
+    "prefix": "denolocalimporttype"
+  },
+  "denops-test-boilerplate": {
+    "prefix": "denops-test-boilerplate",
+    "body": "import { test } from \"https://deno.land/x/denops_test@v1.6.2/mod.ts\";\nimport { assertEquals } from \"https://deno.land/std@~0.223.0/assert/mod.ts\";\n\ntest({\n  mode: \"all\",\n  name: \"$1\",\n  fn: async (denops) => {\n    $1\n  },\n})\n"
+  },
+  "denops-test-one": {
+    "prefix": "denops-test-one",
+    "body": "test({\n  mode: \"all\",\n  name: \"$1\",\n  fn: async (denops) => {\n    $2\n  },\n})\n"
+  }
 }

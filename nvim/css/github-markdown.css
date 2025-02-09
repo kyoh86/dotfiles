@@ -45,14 +45,14 @@
     --color-canvas-subtle: #161b22;
     --color-border-default: #30363d;
     --color-border-muted: #21262d;
-    --color-neutral-muted: rgba(110,118,129,0.4);
+    --color-neutral-muted: rgba(110, 118, 129, 0.4);
     --color-accent-fg: #2f81f7;
     --color-accent-emphasis: #1f6feb;
     --color-success-fg: #3fb950;
     --color-success-emphasis: #238636;
     --color-attention-fg: #d29922;
     --color-attention-emphasis: #9e6a03;
-    --color-attention-subtle: rgba(187,128,9,0.15);
+    --color-attention-subtle: rgba(187, 128, 9, 0.15);
     --color-danger-fg: #f85149;
     --color-danger-emphasis: #da3633;
     --color-done-fg: #a371f7;
@@ -95,14 +95,14 @@
     --color-prettylights-syntax-brackethighlighter-angle: #57606a;
     --color-prettylights-syntax-sublimelinter-gutter-mark: #8c959f;
     --color-prettylights-syntax-constant-other-reference-link: #0a3069;
-    --color-fg-default: #1F2328;
+    --color-fg-default: #1f2328;
     --color-fg-muted: #656d76;
     --color-fg-subtle: #6e7781;
     --color-canvas-default: #ffffff;
     --color-canvas-subtle: #f6f8fa;
     --color-border-default: #d0d7de;
-    --color-border-muted: hsla(210,18%,87%,1);
-    --color-neutral-muted: rgba(175,184,193,0.2);
+    --color-border-muted: hsla(210, 18%, 87%, 1);
+    --color-neutral-muted: rgba(175, 184, 193, 0.2);
     --color-accent-fg: #0969da;
     --color-accent-emphasis: #0969da;
     --color-success-fg: #1a7f37;
@@ -123,7 +123,16 @@
   margin: 0;
   color: var(--color-fg-default);
   background-color: var(--color-canvas-default);
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Noto Sans",
+    Helvetica,
+    Arial,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji";
   font-size: 16px;
   line-height: 1.5;
   word-wrap: break-word;
@@ -143,7 +152,7 @@
 #preview h6:hover .anchor .octicon-link:before {
   width: 16px;
   height: 16px;
-  content: ' ';
+  content: " ";
   display: inline-block;
   background-color: currentColor;
   -webkit-mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' version='1.1' aria-hidden='true'><path fill-rule='evenodd' d='M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z'></path></svg>");
@@ -186,9 +195,9 @@
 }
 
 #preview h1 {
-  margin: .67em 0;
+  margin: 0.67em 0;
   font-weight: var(--base-text-weight-semibold, 600);
-  padding-bottom: .3em;
+  padding-bottom: 0.3em;
   font-size: 2em;
   border-bottom: 1px solid var(--color-border-muted);
 }
@@ -242,7 +251,7 @@
   overflow: hidden;
   background: transparent;
   border-bottom: 1px solid var(--color-border-muted);
-  height: .25em;
+  height: 0.25em;
   padding: 0;
   margin: 24px 0;
   background-color: var(--color-border-default);
@@ -258,33 +267,33 @@
   line-height: inherit;
 }
 
-#preview [type=button],
-#preview [type=reset],
-#preview [type=submit] {
+#preview [type="button"],
+#preview [type="reset"],
+#preview [type="submit"] {
   -webkit-appearance: button;
   appearance: button;
 }
 
-#preview [type=checkbox],
-#preview [type=radio] {
+#preview [type="checkbox"],
+#preview [type="radio"] {
   box-sizing: border-box;
   padding: 0;
 }
 
-#preview [type=number]::-webkit-inner-spin-button,
-#preview [type=number]::-webkit-outer-spin-button {
+#preview [type="number"]::-webkit-inner-spin-button,
+#preview [type="number"]::-webkit-outer-spin-button {
   height: auto;
 }
 
-#preview [type=search]::-webkit-search-cancel-button,
-#preview [type=search]::-webkit-search-decoration {
+#preview [type="search"]::-webkit-search-cancel-button,
+#preview [type="search"]::-webkit-search-decoration {
   -webkit-appearance: none;
   appearance: none;
 }
 
 #preview ::-webkit-input-placeholder {
   color: inherit;
-  opacity: .54;
+  opacity: 0.54;
 }
 
 #preview ::-webkit-file-upload-button {
@@ -331,30 +340,30 @@
   cursor: pointer;
 }
 
-#preview details:not([open])>*:not(summary) {
+#preview details:not([open]) > *:not(summary) {
   display: none !important;
 }
 
 #preview a:focus,
-#preview [role=button]:focus,
-#preview input[type=radio]:focus,
-#preview input[type=checkbox]:focus {
+#preview [role="button"]:focus,
+#preview input[type="radio"]:focus,
+#preview input[type="checkbox"]:focus {
   outline: 2px solid var(--color-accent-fg);
   outline-offset: -2px;
   box-shadow: none;
 }
 
 #preview a:focus:not(:focus-visible),
-#preview [role=button]:focus:not(:focus-visible),
-#preview input[type=radio]:focus:not(:focus-visible),
-#preview input[type=checkbox]:focus:not(:focus-visible) {
+#preview [role="button"]:focus:not(:focus-visible),
+#preview input[type="radio"]:focus:not(:focus-visible),
+#preview input[type="checkbox"]:focus:not(:focus-visible) {
   outline: solid 1px transparent;
 }
 
 #preview a:focus-visible,
-#preview [role=button]:focus-visible,
-#preview input[type=radio]:focus-visible,
-#preview input[type=checkbox]:focus-visible {
+#preview [role="button"]:focus-visible,
+#preview input[type="radio"]:focus-visible,
+#preview input[type="checkbox"]:focus-visible {
   outline: 2px solid var(--color-accent-fg);
   outline-offset: -2px;
   box-shadow: none;
@@ -362,17 +371,24 @@
 
 #preview a:not([class]):focus,
 #preview a:not([class]):focus-visible,
-#preview input[type=radio]:focus,
-#preview input[type=radio]:focus-visible,
-#preview input[type=checkbox]:focus,
-#preview input[type=checkbox]:focus-visible {
+#preview input[type="radio"]:focus,
+#preview input[type="radio"]:focus-visible,
+#preview input[type="checkbox"]:focus,
+#preview input[type="checkbox"]:focus-visible {
   outline-offset: 0;
 }
 
 #preview kbd {
   display: inline-block;
   padding: 3px 5px;
-  font: 11px ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+  font:
+    11px ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace;
   line-height: 10px;
   color: var(--color-fg-default);
   vertical-align: middle;
@@ -397,7 +413,7 @@
 
 #preview h2 {
   font-weight: var(--base-text-weight-semibold, 600);
-  padding-bottom: .3em;
+  padding-bottom: 0.3em;
   font-size: 1.5em;
   border-bottom: 1px solid var(--color-border-muted);
 }
@@ -414,12 +430,12 @@
 
 #preview h5 {
   font-weight: var(--base-text-weight-semibold, 600);
-  font-size: .875em;
+  font-size: 0.875em;
 }
 
 #preview h6 {
   font-weight: var(--base-text-weight-semibold, 600);
-  font-size: .85em;
+  font-size: 0.85em;
   color: var(--color-fg-muted);
 }
 
@@ -432,7 +448,7 @@
   margin: 0;
   padding: 0 1em;
   color: var(--color-fg-muted);
-  border-left: .25em solid var(--color-border-default);
+  border-left: 0.25em solid var(--color-border-default);
 }
 
 #preview ul,
@@ -461,14 +477,28 @@
 #preview tt,
 #preview code,
 #preview samp {
-  font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace;
   font-size: 12px;
 }
 
 #preview pre {
   margin-top: 0;
   margin-bottom: 0;
-  font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace;
   font-size: 12px;
   word-wrap: normal;
 }
@@ -502,11 +532,11 @@
   content: "";
 }
 
-#preview>*:first-child {
+#preview > *:first-child {
   margin-top: 0 !important;
 }
 
-#preview>*:last-child {
+#preview > *:last-child {
   margin-bottom: 0 !important;
 }
 
@@ -542,11 +572,11 @@
   margin-bottom: 16px;
 }
 
-#preview blockquote>:first-child {
+#preview blockquote > :first-child {
   margin-top: 0;
 }
 
-#preview blockquote>:last-child {
+#preview blockquote > :last-child {
   margin-bottom: 0;
 }
 
@@ -591,7 +621,7 @@
 #preview h5 code,
 #preview h6 tt,
 #preview h6 code {
-  padding: 0 .2em;
+  padding: 0 0.2em;
   font-size: inherit;
 }
 
@@ -645,7 +675,7 @@
   list-style-type: decimal;
 }
 
-#preview div>ol:not([type]) {
+#preview div > ol:not([type]) {
   list-style-type: decimal;
 }
 
@@ -657,12 +687,12 @@
   margin-bottom: 0;
 }
 
-#preview li>p {
+#preview li > p {
   margin-top: 16px;
 }
 
-#preview li+li {
-  margin-top: .25em;
+#preview li + li {
+  margin-top: 0.25em;
 }
 
 #preview dl {
@@ -692,7 +722,7 @@
   border: 1px solid var(--color-border-default);
 }
 
-#preview table td>:last-child {
+#preview table td > :last-child {
   margin-bottom: 0;
 }
 
@@ -709,11 +739,11 @@
   background-color: transparent;
 }
 
-#preview img[align=right] {
+#preview img[align="right"] {
   padding-left: 20px;
 }
 
-#preview img[align=left] {
+#preview img[align="left"] {
   padding-right: 20px;
 }
 
@@ -728,7 +758,7 @@
   overflow: hidden;
 }
 
-#preview span.frame>span {
+#preview span.frame > span {
   display: block;
   float: left;
   width: auto;
@@ -756,7 +786,7 @@
   clear: both;
 }
 
-#preview span.align-center>span {
+#preview span.align-center > span {
   display: block;
   margin: 13px auto 0;
   overflow: hidden;
@@ -774,7 +804,7 @@
   clear: both;
 }
 
-#preview span.align-right>span {
+#preview span.align-right > span {
   display: block;
   margin: 13px 0 0;
   overflow: hidden;
@@ -804,7 +834,7 @@
   overflow: hidden;
 }
 
-#preview span.float-right>span {
+#preview span.float-right > span {
   display: block;
   margin: 13px auto 0;
   overflow: hidden;
@@ -813,7 +843,7 @@
 
 #preview code,
 #preview tt {
-  padding: .2em .4em;
+  padding: 0.2em 0.4em;
   margin: 0;
   font-size: 85%;
   white-space: break-spaces;
@@ -838,7 +868,7 @@
   font-size: 100%;
 }
 
-#preview pre>code {
+#preview pre > code {
   padding: 0;
   margin: 0;
   word-break: normal;
@@ -1078,7 +1108,7 @@
 #preview g-emoji {
   display: inline-block;
   min-width: 1ch;
-  font-family: "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 1em;
   font-style: normal !important;
   font-weight: var(--base-text-weight-normal, 400);
@@ -1103,7 +1133,7 @@
   cursor: pointer;
 }
 
-#preview .task-list-item+.task-list-item {
+#preview .task-list-item + .task-list-item {
   margin-top: 4px;
 }
 
@@ -1112,12 +1142,12 @@
 }
 
 #preview .task-list-item-checkbox {
-  margin: 0 .2em .25em -1.4em;
+  margin: 0 0.2em 0.25em -1.4em;
   vertical-align: middle;
 }
 
 #preview .contains-task-list:dir(rtl) .task-list-item-checkbox {
-  margin: 0 -1.6em .25em .2em;
+  margin: 0 -1.6em 0.25em 0.2em;
 }
 
 #preview .contains-task-list {
@@ -1141,14 +1171,14 @@
   padding: var(--base-size-8) var(--base-size-16);
   margin-bottom: 16px;
   color: inherit;
-  border-left: .25em solid var(--color-border-default);
+  border-left: 0.25em solid var(--color-border-default);
 }
 
-#preview .markdown-alert>:first-child {
+#preview .markdown-alert > :first-child {
   margin-top: 0;
 }
 
-#preview .markdown-alert>:last-child {
+#preview .markdown-alert > :last-child {
   margin-bottom: 0;
 }
 
