@@ -1,5 +1,3 @@
-default_host: github.com
-default_owner: kyoh86
 roots:
 - ~/Projects
 - ~/go/src
