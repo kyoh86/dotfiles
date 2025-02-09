@@ -13,8 +13,13 @@ function _update_deno_dependencies_core() {
     echo "\e[31mThere're changes in $dir\e[0m"
     return
   fi
+  echo "Checking branch of $dir..."
+  if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
+    echo "\e[31mBranch of $dir is not main\e[0m"
+    return
+  fi
   echo "Pulling $dir..."
-  git pull
+  git pull --rebase
   if [ -n "$(git status --porcelain)" ]; then
     echo "\e[31mThere're changes in $dir\e[0m"
     return
@@ -72,6 +77,7 @@ function update_deno_dependencies() {
   # 各ddu-*のディレクトリの中で、dirtyでなければgit pullを実行する。
   # pullした時点でもdirtyでなければ、deno dependenciesの更新を実行する。
   if _update_deno_dependencies denops-util; then
+  if _update_deno_dependencies dotfiles/nvim; then
     for dir in {ddu,denops}-*; do
       if [ -d "$dir" ]; then
         if ! _update_deno_dependencies "$dir"; then
@@ -80,6 +86,7 @@ function update_deno_dependencies() {
         fi
       fi
     done
+  fi
   fi
 
   git-statuses
