@@ -25,7 +25,7 @@ function _update_deno_dependencies_core() {
     return
   fi
   echo "No dirty changes in $dir"
-  if ! NO_COLOR=1 deno run --allow-env --allow-read --allow-write --allow-net --allow-run=git,deno jsr:@molt/cli --write ./**/*.ts; then
+  if ! NO_COLOR=1 deno task update; then
     echo "\e[31mFailed to update dependencies in $dir\e[0m"
     return
   fi
@@ -33,7 +33,7 @@ function _update_deno_dependencies_core() {
     echo "There's no update in $dir"
     return
   fi
-  if ! NO_COLOR=1 deno fmt; then
+  if ! NO_COLOR=1 deno task fmt; then
     echo "\e[31mFailed to fmt in $dir\e[0m"
     return
   fi
@@ -77,7 +77,7 @@ function update_deno_dependencies() {
   # 各ddu-*のディレクトリの中で、dirtyでなければgit pullを実行する。
   # pullした時点でもdirtyでなければ、deno dependenciesの更新を実行する。
   if _update_deno_dependencies denops-util; then
-  if _update_deno_dependencies dotfiles/nvim; then
+  if _update_deno_dependencies dotfiles/nvim/denops; then
     for dir in {ddu,denops}-*; do
       if [ -d "$dir" ]; then
         if ! _update_deno_dependencies "$dir"; then
