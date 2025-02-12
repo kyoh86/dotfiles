@@ -81,6 +81,7 @@ local spec = {
             { "&wrap", 0 },
             { "&scrolloff", 0 },
           },
+          displayTree = true,
         },
       },
     })
