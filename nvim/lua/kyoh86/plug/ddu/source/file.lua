@@ -3,15 +3,30 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   {
+    "Shougo/ddu-source-file",
+    dependencies = { "ddu.vim", "ddu-kind-file" },
+    config = function()
+      helper.setup("file-tree", {
+        sources = { { name = "file" } },
+      }, {
+        start = {
+          key = "<leader>fft",
+          desc = "すべてのファイル（ツリー）",
+        },
+        filelike = true,
+      })
+    end,
+  },
+  {
     "Shougo/ddu-source-file_rec",
     dependencies = { "ddu.vim", "ddu-kind-file" },
     config = function()
-      helper.setup("file-all", {
+      helper.setup("file-rec", {
         sources = { { name = "file_rec" } },
       }, {
         start = {
-          key = "<leader>faf",
-          desc = "すべてのファイル",
+          key = "<leader>ffr",
+          desc = "すべてのファイル（再帰）",
         },
         filelike = true,
       })
@@ -37,8 +52,8 @@ local spec = {
       } },
     }, {
       start = {
-        key = "<leader>ff",
-        desc = "ファイル",
+        key = "<leader>fff",
+        desc = "管理対象ファイル",
       },
       filelike = true,
     }),

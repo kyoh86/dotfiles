@@ -124,6 +124,7 @@ local spec = {
         nmap("<esc>", ddu_ui_action("quit"))
         nmap("<cr>", ddu_ui_action("itemAction"))
         nmap(">", ddu_ui_action("expandItem"))
+        nmap("<", ddu_ui_action("collapseItem"))
         nmap("+", ddu_ui_action("chooseAction"))
         nmap("<C-y>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<C-y>"]] }))
         nmap("<C-e>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<C-e>"]] }))
