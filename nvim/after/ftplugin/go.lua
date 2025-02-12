@@ -63,6 +63,8 @@ vim.keymap.set({ "s" }, "<c-w>", "<plug>(go-cmp-remove-head-word)", { remap = tr
 vim.keymap.set({ "s" }, "<c-b>", "<plug>(go-cmp-remove-continuous-word)", { remap = true, buffer = true, desc = "delete continuous word in the selection" })
 vim.keymap.set({ "s" }, "<c-r>", "<plug>(go-cmp-replace-ref)", { remap = true, buffer = true, desc = "replace ref mark in the selection" })
 
+vim.cmd.compiler("go")
+
 --- teardown ftplugin
 --
 local undo = vim.b.undo_ftplugin
