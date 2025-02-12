@@ -4,10 +4,15 @@ local helper = require("kyoh86.plug.ddu.helper")
 local spec = {
   {
     "Shougo/ddu-source-file",
-    dependencies = { "ddu.vim", "ddu-kind-file" },
+    dependencies = { "ddu.vim", "ddu-kind-file", "ddu-filter-sorter_treefirst", "ddu-filter-sorter_alpha" },
     config = function()
       helper.setup("file-tree", {
-        sources = { { name = "file" } },
+        sources = { {
+          name = "file",
+          options = {
+            sorters = { "sorter_alpha", "sorter_treefirst" },
+          },
+        } },
       }, {
         start = {
           key = "<leader>fft",

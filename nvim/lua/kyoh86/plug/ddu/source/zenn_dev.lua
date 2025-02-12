@@ -48,9 +48,5 @@ local spec = {
       })
     end,
   },
-  {
-    "Shougo/ddu-filter-sorter_alpha",
-    dependencies = { "ddu.vim" },
-  },
 }
 return spec

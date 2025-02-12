@@ -36,6 +36,7 @@
   "ddu-filter-kensaku": { "branch": "master", "commit": "2d920c077fd0e1d81533c13c0f1fe32c1f9a599c" },
   "ddu-filter-merge": { "branch": "master", "commit": "06dec27e83ec61702737fe5d31ef001ba4502481" },
   "ddu-filter-sorter_alpha": { "branch": "main", "commit": "91df49ceed7cf344b166016fe0a1ca911a709d05" },
+  "ddu-filter-sorter_treefirst": { "branch": "main", "commit": "abfabdead0951f231b400caa2435d5f6e1f1703e" },
   "ddu-kind-file": { "branch": "main", "commit": "465ca4d8554b51e0cedb83ea97847e08fb8fdf49" },
   "ddu-kind-vim_type": { "branch": "main", "commit": "759c992da843d2e2e65e38c9dc429fdcbbc055fc" },
   "ddu-kind-word": { "branch": "main", "commit": "35dbe749281291e5a056a50c9bc301f6e31720f2" },
