@@ -296,28 +296,52 @@ local spec = {
       },
     })
 
+    helper.setup("github-search-ddu-sources", {
+      sources = { {
+        name = "github_search_repo",
+        options = {
+          matchers = {},
+          volatile = true,
+        },
+      } },
+      input = "topic:ddu-source",
+    }, {})
+
+    helper.setup("github-search-ddu-filters", {
+      sources = { {
+        name = "github_search_repo",
+        options = {
+          matchers = {},
+          volatile = true,
+        },
+      } },
+      input = "topic:ddu-filter",
+    }, {})
+
+    helper.setup("github-search-ddu-kinds", {
+      sources = { {
+        name = "github_search_repo",
+        options = {
+          matchers = {},
+          volatile = true,
+        },
+      } },
+      input = "topic:ddu-kind",
+    }, {})
+
     vim.api.nvim_create_user_command("DduSources", function()
       vim.fn["ddu#start"]({
-        sources = { {
-          name = "github_search_repo",
-          options = { input = "topic:ddu-source" },
-        } },
+        name = "github-search-ddu-sources",
       })
     end, {})
     vim.api.nvim_create_user_command("DduFilters", function()
       vim.fn["ddu#start"]({
-        sources = { {
-          name = "github_search_repo",
-          options = { input = "topic:ddu-filter" },
-        } },
+        name = "github-search-ddu-filters",
       })
     end, {})
     vim.api.nvim_create_user_command("DduKinds", function()
       vim.fn["ddu#start"]({
-        sources = { {
-          name = "github_search_repo",
-          options = { input = "topic:ddu-kind" },
-        } },
+        name = "github-search-ddu-kinds",
       })
     end, {})
   end,
