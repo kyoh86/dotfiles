@@ -279,37 +279,37 @@ install       \
     install stylua
 
 # ASDF
-install asdf-vm
-. /opt/asdf-vm/asdf.sh
-
-  # python
-  asdf plugin add python
-  asdf install python latest
-  asdf global python latest system
-
-  # Node.js & npm
-  asdf plugin add nodejs
-  asdf install nodejs latest
-  asdf global nodejs latest system
-
-  # postgresql
-  install        \
-      libicu-dev \
-      pkgconf
-  export LC_ALL=ja_JP.UTF-8
-  asdf plugin add postgres
-  asdf install postgres latest
-  asdf global postgres latest system
-
-  # sqlite
-  asdf plugin add sqlite
-  asdf install sqlite latest
-  asdf global sqlite latest system
-
-  ## Terraform
-  asdf plugin add terraform
-  asdf install terraform latest
-  asdf global terraform latest system
+# install asdf-vm
+# . /opt/asdf-vm/asdf.sh
+#
+#   # python
+#   asdf plugin add python
+#   asdf install python latest
+#   asdf global python latest system
+#
+#   # Node.js & npm
+#   asdf plugin add nodejs
+#   asdf install nodejs latest
+#   asdf global nodejs latest system
+#
+#   # postgresql
+#   install        \
+#       libicu-dev \
+#       pkgconf
+#   export LC_ALL=ja_JP.UTF-8
+#   asdf plugin add postgres
+#   asdf install postgres latest
+#   asdf global postgres latest system
+#
+#   # sqlite
+#   asdf plugin add sqlite
+#   asdf install sqlite latest
+#   asdf global sqlite latest system
+#
+#   ## Terraform
+#   asdf plugin add terraform
+#   asdf install terraform latest
+#   asdf global terraform latest system
 
 # Neovim
 install_neovim() {

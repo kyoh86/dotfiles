@@ -51,7 +51,7 @@ vim.env.AWS_SDK_LOAD_CONFIG = 1
 vim.env.GO_PROJECT_ROOT = path.home .. "/Projects"
 
 -- Python:
-vim.env.ASDF_PYTHON_DEFAULT_PACKAGES_FILE = config_home .. "/asdf/python/default-packages"
+-- vim.env.ASDF_PYTHON_DEFAULT_PACKAGES_FILE = config_home .. "/asdf/python/default-packages"
 -- (support sqlite3 and mysql library (used by mypy, etc...))
 vim.env.LDFLAGS = "-L/usr/local/opt/zlib/lib -L/usr/local/opt/sqlite/lib"
 vim.env.CPPFLAGS = "-I/usr/local/opt/zlib/include -I/usr/local/opt/sqlite/include"
@@ -102,8 +102,8 @@ path.ins(path.home .. "/.cargo/bin")
 vim.env.CARGO_NET_GIT_FETCH_WITH_CLI = "true"
 
 -- ASDF:
-path.ins(path.home .. "/.asdf/bin")
-path.ins(path.home .. "/.asdf/shims")
+-- path.ins(path.home .. "/.asdf/bin")
+-- path.ins(path.home .. "/.asdf/shims")
 
 -- Snap:
 path.ins("/snap/bin")
