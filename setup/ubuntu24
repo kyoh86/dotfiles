@@ -263,52 +263,9 @@ sudo apt install --yes  \
 # sudo groupadd docker # it may be error "groupadd: group 'docker' already exists" because docker AUR creates it. 
 sudo usermod -aG docker ${USER}
 
-# ASDF
-# [ -d ~/.asdf ] || git clone https://github.com/asdf-vm/asdf ~/.asdf --branch v0.14.0 || rm -rf ~/.asdf
-#     export PATH="$PATH:$HOME/.asdf/bin"
-#
-#     ## Python
-#     sudo apt reinstall --yes \
-#       bzip2      \
-#       libssl-dev \
-#       uuid-dev   \
-#       openssl
-#     asdf plugin add python
-#     CFLAGS=-I/usr/include/openssl LDFLAGS=-L/usr/lib asdf install python latest
-#     asdf global python latest system
-#
-#     ## Node.js & npm
-#     asdf plugin add nodejs
-#     asdf install nodejs latest
-#     asdf global nodejs latest system
-#
-#     # Scala (coursier)
-#     asdf plugin add coursier
-#     asdf install coursier latest
-#     asdf global coursier latest system
-#     export PATH="$PATH:$HOME/.asdf/shims"
-#     export PATH="$PATH:$HOME/.local/share/coursier/bin"
-#     coursier setup
-#     coursier install metals
-#
-#     # postgresql
-#     sudo apt install --yes \
-#         libicu-dev \
-#         pkgconf
-#     export LC_ALL=ja_JP.UTF-8
-#     asdf plugin add postgres
-#     asdf install postgres latest
-#     asdf global postgres latest system
-#
-#     # sqlite
-#     asdf plugin add sqlite
-#     asdf install sqlite latest
-#     asdf global sqlite latest system
-#
-#     ## Terraform
-#     asdf plugin add terraform
-#     asdf install terraform latest
-#     asdf global terraform latest system
+# Install Mise
+curl https://mise.run | sh
+mise install # install tools on mise/config.toml
 
 # Neovim
 install_neovim() {

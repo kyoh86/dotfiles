@@ -10,7 +10,7 @@ function update {
         update_apt || return 1
         update_paru || return 1
         update_yay || return 1
-        # update_asdf || return 1
+        update_mise || return 1
         update_deno || return 1
         update_gordon || return 1
         update_go || return 1
@@ -54,15 +54,16 @@ function update_yay {
 }
 # }}}
 
-# update asdf {{{
-# function update_asdf {
-#     echo updating asdf
-#     pushd ~
-#     if command -v asdf >/dev/null 2>&1; then
-#         asdf plugin-update --all
-#     fi
-#     popd
-# }
+# update mise {{{
+function update_mise {
+    echo updating mise
+    pushd ~
+    if command -v mise >/dev/null 2>&1; then
+        mise self-update --yes
+        mise upgrade --yes
+    fi
+    popd
+}
 # }}}
 
 # update deno {{{
