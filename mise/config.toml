@@ -1,0 +1,7 @@
+[tools]
+terraform = ['latest', '1.10']
+node = ['latest', '22', '18']
+python = ['latest', '3.12']
+coursier = ['latest', '2.1.9']
+postgres = ['latest']
+sqlite = ['latest']

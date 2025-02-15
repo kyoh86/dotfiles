@@ -17,6 +17,7 @@
 !/locale.conf
 !/sakura
 !/mypy
+!/mise
 !/nvim
 !/nvim-?*
 !/ripgrep
