@@ -126,6 +126,21 @@ glaze.get("opener", function(opener)
   vim.env.BROWSER = opener
 end)
 
+-- mise
+local mise_result = vim.system({ path.home .. "/.local/bin/mise", "ls", "--global", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
+if mise_result.code == 0 then
+  local mise_list = vim.json.decode(mise_result.stdout)
+  for _, entries in pairs(mise_list) do
+    for _, entry in pairs(entries) do
+      if entry.active then
+        path.ins(entry.install_path .. "/bin")
+      end
+    end
+  end
+else
+  vim.notify("Failed to get mise envar" .. mise_result.stderr, vim.log.levels.WARN)
+end
+
 -- .local/bin
 path.ins(path.home .. "/.local/bin")
 path.ins(path.home .. "/.local/sbin")
