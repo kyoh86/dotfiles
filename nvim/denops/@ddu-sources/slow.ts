@@ -1,7 +1,7 @@
 import type {} from "jsr:@denops/std@~7.4.0";
-import type { GatherArguments } from "jsr:@shougo/ddu-vim@~9.5.0/source";
-import type { Item } from "jsr:@shougo/ddu-vim@~9.5.0/types";
-import { BaseSource } from "jsr:@shougo/ddu-vim@~9.5.0/source";
+import type { GatherArguments } from "jsr:@shougo/ddu-vim@~10.0.0/source";
+import type { Item } from "jsr:@shougo/ddu-vim@~10.0.0/types";
+import { BaseSource } from "jsr:@shougo/ddu-vim@~10.0.0/source";
 import type { ActionData } from "jsr:@shougo/ddu-kind-word@~0.4.1";
 
 type Params = Record<PropertyKey, never>;
