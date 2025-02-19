@@ -45,6 +45,13 @@ function Cache:get(key, callback)
   table.insert(self.waiters[key], callback)
 end
 
+--- Try to get a value. If the value is not yet available, return nil.
+--- @param key string The key to get.
+--- @return any A value if it is stored, nil otherwise.
+function Cache:tryget(key)
+  return self.store[key]
+end
+
 --- Check whether a value is stored under the given key.
 --- @param key string The key to check.
 --- @return boolean True if a value is stored, false otherwise.
@@ -58,6 +65,11 @@ function Cache:del(key)
   self.store[key] = nil
   self.waiters[key] = nil
   self:serialize() -- Persist the updated data to the file after deletion.
+end
+
+--- Iterate over all stored values in the cache.
+function Cache:each()
+  return pairs(self.store)
 end
 
 --- Clear all stored values, making the cache empty.

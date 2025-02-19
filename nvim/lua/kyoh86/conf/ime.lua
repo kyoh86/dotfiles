@@ -7,7 +7,7 @@ glaze.get("os_uname_sysname", function(
   _ --[[fail]]
 )
   glaze.glaze("ime", function()
-    if sysname == "Linux" then
+    if sysname.sysname == "Linux" then
       if os.getenv("WSL_DISTRO_NAME") ~= "" then
         if vim.fn.executable("zenhan.exe") == 1 then
           return "zenhan"
@@ -19,7 +19,7 @@ glaze.get("os_uname_sysname", function(
           return "fcitx"
         end
       end
-    elseif sysname == "Mac" then
+    elseif sysname.sysname == "Mac" then
       return "mac"
     end
     return ""

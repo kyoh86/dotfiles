@@ -24,10 +24,28 @@ end
 --- If the retrieved value is invalid for any reason, the callback can call `fail()` to remove it from the cache.
 ---
 --- @param name string The name of the setting.
---- @param callback fun(value: string, fail: fun()) A callback function that receives the value once available.
+--- @param callback fun(value: any, fail: fun()) A callback function that receives the value once available.
 ---        `fail()` can be called within the callback to remove the cached entry if it is deemed invalid.
 local function get(name, callback)
   cache:get(name, callback)
+end
+
+--- Try to get a value from the cache. If the value is not yet available, this returns nil.
+--- @param name string The name of the setting.
+local function tryget(name)
+  return cache:tryget(name)
+end
+
+--- Delete a cached setting value.
+---
+--- @param name string The name of the setting.
+local function del(name)
+  cache:del(name)
+end
+
+--- Iterate over all stored values in the cache.
+local function each()
+  return cache:each()
 end
 
 --- "Bakes" a setting value into the cache. If the setting is already cached, this does nothing.
@@ -54,5 +72,8 @@ return {
   has = has,
   set = set,
   get = get,
+  tryget = tryget,
+  del = del,
+  each = each,
   reset = reset,
 }
