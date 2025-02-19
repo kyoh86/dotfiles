@@ -128,8 +128,8 @@ local spec = {
         nmap("<", ddu_ui_action("collapseItem"))
         nmap("+", ddu_ui_action("chooseAction"))
 
-        local scroll = "<plug>(kyoh86-scroll)"
         local pending = "<plug>(kyoh86-pending)"
+        local scroll = "<plug>(kyoh86-scroll)"
 
         vim.keymap.set("n", "<c-p><c-y>", scroll .. "<c-y>" .. pending, { buffer = true, remap = true })
         vim.keymap.set("n", "<c-p><c-e>", scroll .. "<c-e>" .. pending, { buffer = true, remap = true })
@@ -148,7 +148,11 @@ local spec = {
         nmap(scroll .. "<c-d>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-d>"]] }))
         nmap(scroll .. "<c-u>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-u>"]] }))
 
-        nmap("<space>", function()
+        local select = "<plug>(kyoh86-select)"
+        vim.keymap.set("n", "<tab>", select .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", pending .. "j", "j" .. select .. pending, { buffer = true, remap = true })
+
+        local toggle = function()
           vim.fn["ddu#ui#do_action"]("toggleSelectItem")
           local placed = vim.fn.sign_getplaced(ev.buf, { group = "dduSelected", lnum = "." })
           if placed == nil or #placed[1].signs == 0 then
@@ -158,7 +162,9 @@ local spec = {
               vim.fn.sign_unplace("dduSelected", { buffer = ev.buf, id = p.id })
             end
           end
-        end)
+        end
+        nmap(select, toggle)
+        nmap("<space>", toggle)
       end,
     })
   end,
