@@ -1,0 +1,6 @@
+{
+    "help-modeline": {
+        "prefix": "helpmodeline",
+        "body": "\" vim:tw=78:nosi:sts=4:ts=4:sw=4:et:ft=help:norl:"
+    }
+}
