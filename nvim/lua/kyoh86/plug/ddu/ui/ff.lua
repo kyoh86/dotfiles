@@ -127,10 +127,27 @@ local spec = {
         nmap(">", ddu_ui_action("expandItem"))
         nmap("<", ddu_ui_action("collapseItem"))
         nmap("+", ddu_ui_action("chooseAction"))
-        nmap("<c-p><c-y>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-y>"]] }))
-        nmap("<c-p><c-e>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-e>"]] }))
-        nmap("<c-p><c-d>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-d>"]] }))
-        nmap("<c-p><c-u>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-u>"]] }))
+
+        local scroll = "<plug>(kyoh86-scroll)"
+        local pending = "<plug>(kyoh86-pending)"
+
+        vim.keymap.set("n", "<c-p><c-y>", scroll .. "<c-y>" .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", "<c-p><c-e>", scroll .. "<c-e>" .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", "<c-p><c-d>", scroll .. "<c-d>" .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", "<c-p><c-u>", scroll .. "<c-u>" .. pending, { buffer = true, remap = true })
+
+        vim.keymap.set("n", pending .. "<c-y>", scroll .. "<c-y>" .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", pending .. "<c-e>", scroll .. "<c-e>" .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", pending .. "<c-d>", scroll .. "<c-d>" .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", pending .. "<c-u>", scroll .. "<c-u>" .. pending, { buffer = true, remap = true })
+
+        vim.keymap.set("n", pending, "<nop>", { buffer = true, remap = false })
+
+        nmap(scroll .. "<c-y>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-y>"]] }))
+        nmap(scroll .. "<c-e>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-e>"]] }))
+        nmap(scroll .. "<c-d>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-d>"]] }))
+        nmap(scroll .. "<c-u>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-u>"]] }))
+
         nmap("<space>", function()
           vim.fn["ddu#ui#do_action"]("toggleSelectItem")
           local placed = vim.fn.sign_getplaced(ev.buf, { group = "dduSelected", lnum = "." })
