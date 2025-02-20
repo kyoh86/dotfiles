@@ -79,11 +79,15 @@ local function create_check_command(command_name, filter_invalid)
       end, diagnostics)
     end
     -- Populate quickfix list
-    vim.fn.setqflist(qf_list, "r")
-    vim.cmd("copen")
+    if #qf_list > 0 then
+      vim.fn.setqflist(qf_list, "r")
+      vim.cmd("copen")
+    end
     -- Populate diagnostics
-    local namespace = vim.api.nvim_create_namespace("help_tag_checker")
-    vim.diagnostic.set(namespace, vim.api.nvim_get_current_buf(), diagnostics)
+    if #diagnostics > 0 then
+      local namespace = vim.api.nvim_create_namespace("help_tag_checker")
+      vim.diagnostic.set(namespace, vim.api.nvim_get_current_buf(), diagnostics)
+    end
   end, { nargs = "?" })
 end
 
