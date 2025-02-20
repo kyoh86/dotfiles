@@ -62,29 +62,33 @@ local function check_help_tags()
   return qf_list, diagnostics
 end
 
--- Command to run the check_help_tags function on a specified help file and populate the quickfix list and/or diagnostics
+-- Command to run the check_help_tags function on specified help files and populate the quickfix list and/or diagnostics
 local function create_check_command(command_name, filter_invalid)
   vim.api.nvim_create_user_command(command_name, function(opts)
-    if #opts.fargs > 0 then
-      local file = opts.fargs[1]
+    local qf_list = {}
+    local namespace = vim.api.nvim_create_namespace("help_tag_checker")
+    local files = opts.fargs
+
+    for _, file in ipairs(files) do
       vim.cmd("edit " .. file)
+      local bufnr = vim.api.nvim_get_current_buf()
+      local file_qf_list, file_diagnostics = check_help_tags()
+      if filter_invalid then
+        file_qf_list = vim.tbl_filter(function(item)
+          return item.type == "E"
+        end, file_qf_list)
+        file_diagnostics = vim.tbl_filter(function(item)
+          return item.severity == vim.diagnostic.severity.ERROR
+        end, file_diagnostics)
+      end
+      vim.list_extend(qf_list, file_qf_list)
+      vim.diagnostic.set(namespace, bufnr, file_diagnostics)
     end
-    local qf_list, diagnostics = check_help_tags()
-    if filter_invalid then
-      qf_list = vim.tbl_filter(function(item)
-        return item.type == "E"
-      end, qf_list)
-      diagnostics = vim.tbl_filter(function(item)
-        return item.severity == vim.diagnostic.severity.ERROR
-      end, diagnostics)
-    end
+
     -- Populate quickfix list
     vim.fn.setqflist(qf_list, "r")
     vim.cmd("copen")
-    -- Populate diagnostics
-    local namespace = vim.api.nvim_create_namespace("help_tag_checker")
-    vim.diagnostic.set(namespace, vim.api.nvim_get_current_buf(), diagnostics)
-  end, { nargs = "?" })
+  end, { nargs = "*" })
 end
 
 -- Create commands for checking help links
