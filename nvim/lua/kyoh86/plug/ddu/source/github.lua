@@ -18,14 +18,12 @@ local spec = {
     end
 
     local custom_view = function(args, split)
-      if #args.items ~= 1 then
-        vim.notify("invalid action: it can edit only one file at once", vim.log.levels.WARN, {})
-        return 1
+      for _, item in pairs(args.items) do
+        local url = item.action.html_url
+        local words = vim.iter(vim.split(url, "/", { plain = true })):rev():totable()
+        local number, _, name, owner, _ = unpack(words)
+        vim.fn["denops#github#issue#view"](owner, name, number, { split = split })
       end
-      local url = args.items[1].action.html_url
-      local words = vim.iter(vim.split(url, "/", { plain = true })):rev():totable()
-      local number, _, name, owner, _ = unpack(words)
-      vim.fn["denops#github#issue#view"](owner, name, number, { split = split })
       return 0
     end
 
