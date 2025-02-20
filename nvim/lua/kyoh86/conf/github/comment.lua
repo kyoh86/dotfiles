@@ -8,7 +8,6 @@ local M = {}
 --- コメントを付ける
 ---@param target GitHubCommentTarget
 function M.create(target)
-  vim.print("hoge")
   local words = {
     "gh",
     target.type,
@@ -16,14 +15,11 @@ function M.create(target)
     "--editor",
     target.number,
   }
-  vim.print("fuga")
   if target.repo then
     table.insert(words, "--repo")
     table.insert(words, target.repo)
   end
-  vim.print("piyo")
   require("kyoh86.lib.volatile_terminal").split(0, {}, { exec = table.concat(words, " ") })
-  vim.print("tako")
 end
 
 return M
