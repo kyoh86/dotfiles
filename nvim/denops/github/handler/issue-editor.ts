@@ -50,6 +50,6 @@ export async function saveIssueEditor(denops: Denops, buf: Buffer) {
   await autocmd.emit(
     denops,
     "User",
-    `denops-github:issue:body-updated;owner=${owner}&repo=${repo}&num=${num}`,
+    `denops-github:issue:update-body;owner=${owner}&repo=${repo}&num=${num}`,
   );
 }
