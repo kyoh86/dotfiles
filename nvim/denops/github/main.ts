@@ -1,15 +1,21 @@
 import type { Entrypoint } from "jsr:@denops/std@~7.4.0";
 import { Router } from "jsr:@kyoh86/denops-router@0.4.2";
+
 import { login } from "./handler/login.ts";
 import {
   issueViewBrowse,
-  issueViewComment,
-  issueViewEdit,
+  issueViewEditBody,
+  issueViewEditCursor,
   issueViewNavi,
+  issueViewNewComment,
   loadIssueViewer,
 } from "./handler/issue-viewer.ts";
 import { loadIssueEditor, saveIssueEditor } from "./handler/issue-editor.ts";
 import { loadIssueComment, saveIssueComment } from "./handler/issue-comment.ts";
+import {
+  loadIssueNewComment,
+  saveIssueNewComment,
+} from "./handler/issue-new-comment.ts";
 
 const ClientID = "Iv23liIclzYxPQJBSI7d";
 
@@ -32,11 +38,14 @@ export const main: Entrypoint = async (denops) => {
       next: async (buf) => {
         await issueViewNavi(denops, router, buf, 1);
       },
-      edit: async (buf) => {
-        await issueViewEdit(denops, router, buf);
+      ["edit-body"]: async (buf) => {
+        await issueViewEditBody(denops, router, buf);
       },
-      comment: async (buf) => {
-        await issueViewComment(denops, router, buf);
+      ["edit-cursor"]: async (buf) => {
+        await issueViewEditCursor(denops, router, buf);
+      },
+      ["new-comment"]: async (buf) => {
+        await issueViewNewComment(denops, router, buf);
       },
       browse: async (buf) => {
         await issueViewBrowse(denops, buf);
@@ -50,6 +59,15 @@ export const main: Entrypoint = async (denops) => {
     },
     save: async (_ctx, buf) => {
       await saveIssueEditor(denops, buf);
+    },
+  });
+
+  router.addHandler("issue/new-comment", {
+    load: async (ctx, buf) => {
+      await loadIssueNewComment(denops, ctx, buf);
+    },
+    save: async (_ctx, buf) => {
+      await saveIssueNewComment(denops, router, buf);
     },
   });
 

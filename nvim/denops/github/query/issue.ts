@@ -44,6 +44,7 @@ export interface UserLogin {
 export interface Comment {
   authorAssociation: string;
   body: string;
+  databaseId: string;
   createdAt: string;
   updatedAt: string;
   author: UserLogin;
@@ -92,6 +93,7 @@ export async function query(
           url
           comments(first: 100, after: $cursor) {
             nodes {
+              databaseId
               authorAssociation
               body
               createdAt

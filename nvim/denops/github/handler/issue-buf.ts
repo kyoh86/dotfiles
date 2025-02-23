@@ -11,5 +11,17 @@ export function getIssueIdentifier(buf: Buffer) {
   const numStr = ensure(buf.bufname.params?.num, is.String, {
     message: "a 'num' parmeter must be a string",
   });
-  return { owner, repo, num: parseInt(numStr, 10) };
+  const commentIdStr = ensure(
+    buf.bufname.params?.commentId,
+    is.UnionOf([is.String, is.Undefined]),
+    {
+      message: "a 'commentId' parmeter should be a string",
+    },
+  );
+  return {
+    owner,
+    repo,
+    num: parseInt(numStr, 10),
+    ...(commentIdStr ? { commentId: parseInt(commentIdStr, 10) } : {}),
+  };
 }

@@ -11,32 +11,41 @@ import {
   format as formatDateTime,
   parse as parseDateTime,
 } from "jsr:@std/datetime@^0.225.2";
+import {
+  bufnr,
+  getbufvar,
+  getcurpos,
+  setbufvar,
+} from "jsr:@denops/std@~7.4.0/function";
+import { ensure, is } from "jsr:@core/unknownutil@4";
+import { systemopen } from "jsr:@lambdalisue/systemopen@~1.0.0";
 
 import { getClient } from "../client.ts";
 import { getIssueIdentifier } from "./issue-buf.ts";
 import { mapDispatch } from "./util.ts";
-import { getbufvar, setbufvar } from "jsr:@denops/std@~7.4.0/function";
-import { ensure, is } from "jsr:@core/unknownutil@4";
-import { systemopen } from "jsr:@lambdalisue/systemopen@~1.0.0";
 import { query as queryIssue } from "../query/issue.ts";
+import { AttributedLines } from "../anchored_lines.ts";
 
 // Issueを取得してフォーマットする関数
 async function fetchAndFormatIssue(
   owner: string,
   repo: string,
   issue_number: number,
-): Promise<{ url: string; body: string[] }> {
+): Promise<{ url: string; lines: AttributedLines }> {
   const client = await getClient();
+  const lines = new AttributedLines();
 
   // Issue情報の取得
-  const issue = await queryIssue(client, owner, repo, issue_number);
+  const { url, ...issue } = await queryIssue(client, owner, repo, issue_number);
 
   // Issueの基本情報整形
   const stateText = issue.state === "open" ? "[open]" : "[closed]";
-  const titleSection = [
+
+  // Title部分
+  lines.expand([
     `TITLE:>`.padEnd(80, "="),
     `#${issue.number} ${stateText} ${issue.title}`,
-  ];
+  ], "title");
 
   function localTimeString(t: string): string {
     return formatDateTime(
@@ -55,37 +64,40 @@ async function fetchAndFormatIssue(
   const openedBy = `@${issue.author.login ?? "unknown"} on ${
     localTimeString(issue.createdAt)
   }`;
-  const metaSection = [
+  lines.expand([
     `META:>`.padEnd(80, "="),
     `[Repository]   : ${repoFullName}`,
     `[Opened by]    : ${openedBy}`,
-    ...(labels.length > 0 ? [`[Labels]       : ${labels}`] : []),
-    ...(assignees.length > 0 ? [`[Assignees]    : ${assignees}`] : []),
-    ...(milestone != "" ? [`[Milestone]    : ${milestone}`] : []),
-    `[URL]          : ${issue.url}`,
-    ``,
-  ];
+  ]);
+  if (labels.length > 0) {
+    lines.push(`[Labels]       : ${labels}`, "label");
+  }
+  if (assignees.length > 0) {
+    lines.push(`[Assignees]    : ${assignees}`, "assignee");
+  }
+  if (milestone != "") {
+    lines.push(`[Milestone]    : ${milestone}`, "milestone");
+  }
+  lines.push(`[URL]          : ${url}`, "url");
 
   // BODY部分
   // Issue本文（issue.body）をMarkdownと想定
   // 空行を適宜挟む
-  const bodySection = [
-    `BODY:>`.padEnd(80, "="),
-    ...issue.body?.split(/\r?\n/)?.map((l) => indentLine(l)) ?? [],
-    ``,
-  ];
+  lines.push(`BODY:>`.padEnd(80, "="), "body");
+  const bodyLines = issue.body?.split(/\r?\n/)?.map((l) => indentLine(l));
+  if (bodyLines) {
+    lines.expand(bodyLines, "body");
+  }
+  if (issue.comments.length == 0) {
+    return { url, lines };
+  }
 
   // COMMENTS部分
-  const commentsSectionHeader = issue.comments.length > 0
-    ? [
-      `COMMENTS (${issue.comments.length}):>`.padEnd(80, "="),
-    ]
-    : [];
+  lines.push(`COMMENTS (${issue.comments.length}):>`.padEnd(80, "="));
 
-  const commentLines: string[] = [];
   if (issue.comments.length > 0) {
     for (let i = 0; i < issue.comments.length; i++) {
-      commentLines.push(`:`);
+      lines.push(`:`);
       const c = issue.comments[i];
       // コメントヘッダ行の例:
       // `-- C-#1 @charlie 2024-12-12 09:15 [Author, Owner] ------------------------------`
@@ -106,27 +118,20 @@ async function fetchAndFormatIssue(
       if (c.isMinimized) metaFlags.push(c.minimizedReason ?? "Minimized");
 
       const metaStr = metaFlags.length > 0 ? ` [${metaFlags.join(", ")}]` : "";
-      commentLines.push(`${numberLine}${metaStr} `.padEnd(80, "-"));
-      commentLines.push("");
+      lines.push(
+        `${numberLine}${metaStr} `.padEnd(80, "-"),
+        `comment:${c.databaseId}`,
+      );
+      lines.push("", `comment:${c.databaseId}`);
       // コメント本文
       const cBody = c.body?.split(/\r?\n/) ?? [];
       for (const cl of cBody) {
-        commentLines.push(indentLine(cl));
+        lines.push(indentLine(cl), `comment:${c.databaseId}`);
       }
     }
   }
 
-  return {
-    url: issue.url,
-    body: [
-      ...titleSection,
-      ``,
-      ...metaSection,
-      ...bodySection,
-      ...commentsSectionHeader,
-      ...commentLines,
-    ],
-  };
+  return { url, lines };
 }
 
 function indentLine(line: string, level: number = 1): string {
@@ -148,13 +153,18 @@ async function setKeymap(denops: Denops, buf: Buffer) {
     });
     await mapDispatch({
       ...opt,
-      lhs: "<Plug>(github-issue-viewer-edit)",
-      args: [buf.bufnr, "edit", {}],
+      lhs: "<Plug>(github-issue-viewer-edit-cursor)",
+      args: [buf.bufnr, "edit-cursor", {}],
     });
     await mapDispatch({
       ...opt,
-      lhs: "<Plug>(github-issue-viewer-comment)",
-      args: [buf.bufnr, "comment", {}],
+      lhs: "<Plug>(github-issue-viewer-edit-body)",
+      args: [buf.bufnr, "edit-body", {}],
+    });
+    await mapDispatch({
+      ...opt,
+      lhs: "<Plug>(github-issue-viewer-new-comment)",
+      args: [buf.bufnr, "new-comment", {}],
     });
     await mapDispatch({
       ...opt,
@@ -171,8 +181,8 @@ export async function loadIssueViewer(
 ) {
   const { owner, repo, num } = getIssueIdentifier(buf);
 
-  const { url, body: lines } = await fetchAndFormatIssue(owner, repo, num);
-  await buffer.replace(denops, buf.bufnr, lines);
+  const { url, lines } = await fetchAndFormatIssue(owner, repo, num);
+  await buffer.replace(denops, buf.bufnr, lines.lines);
   await option.filetype.setBuffer(denops, buf.bufnr, "github-issue-view");
   await option.syntax.setBuffer(denops, buf.bufnr, "github-issue-view");
   if (!ctx.firstTime) {
@@ -180,6 +190,12 @@ export async function loadIssueViewer(
   }
   await setKeymap(denops, buf);
   await setbufvar(denops, buf.bufnr, "denops_github_issue_url", url);
+  await setbufvar(
+    denops,
+    buf.bufnr,
+    "denops_github_issue_line_attrs",
+    lines.attrs,
+  );
 
   // Issueにコメントを追記したら自動で再読み込みする
   await autocmd.group(
@@ -210,7 +226,7 @@ export async function issueViewNavi(
   await router.open(denops, "issue/view", { owner, repo, num: `${num + d}` });
 }
 
-export async function issueViewEdit(
+export async function issueViewEditBody(
   denops: Denops,
   router: Router,
   buf: Buffer,
@@ -222,7 +238,56 @@ export async function issueViewEdit(
   });
 }
 
-export async function issueViewComment(
+export async function issueViewEditCursor(
+  denops: Denops,
+  router: Router,
+  buf: Buffer,
+) {
+  const { owner, repo, num } = getIssueIdentifier(buf);
+  const [bufnum, lnum] = await getcurpos(denops);
+  const curbuf = (bufnum === 0) ? await bufnr(denops, "%") : bufnum;
+
+  if (curbuf !== buf.bufnr) {
+    throw new Error(
+      `cursor is in buffer ${curbuf}, is not in target buffer ${buf.bufnr}`,
+    );
+  }
+  const attrs = ensure(
+    await getbufvar(denops, buf.bufnr, "denops_github_issue_line_attrs"),
+    is.ArrayOf(is.UnionOf([is.String, is.Null])),
+  );
+  const attr = attrs[lnum - 1];
+  if (attr === null) {
+    return;
+  }
+  if (attr === "body") {
+    await router.open(
+      denops,
+      "issue/edit",
+      { owner, repo, num: `${num}` },
+      "",
+      {
+        split: "split-above",
+      },
+    );
+    return;
+  }
+  if (attr.startsWith("comment:")) {
+    const commentId = attr.slice("comment:".length);
+    await router.open(
+      denops,
+      "issue/comment",
+      { owner, repo, num: `${num}`, commentId },
+      "",
+      {
+        split: "split-above",
+      },
+    );
+    return;
+  }
+}
+
+export async function issueViewNewComment(
   denops: Denops,
   router: Router,
   buf: Buffer,
@@ -231,7 +296,7 @@ export async function issueViewComment(
 
   await router.open(
     denops,
-    "issue/comment",
+    "issue/new-comment",
     { owner, repo, num: `${num}` },
     "",
     {
