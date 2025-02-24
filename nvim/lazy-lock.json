@@ -6,7 +6,7 @@
   "bdelete-buffers.nvim": { "branch": "main", "commit": "68c9377b8e86f82ba3c17600a3585ef817d4058b" },
   "capture.vim": { "branch": "master", "commit": "857ee11cfe1193948d3d45dcb8d511fded8533fb" },
   "cellwidths.nvim": { "branch": "main", "commit": "432eec2d8b69dadd35c812bac0d8d00082578386" },
-  "climbdir.nvim": { "branch": "main", "commit": "df3e71b80af398d0eabfb2026d856deadabda571" },
+  "climbdir.nvim": { "branch": "main", "commit": "ff9e09124ff049e9f6ab7b75ef275f7f22438b59" },
   "conflict-marker.vim": { "branch": "master", "commit": "62742b2ffe7a433988759c67b5c5a22eff74a14b" },
   "copilot.vim": { "branch": "release", "commit": "cd7f01009fb7b30e22840cadc4faad88b05c6eef" },
   "curtain.nvim": { "branch": "main", "commit": "88088eb1ef76c60c2d01a5fbf09d85a3c14d17b6" },
