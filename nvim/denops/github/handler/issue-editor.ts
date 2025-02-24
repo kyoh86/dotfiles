@@ -4,7 +4,7 @@ import { getClient } from "../client.ts";
 import * as autocmd from "jsr:@denops/std@~7.4.0/autocmd";
 import * as buffer from "jsr:@denops/std@~7.4.0/buffer";
 import * as option from "jsr:@denops/std@~7.4.0/option";
-import { getbufline, setbufvar } from "jsr:@denops/std@~7.4.0/function";
+import { getbufline } from "jsr:@denops/std@~7.4.0/function";
 import { getIssueIdentifier } from "./issue-buf.ts";
 
 export async function loadIssueEditor(
@@ -44,7 +44,7 @@ export async function saveIssueEditor(denops: Denops, buf: Buffer) {
     issue_number: num,
     body: bodyLines.join("\n"),
   });
-  await setbufvar(denops, buf.bufnr, "&modified", 0);
+  await option.modified.setBuffer(denops, buf.bufnr, false);
 
   // Issueを編集したらIssueビューを自動で再読み込みする
   await autocmd.emit(

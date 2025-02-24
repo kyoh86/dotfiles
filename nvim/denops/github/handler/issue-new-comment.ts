@@ -7,11 +7,7 @@ import type {
 import * as option from "jsr:@denops/std@~7.4.0/option";
 import * as buffer from "jsr:@denops/std@~7.4.0/buffer";
 import * as autocmd from "jsr:@denops/std@~7.4.0/autocmd";
-import {
-  execute,
-  getbufline,
-  setbufvar,
-} from "jsr:@denops/std@~7.4.0/function";
+import { getbufline } from "jsr:@denops/std@~7.4.0/function";
 
 import { getClient } from "../client.ts";
 import { getIssueIdentifier } from "./issue-buf.ts";
@@ -42,7 +38,7 @@ export async function saveIssueNewComment(
     issue_number: num,
     body: bodyLines.join("\n"),
   });
-  await setbufvar(denops, buf.bufnr, "&modified", 0);
+  await option.modified.setBuffer(denops, buf.bufnr, false);
   await buffer.concrete(denops, buf.bufnr);
 
   await router.open(denops, "issue/comment", {
