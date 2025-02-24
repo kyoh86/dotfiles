@@ -1,4 +1,4 @@
-import type {} from "jsr:@denops/std@~7.4.0";
+import type {} from "jsr:@denops/std@~7.5.0";
 import type { GatherArguments } from "jsr:@shougo/ddu-vim@~10.0.0/source";
 import {
   ActionFlags,
@@ -9,7 +9,7 @@ import { BaseSource } from "jsr:@shougo/ddu-vim@~10.0.0/source";
 import type { ActionData as WordActionData } from "jsr:@shougo/ddu-kind-word@~0.4.1";
 import { echoerrCommand } from "jsr:@kyoh86/denops-util@~0.1.0/command";
 import { TextLineStream } from "jsr:@std/streams@~1.0.0";
-import { environment } from "jsr:@denops/std@~7.4.0/variable";
+import { environment } from "jsr:@denops/std@~7.5.0/variable";
 import { is, maybe } from "jsr:@core/unknownutil@~4.3.0";
 
 type ActionData = WordActionData & {
