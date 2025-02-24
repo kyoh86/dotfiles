@@ -54,7 +54,7 @@
   "ddu-source-git_diff_tree": { "branch": "main", "commit": "4594f1fa36365160721fe484ef5c0d41403f11e9" },
   "ddu-source-git_log": { "branch": "main", "commit": "809815ad4af835ce7d4c6216e01bb6ddcf723c84" },
   "ddu-source-git_status": { "branch": "main", "commit": "d501a212702db543a8084827aa955a85d54d2a78" },
-  "ddu-source-github": { "branch": "main", "commit": "a33e93e833c7b8148bed3f78bf0b189d57cd58f4" },
+  "ddu-source-github": { "branch": "main", "commit": "726bb98a2d26ca095b0bc8829a0d6398bb230b11" },
   "ddu-source-gogh": { "branch": "main", "commit": "0a62ec3023c4df6491d1bf88ef9a1d9caf90d33e" },
   "ddu-source-help": { "branch": "main", "commit": "007fe7d24d65b031c36d77f59374fc59f63f8323" },
   "ddu-source-lazy_nvim": { "branch": "main", "commit": "80dafe15ff94fbfe8d5863fa63c4f7cdb04df832" },
