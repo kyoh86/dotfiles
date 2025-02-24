@@ -44,7 +44,7 @@ export interface UserLogin {
 export interface Comment {
   authorAssociation: string;
   body: string;
-  databaseId: string;
+  databaseId: number;
   createdAt: string;
   updatedAt: string;
   author: UserLogin;
@@ -171,6 +171,7 @@ export async function query(
       is.ObjectOf({
         authorAssociation: is.String,
         body: is.String,
+        databaseId: is.Number,
         createdAt: is.String,
         updatedAt: is.String,
         author: is.ObjectOf({ login: is.String }),
