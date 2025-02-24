@@ -185,17 +185,17 @@ export async function loadIssueViewer(
   await buffer.replace(denops, buf.bufnr, lines.lines);
   await option.filetype.setBuffer(denops, buf.bufnr, "github-issue-view");
   await option.syntax.setBuffer(denops, buf.bufnr, "github-issue-view");
-  if (!ctx.firstTime) {
-    return;
-  }
-  await setKeymap(denops, buf);
-  await setbufvar(denops, buf.bufnr, "denops_github_issue_url", url);
   await setbufvar(
     denops,
     buf.bufnr,
     "denops_github_issue_line_attrs",
     lines.attrs,
   );
+  if (!ctx.firstTime) {
+    return;
+  }
+  await setKeymap(denops, buf);
+  await setbufvar(denops, buf.bufnr, "denops_github_issue_url", url);
 
   // Issueにコメントを追記したら自動で再読み込みする
   await autocmd.group(
