@@ -19,6 +19,7 @@ export const Octokit = OctokitCore
   .plugin(paginateGraphQL);
 import { createOAuthDeviceAuth } from "npm:@octokit/auth-oauth-device@7.1.2";
 import { systemopen } from "jsr:@lambdalisue/systemopen@~1.0.0";
+
 type Verification = {
   device_code: string;
   user_code: string;
@@ -37,7 +38,7 @@ export async function authenticate(
       console.info("Open", verification.verification_uri);
       console.info("Enter code:", verification.user_code);
       systemopen(verification.verification_uri);
-      // TODO: If it does not inistalled, ddu-source-github should be installed.
+      // TODO: If it does not installed, ddu-source-github should be installed.
       // https://github.com/settings/apps/ddu-source-github/installations
     },
   };
