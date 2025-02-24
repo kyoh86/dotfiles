@@ -4,6 +4,7 @@ import { Router } from "jsr:@kyoh86/denops-router@0.4.2";
 import { login } from "./handler/login.ts";
 import {
   issueViewBrowse,
+  issueViewBrowseCursor,
   issueViewEditBody,
   issueViewEditCursor,
   issueViewNavi,
@@ -47,8 +48,13 @@ export const main: Entrypoint = async (denops) => {
       ["new-comment"]: async (buf) => {
         await issueViewNewComment(denops, router, buf);
       },
+      //TODO: Implement delete-comment
+      //TODO: Implement minimize-comment https://docs.github.com/ja/graphql/reference/mutations#minimizecomment
       browse: async (buf) => {
         await issueViewBrowse(denops, buf);
+      },
+      ["browse-cursor"]: async (buf) => {
+        await issueViewBrowseCursor(denops, buf);
       },
     },
   });

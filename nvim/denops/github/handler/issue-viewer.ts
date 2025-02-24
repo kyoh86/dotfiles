@@ -171,6 +171,11 @@ async function setKeymap(denops: Denops, buf: Buffer) {
       lhs: "<Plug>(github-issue-viewer-browse)",
       args: [buf.bufnr, "browse", {}],
     });
+    await mapDispatch({
+      ...opt,
+      lhs: "<Plug>(github-issue-viewer-browse-cursor)",
+      args: [buf.bufnr, "browse-cursor", {}],
+    });
   });
 }
 
@@ -238,11 +243,7 @@ export async function issueViewEditBody(
   });
 }
 
-export async function issueViewEditCursor(
-  denops: Denops,
-  router: Router,
-  buf: Buffer,
-) {
+async function getCursor(denops: Denops, buf: Buffer) {
   const { owner, repo, num } = getIssueIdentifier(buf);
   const [bufnum, lnum] = await getcurpos(denops);
   const curbuf = (bufnum === 0) ? await bufnr(denops, "%") : bufnum;
@@ -257,6 +258,15 @@ export async function issueViewEditCursor(
     is.ArrayOf(is.UnionOf([is.String, is.Null])),
   );
   const attr = attrs[lnum - 1];
+  return { owner, repo, num, lnum, attr };
+}
+
+export async function issueViewEditCursor(
+  denops: Denops,
+  router: Router,
+  buf: Buffer,
+) {
+  const { owner, repo, num, attr } = await getCursor(denops, buf);
   if (attr === null) {
     return;
   }
@@ -315,4 +325,23 @@ export async function issueViewBrowse(
       is.String,
     ),
   );
+}
+
+export async function issueViewBrowseCursor(
+  denops: Denops,
+  buf: Buffer,
+) {
+  const { attr } = await getCursor(denops, buf);
+  if (attr?.startsWith("comment:")) {
+    const commentId = attr.slice("comment:".length);
+    const url = ensure(
+      await getbufvar(denops, buf.bufnr, "denops_github_issue_url"),
+      is.String,
+    );
+    const u = new URL(url);
+    u.hash = `issuecomment-${commentId}`;
+    await systemopen(u.toString());
+    return;
+  }
+  await issueViewBrowse(denops, buf);
 }
