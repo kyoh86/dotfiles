@@ -1,5 +1,5 @@
 import { restoreAuthentication, storeAuthentication } from "./auth.ts";
-import { Octokit as OctokitCore } from "npm:@octokit/core@6.1.3";
+import { Octokit as OctokitCore } from "npm:@octokit/core@6.1.4";
 import {
   type Api,
   restEndpointMethods,
@@ -7,7 +7,7 @@ import {
 import {
   type PaginateInterface,
   paginateRest,
-} from "npm:@octokit/plugin-paginate-rest@11.4.0";
+} from "npm:@octokit/plugin-paginate-rest@11.4.3";
 import {
   paginateGraphQL,
   type paginateGraphQLInterface,
@@ -17,7 +17,7 @@ export const Octokit = OctokitCore
   .plugin(restEndpointMethods)
   .plugin(paginateRest)
   .plugin(paginateGraphQL);
-import { createOAuthDeviceAuth } from "npm:@octokit/auth-oauth-device@7.1.2";
+import { createOAuthDeviceAuth } from "npm:@octokit/auth-oauth-device@7.1.3";
 import { systemopen } from "jsr:@lambdalisue/systemopen@~1.0.0";
 
 type Verification = {

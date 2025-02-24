@@ -1,7 +1,7 @@
-import * as func from "jsr:@denops/std@~7.4.0/function";
-import * as mapping from "jsr:@denops/std@~7.4.0/mapping";
+import * as func from "jsr:@denops/std@~7.5.0/function";
+import * as mapping from "jsr:@denops/std@~7.5.0/mapping";
 import type { MapOptions } from "jsr:@denops/std@7/mapping";
-import type { Denops } from "jsr:@denops/std@~7.4.0";
+import type { Denops } from "jsr:@denops/std@~7.5.0";
 
 export async function mapDispatch(
   args: {

@@ -1,12 +1,12 @@
-import type { Denops } from "jsr:@denops/std@~7.4.0";
-import { batch } from "jsr:@denops/std@~7.4.0/batch";
-import { echo } from "jsr:@denops/std@~7.4.0/helper";
+import type { Denops } from "jsr:@denops/std@~7.5.0";
+import { batch } from "jsr:@denops/std@~7.5.0/batch";
+import { echo } from "jsr:@denops/std@~7.5.0/helper";
 import { systemopen } from "jsr:@lambdalisue/systemopen@~1.0.0";
 
 import {
   createOAuthDeviceAuth,
-} from "https://esm.sh/@octokit/auth-oauth-device@7.1.2";
-import type { OnVerificationCallback } from "https://esm.sh/v135/@octokit/auth-oauth-device@7.1.2/dist-types/types.d.ts";
+} from "https://esm.sh/@octokit/auth-oauth-device@7.1.3";
+import type { OnVerificationCallback } from "https://esm.sh/v135/@octokit/auth-oauth-device@7.1.3/dist-types/types.d.ts";
 
 export async function login(denops: Denops, clientID: string) {
   const options: {
