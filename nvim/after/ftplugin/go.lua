@@ -74,4 +74,4 @@ else
   undo = undo .. "|"
 end
 
-vim.b.undo_ftplugin = undo .. "setlocal tabstop< shiftwidth< expandtab<" .. "| sunmap <buffer> <c-w>" .. "| sunmap <buffer> <c-b>" .. "| sunmap <buffer> <c-r>"
+vim.b.undo_ftplugin = undo .. "setlocal tabstop< shiftwidth< expandtab<"

@@ -181,4 +181,4 @@ else
   undo = undo .. "|"
 end
 
-vim.b.undo_ftplugin = undo .. "setlocal tabstop< shiftwidth< conceallevel< comments< formatoptions<" .. "| set isfname<" .. "| delcommand -buffer MarkdownToggleCheckbox" .. "| delcommand -buffer MarkdownRemoveCheckbox" .. "| nunmap <buffer> <leader>mcc" .. "| iunmap <buffer> <leader>mcc" .. "| xunmap <buffer> <leader>mcc" .. "| nunmap <buffer> <leader>mcd" .. "| iunmap <buffer> <leader>mcd" .. "| xunmap <buffer> <leader>mcd" .. "| nunmap <buffer> gO" .. "| iunmap <buffer> <tab>" .. "| iunmap <buffer> <s-tab>" .. ""
+vim.b.undo_ftplugin = undo .. "setlocal tabstop< shiftwidth< conceallevel< comments< formatoptions<" .. "| set isfname<" .. "| delcommand -buffer MarkdownToggleCheckbox" .. "| delcommand -buffer MarkdownRemoveCheckbox"
