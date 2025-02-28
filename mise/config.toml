@@ -5,3 +5,4 @@ python = ['latest', '3.12']
 coursier = ['latest', '2.1.9']
 postgres = ['latest']
 sqlite = ['latest']
+pnpm = "latest"
