@@ -1,6 +1,6 @@
-import type { UserSource } from "jsr:@shougo/ddc-vim@~9.2.0/types";
-import { BaseConfig } from "jsr:@shougo/ddc-vim@~9.2.0/config";
-import type { ConfigArguments } from "jsr:@shougo/ddc-vim@~9.2.0/config";
+import type { UserSource } from "jsr:@shougo/ddc-vim@~9.3.0/types";
+import { BaseConfig } from "jsr:@shougo/ddc-vim@~9.3.0/config";
+import type { ConfigArguments } from "jsr:@shougo/ddc-vim@~9.3.0/config";
 
 export class Config extends BaseConfig {
   override config(args: ConfigArguments): Promise<void> {
