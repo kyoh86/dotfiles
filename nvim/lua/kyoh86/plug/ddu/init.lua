@@ -3,12 +3,6 @@ local spec = {
   {
     "Shougo/ddu.vim",
     config = function()
-      local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-static-import", { clear = true })
-      vim.api.nvim_create_autocmd("User", {
-        group = group,
-        pattern = { "LazyInstall", "LazyUpdate", "LazyClean", "LazySync" },
-        callback = require("kyoh86.lib.func").vind_all(vim.fn["ddu#set_static_import_path"]),
-      })
       vim.fn["ddu#custom#patch_global"]({
         sourceOptions = {
           _ = {
