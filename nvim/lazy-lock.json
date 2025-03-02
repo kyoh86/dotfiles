@@ -29,7 +29,7 @@
   "ddc-source-zsh-history": { "branch": "main", "commit": "a44812b64c0078073860470072667b03307bd1d0" },
   "ddc-ui-inline": { "branch": "main", "commit": "6c05892b6a3b3e3b403e985c4e71c0ddd832c90d" },
   "ddc-ui-pum": { "branch": "main", "commit": "1e776752c10b4187a76c0543e8ca1aaa64b0b451" },
-  "ddc.vim": { "branch": "main", "commit": "cb1582ab78e66fd4d24581c30dd692e5e91f2b6f" },
+  "ddc.vim": { "branch": "main", "commit": "f701d6ad71ec54f318359f75d7afa1ade9a5ba19" },
   "ddu-filter-converter_hl_dir": { "branch": "main", "commit": "4f106266ca82bc17c8b96e7d6f99bea800895542" },
   "ddu-filter-fuse": { "branch": "main", "commit": "df1ed6477a3edadd19e2ecbf67d0d2990b7f727e" },
   "ddu-filter-fzf": { "branch": "main", "commit": "e968510d192260264cbd99431a2060fe9eb5f0ae" },
