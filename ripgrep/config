@@ -1,3 +1,5 @@
+--hidden
 --glob=!.git/*
 --glob=!__pycache__
+--glob=!node_modules
 --glob=!package-lock.json
