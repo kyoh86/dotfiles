@@ -36,28 +36,23 @@ local spec = {
 
     vim.fn["ddu#custom#patch_global"]({
       ui = "ff",
+      uiOptions = {
+        ff = {
+          filterPrompt = "󰈲  ",
+        },
+      },
       uiParams = {
         ff = {
           -- sizes >>>
-          winRow = "(&lines - min([70, &lines - 8]) - 3) / 2",
-          previewRow = "(&lines - min([70, &lines - 8]) - 3) / 2",
-
-          winHeight = "min([70, &lines - 8])",
           previewHeight = "min([70, &lines - 8])",
-
-          winCol = "&columns / 10",
           previewCol = "&columns / 2",
-
-          winWidth = "&columns * 4 / 10 - 2",
-          previewWidth = "&columns * 4 / 10 - 2",
+          previewWidth = "&columns / 2",
           -- <<< sizes
 
           onPreview = vim.fn["denops#callback#register"](function(args)
             vim.wo[args.previewWinId].cursorline = false
           end),
-          split = "floating",
-          floatingBorder = "rounded",
-          prompt = "󰈲  ",
+          split = "tab",
           highlights = {
             filterText = "dduFilter",
             floating = "Normal",
@@ -70,8 +65,6 @@ local spec = {
           autoAction = {
             name = "preview",
           },
-          previewFloating = true,
-          previewFloatingBorder = "single",
           previewSplit = "vertical",
           previewWindowOptions = {
             { "&signcolumn", "no" },
