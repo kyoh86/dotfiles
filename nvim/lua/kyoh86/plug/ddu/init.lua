@@ -42,7 +42,6 @@ local spec = {
         },
       })
     end,
-    build = "git update-index --skip-worktree denops/ddu/_mods.js",
     dependencies = { "denops.vim" },
   },
   { import = "kyoh86.plug.ddu.source" },
