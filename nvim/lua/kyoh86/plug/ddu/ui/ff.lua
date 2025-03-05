@@ -60,8 +60,6 @@ local spec = {
             floatingBorder = "dduBorder",
             prompt = "dduPrompt",
           },
-
-          startAutoAction = true,
           autoAction = {
             name = "preview",
           },
@@ -140,12 +138,13 @@ local spec = {
         nmap(scroll .. "<c-e>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-e>"]] }))
         nmap(scroll .. "<c-d>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-d>"]] }))
         nmap(scroll .. "<c-u>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-u>"]] }))
+        nmap("<c-p><c-p>", ddu_ui_action("toggleAutoAction"))
 
-        local select = "<plug>(kyoh86-select)"
-        vim.keymap.set("n", "<tab>", select .. pending, { buffer = true, remap = true })
-        vim.keymap.set("n", pending .. "j", "j" .. select .. pending, { buffer = true, remap = true })
+        local selectMode = "<plug>(kyoh86-select)"
+        vim.keymap.set("n", "<tab>", selectMode .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", pending .. "j", "j" .. selectMode .. pending, { buffer = true, remap = true })
 
-        local toggle = function()
+        local toggleSelection = function()
           vim.fn["ddu#ui#do_action"]("toggleSelectItem")
           local placed = vim.fn.sign_getplaced(ev.buf, { group = "dduSelected", lnum = "." })
           if placed == nil or #placed[1].signs == 0 then
@@ -156,8 +155,8 @@ local spec = {
             end
           end
         end
-        nmap(select, toggle)
-        nmap("<space>", toggle)
+        nmap(selectMode, toggleSelection)
+        nmap("<space>", toggleSelection)
       end,
     })
   end,
