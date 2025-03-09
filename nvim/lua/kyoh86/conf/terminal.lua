@@ -11,9 +11,29 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.opt_local.scrollback = 100000
     vim.opt_local.relativenumber = false
     local buf = vim.api.nvim_get_current_buf()
-    -- ノーマルモード、ヴィジュアルモードの<Up>で一つ前のプロンプトに戻る
-    vim.keymap.set({ "n", "v" }, "<up>", [[<cmd>call search('^\(\$\( \|$\)\)\@=', 'bW')<cr>]], { remap = false, buffer = buf, silent = true, desc = "search previous prompt" })
-    -- ノーマルモード、ヴィジュアルモードの<Down>で一つ後のプロンプトに戻る
-    vim.keymap.set({ "n", "v" }, "<down>", [[<cmd>call search('^\(\$\( \|$\)\)\@=', 'W')<cr>]], { remap = false, buffer = buf, silent = true, desc = "search next prompt" })
+    -- ノーマルモード、ヴィジュアルモードの<Up>/<Down>で一つ前/後のプロンプトに戻る
+    vim.keymap.set("n", "<up>", "[[", { buffer = buf, desc = "Jump [count] shell prompts backward", remap = true })
+    vim.keymap.set("n", "<down>", "]]", { buffer = buf, desc = "Jump [count] shell prompts forward", remap = true })
   end,
+})
+
+-- OSC 133対応のターミナルプロンプトマーカー
+
+local ns = vim.api.nvim_create_namespace("terminal_prompt_markers")
+vim.api.nvim_create_autocmd("TermRequest", {
+  callback = function(args)
+    if string.match(args.data.sequence, "^\027]133;A") then
+      local lnum = args.data.cursor[1]
+      vim.api.nvim_buf_set_extmark(args.buf, ns, lnum - 1, 0, {
+        -- Replace with sign text and highlight group of choice
+        sign_text = "▶",
+        sign_hl_group = "SpecialChar",
+      })
+    end
+  end,
+})
+
+-- Enable signcolumn in terminal buffers
+vim.api.nvim_create_autocmd("TermOpen", {
+  command = "setlocal signcolumn=auto",
 })
