@@ -6,3 +6,4 @@ coursier = ['latest', '2.1.9']
 postgres = ['latest']
 sqlite = ['latest']
 pnpm = "latest"
+go = "latest"
