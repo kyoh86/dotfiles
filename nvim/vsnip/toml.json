@@ -1,10 +1,12 @@
 {
-  "vsnip-schema": {
-    "prefix": "vsnip",
-    "body": "#:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json"
-  },
-  "vsnip": {
-    "prefix": "vsnip",
-    "body": "[$1]\nprefix = \"$1\"\nbody = \"\"\"\n$2\"\"\"\n"
-  }
+    "vsnip-schema": {
+        "prefix": "vsnip-schema",
+        "description": "Add schema to the top of the file",
+        "body": "#:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json"
+    },
+    "vsnip-template": {
+        "prefix": "vsnip-template",
+        "description": "Snippet to define a vsnip template",
+        "body": "[\"$1\"]\nprefix = \"$2\"\ndescription = \"$3\"\nbody = \"\"\"\n$0\n\"\"\"\n"
+    }
 }

@@ -57,7 +57,7 @@ local function open_snippet(filetype, mods)
   end)
 end
 
-vim.api.nvim_create_user_command("Snip", function(args)
+local function open_snippet_command(args)
   local candidates = vim.fn["vsnip#source#filetypes"](vim.fn.bufnr("%"))
   if args.bang then
     open_snippet(candidates[1], args.smods)
@@ -70,7 +70,15 @@ vim.api.nvim_create_user_command("Snip", function(args)
     end
     open_snippet(item, args.smods)
   end)
-end, { desc = "Edit snippet for the current file-type", force = true, bang = true })
+end
+
+-- vim.api.nvim_del_user_command("VsnipOpen")
+-- vim.api.nvim_del_user_command("VsnipOpenEdit")
+-- vim.api.nvim_del_user_command("VsnipOpenSplit")
+-- vim.api.nvim_del_user_command("VsnipOpenVsplit")
+
+vim.api.nvim_create_user_command("Snip", open_snippet_command, { desc = "Edit snippet for the current file-type", force = true, bang = true })
+vim.api.nvim_create_user_command("Vsnip", open_snippet_command, { desc = "Edit snippet for the current file-type", force = true, bang = true })
 
 vim.api.nvim_create_autocmd("BufWritePost", {
   group = group,

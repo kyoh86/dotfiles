@@ -1,0 +1,12 @@
+{
+    "Vim plugin issue": {
+        "prefix": "vim.plugin.issue",
+        "description": "Vim plugin issue",
+        "body": "## Description\n\n$1\n\n## Steps to Reproduce\n\n1. $2\n\n## Expected Behavior\n\n## Actual Behavior\n\n## Environment Information\n\n- OS: ${VIM:v:lua.vim.uv.os_uname().sysname}\n- Neovim: ${VIM:luaeval(\"tostring(vim.version())\")}\n\n## Vimrc\n\n```vim\n$0\n```\n"
+    },
+    "Vim version": {
+        "prefix": "vim.version",
+        "description": "Vim version",
+        "body": "${VIM:luaeval('tostring(vim.version())')}"
+    }
+}

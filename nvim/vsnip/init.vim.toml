@@ -1,0 +1,106 @@
+#:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json
+
+["mini init.vim for another profile"]
+prefix = "mini.init.vim"
+description = "init.vim for another profile"
+body = """
+let s:wdir=expand('<sfile>:p:h')
+function! s:install(plugin)
+  let l:path = join([s:wdir, "p", a:plugin.name], '/')
+  if !isdirectory(l:path)
+    echomsg "install " .. a:plugin.owner .. "/" .. a:plugin.name
+    let l:branch = ''
+    if string(get(a:plugin, 'branch', 0)) != "0"
+      let l:branch = ' --branch ' .. a:plugin.branch
+    endif
+    let l:cmd = "git clone" .. l:branch .. " --depth 1 https://github.com/" .. a:plugin.owner .. "/" .. a:plugin.name .. " " .. l:path
+    echomsg l:cmd
+    echomsg system(l:cmd)
+  endif
+  let &rtp ..= "," .. l:path
+endfunction
+
+for plugin in [
+      \\ { "owner": "$1", "name": "$2" },
+      \\ ]
+  call s:install(plugin)
+endfor
+
+$0
+"""
+
+["denops init.vim for another profile"]
+prefix = "denops.init.vim"
+description = "init.vim for another profile with denops"
+body = """
+let s:wdir=expand('<sfile>:p:h')
+function! s:install(plugin)
+  let l:path = join([s:wdir, "p", a:plugin.name], '/')
+  if !isdirectory(l:path)
+    echomsg "install " .. a:plugin.owner .. "/" .. a:plugin.name
+    let l:branch = ''
+    if string(get(a:plugin, 'branch', 0)) != "0"
+      let l:branch = ' --branch ' .. a:plugin.branch
+    endif
+    let l:cmd = "git clone" .. l:branch .. " --depth 1 https://github.com/" .. a:plugin.owner .. "/" .. a:plugin.name .. " " .. l:path
+    echomsg l:cmd
+    echomsg system(l:cmd)
+  endif
+  let &rtp ..= "," .. l:path
+endfunction
+
+for plugin in [
+      \\ { "owner": "vim-denops", "name": "denops.vim" },
+      \\ { "owner": "$1", "name": "$2" },
+      \\ ]
+  call s:install(plugin)
+endfor
+
+let g:denops#deno = $$HOME .. "/.deno/bin/deno"
+
+$0
+"""
+
+["ddu init.vim for another profile"]
+prefix = "ddu.init.vim"
+description = "init.vim for another profile with ddu"
+body = """
+let s:wdir=expand('<sfile>:p:h')
+function! s:install(plugin)
+  let l:path = join([s:wdir, "p", a:plugin.name], '/')
+  if !isdirectory(l:path)
+    echomsg "install " .. a:plugin.owner .. "/" .. a:plugin.name
+    let l:branch = ''
+    if string(get(a:plugin, 'branch', 0)) != "0"
+      let l:branch = ' --branch ' .. a:plugin.branch
+    endif
+    let l:cmd = "git clone" .. l:branch .. " --depth 1 https://github.com/" .. a:plugin.owner .. "/" .. a:plugin.name .. " " .. l:path
+    echomsg l:cmd
+    echomsg system(l:cmd)
+  endif
+  let &rtp ..= "," .. l:path
+endfunction
+
+for plugin in [
+      \\ { "owner": "vim-denops", "name": "denops.vim" },
+      \\ { "owner": "Shougo", "name": "ddu.vim" },
+      \\ { "owner": "Shougo", "name": "ddu-ui-ff" },
+      \\ { "owner": "Shougo", "name": "ddu-source-dummy" },
+      \\ { "owner": "Shougo", "name": "ddu-kind-word" },
+      \\ { "owner": "$1", "name": "$2" },
+      \\ ]
+  call s:install(plugin)
+endfor
+
+let g:denops#deno = $$HOME .. "/.deno/bin/deno"
+
+call ddu#custom#patch_global({
+      \\   "sources": [{
+      \\     "name": "$3",
+      \\   }],
+      \\   "ui": {
+      \\     "name": "ff"
+      \\   }
+      \\ })
+$0
+"""

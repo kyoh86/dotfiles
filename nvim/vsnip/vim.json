@@ -1,0 +1,17 @@
+{
+    "mini init.vim for another profile": {
+        "prefix": "mini.init.vim",
+        "description": "init.vim for another profile",
+        "body": "let s:wdir=expand('<sfile>:p:h')\nfunction! s:install(plugin)\n  let l:path = join([s:wdir, \"p\", a:plugin.name], '/')\n  if !isdirectory(l:path)\n    echomsg \"install \" .. a:plugin.owner .. \"/\" .. a:plugin.name\n    let l:branch = ''\n    if string(get(a:plugin, 'branch', 0)) != \"0\"\n      let l:branch = ' --branch ' .. a:plugin.branch\n    endif\n    let l:cmd = \"git clone\" .. l:branch .. \" --depth 1 https://github.com/\" .. a:plugin.owner .. \"/\" .. a:plugin.name .. \" \" .. l:path\n    echomsg l:cmd\n    echomsg system(l:cmd)\n  endif\n  let &rtp ..= \",\" .. l:path\nendfunction\n\nfor plugin in [\n      \\ { \"owner\": \"$1\", \"name\": \"$2\" },\n      \\ ]\n  call s:install(plugin)\nendfor\n\n$0\n"
+    },
+    "denops init.vim for another profile": {
+        "prefix": "denops.init.vim",
+        "description": "init.vim for another profile with denops",
+        "body": "let s:wdir=expand('<sfile>:p:h')\nfunction! s:install(plugin)\n  let l:path = join([s:wdir, \"p\", a:plugin.name], '/')\n  if !isdirectory(l:path)\n    echomsg \"install \" .. a:plugin.owner .. \"/\" .. a:plugin.name\n    let l:branch = ''\n    if string(get(a:plugin, 'branch', 0)) != \"0\"\n      let l:branch = ' --branch ' .. a:plugin.branch\n    endif\n    let l:cmd = \"git clone\" .. l:branch .. \" --depth 1 https://github.com/\" .. a:plugin.owner .. \"/\" .. a:plugin.name .. \" \" .. l:path\n    echomsg l:cmd\n    echomsg system(l:cmd)\n  endif\n  let &rtp ..= \",\" .. l:path\nendfunction\n\nfor plugin in [\n      \\ { \"owner\": \"vim-denops\", \"name\": \"denops.vim\" },\n      \\ { \"owner\": \"$1\", \"name\": \"$2\" },\n      \\ ]\n  call s:install(plugin)\nendfor\n\nlet g:denops#deno = $$HOME .. \"/.deno/bin/deno\"\n\n$0\n"
+    },
+    "ddu init.vim for another profile": {
+        "prefix": "ddu.init.vim",
+        "description": "init.vim for another profile with ddu",
+        "body": "let s:wdir=expand('<sfile>:p:h')\nfunction! s:install(plugin)\n  let l:path = join([s:wdir, \"p\", a:plugin.name], '/')\n  if !isdirectory(l:path)\n    echomsg \"install \" .. a:plugin.owner .. \"/\" .. a:plugin.name\n    let l:branch = ''\n    if string(get(a:plugin, 'branch', 0)) != \"0\"\n      let l:branch = ' --branch ' .. a:plugin.branch\n    endif\n    let l:cmd = \"git clone\" .. l:branch .. \" --depth 1 https://github.com/\" .. a:plugin.owner .. \"/\" .. a:plugin.name .. \" \" .. l:path\n    echomsg l:cmd\n    echomsg system(l:cmd)\n  endif\n  let &rtp ..= \",\" .. l:path\nendfunction\n\nfor plugin in [\n      \\ { \"owner\": \"vim-denops\", \"name\": \"denops.vim\" },\n      \\ { \"owner\": \"Shougo\", \"name\": \"ddu.vim\" },\n      \\ { \"owner\": \"Shougo\", \"name\": \"ddu-ui-ff\" },\n      \\ { \"owner\": \"Shougo\", \"name\": \"ddu-source-dummy\" },\n      \\ { \"owner\": \"Shougo\", \"name\": \"ddu-kind-word\" },\n      \\ { \"owner\": \"$1\", \"name\": \"$2\" },\n      \\ ]\n  call s:install(plugin)\nendfor\n\nlet g:denops#deno = $$HOME .. \"/.deno/bin/deno\"\n\ncall ddu#custom#patch_global({\n      \\   \"sources\": [{\n      \\     \"name\": \"$3\",\n      \\   }],\n      \\   \"ui\": {\n      \\     \"name\": \"ff\"\n      \\   }\n      \\ })\n$0\n"
+    }
+}

@@ -1,13 +1,17 @@
 #:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json
 
 [vsnip-schema]
-prefix = "vsnip"
+prefix = "vsnip-schema"
+description = "Add schema to the top of the file"
 body = "#:schema https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json"
 
-[vsnip]
-prefix = "vsnip"
-body = """[$1]
-prefix = "$1"
+[vsnip-template]
+prefix = "vsnip-template"
+description = "Snippet to define a vsnip template"
+body = """["$1"]
+prefix = "$2"
+description = "$3"
 body = \"\"\"
-$2\"\"\"
+$0
+\"\"\"
 """
