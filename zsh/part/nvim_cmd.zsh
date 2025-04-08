@@ -6,7 +6,7 @@ if [ -n "${NVIM_SERVER_NAME}" ] ; then
   }
 
   function nvim-remote-or-not() {
-    if [ "$BUFFER[1]" != ":" ] || [ "$BUFFER" = ":" ]; then
+    if [ "$BUFFER[1]" != ":" ] || [ "${BUFFER%% *}" = ":" ]; then
       zle accept-line
       return
     fi
