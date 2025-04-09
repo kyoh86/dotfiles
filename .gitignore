@@ -1,9 +1,9 @@
 /*
+
 !/.github
 !/.gitignore
-
-!/README.md
 !/KEYBALL.md
+!/README.md
 !/bin/
 !/docker-linux/config.json
 !/efm-langserver
@@ -14,13 +14,15 @@
 !/gnupg/.gitignore
 !/gogh
 !/gordon
+!/home-manager
 !/locale.conf
-!/sakura
-!/mypy
 !/mise
+!/mypy
+!/nix
 !/nvim
 !/nvim-?*
 !/ripgrep
+!/sakura
 !/schemastore/
 !/setup/
 !/ssh
@@ -30,8 +32,8 @@
 !/wezterm
 !/windows
 !/zsh
-!/zsh-abbr/
 /zsh/.zcompcache
+!/zsh-abbr/
 
 *.log
 deno.lock
