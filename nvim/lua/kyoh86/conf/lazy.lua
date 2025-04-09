@@ -14,7 +14,6 @@ local function dev_path(plugin)
   if owner == nil or name == nil then
     return default_dev_path
   end
-  vim.print(dev_path_origin .. "/" .. owner .. "/" .. name)
   return dev_path_origin .. "/" .. owner .. "/" .. name
 end
 local M = {
