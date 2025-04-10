@@ -7,3 +7,4 @@ postgres = ['latest']
 sqlite = ['latest']
 pnpm = "latest"
 go = "latest"
+"npm:@prisma/language-server" = "latest"

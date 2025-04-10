@@ -1,20 +1,9 @@
 local setup_keymap = require("kyoh86.plug.lsp.keymap")
 
 --- Globalな設定
-local lsp_server_list = {}
 local lsp_config_table = {}
 local function setup_lsp_global()
   vim.lsp.set_log_level(vim.log.levels.OFF)
-  kyoh86.ensure("mason", function(m)
-    m.setup({
-      log_level = vim.log.levels.OFF,
-    })
-  end)
-  kyoh86.ensure("mason-lspconfig", function(m)
-    m.setup({
-      ensure_installed = lsp_server_list,
-    })
-  end)
 
   -- highlightを設定する
   require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
@@ -26,7 +15,6 @@ local function setup_lsp_global()
   end, true)
 
   -- サーバー毎の設定を反映させる
-  -- NOTE: mason, mason-lspconfig より後にsetupを呼び出す必要がある
   for name, config in pairs(lsp_config_table) do
     kyoh86.ensure("lspconfig", function(m)
       m[name].setup(config)
@@ -109,41 +97,37 @@ local function register_lsp_servers()
   --- サーバーの設定を登録する
   --- @param name string
   --- @param config table|nil
-  --- @param skip_install? true
-  local function register(name, config, skip_install)
-    if not skip_install then
-      table.insert(lsp_server_list, name)
-    end
+  local function register(name, config)
     if config then
       config.capabilities = capabilities
       lsp_config_table[name] = config
     end
   end
 
-  register("angularls", {}, true)
-  register("ansiblels", {}, true)
-  register("astro", {}, true)
-  register("bashls", {}, true)
-  register("cssls", {}, true) -- vscode-langservers-extracted
-  register("denols", require("kyoh86.plug.lsp.server.denols"), true) -- uses global deno, so it should not be installed by Mason
-  register("dockerls", {}, true)
-  register("efm", require("kyoh86.plug.lsp.server.efm"), true)
-  register("eslint", {}, true)
-  register("gopls", require("kyoh86.plug.lsp.server.gopls"), true) -- uses global gopls, so it should not be installed by Mason
-  register("html", {}, true) -- vscode-langservers-extracted
-  register("jsonls", require("kyoh86.plug.lsp.server.jsonls"), true) -- vscode-langservers-extracted
-  register("jqls", {}, true)
-  register("lua_ls", require("kyoh86.plug.lsp.server.luals"), true)
-  register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
+  register("angularls", {})
+  register("ansiblels", {})
+  register("astro", {})
+  register("bashls", {})
+  register("cssls", {}) -- vscode-langservers-extracted
+  register("denols", require("kyoh86.plug.lsp.server.denols")) -- uses global deno, so it should not be installed by Mason
+  register("dockerls", {})
+  register("efm", require("kyoh86.plug.lsp.server.efm"))
+  register("eslint", {})
+  register("gopls", require("kyoh86.plug.lsp.server.gopls")) -- uses global gopls, so it should not be installed by Mason
+  register("html", {}) -- vscode-langservers-extracted
+  register("jsonls", require("kyoh86.plug.lsp.server.jsonls")) -- vscode-langservers-extracted
+  register("jqls", {})
+  register("lua_ls", require("kyoh86.plug.lsp.server.luals"))
+  register("metals", {}) -- Scala (metals): without installation with mason.nvim
   register("prismals", {}) -- Prisma (TypeScript DB ORM)
-  register("rust_analyzer", require("kyoh86.plug.lsp.server.rust"), true)
-  register("sqls", {}, true)
-  register("stylelint_lsp", {}, true)
-  register("svelte", {}, true)
-  register("taplo", {}, true) -- TOML
-  register("terraformls", {}, true)
-  register("vimls", {}, true)
-  register("vtsls", require("kyoh86.plug.lsp.server.vtsls"), true)
+  register("rust_analyzer", require("kyoh86.plug.lsp.server.rust"))
+  register("sqls", {})
+  register("stylelint_lsp", {})
+  register("svelte", {})
+  register("taplo", {}) -- TOML
+  register("terraformls", {})
+  register("vimls", {})
+  register("vtsls", require("kyoh86.plug.lsp.server.vtsls"))
   register("yamlls", {
     settings = {
       yaml = {
@@ -151,14 +135,12 @@ local function register_lsp_servers()
         keyOrdering = false,
       },
     },
-  }, true)
+  })
 end
 
 ---@type LazySpec[]
 local spec = {
   { "kyoh86/climbdir.nvim", lazy = true },
-  -- make easier setup mason & lspconfig
-  { "williamboman/mason-lspconfig.nvim", lazy = true },
   -- make JSON LSP more strict
   { "b0o/schemastore.nvim", lazy = true },
   {
@@ -187,27 +169,9 @@ local spec = {
     dependencies = {
       --- "cmp-nvim-lsp",
       "climbdir.nvim",
-      "mason-lspconfig.nvim",
       "schemastore.nvim",
     },
     event = { "BufReadPre", "BufNewFile" },
-  },
-  -- install LSP's automatically
-  "williamboman/mason.nvim",
-  {
-    -- update all mason's LSP automatically
-    "RubixDev/mason-update-all",
-    config = function()
-      local g = vim.api.nvim_create_augroup("kyoh86-plug-update-mason", { clear = true })
-      vim.api.nvim_create_autocmd("User", {
-        group = g,
-        pattern = "LazyUpdate",
-        callback = function()
-          require("mason-update-all").update_all()
-        end,
-        desc = "Run mason-update-all after packer.sync()",
-      })
-    end,
   },
   {
     -- show progress of lsp-server
@@ -224,7 +188,6 @@ local spec = {
       require("lsp_signature").setup(opts)
     end,
   },
-  { "williamboman/mason.nvim", lazy = true },
   {
     "artemave/workspace-diagnostics.nvim",
     dependencies = {
