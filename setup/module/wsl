@@ -1,0 +1,22 @@
+#!/bin/bash
+
+create_wsl_config() {
+  cat - << EOS | sudo tee /etc/wsl.conf
+  [boot]
+  systemd=true
+
+  [user]
+  default=kyoh86
+
+  [interop]
+  appendWindowsPath=true
+
+  [wsl2]
+  memory=16GB
+  networkingMode=mirrored
+  firewall=true
+  autoProxy=true
+EOS
+}
+
+create_wsl_config

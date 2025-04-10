@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Clone dotfiles
+clone_dotfiles() {
+  DOTFILES_DIR="${HOME}/Projects/github.com/kyoh86/dotfiles"
+  [ -d "${DOTFILES_DIR}" ] || git clone --branch ubuntu https://github.com/kyoh86/dotfiles "${DOTFILES_DIR}"
+  rm -rf ~/.config
+  ln -s "${DOTFILES_DIR}" ~/.config
+
+  # Add the SSH key to the ssh-agent
+  mkdir -p ~/.ssh && echo 'Include ~/.config/ssh/*.conf' >> ~/.ssh/config
+}
+
+clone_dotfiles

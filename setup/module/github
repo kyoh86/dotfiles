@@ -1,0 +1,81 @@
+#!/bin/bash
+
+echo "Enter the **PUBLIC** email address for GitHub Account you want to use:"
+read GITHUB_EMAIL
+
+echo "Enter the user name for GitHub Account you want to use:"
+read GITHUB_NAME
+
+
+# Generate a new SSH key for github.com
+generate_ssh_key() {
+  SSH_KEY_PATH="${HOME}/.ssh/github_ed25519"
+  if [ -f "${SSH_KEY_PATH}" ]; then
+    return;
+  fi
+
+  mkdir -p ~/.ssh
+  ssh-keygen -t ed25519 -C "${GITHUB_EMAIL}" -f "${SSH_KEY_PATH}"
+
+  # ref: https://docs.github.com/ja/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+}
+
+generate_ssh_key
+
+# Setup key and sign for GitHub CLI
+auth_github_cli() {
+  if gh auth status --hostname github.com; then
+    return;
+  fi
+  gh auth login --web --git-protocol https --hostname github.com --skip-ssh-key --scopes admin:public_key,admin:ssh_signing_key
+}
+
+auth_github_cli
+
+# Get profiles
+get_profiles() {
+  MACHINE_NAME="$(uname -n)"
+
+  source <(cat /etc/os-release | sed 's/^/local /')
+  OS_NAME="${NAME}"
+}
+
+# Upload SSH key (auth/sign) to GitHub
+upload_ssh_key() {
+  SSH_KEY_PATH="${HOME}/.ssh/github_ed25519.pub"
+  if [ ! -f "${SSH_KEY_PATH}" ]; then
+    return 1;
+  fi
+
+  get_profiles
+
+  AUTH_KEY_TITLE="git-auth/${OS_NAME}/${MACHINE_NAME}"
+  if gh api /user/keys --jq '.[].title' | grep -xFe "${AUTH_KEY_TITLE}" >/dev/null ; then
+    :
+  else
+    gh ssh-key add --title "${AUTH_KEY_TITLE}"  --type "authentication" "${SSH_KEY_PATH}"
+  fi
+
+  SIGN_KEY_TITLE="git-sign/${OS_NAME}/${MACHINE_NAME}"
+  if gh api /user/ssh_signing_keys --jq '.[].title' | grep -xFe "${SIGN_KEY_TITLE}" >/dev/null ; then
+    :
+  else
+    gh ssh-key add --title "${SIGN_KEY_TITLE}" --type "signing" "${SSH_KEY_PATH}"
+  fi
+}
+
+upload_ssh_key
+
+setup_git_config() {
+  cat << EOS > "${HOME}"/Projects/github.com/kyoh86/dotfiles/git/host.conf
+[user]
+  name = ${GITHUB_NAME}
+  email = ${GITHUB_EMAIL}
+  signingkey = ${HOME}/.ssh/github_ed25519.pub
+
+[github]
+  user = ${GITHUB_NAME}
+EOS
+}
+
+setup_git_config

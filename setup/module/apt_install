@@ -1,0 +1,20 @@
+#!/bin/bash
+
+apt_install() {
+  # Development Environment
+  sudo apt install --yes \
+      telnet  \
+      tidy    \
+      man-db  \
+      make    \
+      cmake   \
+      gettext
+
+  # for git send-email
+  sudo apt install --yes  \
+    git-email             \
+    libio-socket-ssl-perl \
+    libauthen-sasl-perl
+}
+
+apt_install

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# zenhan.exe
+install_zenhan() {
+  if command -v zenhan.exe >/dev/null 2>&1; then
+    return
+  fi
+  BIN="${HOME}/.local/bin/zenhan.exe"
+  gh --repo kyoh86/zenhan release download -p '*.exe' -O "$BIN"
+  chmod +x "$BIN"
+}
+
+install_zenhan

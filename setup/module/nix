@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Nix + Home Manager
+install_nix() {
+  if [ -x "$(command -v nix)" ]; then
+    return;
+  fi
+
+  sh <(curl -L https://nixos.org/nix/install) --daemon
+  . "${HOME}/.nix-profile/etc/profile.d/nix.sh"
+
+  nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+  nix-channel --update
+
+  nix-shell '<home-manager>' -A install
+}
+
+install_nix
