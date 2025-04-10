@@ -18,13 +18,19 @@
           system = "x86_64-linux";
           # config.allowUnfree = true;
         };
+        extraSpecialArgs = {
+          username = "kyoh86";
+        };
       });
 
-      "kyoh86@your-mac" = home-manager.lib.homeManagerConfiguration ({
+      "yamada@PC5050" = home-manager.lib.homeManagerConfiguration ({
         modules = [ (import ./home.nix) ];
         pkgs = import nixpkgs {
           system = "aarch64-darwin";   ## For M1/M2/etc Apple Silicon
           # system = "x86_64-darwin";
+        };
+        extraSpecialArgs = {
+          username = "yamada";
         };
       });
     };

@@ -1,9 +1,8 @@
-{ config, pkgs, ... }:
+{ config, pkgs, username, ... }:
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
   unsupported = builtins.abort "Unsupported platform";
-  username = "kyoh86";
 in
 {
   imports = [
@@ -44,9 +43,9 @@ in
     # # You can also create simple shell scripts directly inside your
     # # configuration. For example, this adds a command 'my-hello' to your
     # # environment:
-    # (pkgs.writeShellScriptBin "my-hello" ''
-    #   echo "Hello, ${config.home.username}!"
-    # '')
+    (pkgs.writeShellScriptBin "my-hello" ''
+      echo "Hello, ${config.home.username}!"
+    '')
 
     # Utilities
     binutils
