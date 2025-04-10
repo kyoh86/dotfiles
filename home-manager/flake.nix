@@ -10,20 +10,23 @@
     };
   };
 
-  outputs = { nixpkgs, home-manager, ... }:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in {
-      homeConfigurations."kyoh86" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
+  outputs = { self, nixpkgs, home-manager, ... }: {
+    homeConfigurations = {
+      "kyoh86@kyoh86-desktop" = home-manager.lib.homeManagerConfiguration ({
+        modules = [ (import ./home.nix) ];
+        pkgs = import nixpkgs {
+          system = "x86_64-linux";
+          # config.allowUnfree = true;
+        };
+      });
 
-        # Specify your home configuration modules here, for example,
-        # the path to your home.nix.
-        modules = [ ./home.nix ];
-
-        # Optionally use extraSpecialArgs
-        # to pass through arguments to home.nix
-      };
+      "kyoh86@your-mac" = home-manager.lib.homeManagerConfiguration ({
+        modules = [ (import ./home.nix) ];
+        pkgs = import nixpkgs {
+          system = "aarch64-darwin";   ## For M1/M2/etc Apple Silicon
+          # system = "x86_64-darwin";
+        };
+      });
     };
+  };
 }

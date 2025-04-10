@@ -88,25 +88,21 @@ sudo localedef --add-to-archive /usr/lib/locale/en_US.UTF-8 || :
 sudo localectl set-locale LANG=ja_JP.UTF-8
 source /etc/locale.conf
 
-# Compile & Build
-sudo apt install --yes \
-    make  \
-    cmake
-
-# Setup ZSH and make it default shell
-setup_zsh() {
-  CURRENT_LOGIN_SHELL="$(grep $USER /etc/passwd | cut -d: -f7)"
-  if [ "${CURRENT_LOGIN_SHELL##*/}" = "zsh" ]; then
+# Nix + Home Manager
+install_nix() {
+  if [ -x "$(command -v nix)" ]; then
     return;
   fi
 
-  sudo apt install --yes \
-      zsh \
-      zsh-autosuggestions \
-      zsh-syntax-highlighting
-  chsh --shell "$(command -v zsh)"
+  sh <(curl -L https://nixos.org/nix/install) --daemon
+  . /home/kyoh86/.nix-profile/etc/profile.d/nix.sh
+
+  nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+  nix-channel --update
+
+  nix-shell '<home-manager>' -A install
 }
-setup_zsh
+install_nix
 
 # Generate a new SSH key for github.com
 generate_ssh_key() {
@@ -122,32 +118,11 @@ generate_ssh_key() {
 }
 generate_ssh_key
 
-# WSL Utilities includes wslview, etc
-sudo add-apt-repository ppa:wslutilities/wslu
-sudo apt update
-sudo apt install --yes \
-  wslu
-
-# Install GitHub CLI
-install_github_cli() {
-  if [ -x "$(command -v gh)" ]; then
-    return;
-  fi
-
-  sudo mkdir -p -m 755 /etc/apt/keyrings
-  wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
-  sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-  sudo apt update && sudo apt install gh --yes
-}
-install_github_cli
-
 # Setup key and sign for GitHub CLI
 auth_github_cli() {
   if gh auth status --hostname github.com; then
     return;
   fi
-  sudo apt install --yes wslu
   gh auth login --web --git-protocol https --hostname github.com --skip-ssh-key --scopes admin:public_key,admin:ssh_signing_key
 }
 auth_github_cli
@@ -208,25 +183,9 @@ mkdir -p ~/.ssh && echo 'Include ~/.config/ssh/*.conf' >> ~/.ssh/config
 
 # Development Environment
 sudo apt install --yes \
-    binutils       \
-    coreutils      \
-    diffutils      \
-    dnsutils       \
     telnet         \
-    direnv         \
-    findutils      \
-    httpie         \
-    inotify-tools  \
-    man-db         \
-    jq             \
-    ripgrep        \
     tidy           \
-    tig            \
-    unzip
-
-    ## Direnv
-    sudo apt install --yes \
-        direnv
+    man-db
 
 # for git send-email
 sudo apt install --yes  \
@@ -234,49 +193,8 @@ sudo apt install --yes  \
   libio-socket-ssl-perl \
   libauthen-sasl-perl
 
-# Programming Languages
-sudo apt install --yes \
-    golang             \
-    rustup             \
-    lua5.4             \
-    luajit             \
-    luarocks
-
-    ## Deno
-    [ -x "$(command -v deno)" ] || curl -fsSL https://deno.land/install.sh | sh
-    export PATH="$PATH:$HOME/.deno/bin"
-
-        ### molt (Update checker for Deno dependencies)
-        deno install --global --allow-env --allow-read --allow-write --allow-net --allow-run=git,deno --name molt jsr:@molt/cli || :
-
-# Rust
-rustup default stable
-
-    ## git-delta
-    cargo install git-delta
-
-    ## stylua
-    cargo install stylua
-
-# Docker
-sudo apt install --yes  \
-    docker-compose   \
 # sudo groupadd docker # it may be error "groupadd: group 'docker' already exists" because docker AUR creates it. 
 sudo usermod -aG docker ${USER}
-
-# Install for postgres
-# (mise installs postgres via mise/config.toml)
-
-sudo apt install --yes \
-    libicu-dev \
-    pkgconf \
-    bison \
-    flex \
-    uuid-dev
-
-# Install Mise
-curl https://mise.run | sh
-mise install # install tools on mise/config.toml
 
 # Neovim
 install_neovim() {
@@ -305,55 +223,9 @@ install_zenhan() {
 }
 install_zenhan
 
-# SKK
-skkdir="${HOME}/.local/share/skk"
-skkfile="SKK-JISYO.L"
-mkdir -p "${skkdir}"
-curl -L --output "${skkdir}/${skkfile}" "https://github.com/skk-dev/dict/blob/master/${skkfile}?raw=true"
-
 # gordon
 export PATH="$PATH:/home/kyoh86/go/bin:/home/kyoh86/.local/bin"
 go install github.com/kyoh86/gordon@latest
 gordon install kyoh86/gordon
 gordon restore ~/.config/gordon/bundle
 rm -f ~/go/bin/gordon || :
-
-# AWS CLI
-install_aws_cli() {
-  if [ -x "$(command -v aws)" ]; then
-    return;
-  fi
-  AWS_CLI_TEMPDIR="$(mktemp -d)"
-  pushd "$AWS_CLI_TEMPDIR"
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  unzip awscliv2.zip
-  sudo ./aws/install
-  git clone https://github.com/aws/session-manager-plugin.git
-  cd session-manager-plugin
-  gofmt -l "$(pwd)/src" | xargs -n1 gofmt -w
-  make release
-  mkdir -p $HOME/.local/bin
-  mv "./bin/$(go env GOHOSTOS)_$(go env GOHOSTARCH)_plugin/session-manager-plugin" $HOME/.local/bin/session-manager-plugin
-  popd
-  rm -rf "$AWS_CLI_TEMPDIR"
-}
-install_aws_cli
-
-# actionlint
-go install github.com/rhysd/actionlint/cmd/actionlint@latest
-
-# Nix + Home Manager
-install_nix() {
-  if [ -x "$(command -v nix)" ]; then
-    return;
-  fi
-
-  sh <(curl -L https://nixos.org/nix/install) --daemon
-  . /home/kyoh86/.nix-profile/etc/profile.d/nix.sh
-
-  nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-  nix-channel --update
-
-  nix-shell '<home-manager>' -A install
-}
-install_nix

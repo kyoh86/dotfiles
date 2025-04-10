@@ -1,10 +1,21 @@
 { config, pkgs, ... }:
-
+let
+  isLinux = pkgs.stdenv.hostPlatform.isLinux;
+  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+  unsupported = builtins.abort "Unsupported platform";
+  username = "kyoh86";
+in
 {
+  imports = [
+    ## Modularize your home.nix by moving statements into other files
+  ];
+
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
-  home.username = "kyoh86";
-  home.homeDirectory = "/home/kyoh86";
+  home.username = "${username}";
+  home.homeDirectory =
+    if isLinux then "/home/${username}" else
+    if isDarwin then "/Users/${username}" else unsupported;
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -17,7 +28,9 @@
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages = with pkgs; [
+  home.packages = with pkgs; ([
+    # Common packages
+
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello
@@ -34,6 +47,47 @@
     # (pkgs.writeShellScriptBin "my-hello" ''
     #   echo "Hello, ${config.home.username}!"
     # '')
+
+    # Utilities
+    binutils
+    coreutils
+    diffutils
+    dnsutils
+    findutils
+    cmake
+    gnumake
+
+    # Shell environment
+    direnv
+    delta
+    inotify-tools
+    zsh
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+
+    # Languages
+    go
+    sqlite
+    deno
+    lua5_4_compat
+    lua54Packages.luarocks
+
+    # Tools
+    actionlint
+    awscli2
+    docker-compose
+    gh
+    httpie
+    jq
+    mise
+    postgresql_17
+    ripgrep
+    ssm-session-manager-plugin
+    tig
+    unzip
+    wslu
+
+    # Language servers
     angular-language-server
     ansible-language-server
     astro-language-server
@@ -47,13 +101,19 @@
     lua-language-server
     sqls
     stylelint-lsp
+    stylua
     svelte-language-server
     taplo
     terraform-ls
     vim-language-server
     vtsls
     yaml-language-server
-  ];
+
+  ] ++ lib.optionals isLinux [
+    # GNU/Linux packages
+  ] ++ lib.optionals isDarwin [
+    # macOS packages
+  ]);
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
@@ -92,4 +152,9 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+  programs.zsh = {
+    enable = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+  };
 }
