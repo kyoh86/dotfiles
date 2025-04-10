@@ -17,7 +17,7 @@
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages = [
+  home.packages = with pkgs; [
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello
@@ -34,6 +34,25 @@
     # (pkgs.writeShellScriptBin "my-hello" ''
     #   echo "Hello, ${config.home.username}!"
     # '')
+    angular-language-server
+    ansible-language-server
+    astro-language-server
+    bash-language-server
+    dockerfile-language-server-nodejs
+    efm-langserver
+    eslint
+    gopls
+    vscode-langservers-extracted # HTML, CSS, JSON, ESLint
+    jq-lsp
+    lua-language-server
+    sqls
+    stylelint-lsp
+    svelte-language-server
+    taplo
+    terraform-ls
+    vim-language-server
+    vtsls
+    yaml-language-server
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage

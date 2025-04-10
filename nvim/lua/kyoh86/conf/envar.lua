@@ -141,6 +141,9 @@ else
   vim.notify("Failed to get mise envar" .. mise_result.stderr, vim.log.levels.WARN)
 end
 
+-- Home Manager/Nix:
+path.ins(path.home .. "/.nix-profile/bin")
+
 -- .local/bin
 path.ins(path.home .. "/.local/bin")
 path.ins(path.home .. "/.local/sbin")

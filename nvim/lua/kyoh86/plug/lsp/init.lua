@@ -120,51 +120,30 @@ local function register_lsp_servers()
     end
   end
 
-  register("angularls", {})
-  register("ansiblels", {})
-  register("astro", {})
-  register("bashls", {})
-  register("biome", {})
-  register("cssls", {})
-  register("cssmodules_ls", {})
+  register("angularls", {}, true)
+  register("ansiblels", {}, true)
+  register("astro", {}, true)
+  register("bashls", {}, true)
+  register("cssls", {}, true) -- vscode-langservers-extracted
   register("denols", require("kyoh86.plug.lsp.server.denols"), true) -- uses global deno, so it should not be installed by Mason
-  register("dockerls", {})
-  register("efm", require("kyoh86.plug.lsp.server.efm"))
-  register("eslint", {})
-  register("gopls", require("kyoh86.plug.lsp.server.gopls"))
-  register("html", {})
-  register("jsonls", require("kyoh86.plug.lsp.server.jsonls"))
-  register("jqls", {})
-  register("lemminx", {}) -- XML
-  register("lua_ls", require("kyoh86.plug.lsp.server.luals"))
+  register("dockerls", {}, true)
+  register("efm", require("kyoh86.plug.lsp.server.efm"), true)
+  register("eslint", {}, true)
+  register("gopls", require("kyoh86.plug.lsp.server.gopls"), true) -- uses global gopls, so it should not be installed by Mason
+  register("html", {}, true) -- vscode-langservers-extracted
+  register("jsonls", require("kyoh86.plug.lsp.server.jsonls"), true) -- vscode-langservers-extracted
+  register("jqls", {}, true)
+  register("lua_ls", require("kyoh86.plug.lsp.server.luals"), true)
   register("metals", {}, true) -- Scala (metals): without installation with mason.nvim
   register("prismals", {}) -- Prisma (TypeScript DB ORM)
-  register("pylsp", {
-    settings = {
-      pylsp = {
-        plugins = {
-          pycodestyle = { enabled = true, ignore = { "E501" } },
-          pydocstyle = { enabled = false },
-          pylint = { enabled = false },
-          flake8 = { enabled = false },
-          mypy = { enabled = false },
-          isort = { enabled = false },
-          yapf = { enabled = false },
-          black = { enabled = true },
-        },
-      },
-    },
-  })
-  register("pyright", {})
   register("rust_analyzer", require("kyoh86.plug.lsp.server.rust"), true)
-  register("sqlls", {})
-  register("stylelint_lsp", {})
-  register("svelte", {})
-  register("taplo", {}) -- TOML
-  register("terraformls", {})
-  register("tflint", {})
-  register("vimls", {})
-  register("vtsls", require("kyoh86.plug.lsp.server.vtsls"))
+  register("sqls", {}, true)
+  register("stylelint_lsp", {}, true)
+  register("svelte", {}, true)
+  register("taplo", {}, true) -- TOML
+  register("terraformls", {}, true)
+  register("vimls", {}, true)
+  register("vtsls", require("kyoh86.plug.lsp.server.vtsls"), true)
   register("yamlls", {
     settings = {
       yaml = {
@@ -172,7 +151,7 @@ local function register_lsp_servers()
         keyOrdering = false,
       },
     },
-  })
+  }, true)
 end
 
 ---@type LazySpec[]
