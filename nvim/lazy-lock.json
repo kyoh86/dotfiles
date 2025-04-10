@@ -113,7 +113,7 @@
   "vim-firestore": { "branch": "master", "commit": "417d41ba56c54cb21fab1f4b01c8ba4deed6bbe0" },
   "vim-gin": { "branch": "main", "commit": "8a826cb3c6810c830553e606fe584e08e807606b" },
   "vim-gitname": { "branch": "main", "commit": "1f9223f26b4028193f95a89622c283dbd820a7c3" },
-  "vim-go-coverage": { "branch": "master", "commit": "d9b0c9f89fa5424db997c81e501fa2fd62628acd" },
+  "vim-go-coverage": { "branch": "main", "commit": "d9b0c9f89fa5424db997c81e501fa2fd62628acd" },
   "vim-go-scaffold": { "branch": "main", "commit": "447043274dd162f428ef95eb6180b09f93a2d628" },
   "vim-go-testfile": { "branch": "main", "commit": "2ebe14780a5ea9b36dbde16e63b8718a7998c2b5" },
   "vim-graphql": { "branch": "master", "commit": "cd2667f56f96b9dd376d8e56fe80eb32924971b9" },
