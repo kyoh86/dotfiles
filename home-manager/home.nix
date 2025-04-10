@@ -69,8 +69,8 @@ in
     go
     sqlite
     deno
-    lua5_4_compat
-    lua54Packages.luarocks
+    lua51Packages.lua
+    lua51Packages.luarocks
 
     # Tools
     actionlint
