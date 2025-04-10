@@ -23,7 +23,7 @@
         };
       });
 
-      "yamada@PC5050" = home-manager.lib.homeManagerConfiguration ({
+      "yamada@PC5050.local" = home-manager.lib.homeManagerConfiguration ({
         modules = [ (import ./home.nix) ];
         pkgs = import nixpkgs {
           system = "aarch64-darwin";   ## For M1/M2/etc Apple Silicon
