@@ -18,9 +18,6 @@
           system = "x86_64-linux";
           # config.allowUnfree = true;
         };
-        extraSpecialArgs = {
-          username = "kyoh86";
-        };
       });
 
       "yamada@PC5050.local" = home-manager.lib.homeManagerConfiguration ({
@@ -28,9 +25,6 @@
         pkgs = import nixpkgs {
           system = "aarch64-darwin";   ## For M1/M2/etc Apple Silicon
           # system = "x86_64-darwin";
-        };
-        extraSpecialArgs = {
-          username = "yamada";
         };
       });
     };

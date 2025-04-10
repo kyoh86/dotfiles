@@ -1,4 +1,4 @@
-{ config, pkgs, username, ... }:
+{ config, pkgs, ... }:
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
@@ -11,10 +11,12 @@ in
 
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
-  home.username = "${username}";
+  home.username =
+    if isLinux then "kyoh86" else
+    if isDarwin then "yamada" else unsupported;
   home.homeDirectory =
-    if isLinux then "/home/${username}" else
-    if isDarwin then "/Users/${username}" else unsupported;
+    if isLinux then "/home/kyoh86" else
+    if isDarwin then "/Users/yamada" else unsupported;
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -59,7 +61,6 @@ in
     # Shell environment
     direnv
     delta
-    inotify-tools
     zsh
     zsh-autosuggestions
     zsh-syntax-highlighting
@@ -84,7 +85,6 @@ in
     ssm-session-manager-plugin
     tig
     unzip
-    wslu
 
     # Language servers
     angular-language-server
@@ -110,8 +110,13 @@ in
 
   ] ++ lib.optionals isLinux [
     # GNU/Linux packages
+    inotify-tools
+    wslu
   ] ++ lib.optionals isDarwin [
     # macOS packages
+    wezterm
+    microsoft-edge
+    raycast
   ]);
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
