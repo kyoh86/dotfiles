@@ -85,9 +85,9 @@ end
 function Cache:serialize()
   local data = vim.json.encode(self.store)
   local FILE_MODE = 438 -- equivalent to octal 0666 permissions
+  vim.fn.mkdir(vim.fs.dirname(self.filepath), "p")
   local file = vim.uv.fs_open(self.filepath, "w", FILE_MODE)
   if file then
-    vim.fn.mkdir(vim.fs.dirname(self.filepath), "p")
     vim.uv.fs_write(file, data, -1)
     vim.uv.fs_close(file)
   else
