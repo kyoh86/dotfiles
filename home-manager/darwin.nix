@@ -10,6 +10,7 @@
     wezterm
     raycast
     plemoljp
+    plemoljp-hs
     slack
   ];
 }
