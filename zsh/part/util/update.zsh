@@ -135,7 +135,7 @@ function update_coursier {
 # update neovim {{{
 function update_neovim {
     echo updating neovim
-    eval "$(luarocks --lua-version=5.1 path)"
+    eval "$(luarocks --lua-version=5.4 path)"
     nvim_tmpdir="$(mktemp -d)"
     trap "sudo rm -rf $nvim_tmpdir" EXIT
     echo cloning neovim
@@ -160,7 +160,7 @@ function update_neovim {
     echo make
     make CMAKE_BUILD_TYPE=Release
     echo install
-    sudo make CMAKE_BUILD_TYPE=Release install
+    sudo make install
     popd
 }
 # }}}
