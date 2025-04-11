@@ -123,6 +123,15 @@ local spec = {
         input = { "g" },
       })
       vim.g["operator#sandwich#recipes"] = recipes
+      vim.g["sandwich#magicchar#f#patterns"] = {
+        {
+          header = [[\<\%(\h\k*\.\)*\h\k*]],
+          bra = "(",
+          ket = ")",
+          footer = "",
+        },
+      }
+
       vim.keymap.set({ "x", "n" }, "s", "<nop>", { remap = false, desc = "sandwich operations" })
       vim.keymap.set("n", "sfd", "sdf", { remap = true })
       vim.keymap.set("n", "sfa", "<plug>(operator-sandwich-add-query1st)<c-f>", { desc = "wrap target as argument" })
