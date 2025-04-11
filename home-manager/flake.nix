@@ -25,6 +25,7 @@
         pkgs = import nixpkgs {
           system = "aarch64-darwin";   ## For M1/M2/etc Apple Silicon
           # system = "x86_64-darwin";
+          config.allowUnfree = true;
         };
       });
     };

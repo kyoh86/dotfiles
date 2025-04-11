@@ -115,8 +115,8 @@ in
   ] ++ lib.optionals isDarwin [
     # macOS packages
     wezterm
-    microsoft-edge
     raycast
+    plemoljp
   ]);
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
