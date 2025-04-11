@@ -54,7 +54,6 @@ in
     dnsutils
     findutils
     cmake
-    gettext
 
     # Shell environment
     direnv
