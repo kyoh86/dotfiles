@@ -8,7 +8,7 @@ fi
 
 # Lua
 if command -v luarocks >/dev/null 2>&1; then
-    eval "$(luarocks --lua-version=5.4 path)"
+    eval "$(luarocks --lua-version=5.1 path)"
 fi
 
 # SDKMAN
