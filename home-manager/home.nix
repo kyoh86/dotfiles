@@ -50,13 +50,10 @@ in
     '')
 
     # Utilities
-    binutils
-    coreutils
     diffutils
     dnsutils
     findutils
     cmake
-    gnumake
 
     # Shell environment
     direnv
@@ -69,8 +66,9 @@ in
     go
     sqlite
     deno
-    lua54Packages.lua
-    lua54Packages.luarocks
+    luajit
+    luajitPackages.luarocks
+    luajitPackages.luv
 
     # Tools
     actionlint
@@ -112,6 +110,9 @@ in
     # GNU/Linux packages
     inotify-tools
     wslu
+    coreutils
+    binutils
+    gnumake
   ] ++ lib.optionals isDarwin [
     # macOS packages
     wezterm
