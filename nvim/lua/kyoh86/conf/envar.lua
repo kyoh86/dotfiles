@@ -126,8 +126,12 @@ glaze.get("opener", function(opener)
   vim.env.BROWSER = opener
 end)
 
+-- Home Manager/Nix:
+local nix_path = path.home .. "/.nix-profile/bin"
+path.ins(nix_path)
+
 -- mise
-local mise_result = vim.system({ "mise", "ls", "--global", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
+local mise_result = vim.system({ nix_path .. "mise", "ls", "--global", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
 if mise_result.code == 0 then
   local mise_list = vim.json.decode(mise_result.stdout)
   for _, entries in pairs(mise_list) do
@@ -140,9 +144,6 @@ if mise_result.code == 0 then
 else
   vim.notify("Failed to get mise envar" .. mise_result.stderr, vim.log.levels.WARN)
 end
-
--- Home Manager/Nix:
-path.ins(path.home .. "/.nix-profile/bin")
 
 -- .local/bin
 path.ins(path.home .. "/.local/bin")
