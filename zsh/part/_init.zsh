@@ -21,6 +21,7 @@ _source_part tool
 _source_part zmv
 _source_part sdkman
 _source_part pnpm
+_source_part homebrew
 
 _source_part util/put_zsh_history
 _source_part util/update_deno_dependencies
