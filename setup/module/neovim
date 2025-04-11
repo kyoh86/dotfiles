@@ -9,7 +9,7 @@ install_neovim() {
   trap "sudo rm -rf ${nvim_tmpdir}" EXIT
   git clone --depth 1 -b nightly https://github.com/neovim/neovim "$nvim_tmpdir/neovim"
   pushd "$nvim_tmpdir/neovim" || return 1
-  make CMAKE_BUILD_TYPE=Release
+  make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local"
   sudo make install
   popd || return 1
 }

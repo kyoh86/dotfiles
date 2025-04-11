@@ -158,7 +158,7 @@ function update_neovim {
     echo clean
     sudo rm -r /usr/local/share/nvim/
     echo make
-    make CMAKE_BUILD_TYPE=Release
+    make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local"
     echo install
     sudo make install
     popd
