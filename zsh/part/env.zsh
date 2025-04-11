@@ -1,5 +1,5 @@
 # mise
-eval "$(/home/kyoh86/.local/bin/mise activate zsh)"
+eval "$(mise activate zsh)"
 
 # direnv
 if command -v direnv >/dev/null 2>&1; then

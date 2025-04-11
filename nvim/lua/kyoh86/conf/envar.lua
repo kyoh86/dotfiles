@@ -127,7 +127,7 @@ glaze.get("opener", function(opener)
 end)
 
 -- mise
-local mise_result = vim.system({ path.home .. "/.local/bin/mise", "ls", "--global", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
+local mise_result = vim.system({ "mise", "ls", "--global", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
 if mise_result.code == 0 then
   local mise_list = vim.json.decode(mise_result.stdout)
   for _, entries in pairs(mise_list) do
