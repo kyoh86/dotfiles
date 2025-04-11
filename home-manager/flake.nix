@@ -13,7 +13,7 @@
   outputs = { self, nixpkgs, home-manager, ... }: {
     homeConfigurations = {
       "kyoh86@kyoh86-desktop" = home-manager.lib.homeManagerConfiguration ({
-        modules = [ (import ./home.nix) ];
+        modules = [ (import ./home.nix) (import ./linux.nix) ];
         pkgs = import nixpkgs {
           system = "x86_64-linux";
           # config.allowUnfree = true;
@@ -21,7 +21,7 @@
       });
 
       "yamada@PC5050.local" = home-manager.lib.homeManagerConfiguration ({
-        modules = [ (import ./home.nix) ];
+        modules = [ (import ./home.nix) (import ./darwin.nix) ];
         pkgs = import nixpkgs {
           system = "aarch64-darwin";   ## For M1/M2/etc Apple Silicon
           # system = "x86_64-darwin";
