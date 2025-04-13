@@ -30,7 +30,7 @@ return {
     local found = require("climbdir").climb(path, marker.one_of(marker.has_readable_file("deno.json"), marker.has_readable_file("deno.jsonc"), marker.has_directory("denops")), {})
     if found then
       vim.b[vim.fn.bufnr()].deno_deps_candidate = found .. "/deps.ts"
+      callback(found)
     end
-    callback(found)
   end,
 }
