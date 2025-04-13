@@ -22,12 +22,15 @@ return {
     },
   },
   single_file_support = false,
-  root_dir = function(path)
+  ---@param bufnr number
+  ---@param callback fun(root_dir?: string)
+  root_dir = function(bufnr, callback)
+    local path = vim.fn.fnamemodify(vim.fn.bufname(bufnr), ":p:h")
     local marker = require("climbdir.marker")
     local found = require("climbdir").climb(path, marker.one_of(marker.has_readable_file("deno.json"), marker.has_readable_file("deno.jsonc"), marker.has_directory("denops")), {})
     if found then
       vim.b[vim.fn.bufnr()].deno_deps_candidate = found .. "/deps.ts"
     end
-    return found
+    callback(found)
   end,
 }

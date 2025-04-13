@@ -1,54 +1,5 @@
 local setup_keymap = require("kyoh86.plug.lsp.keymap")
 
---- Globalな設定
-local lsp_config_table = {}
-local function setup_lsp_global()
-  vim.lsp.set_log_level(vim.log.levels.OFF)
-
-  -- highlightを設定する
-  require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
-    kyoh86.ensure(colors_name, function(m)
-      vim.api.nvim_set_hl(0, "LspInlayHint", {
-        fg = m.colors.brightgreen,
-      })
-    end)
-  end, true)
-
-  -- サーバー毎の設定を反映させる
-  for name, config in pairs(lsp_config_table) do
-    kyoh86.ensure("lspconfig", function(m)
-      m[name].setup(config)
-    end)
-  end
-end
-
---- Attach時の設定: 特定のBuffer名と特定のClient名の組み合わせで、LSP Clientを無効化する
---- バッファ名のパターンをPlain textとして扱いたい（パターンではなくLiteral matchとする）場合はplain = trueを指定する
-local disabled_clients = {
-  eslint = { {
-    name = "upmind-inc/upmind-server",
-    plain = true,
-  } },
-}
-
-local function disable_lsp(client, bufnr)
-  local bufname = vim.api.nvim_buf_get_name(bufnr)
-  local lsp_local_disable = disabled_clients[client.name]
-  if lsp_local_disable then
-    for _, v in pairs(lsp_local_disable) do
-      if string.find(bufname, v.name, 1, v.plain) then
-        client.stop()
-        break
-      end
-    end
-  end
-end
-
--- フォーマットが重いときのためにnoautocmdでフォーマットをスキップできるコマンドを用意する
-vim.api.nvim_create_user_command("W", "noautocmd w", {})
-vim.api.nvim_create_user_command("Wa", "noautocmd wa", {})
-vim.api.nvim_create_user_command("WA", "noautocmd wa", {})
-
 --- Attach時の設定
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
@@ -79,7 +30,26 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     client.server_capabilities.semanticTokensProvider = nil
-    disable_lsp(client, bufnr)
+
+    --- Attach時の設定: 特定のBuffer名と特定のClient名の組み合わせで、LSP Clientを無効化する
+    --- バッファ名のパターンをPlain textとして扱いたい（パターンではなくLiteral matchとする）場合はplain = trueを指定する
+    local disabled_clients = {
+      eslint = { {
+        name = "upmind-inc/upmind-server",
+        plain = true,
+      } },
+    }
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+    local lsp_local_disable = disabled_clients[client.name]
+    if lsp_local_disable then
+      for _, v in pairs(lsp_local_disable) do
+        if string.find(bufname, v.name, 1, v.plain) then
+          client:stop()
+          break
+        end
+      end
+    end
+
   end,
 })
 
@@ -94,52 +64,69 @@ local function register_lsp_servers()
     },
   }
 
-  --- サーバーの設定を登録する
-  --- @param name string
-  --- @param config table|nil
-  local function register(name, config)
-    if config then
-      config.capabilities = capabilities
-      lsp_config_table[name] = config
-    end
+  local enable = function(name)
+    vim.lsp.config(name, { capabilities = capabilities })
+    vim.lsp.enable(name)
   end
 
-  register("angularls", {})
-  register("ansiblels", {})
-  register("astro", {})
-  register("bashls", {})
-  register("cssls", {}) -- vscode-langservers-extracted
-  register("denols", require("kyoh86.plug.lsp.server.denols")) -- uses global deno, so it should not be installed by Mason
-  register("dockerls", {})
-  register("efm", require("kyoh86.plug.lsp.server.efm"))
-  register("eslint", {})
-  register("gopls", require("kyoh86.plug.lsp.server.gopls")) -- uses global gopls, so it should not be installed by Mason
-  register("html", {}) -- vscode-langservers-extracted
-  register("jsonls", require("kyoh86.plug.lsp.server.jsonls")) -- vscode-langservers-extracted
-  register("jqls", {})
-  register("lua_ls", require("kyoh86.plug.lsp.server.luals"))
-  register("metals", {}) -- Scala (metals): without installation with mason.nvim
-  register("prismals", {}) -- Prisma (TypeScript DB ORM)
-  register("rust_analyzer", require("kyoh86.plug.lsp.server.rust"))
-  register("sqls", {})
-  register("stylelint_lsp", {})
-  register("svelte", {})
-  register("taplo", {}) -- TOML
-  register("terraformls", {})
-  register("vimls", {})
-  register("vtsls", require("kyoh86.plug.lsp.server.vtsls"))
-  register("yamlls", {
-    settings = {
-      yaml = {
-        schemaStore = { enable = true },
-        keyOrdering = false,
-      },
-    },
-  })
+  enable("angularls")
+  enable("ansiblels")
+  enable("astro")
+  enable("bashls")
+  enable("cssls") -- vscode-langservers-extracted
+  enable("denols") -- ref: nvim/lsp/denols.lua; uses global deno, so it should not be installed by Mason
+  enable("dockerls")
+  enable("efm") -- ref: nvim/lsp/efm.lua;
+  enable("eslint")
+  enable("gopls") -- ref: nvim/lsp/gopls.lua; uses global gopls, so it should not be installed by Mason
+  enable("html") -- vscode-langservers-extracted
+  enable("jsonls") -- ref: nvim/lsp/jsonls.lua; vscode-langservers-extracted
+  enable("jqls")
+  enable("lua_ls") -- ref: nvim/lsp/lua_ls.lua;
+  enable("metals") -- Scala (metals): without installation with mason.nvim
+  enable("prismals") -- Prisma (TypeScript DB ORM)
+  enable("rust_analyzer") -- ref: nvim/lsp/rust_analyzer.lua;
+  enable("sqls")
+  enable("stylelint_lsp")
+  enable("svelte")
+  enable("taplo") -- TOML
+  enable("terraformls")
+  enable("vimls")
+  enable("vtsls") -- ref: nvim/lsp/vtsls.lua;
+  enable("yamlls") -- ref: nvim/lsp/yamlls.lua;
 end
 
 ---@type LazySpec[]
 local spec = {
+  {
+    "neovim/nvim-lspconfig",
+    config = function()
+
+      -- フォーマットが重いときのためにnoautocmdでフォーマットをスキップできるコマンドを用意する
+      vim.api.nvim_create_user_command("W", "noautocmd w", {})
+      vim.api.nvim_create_user_command("Wa", "noautocmd wa", {})
+      vim.api.nvim_create_user_command("WA", "noautocmd wa", {})
+
+      vim.lsp.set_log_level(vim.log.levels.OFF)
+
+      -- highlightを設定する
+      require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
+        kyoh86.ensure(colors_name, function(m)
+          vim.api.nvim_set_hl(0, "LspInlayHint", {
+            fg = m.colors.brightgreen,
+          })
+        end)
+      end, true)
+      register_lsp_servers()
+      setup_keymap()
+    end,
+    dependencies = {
+      --- "cmp-nvim-lsp",
+      "climbdir.nvim",
+      "schemastore.nvim",
+    },
+    event = { "BufReadPre", "BufNewFile" },
+  },
   { "kyoh86/climbdir.nvim", lazy = true },
   -- make JSON LSP more strict
   { "b0o/schemastore.nvim", lazy = true },
@@ -159,20 +146,6 @@ local spec = {
   },
   { "justinsgithub/wezterm-types" },
   { "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
-  {
-    "neovim/nvim-lspconfig",
-    config = function()
-      register_lsp_servers()
-      setup_lsp_global()
-      setup_keymap()
-    end,
-    dependencies = {
-      --- "cmp-nvim-lsp",
-      "climbdir.nvim",
-      "schemastore.nvim",
-    },
-    event = { "BufReadPre", "BufNewFile" },
-  },
   {
     -- show progress of lsp-server
     "j-hui/fidget.nvim",

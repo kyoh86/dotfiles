@@ -55,6 +55,6 @@ return {
         },
       })
     end
-    client.config.settings = vim.tbl_deep_extend("force", client.config.settings, settings)
+    client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
   end,
 }
