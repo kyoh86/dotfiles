@@ -20,6 +20,14 @@
         };
       });
 
+      "kyoh86@PC0139" = home-manager.lib.homeManagerConfiguration ({
+        modules = [ (import ./home.nix) (import ./linux.nix) ];
+        pkgs = import nixpkgs {
+          system = "x86_64-linux";
+          # config.allowUnfree = true;
+        };
+      });
+
       "yamada@PC5050.local" = home-manager.lib.homeManagerConfiguration ({
         modules = [ (import ./home.nix) (import ./darwin.nix) ];
         pkgs = import nixpkgs {
