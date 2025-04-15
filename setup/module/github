@@ -3,10 +3,6 @@
 echo "Enter the **PUBLIC** email address for GitHub Account you want to use:"
 read GITHUB_EMAIL
 
-echo "Enter the user name for GitHub Account you want to use:"
-read GITHUB_NAME
-
-
 # Generate a new SSH key for github.com
 generate_ssh_key() {
   SSH_KEY_PATH="${HOME}/.ssh/github_ed25519"
@@ -67,6 +63,7 @@ upload_ssh_key() {
 upload_ssh_key
 
 setup_git_config() {
+  GITHUB_NAME="$(gh api /user --jq '.login')"
   cat << EOS > "${HOME}"/Projects/github.com/kyoh86/dotfiles/git/host.conf
 [user]
   name = ${GITHUB_NAME}
