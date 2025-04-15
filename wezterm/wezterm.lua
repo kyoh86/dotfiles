@@ -34,6 +34,25 @@ local function find_name(name, list)
   return nil
 end
 
+local default_font_size = 12
+local expecting_screen_width = 3840
+local function get_font_size()
+  local screens = wezterm.gui.screens()
+  local active_width = screens.active.width
+  if active_width > expecting_screen_width then
+    return default_font_size * active_width / expecting_screen_width
+  else
+    return default_font_size
+  end
+end
+
+wezterm.on("update-status", function(window, pane)
+  if not window:is_focused() then
+    return
+  end
+  window:set_config_overrides({ font_size = get_font_size() })
+end)
+
 local keys = {
   { key = "n", mods = "ALT", action = wezterm.action.EmitEvent("open-new-window") },
   { key = "l", mods = "ALT", action = wezterm.action.ShowLauncherArgs({ flags = "FUZZY|DOMAINS" }) },
@@ -79,6 +98,7 @@ return tbl_merge(build_domains(), {
   initial_cols = 120,
   initial_rows = 36,
   font = wezterm.font_with_fallback({ "PlemolJP Console HS", "Symbols Nerd Font Mono" }),
+  font_size = default_font_size,
   color_scheme = "momiji",
   hide_tab_bar_if_only_one_tab = true,
   disable_default_mouse_bindings = true,
