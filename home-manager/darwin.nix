@@ -12,5 +12,6 @@
     plemoljp
     plemoljp-hs
     slack
+    _1password-cli
   ];
 }
