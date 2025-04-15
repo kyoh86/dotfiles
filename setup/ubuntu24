@@ -20,10 +20,3 @@ sudo usermod -aG docker "${USER}"
 "${MODULE}"/neovim
 "${MODULE}"/zenhan
 "${MODULE}"/gordon
-
-# gordon
-export PATH="$PATH:/home/kyoh86/go/bin:/home/kyoh86/.local/bin"
-go install github.com/kyoh86/gordon@latest
-gordon install kyoh86/gordon
-gordon restore ~/.config/gordon/bundle
-rm -f ~/go/bin/gordon || :

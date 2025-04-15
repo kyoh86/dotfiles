@@ -18,5 +18,4 @@ MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/setup/module"
 #   libauthen-sasl-perl
 
 "${MODULE}"/neovim
-"${MODULE}"/zenhan
 "${MODULE}"/gordon
