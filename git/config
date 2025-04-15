@@ -86,12 +86,9 @@
 [http "https://gopkg.in"]
 	followRedirects = true
 
-[credential]
-	helper = /mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe
-
-[url "ssh://git@github.com/"]
-	insteadOf = https://github.com/
-	insteadOf = git@github.com
+; [url "ssh://git@github.com/"]
+; 	insteadOf = https://github.com/
+; 	insteadOf = git@github.com
 
 ;; user identity ==============================================================
 
@@ -107,6 +104,11 @@
 ; 
 ; [github]
 ; 	user = kyoh86
+; [credential "https://github.com"]
+; 	helper = !/home/kyoh86/.nix-profile/bin/gh auth git-credential
+; [credential "https://gist.github.com"]
+; 	helper = !/home/kyoh86/.nix-profile/bin/gh auth git-credential
+
 
 ;; signing
 [gpg]

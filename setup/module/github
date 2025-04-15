@@ -75,6 +75,11 @@ setup_git_config() {
 
 [github]
   user = ${GITHUB_NAME}
+
+[credential "https://github.com"]
+	helper = !${HOME}/.nix-profile/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = !${HOME}/.nix-profile/bin/gh auth git-credential
 EOS
 }
 
