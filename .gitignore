@@ -7,6 +7,7 @@
 !/bin/
 !/doc
 !/docker-linux/config.json
+!/dotfiles-agent
 !/efm-langserver
 !/fcitx5
 !/gh
