@@ -92,6 +92,8 @@
 
 ;; user identity ==============================================================
 
+[credential]
+  helper =
 ;; You must put a file for the host. (it is ignored by .gitignore)
 [include]
 	path = ~/.config/git/host.conf
