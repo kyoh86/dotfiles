@@ -17,6 +17,7 @@ function update {
         update_rust || return 1
         update_coursier || return 1
         update_neovim || return 1
+        update_home_manager || return 1
         echo "done"
     fi
 }
@@ -70,7 +71,7 @@ function update_mise {
 function update_deno {
     echo updating deno
     pushd ~
-    if command -v deno >/dev/null 2>&1; then
+    if [ "${HOME}/.deno/bin/deno" = "$(command -v deno)" ]; then
         sudo deno upgrade
     fi
     popd
@@ -165,3 +166,12 @@ function update_neovim {
 }
 # }}}
 
+# update home_manager {{{
+function update_home_manager {
+    echo updating home_manager
+    if command -v nix-channel >/dev/null 2>&1; then
+      nix-channel --update
+      home-manager switch
+    fi
+}
+# }}}
