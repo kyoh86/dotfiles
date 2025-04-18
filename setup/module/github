@@ -80,6 +80,10 @@ setup_git_config() {
 	helper = !${GH_COMMAND} auth git-credential
 [credential "https://gist.github.com"]
 	helper = !${GH_COMMAND} auth git-credential
+[credential "https://kyoh86@github.com"]
+	helper = !docker run -a stdin -a stdout -i --rm dotfiles-agent gh auth git-credential
+[credential "https://kyoh86@gist.github.com"]
+	helper = !docker run -a stdin -a stdout -i --rm dotfiles-agent gh auth git-credential
 EOS
 }
 

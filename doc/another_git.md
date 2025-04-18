@@ -22,5 +22,6 @@ $ git config user.name kyoh86
 $ git config user.email me@kyoh86.dev
 $ git config commit.gpgsign false
 $ git config advice.skippedCherryPicks false
-$ git config 'credential.https://github.com.helper' '!docker run --rm dotfiles-agent gh auth git-credential'
+$ git config 'url.https://kyoh86@github.com/.insteadof' 'https://github.com/'
+$ git config 'url.https://kyoh86@gist.github.com/.insteadof' 'https://gist.github.com/'
 ```
