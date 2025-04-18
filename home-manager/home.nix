@@ -50,6 +50,7 @@ in
     ssm-session-manager-plugin
     tig
     unzip
+    git
 
     # Language servers
     angular-language-server
