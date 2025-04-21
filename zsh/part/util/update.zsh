@@ -84,7 +84,7 @@ function update_gordon {
     pushd ~
     if command -v gordon >/dev/null 2>&1; then
         gordon update --all
-        gordon dump ~/.config/gordon/bundle
+        gordon dump "${HOME}/.config/gordon/bundle"
     fi
     popd
 }
@@ -169,9 +169,12 @@ function update_neovim {
 # update home_manager {{{
 function update_home_manager {
     echo updating home_manager
+    pushd "${HOME}/.config/home-manager"
     if command -v nix-channel >/dev/null 2>&1; then
       nix-channel --update
+      nix flake update
       home-manager switch
     fi
+    popd
 }
 # }}}
