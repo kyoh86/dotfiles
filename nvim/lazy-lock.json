@@ -73,6 +73,7 @@
   "denops-ollama.vim": { "branch": "main", "commit": "038710cbb8954cdb67705b71f4019755373e7663" },
   "denops-qftable.vim": { "branch": "main", "commit": "2506c62da3928f16cda9f00bec5ab18e88d940f0" },
   "denops-zenn_dev.vim": { "branch": "main", "commit": "032d68104ac20b07ad04dd1aebd3f98ed746c99b" },
+  "denops-zshist.vim": { "branch": "main", "commit": "0350fe664181ec8981f15e98057d4c26cefea79b" },
   "denops.vim": { "branch": "main", "commit": "4ff8f353ee54ee67288c1099242444ccb0ab5b69" },
   "dial.nvim": { "branch": "master", "commit": "2c7e2750372918f072a20f3cf754d845e143d7c9" },
   "fidget.nvim": { "branch": "main", "commit": "0ba1e16d07627532b6cae915cc992ecac249fb97" },
