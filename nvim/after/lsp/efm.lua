@@ -91,9 +91,9 @@ return {
   settings = {
     languages = {
       go = { gofmt },
-      javascript = { prettier },
       astro = { biomefmt },
       json = { jq },
+      javascript = { prettier },
       javascriptreact = { prettier },
       svelte = { prettier, biomefmt },
       lua = { stylua },
@@ -105,4 +105,7 @@ return {
       yaml = { actionlint },
     },
   },
+  cmd = { "efm-langserver" },
+  root_markers = { ".git", ".hg" },
+  filetypes = { "lua", "go", "javascript", "typescript", "javascriptreact", "typescriptreact", "json", "markdown", "yaml", "astro", "svelte", "scala", "terraform" },
 }

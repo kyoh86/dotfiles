@@ -21,15 +21,15 @@ local spec = {
       { "plenary.nvim" }, -- for curl, log and async functions
     },
     build = "make tiktoken",
-    config=function()
-      require("CopilotChat").setup({ })
-      vim.api.nvim_create_autocmd('BufEnter', {
-        pattern = 'copilot-*',
+    config = function()
+      require("CopilotChat").setup({})
+      vim.api.nvim_create_autocmd("BufEnter", {
+        pattern = "copilot-*",
         callback = function()
           -- Set buffer-local options
           vim.opt_local.relativenumber = false
           vim.opt_local.conceallevel = 0
-        end
+        end,
       })
     end,
   },

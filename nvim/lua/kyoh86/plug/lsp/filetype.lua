@@ -26,7 +26,7 @@ function M.get(path)
   end
 
   local filetype = detect(path)
-    cache[path] = filetype
+  cache[path] = filetype
   return filetype
 end
 

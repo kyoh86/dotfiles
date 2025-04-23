@@ -7,7 +7,7 @@ return function()
   setmap("n", "<leader>lii", function()
     local bufnr = vim.api.nvim_get_current_buf()
     if vim.b[bufnr].kyoh86_plug_lsp_inlay_hint_enabled == true then
-      vim.lsp.buf.inlay_hint(bufnr, nil)
+      vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }), { bufnr = bufnr })
     end
   end, "inlay-hintを表示する")
   setmap("n", "<leader>lih", f.bind_all(vim.lsp.buf.hover, { border = "single" }), "カーソル下のシンボルの情報を表示する")

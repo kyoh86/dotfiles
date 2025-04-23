@@ -26,7 +26,7 @@ return {
     local found = require("climbdir").climb(path, positive, {
       halt = has_deno,
     })
-    if  found then
+    if found then
       callback(found)
     end
   end,
