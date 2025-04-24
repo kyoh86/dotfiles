@@ -5,12 +5,11 @@ local FileInfo = {
   condition = function()
     -- バッファがファイルを開いているかどうか
     local filename = vim.api.nvim_buf_get_name(0)
-    return vim.fn.empty(vim.fn.fnamemodify(filename, "%:t")) == 0
+    return vim.fn.empty(vim.fn.fnamemodify(filename, "%:t")) == 0 or vim.bo.buftype == "quickfix"
   end,
 
   init = function(self)
     if vim.opt_local.buftype == "terminal" then
-      print("foo")
       self.filename = "%{b:term_title}"
     end
     self.filename = vim.api.nvim_buf_get_name(0)
@@ -32,6 +31,8 @@ local FileName = {
   provider = function(self)
     if vim.bo.buftype == "terminal" then
       return "%{b:term_title}" .. " "
+    elseif vim.bo.buftype == "quickfix" then
+      return [[%{v:lua.require("kyoh86.plug.heirline.qftitle")()}]] .. " "
     end
     local filename = vim.fn.fnamemodify(self.filename, ":.")
     if filename == "" then
