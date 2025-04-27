@@ -6,6 +6,7 @@ _source_part zsh_completion
 _source_part zsh_highlight
 _source_part zsh_misc
 _source_part zsh_notify_done
+_source_part zsh_title
 
 _source_part zsh_source
 

@@ -22,7 +22,9 @@ local spec = {
     },
     build = "make tiktoken",
     config = function()
-      require("CopilotChat").setup({})
+      require("CopilotChat").setup({
+        model = "claude-3.7-sonnet-thought",
+      })
       vim.api.nvim_create_autocmd("BufEnter", {
         pattern = "copilot-*",
         callback = function()

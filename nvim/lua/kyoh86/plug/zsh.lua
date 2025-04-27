@@ -23,12 +23,5 @@ local spec = {
       reg_source(plug.dir .. "/zsh-abbr.zsh")
     end,
   },
-  {
-    "olets/zsh-window-title",
-    config = function(plug)
-      vim.env.ZSH_WINDOW_TITLE_DIRECTORY_DEPTH = 3
-      reg_source(plug.dir .. "/zsh-window-title.zsh")
-    end,
-  },
 }
 return spec
