@@ -1,4 +1,5 @@
-return {
+---@type vim.lsp.Config
+local config = {
   settings = {
     typescript = {
       importModuleSpecifier = "relative",
@@ -31,3 +32,4 @@ return {
     end
   end,
 }
+return config

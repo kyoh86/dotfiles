@@ -6,7 +6,8 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     vim.bo.bufhidden = "wipe"
   end,
 })
-return {
+---@type vim.lsp.Config
+local config = {
   settings = {
     lint = true,
     unstable = false,
@@ -21,7 +22,7 @@ return {
       },
     },
   },
-  single_file_support = false,
+  workspace_required = true,
   ---@param bufnr number
   ---@param callback fun(root_dir?: string)
   root_dir = function(bufnr, callback)
@@ -34,3 +35,4 @@ return {
     end
   end,
 }
+return config

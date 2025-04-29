@@ -1,4 +1,5 @@
-return {
+---@type vim.lsp.Config
+local config = {
   settings = {
     yaml = {
       schemaStore = { enable = true },
@@ -6,3 +7,4 @@ return {
     },
   },
 }
+return config

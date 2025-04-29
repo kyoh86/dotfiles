@@ -1,4 +1,5 @@
-return {
+---@type vim.lsp.Config
+local config = {
   on_init = function(client)
     local settings = {
       Lua = {
@@ -58,3 +59,4 @@ return {
     client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
   end,
 }
+return config

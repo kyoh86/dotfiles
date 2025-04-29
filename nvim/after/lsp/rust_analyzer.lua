@@ -1,4 +1,5 @@
-return {
+---@type vim.lsp.Config
+local config = {
   ["rust-analyzer"] = {
     imports = {
       granularity = {
@@ -16,3 +17,4 @@ return {
     },
   },
 }
+return config

@@ -82,7 +82,8 @@ local textlint = { --[[https://textlint.github.io/]]
   rootMarkers = { ".textlintrc", ".textlintrc.js", ".textlintrc.json", ".textlintrc.yml", ".textlintrc.yaml" },
 }
 
-return {
+---@type vim.lsp.Config
+local config = {
   init_options = {
     documentFormatting = true,
     documentRangeFormatting = true,
@@ -109,3 +110,4 @@ return {
   root_markers = { ".git", ".hg" },
   filetypes = { "lua", "go", "javascript", "typescript", "javascriptreact", "typescriptreact", "json", "markdown", "yaml", "astro", "svelte", "scala", "terraform" },
 }
+return config

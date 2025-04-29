@@ -1,4 +1,5 @@
-return {
+---@type vim.lsp.Config
+local config = {
   on_init = function(client)
     local schemas = require("schemastore").json.schemas()
     table.insert(schemas, {
@@ -19,3 +20,4 @@ return {
     })
   end,
 }
+return config

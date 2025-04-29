@@ -1,4 +1,5 @@
-return {
+---@type vim.lsp.Config
+local config = {
   init_options = {
     usePlaceholders = true,
     semanticTokens = true,
@@ -26,3 +27,4 @@ return {
     },
   },
 }
+return config
