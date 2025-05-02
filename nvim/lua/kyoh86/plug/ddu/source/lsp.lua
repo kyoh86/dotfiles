@@ -62,6 +62,23 @@ local spec = {
       },
     })
 
+    helper.setup("lsp-code-actions", {
+      sources = { { name = "lsp_codeAction" } },
+      kindOptions = {
+        lsp = {
+          defaultAction = "open",
+        },
+        lsp_codeAction = {
+          defaultAction = "apply",
+        },
+      },
+    }, {
+      start = {
+        key = "<leader>lca",
+        desc = "コードアクション",
+      },
+    })
+
     helper.setup("lsp-references", {
       sources = { { name = "lsp_references" } },
     }, {

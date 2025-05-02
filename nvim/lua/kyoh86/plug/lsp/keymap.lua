@@ -49,7 +49,7 @@ return function()
       ["end"] = { end_row, end_col - 1 },
     }
   end
-  setmap({ "n", "v" }, "<leader>lca", function()
+  setmap({ "v" }, "<leader>lca", function()
     local range = range_from_selection(vim.api.nvim_get_mode().mode)
     if range == nil then
       return
