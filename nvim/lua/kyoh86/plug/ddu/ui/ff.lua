@@ -119,30 +119,31 @@ local spec = {
         nmap("<", ddu_ui_action("collapseItem"))
         nmap("+", ddu_ui_action("chooseAction"))
 
-        local pending = "<plug>(kyoh86-pending)"
-        local scroll = "<plug>(kyoh86-scroll)"
+        local pendingScroll = "<plug>(kyoh86-pending-scroll)"
+        local scrollMode = "<plug>(kyoh86-scroll)"
 
-        vim.keymap.set("n", "<c-p><c-y>", scroll .. "<c-y>" .. pending, { buffer = true, remap = true })
-        vim.keymap.set("n", "<c-p><c-e>", scroll .. "<c-e>" .. pending, { buffer = true, remap = true })
-        vim.keymap.set("n", "<c-p><c-d>", scroll .. "<c-d>" .. pending, { buffer = true, remap = true })
-        vim.keymap.set("n", "<c-p><c-u>", scroll .. "<c-u>" .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", "<c-p><c-y>", scrollMode .. "<c-y>" .. pendingScroll, { buffer = true, remap = true })
+        vim.keymap.set("n", "<c-p><c-e>", scrollMode .. "<c-e>" .. pendingScroll, { buffer = true, remap = true })
+        vim.keymap.set("n", "<c-p><c-d>", scrollMode .. "<c-d>" .. pendingScroll, { buffer = true, remap = true })
+        vim.keymap.set("n", "<c-p><c-u>", scrollMode .. "<c-u>" .. pendingScroll, { buffer = true, remap = true })
 
-        vim.keymap.set("n", pending .. "<c-y>", scroll .. "<c-y>" .. pending, { buffer = true, remap = true })
-        vim.keymap.set("n", pending .. "<c-e>", scroll .. "<c-e>" .. pending, { buffer = true, remap = true })
-        vim.keymap.set("n", pending .. "<c-d>", scroll .. "<c-d>" .. pending, { buffer = true, remap = true })
-        vim.keymap.set("n", pending .. "<c-u>", scroll .. "<c-u>" .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", pendingScroll .. "<c-y>", scrollMode .. "<c-y>" .. pendingScroll, { buffer = true, remap = true })
+        vim.keymap.set("n", pendingScroll .. "<c-e>", scrollMode .. "<c-e>" .. pendingScroll, { buffer = true, remap = true })
+        vim.keymap.set("n", pendingScroll .. "<c-d>", scrollMode .. "<c-d>" .. pendingScroll, { buffer = true, remap = true })
+        vim.keymap.set("n", pendingScroll .. "<c-u>", scrollMode .. "<c-u>" .. pendingScroll, { buffer = true, remap = true })
 
-        vim.keymap.set("n", pending, "<nop>", { buffer = true, remap = false })
+        vim.keymap.set("n", pendingScroll, "<nop>", { buffer = true, remap = false })
 
-        nmap(scroll .. "<c-y>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-y>"]] }))
-        nmap(scroll .. "<c-e>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-e>"]] }))
-        nmap(scroll .. "<c-d>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-d>"]] }))
-        nmap(scroll .. "<c-u>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-u>"]] }))
+        nmap(scrollMode .. "<c-y>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-y>"]] }))
+        nmap(scrollMode .. "<c-e>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-e>"]] }))
+        nmap(scrollMode .. "<c-d>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-d>"]] }))
+        nmap(scrollMode .. "<c-u>", ddu_ui_action("previewExecute", { command = [[execute "normal! \<c-u>"]] }))
         nmap("<c-p><c-p>", ddu_ui_action("toggleAutoAction"))
 
+        local pendingSelect = "<plug>(kyoh86-pending-select)"
         local selectMode = "<plug>(kyoh86-select)"
-        vim.keymap.set("n", "<tab>", selectMode .. pending, { buffer = true, remap = true })
-        vim.keymap.set("n", pending .. "j", "j" .. selectMode .. pending, { buffer = true, remap = true })
+        vim.keymap.set("n", "<tab>", selectMode .. pendingSelect, { buffer = true, remap = true })
+        vim.keymap.set("n", pendingSelect .. "j", "j" .. selectMode .. pendingSelect, { buffer = true, remap = true })
 
         local toggleSelection = function()
           vim.fn["ddu#ui#do_action"]("toggleSelectItem")
