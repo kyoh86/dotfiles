@@ -2,6 +2,7 @@
 local conditions = require("heirline.conditions")
 local palette = require("kyoh86.plug.heirline.palette")
 local File = require("kyoh86.plug.heirline.file")
+local Bufnr = require("kyoh86.plug.heirline.bufnr")
 local Ruler = require("kyoh86.plug.heirline.ruler")
 local Diagnostics = require("kyoh86.plug.heirline.diagnostics")
 
@@ -13,6 +14,7 @@ return {
     {
       {
         File,
+        Bufnr,
         Ruler,
         hl = function(self)
           if conditions.is_active() then
