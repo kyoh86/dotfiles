@@ -22,6 +22,13 @@ local config = {
       },
     },
   },
+  on_attach = function(client, bufnr)
+    vim.lsp.completion.enable(true, client.id, bufnr, {
+      convert = function(item)
+        return { abbr = item.label:gsub("%b()", "") }
+      end,
+    })
+  end,
   workspace_required = true,
   ---@param bufnr number
   ---@param callback fun(root_dir?: string)

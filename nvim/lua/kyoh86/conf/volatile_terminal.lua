@@ -35,6 +35,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
 })
 
 local f = require("kyoh86.lib.func")
+vim.keymap.set("n", "t<tab>", f.bind_all(volaterm.split, 0, { tab = vim.api.nvim_tabpage_get_number(0) }), { remap = false, silent = true, desc = "open a terminal in a splitted window" })
 vim.keymap.set("n", "tx", f.bind_all(volaterm.split, 0, {}), { remap = false, silent = true, desc = "open a terminal in a splitted window" })
 vim.keymap.set("n", "tv", f.bind_all(volaterm.split, 0, { vertical = true }), { remap = false, silent = true, desc = "open a terminal in a vertical-splitted window" })
 vim.keymap.set("n", "tcx", f.bind_all(volaterm.split, 0, {}, { cwd = vim.fn.expand("%:p:h") }), { remap = false, silent = true, desc = "open a terminal in a splitted window from current working directory" })

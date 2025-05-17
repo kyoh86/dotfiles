@@ -14,6 +14,9 @@ return function()
   setmap("n", "<leader>lis", f.bind_all(vim.lsp.buf.signature_help, { border = "single" }), "カーソル下のシンボルのシグネチャを表示する")
   setmap("n", "<leader>lr", vim.lsp.buf.rename, "カーソル下のシンボルをリネームする")
 
+  setmap("i", "<c-space>", function()
+    vim.lsp.completion.get()
+  end, "補完する")
   -- see: /usr/local/share/nvim/runtime/lua/vim/_defaults.lua
   vim.keymap.set("n", "<leader>jdN", f.bind_all(vim.diagnostic.jump, { count = math.huge, wrap = false }), { desc = "Jump to the last diagnostic in the current buffer" })
   vim.keymap.set("n", "<leader>jdn", f.bind_all(vim.diagnostic.jump, { count = vim.v.count1 }), { desc = "Jump to the next diagnostic in the current buffer" })

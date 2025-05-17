@@ -16,6 +16,13 @@ local config = {
       },
     },
   },
+  on_attach = function(client, bufnr)
+    vim.lsp.completion.enable(true, client.id, bufnr, {
+      convert = function(item)
+        return { abbr = item.label:gsub("%b()", "") }
+      end,
+    })
+  end,
   ---@param bufnr number
   ---@param callback fun(root_dir?: string)
   root_dir = function(bufnr, callback)

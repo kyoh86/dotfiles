@@ -3,6 +3,7 @@ local M = {}
 --- Terminalを気軽に開いたり閉じたりする
 function M.open(opts)
   opts = vim.tbl_extend("keep", opts or vim.empty_dict(), {
+    term = true,
     exec = vim.o.shell,
   })
   local bufnr = vim.api.nvim_get_current_buf()
@@ -19,7 +20,7 @@ function M.open(opts)
     })
   end
   -- 終了時にバッファを消すterminalを開く
-  vim.fn.termopen(opts.exec, opts)
+  vim.fn.jobstart(opts.exec, opts)
 end
 
 ---@class VolatermMods

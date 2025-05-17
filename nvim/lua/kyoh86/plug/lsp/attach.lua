@@ -6,6 +6,13 @@ return function(args)
     return
   end
 
+  if client.server_capabilities.completionProvider then
+    vim.lsp.completion.enable(true, client.id, bufnr, {
+      convert = function(item)
+        return { abbr = item.label:gsub("%b()", "") }
+      end,
+    })
+  end
   -- ファイル保存時に自動でフォーマットする
   -- vtslsがassignされている場合はvtsls、efmがアサインされている場合はefm
   vim.api.nvim_create_autocmd("BufWritePre", {
