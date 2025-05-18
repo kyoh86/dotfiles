@@ -12,6 +12,7 @@ return function(args)
         return { abbr = item.label:gsub("%b()", "") }
       end,
     })
+    vim.opt_local.completeopt = "menu,menuone,noselect,noinsert,fuzzy"
   end
   -- ファイル保存時に自動でフォーマットする
   -- vtslsがassignされている場合はvtsls、efmがアサインされている場合はefm
