@@ -32,7 +32,4 @@ _G["kyoh86"] = {
   lazydir = lazydir,
 }
 
--- disable treesitter
-vim.treesitter.start = function() end
-
 vim.cmd.runtime({ args = { "lua/kyoh86/conf/*.lua" }, bang = true })

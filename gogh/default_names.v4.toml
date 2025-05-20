@@ -1,0 +1,4 @@
+default_host = 'github.com'
+
+[hosts]
+'github.com' = 'kyoh86'
