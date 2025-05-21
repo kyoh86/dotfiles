@@ -12,6 +12,7 @@
     plemoljp
     plemoljp-hs
     slack
+    docker-compose
     _1password-cli
   ];
 }

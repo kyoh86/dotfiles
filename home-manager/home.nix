@@ -35,7 +35,6 @@ in
     deno
     luajit
     luajitPackages.luarocks
-    luajitPackages.luv
 
     # Tools
     actionlint
