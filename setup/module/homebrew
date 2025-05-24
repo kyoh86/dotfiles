@@ -3,7 +3,51 @@
 install_homebrew() {
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   eval "$(/opt/homebrew/bin/brew shellenv)"
-  brew install gettext
+
+  brew install \
+    diffutils \
+    coreutils \
+    findutils \
+    cmake \
+    direnv \
+    delta \
+    zsh \
+    zsh-autosuggestions \
+    zsh-syntax-highlighting
+
+  brew install \
+    sqlite \
+    luajit \
+    luarocks \
+    actionlint \
+    awscli \
+    docker-compose \
+    gh \
+    httpie \
+    jq \
+    mise \
+    postgresql \
+    ripgrep \
+    tig \
+    unzip \
+    git
+
+  brew install \
+    ansible-language-server \
+    bash-language-server \
+    dockerfile-language-server \
+    efm-langserver \
+    eslint \
+    gopls \
+    vscode-langservers-extracted
+
+  brew install \
+    lua-language-server \
+    sql-language-server \
+    stylua \
+    taplo \
+    terraform-ls \
+    yaml-language-server
 }
 
 install_homebrew

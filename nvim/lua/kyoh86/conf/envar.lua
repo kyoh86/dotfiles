@@ -130,19 +130,28 @@ end)
 local nix_path = path.home .. "/.nix-profile/bin"
 path.ins(nix_path)
 
+-- Homebrew:
+path.ins("/opt/homebrew/bin")
+
 -- mise
-local mise_result = vim.system({ nix_path .. "/mise", "ls", "--global", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
-if mise_result.code == 0 then
-  local mise_list = vim.json.decode(mise_result.stdout)
-  for _, entries in pairs(mise_list) do
-    for _, entry in pairs(entries) do
-      if entry.active then
-        path.ins(entry.install_path .. "/bin")
+local mise_candidates = { nix_path .. "/mise", "/opt/homebrew/bin" }
+for _, c in pairs(mise_candidates) do
+  if vim.fn.executable(c) == 1 then
+    local mise_result = vim.system({ c, "ls", "--global", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
+    if mise_result.code == 0 then
+      local mise_list = vim.json.decode(mise_result.stdout)
+      for _, entries in pairs(mise_list) do
+        for _, entry in pairs(entries) do
+          if entry.active then
+            path.ins(entry.install_path .. "/bin")
+          end
+        end
       end
+    else
+      vim.notify("Failed to get mise envar" .. mise_result.stderr, vim.log.levels.WARN)
     end
+    break
   end
-else
-  vim.notify("Failed to get mise envar" .. mise_result.stderr, vim.log.levels.WARN)
 end
 
 -- .local/bin

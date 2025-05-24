@@ -6,16 +6,9 @@ set -ex
 
 MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/setup/module"
 
-"${MODULE}"/nix
 "${MODULE}"/github
 "${MODULE}"/dotfiles
 "${MODULE}"/homebrew
-
-# TODO: for git send-email
-# sudo apt install --yes  \
-#   git-email             \
-#   libio-socket-ssl-perl \
-#   libauthen-sasl-perl
 
 "${MODULE}"/neovim
 "${MODULE}"/gordon
