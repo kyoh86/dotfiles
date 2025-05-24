@@ -3,9 +3,8 @@
 # gordon
 install_gordon() {
   export PATH="${PATH}:${HOME}/go/bin:${HOME}/.local/bin"
-  go install github.com/kyoh86/gordon@latest
-  gordon install kyoh86/gordon
-  gordon restore "${HOME}/.config/gordon/bundle"
+  go run github.com/kyoh86/gordon@latest install kyoh86/gordon
+  go run github.com/kyoh86/gordon@latest restore "${HOME}/.config/gordon/bundle"
   rm -f "${HOME}/go/bin/gordon" || :
 }
 
