@@ -7,7 +7,7 @@
 
 ## Contribute from other user
 
-see: [./doc/another_git.md](./doc/another_git.md)
+See: [./setup/another_git.md](./setup/another_git.md)
 
 ## My Ergodox layout
 
