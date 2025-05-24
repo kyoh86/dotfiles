@@ -10,6 +10,7 @@ MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/setup/module"
 "${MODULE}"/apt_update
 "${MODULE}"/apt_locale
 "${MODULE}"/apt_install
+"${MODULE}"/deno
 "${MODULE}"/nix
 "${MODULE}"/github
 "${MODULE}"/dotfiles

@@ -32,7 +32,6 @@ in
     # Languages
     go
     sqlite
-    deno
     luajit
     luajitPackages.luarocks
 

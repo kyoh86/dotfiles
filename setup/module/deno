@@ -1,0 +1,7 @@
+#!/bin/bash
+
+deno_install() {
+  [ -x "$(command -v deno)" ] || curl -fsSL https://deno.land/install.sh | sh
+}
+
+deno_install
