@@ -2,20 +2,35 @@
 ---@author kyoh86
 
 --- lazy.nvim 本体をインストールする
-pcall(function()
-  local lazypath = kyoh86.lazydir("lazy.nvim") -- lazydir is defined in preload.lua
-  if not vim.uv.fs_stat(lazypath) then
-    vim.fn.system({
+local lazypath = kyoh86.lazydir("lazy.nvim") -- lazydir is defined in preload.lua
+if not vim.uv.fs_stat(lazypath) then
+  local obj = vim
+    .system({
       "git",
       "clone",
       "--filter=blob:none",
       "https://github.com/folke/lazy.nvim.git",
       "--branch=stable", -- latest stable release
       lazypath,
-    })
+    }, { text = true })
+    :wait()
+  if obj.code ~= 0 then
+    vim.notify(
+      table.concat({
+        "code: " .. obj.code,
+        "------ STDOUT ------",
+        obj.stdout,
+        "------ STDERR ------",
+        obj.stderr,
+      }, "\n"),
+      vim.log.levels.ERROR
+    )
+    return
+  else
+    vim.print("lazy.nvim cloned to " .. lazypath)
   end
-  vim.opt.rtp:prepend(lazypath)
-end)
+end
+vim.opt.rtp:prepend(lazypath)
 
 --- lazy.nvim で読み込む
 ---@type LazyConfig
