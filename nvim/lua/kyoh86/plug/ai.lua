@@ -27,7 +27,6 @@ local specs = {
     },
     config = function(_, opts)
       require("codecompanion").setup(opts)
-      vim.keymap.set({ "ca" }, "cc", "CodeCompanion")
       vim.keymap.set({ "ca" }, "ccc", "CodeCompanionChat")
     end,
     dependencies = {
