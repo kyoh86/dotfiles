@@ -1,0 +1,28 @@
+{
+  "nativeMCPServers": [],
+  "mcpServers": {
+    "filesystem": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--mount",
+        "type=bind,src=/home/kyoh86/Projects,dst=/projects,ro",
+        "mcp/filesystem",
+        "/projects"
+      ]
+    },
+    "codegen-mcp": {
+      "disabled": false,
+      "command": "uvx",
+      "autoApprove": [],
+      "args": [
+        "--from",
+        "git+https://github.com/codegen-sh/codegen-sdk.git#egg=codegen-mcp-server&subdirectory=codegen-examples/examples/codegen-mcp-server",
+        "codegen-mcp-server"
+      ]
+    }
+  }
+}
+
