@@ -9,6 +9,23 @@ local spec = {
     lazy = true,
   },
   {
+    "coachshea/vim-textobj-markdown",
+    init = function()
+      vim.g.textobj_markdown_no_default_key_mappings = true
+    end,
+    config = function()
+      local group = vim.api.nvim_create_augroup("textobj_markdown", { clear = true })
+      vim.api.nvim_create_autocmd("FileType", {
+        group = group,
+        pattern = "markdown",
+        callback = function()
+          vim.keymap.set("o", "if", "<Plug>(textobj-markdown-chunk-i)", { remap = true, desc = "a textobj in the markdown block" })
+          vim.keymap.set("x", "if", "<Plug>(textobj-markdown-chunk-a)", { remap = true, desc = "a textobj in the markdown block" })
+        end,
+      })
+    end,
+  },
+  {
     "arthurxavierx/vim-caser",
     init = function()
       vim.g.caser_no_mappings = true
