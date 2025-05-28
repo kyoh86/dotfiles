@@ -4,7 +4,7 @@ import { ensure, is } from "jsr:@core/unknownutil@~4.3.0";
 import { expandGlob } from "jsr:@std/fs@~1.0.1";
 import { parse } from "jsr:@std/toml@~1.0.0";
 import { stringify } from "jsr:@std/toml@~1.0.0";
-import { extname, join } from "jsr:@std/path@~1.0.0";
+import { extname, join } from "jsr:@std/path@~1.1.0";
 
 function deconvertText(text: string) {
   const obj = JSON.parse(text);
