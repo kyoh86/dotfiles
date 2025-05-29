@@ -87,3 +87,6 @@ Session.vim
 
 ## Scala formatter
 .scalafmt.conf
+
+# Mise
+.mise.toml
