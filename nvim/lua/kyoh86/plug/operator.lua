@@ -19,8 +19,8 @@ local spec = {
         group = group,
         pattern = "markdown",
         callback = function()
-          vim.keymap.set("o", "if", "<Plug>(textobj-markdown-chunk-i)", { remap = true, desc = "a textobj in the markdown block" })
-          vim.keymap.set("x", "if", "<Plug>(textobj-markdown-chunk-a)", { remap = true, desc = "a textobj in the markdown block" })
+          vim.keymap.set("o", "ic", "<Plug>(textobj-markdown-chunk-i)", { remap = true, desc = "a textobj in the markdown block" })
+          vim.keymap.set("x", "ic", "<Plug>(textobj-markdown-chunk-a)", { remap = true, desc = "a textobj in the markdown block" })
         end,
       })
     end,
