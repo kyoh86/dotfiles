@@ -47,7 +47,7 @@
   "ddu-source-quickfix_history": { "branch": "main", "commit": "a15a1e987f8f9f04670755458d198d30ba3ca510" },
   "ddu-source-vim_function": { "branch": "main", "commit": "e3d37b6acd887c4f14a5abcb054a3ab3db09401b" },
   "ddu-source-zenn_dev": { "branch": "main", "commit": "e4bf2a38bc2cc71c9054d049920dc818794ee80c" },
-  "ddu-ui-ff": { "branch": "main", "commit": "adf9ab0df52ad7c638cd67f9cff709c19cf768ba" },
+  "ddu-ui-ff": { "branch": "main", "commit": "5e0337dc2cdd67d967d793a049d6cd2c3c914b84" },
   "ddu.vim": { "branch": "main", "commit": "44ec3d5b801c3b93eb36b2dd602905f4f397d0e0" },
   "denops-docbase.vim": { "branch": "main", "commit": "40fa15b8a000d59f346b2035a9fff83b7ffe1fe0" },
   "denops-github.vim": { "branch": "main", "commit": "9154819cc0a284fe4f36fdab631a7415cb14c2b4" },
