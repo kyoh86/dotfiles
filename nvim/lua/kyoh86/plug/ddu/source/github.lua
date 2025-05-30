@@ -63,16 +63,17 @@ local spec = {
 
     local linkFormat = "${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
     local fullFormat = "${this.title} ${this.html_url.replace(/^https:\\/\\/[^\\/]+\\/([^\\/]+)\\/([^\\/]+)\\/(?:issues|pull)\\/(\\d+)/, '$1/$2#$3')}"
+    local spacer = vim.fn["kyoh86#ddu#source#github#spacer"]()
     local map = {
       ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
       ["<leader>e"] = { action = "itemAction", params = { name = "edit" } },
       ["<leader>v"] = { action = "itemAction", params = { name = "custom:view:left" } },
       ["<leader>x"] = { action = "itemAction", params = { name = "custom:view:above" } },
       ["<leader>h"] = { action = "itemAction", params = { name = "custom:view:above" } },
-      ["<leader>p"] = { action = "itemAction", params = { name = "append", params = { format = linkFormat, avoid = "filename" } } },
-      ["<leader>P"] = { action = "itemAction", params = { name = "insert", params = { format = linkFormat, avoid = "filename" } } },
-      ["<leader>f"] = { action = "itemAction", params = { name = "append", params = { format = fullFormat } } },
-      ["<leader>F"] = { action = "itemAction", params = { name = "insert", params = { format = fullFormat } } },
+      ["<leader>p"] = { action = "itemAction", params = { name = "append", params = { format = linkFormat, spacer = spacer } } },
+      ["<leader>P"] = { action = "itemAction", params = { name = "insert", params = { format = linkFormat, spacer = spacer } } },
+      ["<leader>f"] = { action = "itemAction", params = { name = "append", params = { format = fullFormat, spacer = spacer } } },
+      ["<leader>F"] = { action = "itemAction", params = { name = "insert", params = { format = fullFormat, spacer = spacer } } },
     }
     local nextState = {
       open = "closed",
@@ -89,7 +90,7 @@ local spec = {
       } },
       uiParams = {
         ff = {
-          inputFunc = "kyoh86#ddu#source#github#input#cancel",
+          inputFunc = "kyoh86#ddu#source#github#cancel_input",
         },
       },
       input = "is:open ",
@@ -125,7 +126,7 @@ local spec = {
       } },
       uiParams = {
         ff = {
-          inputFunc = "kyoh86#ddu#source#github#input#cancel",
+          inputFunc = "kyoh86#ddu#source#github#cancel_input",
         },
       },
       input = "is:open ",
@@ -160,7 +161,7 @@ local spec = {
       } },
       uiParams = {
         ff = {
-          inputFunc = "kyoh86#ddu#source#github#input#cancel",
+          inputFunc = "kyoh86#ddu#source#github#cancel_input",
         },
       },
       input = "is:open ",
@@ -196,7 +197,7 @@ local spec = {
       } },
       uiParams = {
         ff = {
-          inputFunc = "kyoh86#ddu#source#github#input#cancel",
+          inputFunc = "kyoh86#ddu#source#github#cancel_input",
         },
       },
       input = "is:open ",
