@@ -30,6 +30,18 @@ terraform-ls = "latest"
 "ubi:kyoh86/git-vertag" = "latest"
 "ubi:kyoh86/gogh" = "v4.0.1-alpha.8"
 "ubi:kyoh86/zshist" = "latest"
+direnv = "latest"
+delta = "latest"
+go = "latest"
+sqlite = "latest"
+actionlint = "latest"
+docker-compose = "latest"
+gh = "latest"
+jq = "latest"
+ripgrep = "latest"
+1password-cli = "latest"
+awscli = "latest"
+"npm:mcp-hub" = "latest"
 
 [settings]
 experimental = true

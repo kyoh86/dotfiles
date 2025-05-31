@@ -25,7 +25,6 @@ install_homebrew() {
     gh \
     httpie \
     jq \
-    mise \
     postgresql \
     ripgrep \
     tig \

@@ -17,7 +17,6 @@ _source_part gcloud
 _source_part gpg
 _source_part homebrew
 _source_part ls
-_source_part nix
 _source_part nvim_cmd
 _source_part nvim_startuptime
 _source_part pnpm

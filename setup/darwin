@@ -9,5 +9,6 @@ MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/setup/module"
 "${MODULE}"/github
 "${MODULE}"/dotfiles
 "${MODULE}"/homebrew
+"${MODULE}"/mise
 
 "${MODULE}"/neovim

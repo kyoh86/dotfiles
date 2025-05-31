@@ -10,7 +10,6 @@ return function()
   }
   vim.lsp.config("*", { capabilities = capabilities })
 
-  vim.lsp.enable("angularls")
   vim.lsp.enable("ansiblels")
   vim.lsp.enable("astro")
   vim.lsp.enable("bashls")

@@ -11,7 +11,6 @@ MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/setup/module"
 "${MODULE}"/apt_locale
 "${MODULE}"/apt_install
 "${MODULE}"/deno
-"${MODULE}"/nix
 "${MODULE}"/mise
 "${MODULE}"/github
 "${MODULE}"/dotfiles

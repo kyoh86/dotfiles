@@ -11,7 +11,7 @@ local function attempt_set_shell(shells)
   return false
 end
 
-attempt_set_shell({ vim.env.HOME .. "/.nix-profile/bin/zsh", "/usr/local/bin/zsh", "/usr/bin/zsh", "/bin/zsh" })
+attempt_set_shell({ "/usr/local/bin/zsh", "/usr/bin/zsh", "/bin/zsh" })
 
 --- Terminal内で環境がNvim内であることを示す変数を設定しておく
 vim.env.NVIM_TERMINAL = 1

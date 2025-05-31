@@ -1,13 +1,38 @@
 #!/bin/bash
 
 apt_install() {
+  # Common Utilities
+  sudo apt install --yes \
+      diffutils \
+      dnsutils  \
+      findutils \
+      unzip     \
+      git       \
+      cmake
+
+    # Shell environment
+  sudo apt install --yes \
+      zsh \
+      zsh-autosuggestions \
+      zsh-syntax-highlighting
+
+  # Lua
+  sudo apt install --yes \
+      luajit \
+      luarocks
+
   # Development Environment
   sudo apt install --yes \
       telnet  \
       tidy    \
       man-db  \
+      tig     \
       make    \
       cmake   \
+      wslu    \
+      inotify-tools \
+      coreutils \
+      binutils \
       gettext
 
   # for git send-email

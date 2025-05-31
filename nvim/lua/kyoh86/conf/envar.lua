@@ -126,15 +126,11 @@ glaze.get("opener", function(opener)
   vim.env.BROWSER = opener
 end)
 
--- Home Manager/Nix:
-local nix_path = path.home .. "/.nix-profile/bin"
-path.ins(nix_path)
-
 -- Homebrew:
 path.ins("/opt/homebrew/bin")
 
 -- mise
-local mise_candidates = { nix_path .. "/mise", "/opt/homebrew/bin" }
+local mise_candidates = { path.home .. "/.local/bin/mise", "/opt/homebrew/bin" }
 for _, c in pairs(mise_candidates) do
   if vim.fn.executable(c) == 1 then
     local mise_result = vim.system({ c, "ls", "--global", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
@@ -143,6 +139,7 @@ for _, c in pairs(mise_candidates) do
       for _, entries in pairs(mise_list) do
         for _, entry in pairs(entries) do
           if entry.active then
+            path.ins(entry.install_path)
             path.ins(entry.install_path .. "/bin")
           end
         end

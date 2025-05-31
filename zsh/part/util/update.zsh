@@ -153,16 +153,3 @@ function update_neovim {
     popd
 }
 # }}}
-
-# update home_manager {{{
-function update_home_manager {
-    echo updating home_manager
-    pushd "${HOME}/.config/home-manager"
-    if command -v nix-channel >/dev/null 2>&1; then
-      nix-channel --update
-      nix flake update
-      home-manager switch
-    fi
-    popd
-}
-# }}}

@@ -4,7 +4,6 @@ local cands=(
     '/usr/share/zsh/plugins/zsh-syntax-highlighting'
     '/usr/local/share/zsh-syntax-highlighting'
     '/opt/homebrew/share/zsh-syntax-highlighting'
-    "$HOME/.nix-profile/share/zsh-syntax-highlighting"
 )
 local cand=''
 for cand in $cands; do

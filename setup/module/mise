@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mise_install() {
+  if !command -v mise >/dev/null 2>&1; then
+    echo "Installing mise..."
+    curl https://mise.run | sh
+  fi
+  if command -v mise >/dev/null 2>&1; then
+    echo "Installing tools with mise..."
+    mise i
+  fi
+}
+mise_install
