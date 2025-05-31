@@ -78,18 +78,6 @@ function update_deno {
 }
 # }}}
 
-# update gordon {{{
-function update_gordon {
-    echo updating gordon
-    pushd ~
-    if command -v gordon >/dev/null 2>&1; then
-        gordon update --all
-        gordon dump "${HOME}/.config/gordon/bundle"
-    fi
-    popd
-}
-# }}}
-
 # update go/bin {{{
 function update_go {
     echo updating go

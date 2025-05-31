@@ -32,20 +32,6 @@ else
   echo no gogh
 fi
 
-# # Bundle gordon:
-# if command -v gordon >/dev/null 2>&1 ; then
-#   gordon dump ${HOME}/.config/gordon/bundle || error="1"
-# else
-#   echo no gordon
-# fi
-# 
-# # dump pacman
-# if [ -x /usr/bin/pacman ]; then
-#   /usr/bin/pacman -Qe > ${HOME}/.config/pacman/dump.txt || error="1"
-# else
-#   echo no pacman
-# fi
-
 if [[ -n ${error} ]]; then
   if command -v osascript >/dev/null 2>&1 ; then
     message="$(tail -n +${error_offset} "${STDERR_FILE}" | tr -d "'" | perl -pe 's/[\r\n]/\\\\n/g')"

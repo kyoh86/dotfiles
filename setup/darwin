@@ -11,4 +11,3 @@ MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/setup/module"
 "${MODULE}"/homebrew
 
 "${MODULE}"/neovim
-"${MODULE}"/gordon

@@ -49,28 +49,6 @@ in
     tig
     unzip
     git
-
-    # Language servers
-    angular-language-server
-    ansible-language-server
-    astro-language-server
-    bash-language-server
-    dockerfile-language-server-nodejs
-    efm-langserver
-    eslint
-    gopls
-    vscode-langservers-extracted # HTML, CSS, JSON, ESLint
-    jq-lsp
-    lua-language-server
-    sqls
-    stylelint-lsp
-    stylua
-    svelte-language-server
-    taplo
-    terraform-ls
-    vim-language-server
-    vtsls
-    yaml-language-server
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
