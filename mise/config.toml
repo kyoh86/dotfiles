@@ -42,6 +42,7 @@ ripgrep = "latest"
 1password-cli = "latest"
 awscli = "latest"
 "npm:mcp-hub" = "latest"
+deno = "latest"
 
 [settings]
 experimental = true
