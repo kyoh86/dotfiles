@@ -82,6 +82,11 @@ local textlint = { --[[https://textlint.github.io/]]
   rootMarkers = { ".textlintrc", ".textlintrc.js", ".textlintrc.json", ".textlintrc.yml", ".textlintrc.yaml" },
 }
 
+local tombifmt = { --[[https://tombi-toml.github.io/tombi]]
+  formatCommand = "tombi-format",
+  formatStdin = true,
+}
+
 ---@type vim.lsp.Config
 local config = {
   init_options = {
@@ -104,10 +109,11 @@ local config = {
       typescript = { prettier, denofmt },
       typescriptreact = { prettier, denofmt },
       yaml = { actionlint },
+      toml = { tombifmt },
     },
   },
-  cmd = { "efm-langserver" },
+  cmd = { "efm-langserver", "-logfile", vim.fn.stdpath("cache") .. "/efm-langserver.log", "-loglevel", "0" },
   root_markers = { ".git", ".hg" },
-  filetypes = { "lua", "go", "javascript", "typescript", "javascriptreact", "typescriptreact", "json", "markdown", "yaml", "astro", "svelte", "scala", "terraform" },
+  filetypes = { "lua", "go", "javascript", "typescript", "javascriptreact", "typescriptreact", "json", "markdown", "yaml", "astro", "svelte", "scala", "terraform", "toml" },
 }
 return config

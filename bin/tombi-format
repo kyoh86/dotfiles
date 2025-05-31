@@ -1,0 +1,12 @@
+#!/bin/bash
+
+tombi-format() {
+  in="$(cat)"
+  out="$(echo "$in" | tombi format --offline -)"
+  if [ "$out" == "" ]; then
+    echo "$in"
+  else
+    echo "$out"
+  fi
+}
+tombi-format

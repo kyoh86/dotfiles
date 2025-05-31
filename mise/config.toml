@@ -4,3 +4,5 @@ node = ["latest", "22", "18"]
 python = ["latest", "3.12"]
 coursier = ["latest", "2.1.9"]
 "npm:@prisma/language-server" = "latest"
+pipx = "latest"
+"pipx:tombi" = "latest"
