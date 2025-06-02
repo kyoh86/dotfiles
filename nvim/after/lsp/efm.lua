@@ -83,7 +83,7 @@ local textlint = { --[[https://textlint.github.io/]]
 }
 
 local tombifmt = { --[[https://tombi-toml.github.io/tombi]]
-  formatCommand = "tombi-format",
+  formatCommand = "tombi format -",
   formatStdin = true,
 }
 
