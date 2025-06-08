@@ -12,12 +12,10 @@ function update {
         update_yay || return 1
         update_mise || return 1
         update_deno || return 1
-        update_gordon || return 1
         update_go || return 1
         update_rust || return 1
         update_coursier || return 1
         update_neovim || return 1
-        update_home_manager || return 1
         echo "done"
     fi
 }
