@@ -24,8 +24,18 @@ local biomefmt = {
   rootMarkers = { "rome.json", "biome.json", "package.json" },
 }
 
-local gofmt = { --[[https://pkg.go.dev/cmd/gofmt]]
-  formatCommand = "gofmt",
+-- local gofmt = { --[[https://pkg.go.dev/cmd/gofmt]]
+--   formatCommand = "gofmt",
+--   formatStdin = true,
+-- }
+
+-- local goimports = { --[[https://pkg.go.dev/golang.org/x/tools/cmd/goimports]]
+--   formatCommand = "goimports",
+--   formatStdin = true,
+-- }
+
+local gofumpt = { --[[https://github.com/mvdan/gofumpt]]
+  formatCommand = "gofumpt",
   formatStdin = true,
 }
 
@@ -96,7 +106,7 @@ local config = {
   },
   settings = {
     languages = {
-      go = { gofmt },
+      go = { gofumpt },
       astro = { biomefmt },
       json = { jq },
       javascript = { prettier },

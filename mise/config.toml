@@ -43,6 +43,7 @@ ripgrep = "latest"
 awscli = "latest"
 "npm:mcp-hub" = "latest"
 deno = "latest"
+"go:mvdan.cc/gofumpt" = "latest"
 
 [settings]
 experimental = true
