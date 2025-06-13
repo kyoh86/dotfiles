@@ -139,5 +139,6 @@
   "workspace-diagnostics.nvim": { "branch": "main", "commit": "60f9175b2501ae3f8b1aba9719c0df8827610c8e" },
   "wrapwidth": { "branch": "main", "commit": "c592b47c6665e004f508b8ca01ec1fcf07493cbe" },
   "yats.vim": { "branch": "master", "commit": "b325c449a2db4d9ee38aa441afa850a815982e8b" },
-  "zsh-abbr": { "branch": "main", "commit": "f9e43d78110db0a8bf8ec75ca5b101a06b1d5ce8" }
+  "zsh-abbr": { "branch": "main", "commit": "f9e43d78110db0a8bf8ec75ca5b101a06b1d5ce8" },
+  "zsh-completions": { "branch": "master", "commit": "e07f6fb780725e9c0f50a7666700cf91ded30222" }
 }

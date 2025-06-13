@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Add deno completions to search path
-if [[ ":$FPATH:" != *":/home/kyoh86/.config/zsh/completions:"* ]]; then export FPATH="/home/kyoh86/.config/zsh/completions:$FPATH"; fi
-
 function _source_if() {
     if [ -f ${1} ]; then
         source ${1}

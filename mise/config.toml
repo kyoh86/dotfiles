@@ -1,3 +1,5 @@
+#:schema https://mise.jdx.dev/schema/mise.json
+
 [tools]
 terraform = ["latest", "1.10"]
 node = ["latest", "22", "18"]
@@ -28,7 +30,7 @@ terraform-ls = "latest"
 "ubi:kyoh86/git-branches" = "latest"
 "ubi:kyoh86/git-statuses" = "latest"
 "ubi:kyoh86/git-vertag" = "latest"
-"ubi:kyoh86/gogh" = "v4.0.1-alpha.15"
+"ubi:kyoh86/gogh" = { version = "v4.0.1-alpha.15", postinstall = "gogh completion zsh > $HOME/.config/zsh/completions/_gogh.zsh" }
 "ubi:kyoh86/zshist" = "latest"
 direnv = "latest"
 delta = "latest"
@@ -36,14 +38,20 @@ go = "latest"
 sqlite = "latest"
 actionlint = "latest"
 docker-compose = "latest"
-gh = "latest"
+gh = { version = "latest", postinstall = "gh completion --shell zsh > $HOME/.config/zsh/completions/_gh.zsh" }
 jq = "latest"
-ripgrep = "latest"
+ripgrep = { version = "latest", postinstall = "rg --generate complete-zsh > $HOME/.config/zsh/completions/_rg.zsh" }
 1password-cli = "latest"
 awscli = "latest"
 "npm:mcp-hub" = "latest"
-deno = "latest"
+deno = { version = "latest", postinstall = "deno completions zsh > $HOME/.config/zsh/completions/_deno.zsh" }
 "go:mvdan.cc/gofumpt" = "latest"
 
 [settings]
 experimental = true
+
+[hooks]
+postinstall = [
+  "mise prune",
+  "mise completion zsh > $HOME/.config/zsh/completions/_mise.zsh",
+]

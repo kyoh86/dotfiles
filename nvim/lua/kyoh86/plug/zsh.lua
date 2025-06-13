@@ -13,7 +13,17 @@ local function reg_source(file)
   vim.env.zsh_sources = p
 end
 
----NOTE: autoload系はFPATHを使うとかで簡単なプラグインマネージャっぽい動きはできそう
+---FPATH環境変数に、autoloadするディレクトリを追加する
+---@param dir string
+local function reg_fpath(dir)
+  local p = vim.env.NVIM_ZSH_FPATH
+  if not p or p == "" then
+    p = dir
+  else
+    p = p .. ":" .. dir
+  end
+  vim.env.NVIM_ZSH_FPATH = p
+end
 
 ---@type LazySpec
 local spec = {
@@ -21,6 +31,12 @@ local spec = {
     "olets/zsh-abbr",
     config = function(plug)
       reg_source(plug.dir .. "/zsh-abbr.zsh")
+    end,
+  },
+  {
+    "zsh-users/zsh-completions",
+    config = function(plug)
+      reg_fpath(plug.dir .. "/src")
     end,
   },
 }
