@@ -1,5 +1,5 @@
 import type { FilterArguments } from "jsr:@shougo/ddu-vim@~10.3.0/filter";
-import { getbufvar } from "jsr:@denops/std@~7.5.0/function";
+import { getbufvar } from "jsr:@denops/std@~7.6.0/function";
 import type { DduItem } from "jsr:@shougo/ddu-vim@~10.3.0/types";
 import { BaseFilter } from "jsr:@shougo/ddu-vim@~10.3.0/filter";
 
