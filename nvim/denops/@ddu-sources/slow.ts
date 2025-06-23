@@ -1,4 +1,4 @@
-import type {} from "jsr:@denops/std@~7.5.0";
+import type {} from "jsr:@denops/std@~7.6.0";
 import type { GatherArguments } from "jsr:@shougo/ddu-vim@~10.3.0/source";
 import type { Item } from "jsr:@shougo/ddu-vim@~10.3.0/types";
 import { BaseSource } from "jsr:@shougo/ddu-vim@~10.3.0/source";
