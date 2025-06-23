@@ -1,0 +1,15 @@
+[[hooks]]
+id = '2810076c-1f3a-4cf6-8aa8-70d6d5611326'
+name = 'Set default repository when the repository forked'
+repo-pattern = ''
+trigger-event = 'post-fork'
+operation-type = 'script'
+operation-id = 'c4b4d546f16f44a7b3cd00efa6df333b'
+
+[[hooks]]
+id = '6f0f4029-e9d6-445c-81a5-99b9d821ccae'
+name = 'Set default repository when the forked-repository cloned'
+repo-pattern = ''
+trigger-event = 'post-clone'
+operation-type = 'script'
+operation-id = 'c4b4d546f16f44a7b3cd00efa6df333b'

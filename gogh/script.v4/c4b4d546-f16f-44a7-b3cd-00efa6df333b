@@ -1,0 +1,7 @@
+local function main()
+  if not gogh.parent then
+    return
+  end
+  os.execute("gh repo set-default " .. gogh.parent.owner .. "/" .. gogh.parent.name)
+end
+main()
