@@ -1,0 +1,8 @@
+-- Gogh script
+-- Available globals:
+--   gogh.repository.owner: Repository owner
+--   gogh.repository.name: Repository name
+--   gogh.repository.url: Repository URL
+--   gogh.repository.path: Local repository path
+
+os.execute("git push")

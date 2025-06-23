@@ -1,0 +1,32 @@
+[bundle-dump]
+file = '~/.config/gogh/dump.txt'
+
+[bundle-restore]
+file = '~/.config/gogh/dump.txt'
+clone-retry-timeout = 300000000000
+clone-retry-limit = 3
+
+[clone]
+clone-retry-timeout = 300000000000
+
+[list]
+limit = 100
+
+[create]
+license-template = 'mit'
+clone-retry-timeout = 300000000000
+clone-retry-limit = 3
+disable-wiki = true
+auto-init = true
+disable-projects = true
+prevent-rebase-merge = true
+delete-branch-on-merge = true
+
+[repos]
+limit = -1
+color = 'auto'
+relation = ['owner', 'organization-member']
+
+[fork]
+clone-retry-timeout = 300000000000
+clone-retry-limit = 3

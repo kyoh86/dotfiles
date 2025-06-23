@@ -1,0 +1,17 @@
+[[scripts]]
+id = '733d4c00-aa58-4632-9570-faea14beef7b'
+name = 'Update deno dependencies'
+created-at = 2025-06-22T13:33:08.25364975+09:00
+updated-at = 2025-06-23T12:22:09.41797195+09:00
+
+[[scripts]]
+id = '966b10b8-39fa-467c-9d7e-fdda6707fdd9'
+name = 'git push'
+created-at = 2025-06-23T15:29:00.331905545+09:00
+updated-at = 2025-06-23T15:29:00.331905545+09:00
+
+[[scripts]]
+id = 'f4511188-f3b9-4643-980e-9a809297dc4a'
+name = 'git pull'
+created-at = 2025-06-23T15:31:44.729823645+09:00
+updated-at = 2025-06-23T15:31:44.729823645+09:00

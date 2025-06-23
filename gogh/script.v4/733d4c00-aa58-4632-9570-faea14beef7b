@@ -1,0 +1,141 @@
+local function pipeCommand(command)
+  local handle = io.popen(command)
+  if not handle then
+    print("Error executing command: " .. command)
+    return
+  end
+  local result = handle:read("*a")
+  local rc = { handle:close() }
+  return rc[1], result
+end
+
+local function retrieveGitStatus()
+  return pipeCommand("git status --porcelain")
+end
+
+local function isMainBranch()
+  local suc, branch = pipeCommand("git rev-parse --abbrev-ref HEAD")
+  if not suc or branch == nil then
+    print("Error retrieving current branch name.")
+    return false
+  end
+  local branchName = branch:gsub("%s+", "") -- Remove any whitespace
+  return branchName == "main" or branchName == "master"
+end
+
+local function main()
+  print("Updating Deno project...")
+
+  print("Checking for uncommitted changes...")
+  local suc, gitStatus = retrieveGitStatus()
+  if not suc then
+    print("Error retrieving git status.")
+    return
+  end
+  if gitStatus and gitStatus ~= "" then
+    print("Git status is not clean. Please commit or stash your changes before proceeding.")
+    return
+  end
+
+  print("Checking if you are on the main branch...")
+  if not isMainBranch() then
+    print("You are not on the main branch. Please switch to the main branch before proceeding.")
+    return
+  end
+
+  print("Pulling latest changes from the remote repository...")
+  suc, _ = os.execute("git pull --rebase")
+  if not suc then
+    print("Error pulling latest changes. Please resolve any conflicts before proceeding.")
+    return
+  end
+
+  print("Re-checking for uncommitted changes after pull...")
+  suc, gitStatus = retrieveGitStatus()
+  if not suc then
+    print("Error retrieving git status after pull.")
+    return
+  end
+  if gitStatus and gitStatus ~= "" then
+    print("Git status is not clean after pull. Please resolve any conflicts before proceeding.")
+    return
+  end
+
+  print("Calling deno task update...")
+  suc, _ = os.execute("deno task update")
+  if not suc then
+    print("Error executing 'deno task update'. Please check your Deno setup.")
+    return
+  end
+
+  print("Checking for uncommitted changes after update...")
+  suc, gitStatus = retrieveGitStatus()
+  if not suc then
+    print("Error retrieving git status after update.")
+    return
+  end
+  if not gitStatus or gitStatus == "" then
+    print("Deno update completed successfully. No uncommitted changes detected.")
+    return
+  end
+
+  print("Formatting code...")
+  suc, _ = os.execute("NO_COLOR=1 deno task fmt")
+  if not suc then
+    print("Failed to format code. Please check your Deno setup.")
+    return
+  end
+
+  print("Caching modules...")
+  suc, _ = os.execute("NO_COLOR=1 deno cache ./**/*.ts")
+  if not suc then
+    print("Failed to cache modules. Please check your Deno setup.")
+    return
+  end
+
+  print("Checking code...")
+  suc, _ = os.execute("NO_COLOR=1 deno task check")
+  if not suc then
+    print("There are problems in the code. Please fix them before proceeding.")
+    return
+  end
+
+  print("Linting code...")
+  suc, _ = os.execute("NO_COLOR=1 deno task lint")
+  if not suc then
+    print("There are lint issues in the code. Please fix them before proceeding.")
+    return
+  end
+
+  print("Running tests...")
+  suc, _ = os.execute("NO_COLOR=1 deno task test")
+  if not suc then
+    print("Tests failed. Please fix the issues before proceeding.")
+    return
+  end
+
+  print("All checks passed successfully. Deno project is up to date.")
+
+  -- Commit and push
+  os.execute("git --no-pager diff .")
+
+  print("Committing changes...")
+  suc, _ = os.execute("git add .")
+  if not suc then
+    print("Failed to stage changes. Please check your git setup.")
+    return
+  end
+  suc, _ = os.execute("git commit -m 'Update dependencies'")
+  if not suc then
+    print("Failed to commit changes. Please check your git setup.")
+    return
+  end
+  print("Pushing changes to the remote repository...")
+  suc, _ = os.execute("git push")
+  if not suc then
+    print("Failed to push changes. Please check your git setup.")
+    return
+  end
+end
+
+main()
