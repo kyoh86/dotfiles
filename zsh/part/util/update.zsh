@@ -20,9 +20,11 @@ function update {
     fi
 }
 
+# NOTE: 各所でsudo echoしているのは、sudoのセッション維持のため
+
 # update apt {{{
 function update_apt {
-    echo updating apt
+    sudo echo updating apt
     pushd ~
     if command -v apt >/dev/null 2>&1; then
         sudo apt update && sudo apt upgrade -y
@@ -33,7 +35,7 @@ function update_apt {
 
 # update paru {{{
 function update_paru {
-    echo updating paru
+    sudo echo updating paru
     pushd ~
     if command -v paru >/dev/null 2>&1; then
         zsh -c 'paru -Syyu --skipreview --noconfirm'
@@ -44,7 +46,7 @@ function update_paru {
 
 # update yay {{{
 function update_yay {
-    echo updating yay
+    sudo echo updating yay
     pushd ~
     if command -v yay >/dev/null 2>&1; then
         zsh -c 'yay -Syyu --skipreview --noconfirm'
@@ -55,11 +57,12 @@ function update_yay {
 
 # update mise {{{
 function update_mise {
-    echo updating mise
+    sudo echo updating mise
     pushd ~
     if command -v mise >/dev/null 2>&1; then
         mise self-update --yes
         mise upgrade --yes
+        mise prune --yes
     fi
     popd
 }
@@ -67,7 +70,7 @@ function update_mise {
 
 # update deno {{{
 function update_deno {
-    echo updating deno
+    sudo echo updating deno
     pushd ~
     if [ "${HOME}/.deno/bin/deno" = "$(command -v deno)" ]; then
         sudo deno upgrade
@@ -78,7 +81,7 @@ function update_deno {
 
 # update go/bin {{{
 function update_go {
-    echo updating go
+    sudo echo updating go
     if command -v go >/dev/null 2>&1; then
         pushd ~
         local gobin="$(go env GOBIN)"
@@ -94,7 +97,7 @@ function update_go {
 
 # update rust {{{
 function update_rust {
-    echo updating rust
+    sudo echo updating rust
     pushd ~
     if command -v rustup >/dev/null 2>&1; then
         rustup update
@@ -110,7 +113,7 @@ function update_rust {
 
 # update coursier (scala) {{{
 function update_coursier {
-    echo updating coursier
+    sudo echo updating coursier
     pushd ~
     if command -v coursier >/dev/null 2>&1; then
       coursier list | xargs -n1 coursier update
@@ -121,7 +124,7 @@ function update_coursier {
 
 # update neovim {{{
 function update_neovim {
-    echo updating neovim
+    sudo echo updating neovim
     eval "$(luarocks --lua-version=5.1 path)"
     nvim_tmpdir="$(mktemp -d)"
     trap "sudo rm -rf $nvim_tmpdir" EXIT
