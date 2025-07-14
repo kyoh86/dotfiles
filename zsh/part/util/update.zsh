@@ -9,7 +9,7 @@ function update {
     else
         update_apt || return 1
         update_paru || return 1
-        update_yay || return 1
+        update_brew || return 1
         update_mise || return 1
         update_deno || return 1
         update_go || return 1
@@ -44,12 +44,13 @@ function update_paru {
 }
 # }}}
 
-# update yay {{{
-function update_yay {
-    sudo echo updating yay
+# update brew {{{
+function update_brew {
+    sudo echo updating brew
     pushd ~
-    if command -v yay >/dev/null 2>&1; then
-        zsh -c 'yay -Syyu --skipreview --noconfirm'
+    if command -v brew >/dev/null 2>&1; then
+        zsh -c 'brew update'
+        zsh -c 'brew upgrade'
     fi
     popd
 }
