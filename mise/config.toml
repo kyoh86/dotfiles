@@ -48,6 +48,7 @@ deno = { version = "latest", postinstall = "deno completions zsh > $HOME/.config
 "go:mvdan.cc/gofumpt" = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:ccusage" = "latest"
+gcloud = "latest"
 
 [settings]
 experimental = true
