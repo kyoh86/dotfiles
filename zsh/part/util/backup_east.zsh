@@ -1,8 +1,8 @@
 #!env zsh
 
-set -e
-
 backup_east() {
+  set -e
+
   local remote_dev='\\kyohnas\east'
   local remote_mount='/mnt/z'
   local remote_dir='/mnt/z/'
