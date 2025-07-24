@@ -30,6 +30,7 @@ apt_install() {
       make    \
       cmake   \
       wslu    \
+      rsync   \
       inotify-tools \
       coreutils \
       binutils \
