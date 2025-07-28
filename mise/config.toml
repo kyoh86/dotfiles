@@ -42,13 +42,13 @@ gh = { version = "latest", postinstall = "gh completion --shell zsh > $HOME/.con
 jq = "latest"
 ripgrep = { version = "latest", postinstall = "rg --generate complete-zsh > $HOME/.config/zsh/completions/_rg.zsh" }
 1password-cli = "latest"
-awscli = "latest"
 "npm:mcp-hub" = "latest"
 deno = { version = "latest", postinstall = "deno completions zsh > $HOME/.config/zsh/completions/_deno.zsh" }
 "go:mvdan.cc/gofumpt" = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:ccusage" = "latest"
 gcloud = "latest"
+aws-cli = "latest"
 
 [settings]
 experimental = true
