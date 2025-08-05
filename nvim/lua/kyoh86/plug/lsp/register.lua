@@ -25,7 +25,6 @@ return function()
   vim.lsp.enable("lua_ls") -- ref: nvim/lsp/lua_ls.lua;
   vim.lsp.enable("metals") -- Scala (metals): without installation with mason.nvim
   vim.lsp.enable("prismals") -- Prisma (TypeScript DB ORM)
-  vim.lsp.enable("rust_analyzer") -- ref: nvim/lsp/rust_analyzer.lua;
   vim.lsp.enable("sqls")
   vim.lsp.enable("stylelint_lsp")
   vim.lsp.enable("svelte")
