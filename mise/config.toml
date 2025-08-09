@@ -1,53 +1,56 @@
 #:schema https://mise.jdx.dev/schema/mise.json
 
 [tools]
-terraform = ["latest", "1.10"]
-node = ["latest", "22", "18"]
-python = ["latest", "3.12"]
-coursier = ["latest", "2.1.9"]
-"npm:@prisma/language-server" = "latest"
-pipx = "latest"
-"pipx:tombi" = "latest"
 "go:github.com/mattn/efm-langserver" = "latest"
+"go:github.com/sqls-server/sqls" = "latest"
+"go:github.com/wader/jq-lsp" = "latest"
 "go:golang.org/x/tools/gopls" = "latest"
-rust = "latest"
-"npm:ansible-language-server" = "latest"
+"go:mvdan.cc/gofumpt" = "latest"
+"npm:@anthropic-ai/claude-code" = "latest"
 "npm:@astrojs/language-server" = "latest"
+"npm:@prisma/language-server" = "latest"
+"npm:@vtsls/language-server" = "latest"
+"npm:ansible-language-server" = "latest"
 "npm:bash-language-server" = "latest"
+"npm:ccusage" = "latest"
 "npm:dockerfile-language-server-nodejs" = "latest"
 "npm:eslint" = "latest"
-"npm:vscode-langservers-extracted" = "latest"
-"go:github.com/wader/jq-lsp" = "latest"
-lua-language-server = "latest"
-stylua = "latest"
-terraform-ls = "latest"
-"go:github.com/sqls-server/sqls" = "latest"
+"npm:mcp-hub" = "latest"
+"npm:stylelint-lsp" = "latest"
 "npm:svelte-language-server" = "latest"
 "npm:vim-language-server" = "latest"
-"npm:@vtsls/language-server" = "latest"
+"npm:vscode-langservers-extracted" = "latest"
 "npm:yaml-language-server" = "latest"
+"pipx:tombi" = "latest"
 "ubi:kyoh86/git-branches" = "latest"
 "ubi:kyoh86/git-statuses" = "latest"
 "ubi:kyoh86/git-vertag" = "latest"
 "ubi:kyoh86/gogh" = "v4.0.1-beta.9"
 "ubi:kyoh86/zshist" = "latest"
-direnv = "latest"
-delta = "latest"
-go = "latest"
-sqlite = "latest"
-actionlint = "latest"
-docker-compose = "latest"
-gh = { version = "latest", postinstall = "gh completion --shell zsh > $HOME/.config/zsh/completions/_gh.zsh" }
-jq = "latest"
-ripgrep = { version = "latest", postinstall = "rg --generate complete-zsh > $HOME/.config/zsh/completions/_rg.zsh" }
 1password-cli = "latest"
-"npm:mcp-hub" = "latest"
-deno = { version = "latest", postinstall = "deno completions zsh > $HOME/.config/zsh/completions/_deno.zsh" }
-"go:mvdan.cc/gofumpt" = "latest"
-"npm:@anthropic-ai/claude-code" = "latest"
-"npm:ccusage" = "latest"
-gcloud = "latest"
+actionlint = "latest"
 aws-cli = "latest"
+coursier = ["latest", "2.1.9"]
+delta = "latest"
+deno = { version = "latest", postinstall = "deno completions zsh > $HOME/.config/zsh/completions/_deno.zsh" }
+direnv = "latest"
+docker-compose = "latest"
+gcloud = "latest"
+gh = { version = "latest", postinstall = "gh completion --shell zsh > $HOME/.config/zsh/completions/_gh.zsh" }
+go = "latest"
+jq = "latest"
+lua-language-server = "latest"
+node = ["latest", "22", "18"]
+pipx = "latest"
+python = ["latest", "3.12"]
+ripgrep = "latest"
+rust = "latest"
+sqlite = "latest"
+stylua = "latest"
+terraform = ["latest", "1.10"]
+terraform-ls = "latest"
+tree-sitter = "latest"
+uv = "latest"
 
 [settings]
 experimental = true
