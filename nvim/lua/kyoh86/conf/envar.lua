@@ -133,7 +133,7 @@ path.ins("/opt/homebrew/bin")
 local mise_candidates = { path.home .. "/.local/bin/mise", "/opt/homebrew/bin" }
 for _, c in pairs(mise_candidates) do
   if vim.fn.executable(c) == 1 then
-    local mise_result = vim.system({ c, "ls", "--global", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
+    local mise_result = vim.system({ c, "ls", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
     if mise_result.code == 0 then
       local mise_list = vim.json.decode(mise_result.stdout)
       for _, entries in pairs(mise_list) do
