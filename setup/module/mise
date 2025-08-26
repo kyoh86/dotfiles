@@ -1,10 +1,13 @@
 #!/bin/bash
 
 mise_install() {
-  if !command -v mise >/dev/null 2>&1; then
+  if command -v mise >/dev/null 2>&1; then
+    echo "mise exists"
+  else
     echo "Installing mise..."
     curl https://mise.run | sh
   fi
+  eval "$($HOME/.local/bin/mise activate bash)"
   if command -v mise >/dev/null 2>&1; then
     echo "Installing tools with mise..."
     mise i

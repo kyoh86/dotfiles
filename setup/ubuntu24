@@ -15,7 +15,7 @@ MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/setup/module"
 "${MODULE}"/github
 "${MODULE}"/dotfiles
 
-# sudo groupadd docker # it may be error "groupadd: group 'docker' already exists" because docker AUR creates it. 
+grep -Fwe docker /etc/group || sudo groupadd docker
 sudo usermod -aG docker "${USER}"
 
 "${MODULE}"/neovim

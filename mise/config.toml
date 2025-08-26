@@ -51,6 +51,7 @@ terraform = ["latest", "1.10"]
 terraform-ls = "latest"
 tree-sitter = "latest"
 uv = "latest"
+"aqua:cli/cli" = "latest"
 
 [settings]
 experimental = true

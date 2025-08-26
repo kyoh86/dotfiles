@@ -26,6 +26,8 @@ auth_github_cli() {
     return;
   fi
   gh auth login --web --git-protocol https --hostname github.com --skip-ssh-key --scopes admin:public_key,admin:ssh_signing_key
+  gh auth refresh -h github.com -s admin:public_key
+  gh auth refresh -h github.com -s admin:ssh_signing_key
 }
 
 auth_github_cli
