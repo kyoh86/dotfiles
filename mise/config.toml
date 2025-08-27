@@ -43,7 +43,6 @@ lua-language-server = "latest"
 node = ["latest", "22", "18"]
 pipx = "latest"
 python = ["latest", "3.12"]
-ripgrep = "latest"
 rust = "latest"
 sqlite = "latest"
 stylua = "latest"
