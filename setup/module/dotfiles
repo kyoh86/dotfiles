@@ -9,6 +9,11 @@ clone_dotfiles() {
 
   # Add the SSH key to the ssh-agent
   mkdir -p ~/.ssh && echo 'Include ~/.config/ssh/*.conf' >> ~/.ssh/config
+
+  if [ ! -d "${DOTFILES_DIR}/gnupg" ] ; then
+    mkdir -p "${DOTFILES_DIR}/gnupg"
+  fi
+  chmod 700 "${DOTFILES_DIR}/gnupg"
 }
 
 clone_dotfiles
