@@ -112,15 +112,27 @@ local function signif(x)
   end
 end
 
+local ERROR_NOT_GIT_REPOSITORY = "fatal: not a git repository"
+
 local function get_git_stat(path)
   stop_watching()
-  local res = vim.fn.system("git -C '" .. path .. "' status --porcelain --branch --ahead-behind --untracked-files --renames") --[[@as string]]
+  local completed = vim
+    .system({ "git", "status", "--porcelain", "--branch", "--ahead-behind", "--untracked-files", "--renames" }, {
+      cwd = path,
+      text = true,
+    })
+    :wait()
   start_watching()
   local info = { has_git = false, ahead = 0, behind = 0, unmerged = 0, untracked = 0, staged = 0, unstaged = 0, dirty = false }
-  if string.sub(res, 1, 7) == "fatal: " then
+  if completed.code ~= 0 then
+    if string.sub(completed.stderr, 1, string.len(ERROR_NOT_GIT_REPOSITORY)) == ERROR_NOT_GIT_REPOSITORY then
+      return info
+    end
+    local msg = "failed to call git-status (code: " .. completed.code .. ") " .. completed.stderr
+    vim.print(msg)
     return info
   end
-  for _, file in next, vim.fn.split(res, "\n") do
+  for _, file in next, vim.fn.split(completed.stdout, "\n") do
     local staged = string.sub(file, 1, 1)
     local unstaged = string.sub(file, 2, 2)
     local changed = string.sub(file, 1, 2)
