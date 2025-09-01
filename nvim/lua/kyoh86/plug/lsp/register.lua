@@ -30,7 +30,7 @@ return function()
   vim.lsp.enable("svelte")
   -- vim.lsp.enable("taplo") -- TOML
   vim.lsp.enable("terraformls")
-  vim.lsp.enable("tombi")-- TOML
+  vim.lsp.enable("tombi") -- TOML
   vim.lsp.enable("vimls")
   vim.lsp.enable("vtsls") -- ref: nvim/lsp/vtsls.lua;
   vim.lsp.enable("yamlls") -- ref: nvim/lsp/yamlls.lua;
