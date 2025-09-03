@@ -1,3 +1,6 @@
+### Claude Code
+.claude-temp/
+
 ### direnv
 .envrc
 .direnv/
