@@ -1,6 +1,6 @@
-import { environment } from "jsr:@denops/std@~7.6.0/variable";
-import { ActionFlags, type Actions } from "jsr:@shougo/ddu-vim@~10.3.0/types";
-import { BaseKind } from "jsr:@shougo/ddu-vim@~10.3.0/kind";
+import { environment } from "jsr:@denops/std@~8.0.0/variable";
+import { ActionFlags, type Actions } from "jsr:@shougo/ddu-vim@~11.1.0/types";
+import { BaseKind } from "jsr:@shougo/ddu-vim@~11.1.0/kind";
 import { is, maybe } from "jsr:@core/unknownutil@~4.3.0";
 
 type Params = Record<PropertyKey, never>;
