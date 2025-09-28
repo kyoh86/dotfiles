@@ -67,8 +67,12 @@ upload_ssh_key() {
 upload_ssh_key
 
 setup_git_config() {
-  GITHUB_NAME="$(gh api /user --jq '.login')"
   GH_COMMAND="$(command -v gh)"
+  GITHUB_NAME="$(${GH_COMMAND} api /user --jq '.login')"
+  if [ "${GH_COMMAND}" = "$(mise which gh 2>/dev/null)" ]; then
+    GH_COMMAND="mise exec -- gh"
+  fi
+
   cat << EOS > "${HOME}"/Projects/github.com/kyoh86/dotfiles/git/host.conf
 [user]
   name = ${GITHUB_NAME}
