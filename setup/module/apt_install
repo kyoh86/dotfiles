@@ -37,6 +37,14 @@ apt_install() {
       binutils \
       gettext
 
+  # To Mount NAS
+  sudo apt install --yes \
+    cifs-utils
+
+  # To convert movies
+  sudo apt install --yes \
+    ffmpeg
+
   # for git send-email
   sudo apt install --yes  \
     git-email             \
