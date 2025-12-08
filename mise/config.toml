@@ -6,7 +6,6 @@
 "go:github.com/wader/jq-lsp" = "latest"
 "go:golang.org/x/tools/gopls" = "latest"
 "go:mvdan.cc/gofumpt" = "latest"
-"npm:@anthropic-ai/claude-code" = "latest"
 "npm:@astrojs/language-server" = "latest"
 "npm:@prisma/language-server" = "latest"
 "npm:@vtsls/language-server" = "latest"
