@@ -14,7 +14,6 @@ return function()
   vim.lsp.enable("astro")
   vim.lsp.enable("bashls")
   vim.lsp.enable("cssls") -- vscode-langservers-extracted
-  vim.lsp.enable("copilot") -- copilot-language-server
   vim.lsp.enable("denols") -- ref: nvim/lsp/denols.lua; uses global deno, so it should not be installed by Mason
   vim.lsp.enable("dockerls")
   vim.lsp.enable("efm") -- ref: nvim/lsp/efm.lua;

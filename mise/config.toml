@@ -51,7 +51,7 @@ terraform-ls = "latest"
 tree-sitter = "latest"
 uv = "latest"
 "aqua:cli/cli" = "latest"
-"npm:@github/copilot-language-server" = "latest"
+"npm:@openai/codex" = "latest"
 
 [settings]
 experimental = true
