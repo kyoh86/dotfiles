@@ -11,15 +11,27 @@ ghost.setup({
 	disable_buftypes = { "help", "prompt", "quickfix", "terminal" },
 })
 
-vim.keymap.set("i", "<C-g>g", function()
-	ghost.request()
-end, { desc = "Codex ghost: request" })
-vim.keymap.set("i", "<C-g>a", function()
-	ghost.accept()
-end, { desc = "Codex ghost: accept" })
-vim.keymap.set("i", "<C-g>d", function()
-	ghost.dismiss()
-end, { desc = "Codex ghost: dismiss" })
+local maps = {
+	request = { "<C-g>g", "<C-g><C-g>" },
+	accept = { "<C-g>a", "<C-g><C-a>" },
+	dismiss = { "<C-g>d", "<C-g><C-d>" },
+}
+
+for _, lhs in ipairs(maps.request) do
+	vim.keymap.set("i", lhs, function()
+		ghost.request()
+	end, { desc = "Codex ghost: request" })
+end
+for _, lhs in ipairs(maps.accept) do
+	vim.keymap.set("i", lhs, function()
+		ghost.accept()
+	end, { desc = "Codex ghost: accept" })
+end
+for _, lhs in ipairs(maps.dismiss) do
+	vim.keymap.set("i", lhs, function()
+		ghost.dismiss()
+	end, { desc = "Codex ghost: dismiss" })
+end
 vim.keymap.set("n", "<leader>tg", function()
 	local enabled = ghost.toggle()
 	vim.notify(string.format("Codex ghost %s", enabled and "enabled" or "disabled"))
