@@ -25,6 +25,7 @@ local state = {
 	request_id = 0,
 	mark = nil,
 	pending_mark = nil,
+	pending_buf = nil,
 	buf = nil,
 	insert = nil,
 	timer = nil,
@@ -61,11 +62,12 @@ local function clear_mark()
 	if state.mark and state.buf and vim.api.nvim_buf_is_valid(state.buf) then
 		pcall(vim.api.nvim_buf_del_extmark, state.buf, ns, state.mark)
 	end
-	if state.pending_mark and state.buf and vim.api.nvim_buf_is_valid(state.buf) then
-		pcall(vim.api.nvim_buf_del_extmark, state.buf, ns, state.pending_mark)
+	if state.pending_mark and state.pending_buf and vim.api.nvim_buf_is_valid(state.pending_buf) then
+		pcall(vim.api.nvim_buf_del_extmark, state.pending_buf, ns, state.pending_mark)
 	end
 	state.mark = nil
 	state.pending_mark = nil
+	state.pending_buf = nil
 	state.buf = nil
 	state.insert = nil
 end
@@ -244,6 +246,7 @@ local function show_pending(buf, row, text)
 	if not vim.api.nvim_buf_is_valid(buf) then
 		return
 	end
+	state.pending_buf = buf
 	state.pending_mark = vim.api.nvim_buf_set_extmark(buf, ns, row, 0, {
 		virt_text = { { text, ghost_hl } },
 		virt_text_pos = "eol",
