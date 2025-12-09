@@ -12,9 +12,9 @@ ghost.setup({
 })
 
 local maps = {
-  request = { "<C-g>g", "<C-g><C-g>" },
-  accept = { "<C-g>a", "<C-g><C-a>" },
-  dismiss = { "<C-g>d", "<C-g><C-d>" },
+  request = { "<C-x>x", "<C-x><C-x>" },
+  accept = { "<C-x>a", "<C-x><C-a>" },
+  dismiss = { "<C-x>d", "<C-x><C-d>" },
 }
 
 for _, lhs in ipairs(maps.request) do
