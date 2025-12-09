@@ -31,10 +31,11 @@ end, { desc = "Toggle Codex ghost" })
 Edit `ghost.setup` (see `nvim/lua/kyoh86/conf/codex_ghost.lua`):
 - `model`: Codex model name (optional)
 - `context_before`/`context_after`: lines of context to send (default 120/60)
-- `max_lines`, `disable_filetypes`, `disable_buftypes`, `skip_readonly`: scoping controls
+- `max_lines`, `disable_filetypes`, `disable_buftypes`: scoping controls
 - `timeout_ms`: kill long-running Codex calls (default 20000ms)
 - `log_file`: append minimal debug logs (requests, failures, timeouts) to a file
-- `base_highlight`: link target for `CodexGhost` if it does not exist (defaults to `Comment`)
+- `pending_text`: waiting indicator text (defaults to `⏳ Codex`)
+- `notify_on_cancel`: show a notification when a request is cancelled
 
 ## How it works
 1) Collects surrounding text (truncated by the context settings).  
