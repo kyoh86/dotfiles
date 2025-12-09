@@ -48,6 +48,6 @@ Edit `ghost.setup` (see `nvim/lua/kyoh86/conf/codex_ghost.lua`):
 5) Accept inserts the same stored lines: multi-line via `nvim_buf_set_lines` at the next line; single-line via `nvim_buf_set_text` at the cursor column. Results are discarded if the buffer changed before the reply.
 
 ## Notes
-- No streaming; results arrive when the command exits.
+- No streaming; Codex CLI currently returns only on completion.
 - Ghost is cleared on each new request, when leaving Insert/Buffer, and when accepting/dismissing.
 - If Codex fails or returns empty text, the ghost is removed silently.
