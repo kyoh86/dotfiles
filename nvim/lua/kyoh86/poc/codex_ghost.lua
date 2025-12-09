@@ -15,6 +15,7 @@ local defaults = {
 	disable_filetypes = {},
 	disable_buftypes = { "help", "prompt", "quickfix", "terminal" },
 	skip_readonly = true,
+	skip_treesitter = { "comment", "string" },
 }
 
 local state = {
@@ -88,6 +89,32 @@ local function should_skip(buf, cfg)
 	return false
 end
 
+local function in_ts_kinds(buf, row, col, targets)
+	local ok, parsers = pcall(require, "nvim-treesitter.parsers")
+	if not ok then
+		return false
+	end
+	local lang = parsers.get_buf_lang(buf)
+	if not lang or not parsers.has_parser(lang) then
+		return false
+	end
+	local ts_utils_ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
+	if not ts_utils_ok then
+		return false
+	end
+	local node = ts_utils.get_node_at_cursor({ pos = { row, col }, bufnr = buf })
+	while node do
+		local type = node:type()
+		for _, target in ipairs(targets or {}) do
+			if type == target then
+				return true
+			end
+		end
+		node = node:parent()
+	end
+	return false
+end
+
 local function relpath(path)
 	if path == "" then
 		return "[No Name]"
@@ -119,11 +146,13 @@ end
 
 local function build_prompt(buf, row, col, opts)
 	local before, after = collect_context(buf, row, col, opts)
+	local ft = vim.bo[buf].filetype or "plain"
 	return table.concat({
 		"You are a code completion engine.",
 		"Continue the code at the cursor position.",
 		"Return only the continuation to insert (no markdown, no fences, no explanations).",
 		"Keep indentation consistent and avoid repeating the existing suffix.",
+		string.format("Filetype: %s", ft),
 		string.format("File: %s", relpath(vim.api.nvim_buf_get_name(buf))),
 		string.format("Cursor: line %d, column %d", row + 1, col + 1),
 		"--- BEFORE ---",
@@ -189,6 +218,9 @@ local function run_request(buf, row, col, config)
 		return
 	end
 	if should_skip(buf, config) then
+		return
+	end
+	if in_ts_kinds(buf, row, col, config.skip_treesitter) then
 		return
 	end
 
