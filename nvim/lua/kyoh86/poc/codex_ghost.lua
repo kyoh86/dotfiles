@@ -51,12 +51,12 @@ local function clear_job()
 			state.job:kill("term")
 		end)
 	end
-	state.job = nil
 	if state.job_timer and not state.job_timer:is_closing() then
 		state.job_timer:stop()
 		state.job_timer:close()
 	end
 	state.job_timer = nil
+	state.job = nil
 end
 
 local function clear_mark()
