@@ -123,7 +123,14 @@ local function in_ts_kinds(buf, row, col, targets)
 	if not ts_utils_ok then
 		return false
 	end
-	local node = ts_utils.get_node_at_cursor({ pos = { row, col }, bufnr = buf })
+	local win = vim.api.nvim_get_current_win()
+	if not vim.api.nvim_win_is_valid(win) or vim.api.nvim_win_get_buf(win) ~= buf then
+		return false
+	end
+	local ok_node, node = pcall(ts_utils.get_node_at_cursor, win)
+	if not ok_node then
+		return false
+	end
 	while node do
 		local type = node:type()
 		for _, target in ipairs(targets or {}) do
