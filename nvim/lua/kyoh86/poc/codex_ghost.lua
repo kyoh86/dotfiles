@@ -28,9 +28,8 @@ local function clear_mark()
   state.insert = nil
 end
 
-local function show_ghost(buf, row, col, text, hl)
+local function show_ghost(buf, row, col, lines, hl)
   clear_mark()
-  local lines = vim.split(text, "\n", { plain = true })
   if #lines == 0 then
     return
   end
@@ -58,7 +57,7 @@ local function show_ghost(buf, row, col, text, hl)
   end
 
   state.buf = buf
-  state.text = text
+  state.text = nil
   state.insert = insert
   state.mark = vim.api.nvim_buf_set_extmark(buf, ns, row, col, {
     virt_text = virt_text,
@@ -199,7 +198,12 @@ function M.request(opts)
       end
       -- normalize newlines; keep trailing empty line if present
       suggestion = suggestion:gsub("\r", "")
-      show_ghost(buf, row, col, suggestion, config.highlight)
+      local has_trailing_newline = suggestion:sub(-1) == "\n"
+      local lines = vim.split(suggestion, "\n", { plain = true })
+      if has_trailing_newline then
+        table.insert(lines, "")
+      end
+      show_ghost(buf, row, col, lines, config.highlight)
     end)
   end)
 end
