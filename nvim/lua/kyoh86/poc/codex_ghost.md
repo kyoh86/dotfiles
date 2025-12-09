@@ -4,14 +4,13 @@ Ghost-text style continuation powered by the Codex CLI. It paints inline virtual
 
 ## Requirements
 - `codex` CLI reachable via `PATH`
-- Buffers that are not readonly/large; certain buftypes/filetypes can be skipped via config
-- Treesitter-enabled for comment/string skipping (optional)
+- Buffers that are not readonly/large; certain buftypes/buffers can be skipped via config
 
 ## Commands
 - `:CodexGhost` — request a continuation at the cursor. Clears any existing ghost.
 - `:CodexGhostAccept` — insert the current ghost at the stored position.
 - `:CodexGhostDismiss` — remove the ghost without inserting.
-- `:CodexGhostToggle` — enable/disable auto ghosting.
+- `:CodexGhostToggle` — enable/disable ghosting (manual trigger only).
 - `:CodexGhostShowLast` — show the last raw suggestion (for debugging).
 
 ## Keymap example
@@ -32,12 +31,9 @@ end, { desc = "Toggle Codex ghost" })
 Edit `ghost.setup` (see `nvim/lua/kyoh86/conf/codex_ghost.lua`):
 - `model`: Codex model name (optional)
 - `context_before`/`context_after`: lines of context to send (default 120/60)
-- `auto_trigger`: enable Insert mode auto requests (default true)
-- `debounce_ms`: delay for auto requests (default 200ms)
-- `max_lines`, `disable_filetypes`, `disable_buftypes`, `skip_readonly`, `skip_treesitter` (node types like `comment`, `string`): scoping controls
+- `max_lines`, `disable_filetypes`, `disable_buftypes`, `skip_readonly`: scoping controls
 - `timeout_ms`: kill long-running Codex calls (default 20000ms)
 - `log_file`: append minimal debug logs (requests, failures, timeouts) to a file
-- `highlight`: extmark highlight group (defaults to `CodexGhost`)
 - `base_highlight`: link target for `CodexGhost` if it does not exist (defaults to `Comment`)
 
 ## How it works
