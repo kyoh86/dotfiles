@@ -97,24 +97,25 @@ local function should_skip(buf, cfg)
 	return false
 end
 
+local function log_event(cfg, msg)
+	if not cfg.log_file or cfg.log_file == "" then
+		return
+	end
+	local ok, fh = pcall(io.open, cfg.log_file, "a")
+	if not ok or not fh then
+		return
+	end
+	local time = os.date("%Y-%m-%d %H:%M:%S")
+	fh:write(string.format("[%s] %s\n", time, msg))
+	fh:close()
+end
+
 local function in_ts_kinds(buf, row, col, targets)
 	local ok, parsers = pcall(require, "nvim-treesitter.parsers")
 	if not ok then
 		return false
 	end
 
-	local function log_event(cfg, msg)
-		if not cfg.log_file or cfg.log_file == "" then
-			return
-		end
-		local ok, fh = pcall(io.open, cfg.log_file, "a")
-		if not ok or not fh then
-			return
-		end
-		local time = os.date("%Y-%m-%d %H:%M:%S")
-		fh:write(string.format("[%s] %s\n", time, msg))
-		fh:close()
-	end
 	local lang = parsers.get_buf_lang(buf)
 	if not lang or not parsers.has_parser(lang) then
 		return false
