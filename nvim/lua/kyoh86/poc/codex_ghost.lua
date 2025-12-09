@@ -17,8 +17,12 @@ local defaults = {
 	notify_on_cancel = true,
 }
 
+local function new_token()
+	return {}
+end
+
 local state = {
-	request_id = 0,
+	request_token = new_token(),
 	mark = nil,
 	pending_mark = nil,
 	pending_buf = nil,
@@ -72,7 +76,7 @@ end
 
 local function cancel_pending(reason)
 	local had_pending = state.pending_mark ~= nil or state.job ~= nil or state.mark ~= nil
-	state.request_id = state.request_id + 1
+	state.request_token = new_token()
 	reset()
 	if had_pending and state.config.notify_on_cancel then
 		vim.notify(reason or "Codex ghost cancelled", vim.log.levels.INFO)
@@ -269,8 +273,8 @@ local function run_request(buf, row, col, config)
 
 	clear_mark()
 	show_pending(buf, row, config.pending_text)
-	state.request_id = state.request_id + 1
-	local request_id = state.request_id
+	state.request_token = new_token()
+	local token = state.request_token
 	local tick = vim.api.nvim_buf_get_changedtick(buf)
 	local prompt = build_prompt(buf, row, col, config)
 	if not prompt then
@@ -295,7 +299,7 @@ local function run_request(buf, row, col, config)
 			end
 			state.job_timer = nil
 
-			if request_id ~= state.request_id then
+			if token ~= state.request_token then
 				os.remove(tmpfile)
 				clear_mark()
 				return
