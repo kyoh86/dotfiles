@@ -2,6 +2,7 @@ local M = {}
 
 local ns = vim.api.nvim_create_namespace("kyoh86-codex-ghost")
 local ghost_hl = "CodexGhost"
+local uv = vim.loop
 
 local defaults = {
 	context_before = 120,
@@ -21,6 +22,7 @@ local state = {
 	mark = nil,
 	pending_mark = nil,
 	pending_buf = nil,
+	pending_timer = nil,
 	buf = nil,
 	insert = nil,
 	job = nil,
@@ -51,9 +53,14 @@ local function clear_mark()
 	if state.pending_mark and state.pending_buf and vim.api.nvim_buf_is_valid(state.pending_buf) then
 		pcall(vim.api.nvim_buf_del_extmark, state.pending_buf, ns, state.pending_mark)
 	end
+	if state.pending_timer and not state.pending_timer:is_closing() then
+		state.pending_timer:stop()
+		state.pending_timer:close()
+	end
 	state.mark = nil
 	state.pending_mark = nil
 	state.pending_buf = nil
+	state.pending_timer = nil
 	state.buf = nil
 	state.insert = nil
 end
@@ -65,6 +72,7 @@ end
 
 local function cancel_pending(reason)
 	local had_pending = state.pending_mark ~= nil or state.job ~= nil or state.mark ~= nil
+	state.request_id = state.request_id + 1
 	reset()
 	if had_pending and state.config.notify_on_cancel then
 		vim.notify(reason or "Codex ghost cancelled", vim.log.levels.INFO)
@@ -111,40 +119,6 @@ local function log_event(cfg, msg)
 	fh:close()
 end
 
-local function in_ts_kinds(buf, row, col, targets)
-	local ok, parsers = pcall(require, "nvim-treesitter.parsers")
-	if not ok then
-		return false
-	end
-
-	local lang = parsers.get_buf_lang(buf)
-	if not lang or not parsers.has_parser(lang) then
-		return false
-	end
-	local ts_utils_ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
-	if not ts_utils_ok then
-		return false
-	end
-	local win = vim.api.nvim_get_current_win()
-	if not vim.api.nvim_win_is_valid(win) or vim.api.nvim_win_get_buf(win) ~= buf then
-		return false
-	end
-	local ok_node, node = pcall(ts_utils.get_node_at_cursor, win)
-	if not ok_node then
-		return false
-	end
-	while node do
-		local type = node:type()
-		for _, target in ipairs(targets or {}) do
-			if type == target then
-				return true
-			end
-		end
-		node = node:parent()
-	end
-	return false
-end
-
 local function relpath(path)
 	if path == "" then
 		return "[No Name]"
@@ -155,6 +129,9 @@ end
 local function collect_context(buf, row, col, opts)
 	local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, true)
 	local cur_line = lines[row + 1] or ""
+	if cur_line == "" and row >= #lines then
+		return nil, nil
+	end
 	local before_cursor = cur_line:sub(1, col)
 	local after_cursor = cur_line:sub(col + 1)
 
@@ -176,6 +153,9 @@ end
 
 local function build_prompt(buf, row, col, opts)
 	local before, after = collect_context(buf, row, col, opts)
+	if not before then
+		return nil
+	end
 	local ft = vim.bo[buf].filetype or "plain"
 	return table.concat({
 		"You are a code completion engine.",
@@ -197,9 +177,16 @@ local function show_ghost(buf, row, col, lines, hl)
 	if #lines == 0 then
 		return
 	end
+	local line_count = vim.api.nvim_buf_line_count(buf)
+	if line_count == 0 then
+		return
+	end
+	row = math.min(row, line_count - 1)
 
 	local hlname = hl or ghost_hl
-	local prefix = (vim.api.nvim_buf_get_lines(buf, row, row + 1, true)[1] or ""):sub(1, col)
+	local cur = vim.api.nvim_buf_get_lines(buf, row, row + 1, true)[1] or ""
+	col = math.min(col, #cur)
+	local prefix = cur:sub(1, col)
 	local pad = string.rep(" ", vim.fn.strdisplaywidth(prefix))
 
 	if #lines == 1 then
@@ -239,13 +226,22 @@ local function show_pending(buf, row, text)
 	if not vim.api.nvim_buf_is_valid(buf) then
 		return
 	end
+	local line_count = vim.api.nvim_buf_line_count(buf)
+	if line_count == 0 then
+		return
+	end
+	row = math.min(row, line_count - 1)
 	state.pending_buf = buf
-	state.pending_mark = vim.api.nvim_buf_set_extmark(buf, ns, row, 0, {
+	local ok, mark = pcall(vim.api.nvim_buf_set_extmark, buf, ns, row, 0, {
 		virt_text = { { text, ghost_hl } },
 		virt_text_pos = "eol",
 		hl_mode = "combine",
 		priority = 50,
 	})
+	if not ok then
+		return
+	end
+	state.pending_mark = mark
 end
 
 local function read_file(path)
@@ -277,6 +273,10 @@ local function run_request(buf, row, col, config)
 	local request_id = state.request_id
 	local tick = vim.api.nvim_buf_get_changedtick(buf)
 	local prompt = build_prompt(buf, row, col, config)
+	if not prompt then
+		clear_mark()
+		return
+	end
 	local tmpfile = vim.fn.tempname()
 
 	local args = { "codex", "exec" }
@@ -341,8 +341,7 @@ local function run_request(buf, row, col, config)
 		state.job_timer = vim.defer_fn(function()
 			if state.job then
 				log_event(config, "timeout; killing job")
-				clear_job()
-				clear_mark()
+				cancel_pending("Codex ghost timed out")
 			end
 		end, config.timeout_ms)
 	end
@@ -364,9 +363,15 @@ function M.accept()
 	end
 
 	if insert.mode == "lines" then
-		vim.api.nvim_buf_set_lines(state.buf, insert.row, insert.row, false, lines)
+		local lc = vim.api.nvim_buf_line_count(state.buf)
+		local target = math.min(insert.row, lc)
+		vim.api.nvim_buf_set_lines(state.buf, target, target, false, lines)
 	else
-		vim.api.nvim_buf_set_text(state.buf, insert.row, insert.col, insert.row, insert.col, lines)
+		local lc = vim.api.nvim_buf_line_count(state.buf)
+		local row = math.min(insert.row, math.max(lc - 1, 0))
+		local cur = vim.api.nvim_buf_get_lines(state.buf, row, row + 1, true)[1] or ""
+		local col = math.min(insert.col, #cur)
+		vim.api.nvim_buf_set_text(state.buf, row, col, row, col, lines)
 	end
 	reset()
 end
