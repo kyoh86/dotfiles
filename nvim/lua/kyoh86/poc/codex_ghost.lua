@@ -10,7 +10,6 @@ local defaults = {
 	max_lines = 4000,
 	disable_filetypes = {},
 	disable_buftypes = { "help", "prompt", "quickfix", "terminal" },
-	skip_readonly = true,
 	timeout_ms = 20000,
 	log_file = nil, -- e.g. "/tmp/codex_ghost.log"
 	pending_text = "⏳ Codex",
@@ -90,7 +89,7 @@ local function should_skip(buf, cfg)
 	if in_list(ft, cfg.disable_filetypes) then
 		return true
 	end
-	if cfg.skip_readonly and vim.bo[buf].readonly then
+	if vim.bo[buf].readonly then
 		return true
 	end
 	if vim.api.nvim_buf_line_count(buf) > cfg.max_lines then
