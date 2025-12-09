@@ -12,7 +12,19 @@ local defaults = {
 	disable_buftypes = { "help", "prompt", "quickfix", "terminal" },
 	timeout_ms = 20000,
 	log_file = nil, -- e.g. "/tmp/codex_ghost.log"
-	pending_text = "⏳ Codex",
+	pending_frames = {
+		"⠋ Codex",
+		"⠙ Codex",
+		"⠹ Codex",
+		"⠸ Codex",
+		"⠼ Codex",
+		"⠴ Codex",
+		"⠦ Codex",
+		"⠧ Codex",
+		"⠇ Codex",
+		"⠏ Codex",
+	},
+	pending_interval = 120,
 	notify_on_cancel = true,
 }
 
@@ -21,6 +33,8 @@ local state = {
 	mark = nil,
 	pending_mark = nil,
 	pending_buf = nil,
+	pending_timer = nil,
+	pending_idx = 1,
 	buf = nil,
 	insert = nil,
 	job = nil,
@@ -51,9 +65,15 @@ local function clear_mark()
 	if state.pending_mark and state.pending_buf and vim.api.nvim_buf_is_valid(state.pending_buf) then
 		pcall(vim.api.nvim_buf_del_extmark, state.pending_buf, ns, state.pending_mark)
 	end
+	if state.pending_timer and not state.pending_timer:is_closing() then
+		state.pending_timer:stop()
+		state.pending_timer:close()
+	end
 	state.mark = nil
 	state.pending_mark = nil
 	state.pending_buf = nil
+	state.pending_timer = nil
+	state.pending_idx = 1
 	state.buf = nil
 	state.insert = nil
 end
@@ -246,6 +266,31 @@ local function show_pending(buf, row, text)
 		hl_mode = "combine",
 		priority = 50,
 	})
+	if state.pending_timer and not state.pending_timer:is_closing() then
+		state.pending_timer:stop()
+		state.pending_timer:close()
+	end
+	state.pending_idx = 1
+	local frames = state.config.pending_frames or { text }
+	local interval = state.config.pending_interval or 120
+	state.pending_timer = vim.loop.new_timer()
+	state.pending_timer:start(
+		interval,
+		interval,
+		vim.schedule_wrap(function()
+			if not state.pending_mark or not state.pending_buf or not vim.api.nvim_buf_is_valid(state.pending_buf) then
+				return
+			end
+			state.pending_idx = state.pending_idx % #frames + 1
+			pcall(vim.api.nvim_buf_set_extmark, state.pending_buf, ns, row, 0, {
+				id = state.pending_mark,
+				virt_text = { { frames[state.pending_idx], ghost_hl } },
+				virt_text_pos = "eol",
+				hl_mode = "combine",
+				priority = 50,
+			})
+		end)
+	)
 end
 
 local function read_file(path)
