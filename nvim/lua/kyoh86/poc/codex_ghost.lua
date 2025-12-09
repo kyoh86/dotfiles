@@ -3,6 +3,19 @@ local M = {}
 local ns = vim.api.nvim_create_namespace("kyoh86-codex-ghost")
 local ghost_hl = "CodexGhost"
 
+--- @class codex_ghost.Config
+--- @field context_before integer
+--- @field context_after integer
+--- @field model string|nil
+--- @field max_lines integer
+--- @field disable_filetypes string[]
+--- @field disable_buftypes string[]
+--- @field timeout_ms integer
+--- @field log_file string|nil
+--- @field pending_text string
+--- @field notify_on_cancel boolean
+
+--- @type codex_ghost.Config
 local defaults = {
   context_before = 120,
   context_after = 60,
@@ -16,21 +29,53 @@ local defaults = {
   notify_on_cancel = true,
 }
 
+--- @class codex_ghost.RequestToken
+
+--- Create new RequestToken
+--- @return codex_ghost.RequestToken
 local function new_token()
   return {}
 end
 
+--- @class codex_ghost.InsertTargetText
+--- @field mode "text"
+--- @field row integer
+--- @field col integer
+--- @field lines string[]
+
+--- @class codex_ghost.InsertTargetLines
+--- @field mode "lines"
+--- @field row integer
+--- @field lines string[]
+
+--- @class codex_ghost.LastPrompting
+--- @field prompt string
+--- @field lines string[]
+
+--- @class State
+--- @field request_token codex_ghost.RequestToken
+--- @field mark integer|nil
+--- @field pending_mark integer|nil
+--- @field pending_buf integer|nil
+--- @field buf integer|nil
+--- @field insert  codex_ghost.InsertTargetText|codex_ghost.InsertTargetLines|nil
+--- @field job vim.SystemObj|nil
+--- @field job_timer uv_timer_t|nil
+--- @field last codex_ghost.LastPrompting|nil
+--- @field enabled boolean
+--- @field config codex_ghost.Config
+
+--- @type State
 local state = {
   request_token = new_token(),
   mark = nil,
   pending_mark = nil,
   pending_buf = nil,
-  pending_timer = nil,
   buf = nil,
   insert = nil,
   job = nil,
   job_timer = nil,
-  last = nil, -- { prompt, lines }
+  last = nil,
   enabled = true,
   config = defaults,
 }
@@ -56,14 +101,9 @@ local function clear_mark()
   if state.pending_mark and state.pending_buf and vim.api.nvim_buf_is_valid(state.pending_buf) then
     pcall(vim.api.nvim_buf_del_extmark, state.pending_buf, ns, state.pending_mark)
   end
-  if state.pending_timer and not state.pending_timer:is_closing() then
-    state.pending_timer:stop()
-    state.pending_timer:close()
-  end
   state.mark = nil
   state.pending_mark = nil
   state.pending_buf = nil
-  state.pending_timer = nil
   state.buf = nil
   state.insert = nil
 end
@@ -346,10 +386,13 @@ function M.dismiss()
 end
 
 function M.accept()
-  if not state.buf or not vim.api.nvim_buf_is_valid(state.buf) or not state.insert then
+  if not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return
   end
   local insert = state.insert
+  if not insert then
+    return
+  end
   local lines = insert.lines
   if not lines or #lines == 0 then
     reset()
