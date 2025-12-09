@@ -6,7 +6,6 @@ local ghost_hl = "CodexGhost"
 local defaults = {
 	context_before = 120,
 	context_after = 60,
-	base_highlight = "Comment", -- link target if ghost group is missing
 	model = nil,
 	max_lines = 4000,
 	disable_filetypes = {},
@@ -417,7 +416,7 @@ end
 function M.setup(opts)
 	state.config = vim.tbl_extend("force", defaults, opts or {})
 	state.enabled = true
-	vim.api.nvim_set_hl(0, ghost_hl, { link = state.config.base_highlight, default = true })
+	vim.api.nvim_set_hl(0, ghost_hl, { link = "Comment", default = true })
 
 	vim.api.nvim_create_user_command("CodexGhost", function()
 		M.request()
