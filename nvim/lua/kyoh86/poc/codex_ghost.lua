@@ -20,6 +20,7 @@ local defaults = {
 	timeout_ms = 20000,
 	log_file = nil, -- e.g. "/tmp/codex_ghost.log"
 	pending_text = "⏳ Codex",
+	notify_on_cancel = true,
 }
 
 local state = {
@@ -79,8 +80,12 @@ local function reset()
 	clear_mark()
 end
 
-local function cancel_pending()
+local function cancel_pending(reason)
+	local had_pending = state.pending_mark ~= nil or state.job ~= nil or state.mark ~= nil
 	reset()
+	if had_pending and state.config.notify_on_cancel then
+		vim.notify(reason or "Codex ghost cancelled", vim.log.levels.INFO)
+	end
 end
 
 local function in_list(value, list)
@@ -448,7 +453,7 @@ local function setup_autocmds(config)
 	vim.api.nvim_create_autocmd({ "CursorMovedI", "InsertLeave", "BufLeave" }, {
 		group = group,
 		callback = function()
-			cancel_pending()
+			cancel_pending("Codex ghost cancelled (moved or left insert)")
 		end,
 	})
 end
