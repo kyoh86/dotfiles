@@ -11,6 +11,7 @@ local defaults = {
 	model = nil,
 	auto_trigger = true,
 	debounce_ms = 200,
+	trigger_events = { "TextChangedI" },
 	max_lines = 4000,
 	disable_filetypes = {},
 	disable_buftypes = { "help", "prompt", "quickfix", "terminal" },
@@ -436,7 +437,7 @@ local function setup_autocmds(config)
 		vim.api.nvim_clear_autocmds({ group = group })
 		return
 	end
-	vim.api.nvim_create_autocmd({ "TextChangedI", "InsertCharPre" }, {
+	vim.api.nvim_create_autocmd(config.trigger_events or { "TextChangedI" }, {
 		group = group,
 		callback = function()
 			schedule_request(config)
