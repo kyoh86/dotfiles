@@ -4,27 +4,36 @@ Ghost-text style continuation powered by the Codex CLI. It paints inline virtual
 
 ## Requirements
 - `codex` CLI reachable via `PATH`
-- Normal buffers only (`buftype == ""`)
+- Buffers that are not readonly/large; certain buftypes/filetypes can be skipped via config
 
 ## Commands
 - `:CodexGhost` — request a continuation at the cursor. Clears any existing ghost.
 - `:CodexGhostAccept` — insert the current ghost at the stored position.
 - `:CodexGhostDismiss` — remove the ghost without inserting.
+- `:CodexGhostToggle` — enable/disable auto ghosting.
+- `:CodexGhostShowLast` — show the last raw suggestion (for debugging).
 
 ## Keymap example
-Add to your config if you want shortcuts:
+Add to your config if you want shortcuts (see `nvim/lua/kyoh86/conf/codex_ghost.lua` for defaults):
 
 ```lua
 local ghost = require("kyoh86.poc.codex_ghost")
 vim.keymap.set("i", "<C-g>g", ghost.request, { desc = "Codex ghost" })
 vim.keymap.set("i", "<C-g>a", ghost.accept, { desc = "Accept ghost" })
 vim.keymap.set("i", "<C-g>d", ghost.dismiss, { desc = "Dismiss ghost" })
+vim.keymap.set("n", "<leader>tg", function()
+  local enabled = ghost.toggle()
+  vim.notify(string.format("Codex ghost %s", enabled and "enabled" or "disabled"))
+end, { desc = "Toggle Codex ghost" })
 ```
 
 ## Configuration
 Edit `ghost.setup` (see `nvim/lua/kyoh86/conf/codex_ghost.lua`):
 - `model`: Codex model name (optional)
 - `context_before`/`context_after`: lines of context to send (default 120/60)
+- `auto_trigger`: enable Insert mode auto requests (default true)
+- `debounce_ms`: delay for auto requests (default 200ms)
+- `max_lines`, `disable_filetypes`, `disable_buftypes`, `skip_readonly`: scoping controls
 - `highlight`: extmark highlight group (defaults to `CodexGhost`)
 - `base_highlight`: link target for `CodexGhost` if it does not exist (defaults to `Comment`)
 
@@ -37,5 +46,5 @@ Edit `ghost.setup` (see `nvim/lua/kyoh86/conf/codex_ghost.lua`):
 
 ## Notes
 - No streaming; results arrive when the command exits.
-- Ghost is cleared on each new request and when accepting/dismissing.
+- Ghost is cleared on each new request, when leaving Insert/Buffer, and when accepting/dismissing.
 - If Codex fails or returns empty text, the ghost is removed silently.
