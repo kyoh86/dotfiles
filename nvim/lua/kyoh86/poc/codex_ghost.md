@@ -35,6 +35,8 @@ Edit `ghost.setup` (see `nvim/lua/kyoh86/conf/codex_ghost.lua`):
 - `auto_trigger`: enable Insert mode auto requests (default true)
 - `debounce_ms`: delay for auto requests (default 200ms)
 - `max_lines`, `disable_filetypes`, `disable_buftypes`, `skip_readonly`, `skip_treesitter` (node types like `comment`, `string`): scoping controls
+- `timeout_ms`: kill long-running Codex calls (default 20000ms)
+- `log_file`: append minimal debug logs (requests, failures, timeouts) to a file
 - `highlight`: extmark highlight group (defaults to `CodexGhost`)
 - `base_highlight`: link target for `CodexGhost` if it does not exist (defaults to `Comment`)
 
