@@ -6,17 +6,12 @@ local ghost_hl = "CodexGhost"
 local defaults = {
 	context_before = 120,
 	context_after = 60,
-	highlight = ghost_hl, -- extmark highlight group
 	base_highlight = "Comment", -- link target if ghost group is missing
 	model = nil,
-	auto_trigger = false,
-	debounce_ms = 200,
-	trigger_events = { "TextChangedI" },
 	max_lines = 4000,
 	disable_filetypes = {},
 	disable_buftypes = { "help", "prompt", "quickfix", "terminal" },
 	skip_readonly = true,
-	skip_treesitter = {},
 	timeout_ms = 20000,
 	log_file = nil, -- e.g. "/tmp/codex_ghost.log"
 	pending_text = "⏳ Codex",
@@ -30,21 +25,12 @@ local state = {
 	pending_buf = nil,
 	buf = nil,
 	insert = nil,
-	timer = nil,
 	job = nil,
 	job_timer = nil,
 	last = nil, -- { prompt, lines }
 	enabled = true,
 	config = defaults,
 }
-
-local function clear_timer()
-	if state.timer and not state.timer:is_closing() then
-		state.timer:stop()
-		state.timer:close()
-	end
-	state.timer = nil
-end
 
 local function clear_job()
 	if state.job then
@@ -75,7 +61,6 @@ local function clear_mark()
 end
 
 local function reset()
-	clear_timer()
 	clear_job()
 	clear_mark()
 end
@@ -283,9 +268,6 @@ local function run_request(buf, row, col, config)
 	if should_skip(buf, config) then
 		return
 	end
-	if in_ts_kinds(buf, row, col, config.skip_treesitter) then
-		return
-	end
 	log_event(
 		config,
 		string.format("request row=%d col=%d file=%s", row + 1, col + 1, relpath(vim.api.nvim_buf_get_name(buf)))
@@ -353,7 +335,7 @@ local function run_request(buf, row, col, config)
 			end
 
 			state.last = { prompt = prompt, lines = lines }
-			show_ghost(buf, row, col, lines, config.highlight)
+			show_ghost(buf, row, col, lines, ghost_hl)
 			log_event(config, string.format("ok lines=%d file=%s", #lines, relpath(vim.api.nvim_buf_get_name(buf))))
 		end)
 	end)
@@ -391,27 +373,9 @@ function M.accept()
 	reset()
 end
 
-local function schedule_request(config)
-	if not state.enabled then
-		return
-	end
-	local buf = vim.api.nvim_get_current_buf()
-	if should_skip(buf, config) then
-		return
-	end
-	local cursor = vim.api.nvim_win_get_cursor(0)
-	local row, col = cursor[1] - 1, cursor[2]
-
-	clear_timer()
-	state.timer = vim.defer_fn(function()
-		run_request(buf, row, col, config)
-	end, config.debounce_ms)
-end
-
 function M.request(opts)
 	local config = vim.tbl_extend("force", state.config, opts or {})
 	state.enabled = true
-	clear_timer()
 	run_request(
 		vim.api.nvim_get_current_buf(),
 		vim.api.nvim_win_get_cursor(0)[1] - 1,
@@ -440,16 +404,8 @@ function M.show_last()
 	vim.notify(table.concat(state.last.lines, "\\n"), vim.log.levels.INFO)
 end
 
-local function setup_autocmds(config)
+local function setup_autocmds()
 	local group = vim.api.nvim_create_augroup("kyoh86-codex-ghost", { clear = true })
-	if config.auto_trigger then
-		vim.api.nvim_create_autocmd(config.trigger_events or { "TextChangedI" }, {
-			group = group,
-			callback = function()
-				schedule_request(config)
-			end,
-		})
-	end
 	vim.api.nvim_create_autocmd({ "CursorMovedI", "InsertLeave", "BufLeave" }, {
 		group = group,
 		callback = function()
@@ -480,7 +436,7 @@ function M.setup(opts)
 		M.show_last()
 	end, {})
 
-	setup_autocmds(state.config)
+	setup_autocmds()
 end
 
 return M
