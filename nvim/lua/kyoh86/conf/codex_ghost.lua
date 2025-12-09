@@ -4,7 +4,7 @@ if not ok then
 end
 
 ghost.setup({
-	auto_trigger = true,
+	auto_trigger = false,
 	debounce_ms = 200,
 	context_before = 120,
 	context_after = 60,
