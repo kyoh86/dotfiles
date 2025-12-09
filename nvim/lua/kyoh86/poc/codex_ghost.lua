@@ -261,18 +261,25 @@ local function show_pending(buf, row, text)
 	end
 	state.pending_buf = buf
 	local frames = state.config.pending_frames or { text or "⏳ Codex" }
-	state.pending_mark = vim.api.nvim_buf_set_extmark(buf, ns, row, 0, {
+	local ok, mark = pcall(vim.api.nvim_buf_set_extmark, buf, ns, row, 0, {
 		virt_text = { { frames[1], ghost_hl } },
 		virt_text_pos = "eol",
 		hl_mode = "combine",
 		priority = 50,
 	})
+	if not ok or not mark then
+		return
+	end
+	state.pending_mark = mark
 	if state.pending_timer and not state.pending_timer:is_closing() then
 		state.pending_timer:stop()
 		state.pending_timer:close()
 	end
 	state.pending_idx = 1
 	local interval = state.config.pending_interval or 120
+	if not vim.loop then
+		return
+	end
 	state.pending_timer = vim.loop.new_timer()
 	state.pending_timer:start(
 		interval,
