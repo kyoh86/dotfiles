@@ -16,6 +16,8 @@ local defaults = {
 	disable_buftypes = { "help", "prompt", "quickfix", "terminal" },
 	skip_readonly = true,
 	skip_treesitter = { "comment", "string" },
+	timeout_ms = 20000,
+	log_file = nil, -- e.g. "/tmp/codex_ghost.log"
 }
 
 local state = {
@@ -25,6 +27,7 @@ local state = {
 	insert = nil,
 	timer = nil,
 	job = nil,
+	job_timer = nil,
 	last = nil, -- { prompt, lines }
 	enabled = true,
 	config = defaults,
@@ -45,6 +48,11 @@ local function clear_job()
 		end)
 	end
 	state.job = nil
+	if state.job_timer and not state.job_timer:is_closing() then
+		state.job_timer:stop()
+		state.job_timer:close()
+	end
+	state.job_timer = nil
 end
 
 local function clear_mark()
@@ -93,6 +101,19 @@ local function in_ts_kinds(buf, row, col, targets)
 	local ok, parsers = pcall(require, "nvim-treesitter.parsers")
 	if not ok then
 		return false
+	end
+
+	local function log_event(cfg, msg)
+		if not cfg.log_file or cfg.log_file == "" then
+			return
+		end
+		local ok, fh = pcall(io.open, cfg.log_file, "a")
+		if not ok or not fh then
+			return
+		end
+		local time = os.date("%Y-%m-%d %H:%M:%S")
+		fh:write(string.format("[%s] %s\n", time, msg))
+		fh:close()
 	end
 	local lang = parsers.get_buf_lang(buf)
 	if not lang or not parsers.has_parser(lang) then
@@ -223,6 +244,10 @@ local function run_request(buf, row, col, config)
 	if in_ts_kinds(buf, row, col, config.skip_treesitter) then
 		return
 	end
+	log_event(
+		config,
+		string.format("request row=%d col=%d file=%s", row + 1, col + 1, relpath(vim.api.nvim_buf_get_name(buf)))
+	)
 
 	clear_mark()
 	state.request_id = state.request_id + 1
@@ -241,6 +266,12 @@ local function run_request(buf, row, col, config)
 	clear_job()
 	state.job = vim.system(args, { stdin = prompt, text = true }, function(obj)
 		vim.schedule(function()
+			if state.job_timer and not state.job_timer:is_closing() then
+				state.job_timer:stop()
+				state.job_timer:close()
+			end
+			state.job_timer = nil
+
 			if request_id ~= state.request_id then
 				os.remove(tmpfile)
 				return
@@ -255,12 +286,17 @@ local function run_request(buf, row, col, config)
 					"Codex ghost failed: " .. (obj.stderr or obj.stdout or "unknown error"),
 					vim.log.levels.ERROR
 				)
+				log_event(
+					config,
+					string.format("fail code=%s msg=%s", tostring(obj.code), obj.stderr or obj.stdout or "unknown")
+				)
 				return
 			end
 			local suggestion = read_file(tmpfile)
 			os.remove(tmpfile)
 			if not suggestion or suggestion == "" then
 				clear_mark()
+				log_event(config, "empty suggestion")
 				return
 			end
 			suggestion = suggestion:gsub("\r", "")
@@ -272,8 +308,18 @@ local function run_request(buf, row, col, config)
 
 			state.last = { prompt = prompt, lines = lines }
 			show_ghost(buf, row, col, lines, config.highlight)
+			log_event(config, string.format("ok lines=%d file=%s", #lines, relpath(vim.api.nvim_buf_get_name(buf))))
 		end)
 	end)
+	if config.timeout_ms and config.timeout_ms > 0 then
+		state.job_timer = vim.defer_fn(function()
+			if state.job then
+				log_event(config, "timeout; killing job")
+				clear_job()
+				clear_mark()
+			end
+		end, config.timeout_ms)
+	end
 end
 
 function M.dismiss()
