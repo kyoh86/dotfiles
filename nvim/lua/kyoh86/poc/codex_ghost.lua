@@ -79,6 +79,10 @@ local function reset()
 	clear_mark()
 end
 
+local function cancel_pending()
+	reset()
+end
+
 local function in_list(value, list)
 	for _, v in ipairs(list or {}) do
 		if v == value then
@@ -446,9 +450,7 @@ local function setup_autocmds(config)
 	vim.api.nvim_create_autocmd({ "CursorMovedI", "InsertLeave", "BufLeave" }, {
 		group = group,
 		callback = function()
-			clear_timer()
-			clear_job()
-			clear_mark()
+			cancel_pending()
 		end,
 	})
 end
