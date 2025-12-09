@@ -34,34 +34,33 @@ local function show_ghost(buf, row, col, lines, hl)
     return
   end
 
-  local virt_text = nil
-  local virt_lines = nil
-  local virt_text_pos = nil
-  local insert = nil
+  local hlname = hl or ghost_hl
+  local prefix = (vim.api.nvim_buf_get_lines(buf, row, row + 1, true)[1] or ""):sub(1, col)
+  local pad = string.rep(" ", vim.fn.strdisplaywidth(prefix))
 
   if #lines == 1 then
-    virt_text = { { lines[1], hl or ghost_hl } }
-    virt_text_pos = "inline" -- show after the cursor column without covering buffer text
-    insert = { row = row, col = col, lines = { lines[1] } }
-  else
-    local prefix = (vim.api.nvim_buf_get_lines(buf, row, row + 1, true)[1] or ""):sub(1, col)
-    local pad = string.rep(" ", vim.fn.strdisplaywidth(prefix))
-    virt_lines = {}
-    local padded = {}
-    for i, line in ipairs(lines) do
-      local padded_line = pad .. line
-      virt_lines[#virt_lines + 1] = { { padded_line, hl or ghost_hl } }
-      padded[#padded + 1] = padded_line
-    end
-    insert = { row = row + 1, col = 0, lines = padded }
+    state.buf = buf
+    state.insert = { mode = "text", row = row, col = col, lines = lines }
+    state.mark = vim.api.nvim_buf_set_extmark(buf, ns, row, col, {
+      virt_text = { { lines[1], hlname } },
+      virt_text_pos = "inline",
+      hl_mode = "combine",
+      priority = 200,
+    })
+    return
+  end
+
+  local virt_lines = {}
+  local insert_lines = {}
+  for _, line in ipairs(lines) do
+    local padded_line = pad .. line
+    virt_lines[#virt_lines + 1] = { { padded_line, hlname } }
+    insert_lines[#insert_lines + 1] = padded_line
   end
 
   state.buf = buf
-  state.text = nil
-  state.insert = insert
+  state.insert = { mode = "lines", row = row + 1, lines = insert_lines }
   state.mark = vim.api.nvim_buf_set_extmark(buf, ns, row, col, {
-    virt_text = virt_text,
-    virt_text_pos = virt_text_pos,
     virt_lines = virt_lines,
     virt_lines_above = false,
     hl_mode = "combine",
@@ -132,13 +131,18 @@ function M.accept()
   if not state.buf or not vim.api.nvim_buf_is_valid(state.buf) or not state.insert then
     return
   end
-  local row, col = state.insert.row, state.insert.col
-  local lines = state.insert.lines
+  local insert = state.insert
+  local lines = insert.lines
   if not lines or #lines == 0 then
     clear_mark()
     return
   end
-  vim.api.nvim_buf_set_text(state.buf, row, col, row, col, lines)
+
+  if insert.mode == "lines" then
+    vim.api.nvim_buf_set_lines(state.buf, insert.row, insert.row, false, lines)
+  else
+    vim.api.nvim_buf_set_text(state.buf, insert.row, insert.col, insert.row, insert.col, lines)
+  end
   clear_mark()
 end
 
@@ -184,10 +188,7 @@ function M.request(opts)
       end
       if obj.code ~= 0 then
         os.remove(tmpfile)
-        vim.notify(
-          "Codex ghost failed: " .. (obj.stderr or obj.stdout or "unknown error"),
-          vim.log.levels.ERROR
-        )
+        vim.notify("Codex ghost failed: " .. (obj.stderr or obj.stdout or "unknown error"), vim.log.levels.ERROR)
         return
       end
       local suggestion = read_file(tmpfile)
@@ -196,7 +197,7 @@ function M.request(opts)
         clear_mark()
         return
       end
-      -- normalize newlines; keep trailing empty line if present
+      -- normalize newlines and preserve a trailing empty line if present
       suggestion = suggestion:gsub("\r", "")
       local has_trailing_newline = suggestion:sub(-1) == "\n"
       local lines = vim.split(suggestion, "\n", { plain = true })

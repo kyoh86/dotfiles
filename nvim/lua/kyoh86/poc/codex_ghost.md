@@ -32,8 +32,8 @@ Edit `ghost.setup` (see `nvim/lua/kyoh86/conf/codex_ghost.lua`):
 1) Collects surrounding text (truncated by the context settings).  
 2) Builds a prompt instructing Codex to return only the continuation.  
 3) Runs `codex exec --output-last-message <tmp> --color=never --skip-git-repo-check -` with the prompt via `vim.system`.  
-4) Reads the last message file (preserving trailing newlines), and renders it as extmarks (single-line → inline after the cursor column; multi-line → block `virt_lines` shown after the cursor line, aligned to its display column).  
-5) Accept inserts using stored insert coordinates: single-line at the cursor column; multi-line padded to the cursor column, including any trailing empty line from the suggestion so the inserted block matches the displayed ghost. Results are discarded if the buffer changed before the reply.
+4) Reads the last message file (preserving trailing newlines), normalizes CRLF, splits to lines (adding an empty last line if the suggestion ends with `\n`), and renders everything as `virt_lines` aligned to the cursor column (single-line stays inline).  
+5) Accept inserts the same stored lines: multi-line via `nvim_buf_set_lines` at the next line; single-line via `nvim_buf_set_text` at the cursor column. Results are discarded if the buffer changed before the reply.
 
 ## Notes
 - No streaming; results arrive when the command exits.
