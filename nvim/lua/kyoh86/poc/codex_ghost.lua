@@ -437,16 +437,14 @@ end
 
 local function setup_autocmds(config)
 	local group = vim.api.nvim_create_augroup("kyoh86-codex-ghost", { clear = true })
-	if not config.auto_trigger then
-		vim.api.nvim_clear_autocmds({ group = group })
-		return
+	if config.auto_trigger then
+		vim.api.nvim_create_autocmd(config.trigger_events or { "TextChangedI" }, {
+			group = group,
+			callback = function()
+				schedule_request(config)
+			end,
+		})
 	end
-	vim.api.nvim_create_autocmd(config.trigger_events or { "TextChangedI" }, {
-		group = group,
-		callback = function()
-			schedule_request(config)
-		end,
-	})
 	vim.api.nvim_create_autocmd({ "CursorMovedI", "InsertLeave", "BufLeave" }, {
 		group = group,
 		callback = function()
