@@ -18,11 +18,13 @@ local defaults = {
 	skip_treesitter = { "comment", "string" },
 	timeout_ms = 20000,
 	log_file = nil, -- e.g. "/tmp/codex_ghost.log"
+	pending_text = "⏳ Codex",
 }
 
 local state = {
 	request_id = 0,
 	mark = nil,
+	pending_mark = nil,
 	buf = nil,
 	insert = nil,
 	timer = nil,
@@ -59,7 +61,11 @@ local function clear_mark()
 	if state.mark and state.buf and vim.api.nvim_buf_is_valid(state.buf) then
 		pcall(vim.api.nvim_buf_del_extmark, state.buf, ns, state.mark)
 	end
+	if state.pending_mark and state.buf and vim.api.nvim_buf_is_valid(state.buf) then
+		pcall(vim.api.nvim_buf_del_extmark, state.buf, ns, state.pending_mark)
+	end
 	state.mark = nil
+	state.pending_mark = nil
 	state.buf = nil
 	state.insert = nil
 end
@@ -231,6 +237,21 @@ local function show_ghost(buf, row, col, lines, hl)
 	})
 end
 
+local function show_pending(buf, row, text)
+	if not text or text == "" then
+		return
+	end
+	if not vim.api.nvim_buf_is_valid(buf) then
+		return
+	end
+	state.pending_mark = vim.api.nvim_buf_set_extmark(buf, ns, row, 0, {
+		virt_text = { { text, ghost_hl } },
+		virt_text_pos = "eol",
+		hl_mode = "combine",
+		priority = 50,
+	})
+end
+
 local function read_file(path)
 	local fd = io.open(path, "r")
 	if not fd then
@@ -258,6 +279,7 @@ local function run_request(buf, row, col, config)
 	)
 
 	clear_mark()
+	show_pending(buf, row, config.pending_text)
 	state.request_id = state.request_id + 1
 	local request_id = state.request_id
 	local tick = vim.api.nvim_buf_get_changedtick(buf)
@@ -282,10 +304,12 @@ local function run_request(buf, row, col, config)
 
 			if request_id ~= state.request_id then
 				os.remove(tmpfile)
+				clear_mark()
 				return
 			end
 			if not vim.api.nvim_buf_is_valid(buf) or vim.api.nvim_buf_get_changedtick(buf) ~= tick then
 				os.remove(tmpfile)
+				clear_mark()
 				return
 			end
 			if obj.code ~= 0 then
@@ -298,6 +322,7 @@ local function run_request(buf, row, col, config)
 					config,
 					string.format("fail code=%s msg=%s", tostring(obj.code), obj.stderr or obj.stdout or "unknown")
 				)
+				clear_mark()
 				return
 			end
 			local suggestion = read_file(tmpfile)
