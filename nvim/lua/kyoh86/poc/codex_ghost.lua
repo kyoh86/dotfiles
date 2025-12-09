@@ -260,9 +260,8 @@ local function show_pending(buf, row, text)
 		return
 	end
 	state.pending_buf = buf
-	local frames = state.config.pending_frames or { text or "⏳ Codex" }
 	state.pending_mark = vim.api.nvim_buf_set_extmark(buf, ns, row, 0, {
-		virt_text = { { frames[1], ghost_hl } },
+		virt_text = { { text, ghost_hl } },
 		virt_text_pos = "eol",
 		hl_mode = "combine",
 		priority = 50,
@@ -272,6 +271,7 @@ local function show_pending(buf, row, text)
 		state.pending_timer:close()
 	end
 	state.pending_idx = 1
+	local frames = state.config.pending_frames or { text }
 	local interval = state.config.pending_interval or 120
 	state.pending_timer = vim.loop.new_timer()
 	state.pending_timer:start(
@@ -317,7 +317,7 @@ local function run_request(buf, row, col, config)
 	)
 
 	clear_mark()
-	show_pending(buf, row, nil)
+	show_pending(buf, row, config.pending_text)
 	state.request_id = state.request_id + 1
 	local request_id = state.request_id
 	local tick = vim.api.nvim_buf_get_changedtick(buf)
