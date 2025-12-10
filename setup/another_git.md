@@ -7,7 +7,7 @@ If I want to use this repository on another git user...
 ### 1. Build dotfiles-agent
 
 ```console
-$ docker build -t dotfiles-agent ./dotfiles-agent --build-arg MACHINE_NAME="${HOST}"
+$ docker buildx build -t dotfiles-agent ./dotfiles-agent --build-arg MACHINE_NAME="${HOST}"
 ```
 
 - `HOST` is the hostname of the machine where I want to use this repository.

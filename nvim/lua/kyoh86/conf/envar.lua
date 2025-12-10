@@ -89,10 +89,8 @@ vim.env.GNUPGHOME = config_home .. "/gnupg"
 
 -- Docker:
 if vim.fn.has("mac") == 1 then
-  vim.env.DOCKER_CONFIG = config_home .. "/docker-osx"
   vim.env.MACHINE_STORAGE_PATH = data_home .. "/docker-machine-osx"
 elseif vim.fn.has("linux") == 1 then
-  vim.env.DOCKER_CONFIG = config_home .. "/docker-linux"
   vim.env.MACHINE_STORAGE_PATH = data_home .. "/docker-machine-linux"
 end
 
