@@ -23,7 +23,7 @@ local defaults = {
   max_lines = 4000,
   disable_filetypes = {},
   disable_buftypes = { "help", "prompt", "quickfix", "terminal" },
-  timeout_ms = 20000,
+  timeout_ms = 50000,
   log_file = nil, -- e.g. "/tmp/codex_ghost.log"
   pending_text = "⏳ Codex",
   notify_on_cancel = true,
@@ -37,14 +37,7 @@ local function new_token()
   return {}
 end
 
---- @class codex_ghost.InsertTargetText
---- @field mode "text"
---- @field row integer
---- @field col integer
---- @field lines string[]
-
---- @class codex_ghost.InsertTargetLines
---- @field mode "lines"
+--- @class codex_ghost.Insertion
 --- @field row integer
 --- @field lines string[]
 
@@ -56,7 +49,7 @@ end
 --- @field request_token codex_ghost.RequestToken
 --- @field pending_buf integer|nil
 --- @field buf integer|nil
---- @field insert  codex_ghost.InsertTargetText|codex_ghost.InsertTargetLines|nil
+--- @field insert  codex_ghost.Insertion|nil
 --- @field job vim.SystemObj|nil
 --- @field job_timer uv_timer_t|nil
 --- @field last codex_ghost.LastPrompting|nil
@@ -107,10 +100,10 @@ end
 
 local function cancel_pending(reason)
   state.request_token = new_token()
-  reset()
   if state.job ~= nil and state.config.notify_on_cancel then
     vim.notify(reason or "Codex ghost cancelled", vim.log.levels.INFO)
   end
+  reset()
 end
 
 local function in_list(value, list)
@@ -224,18 +217,6 @@ local function show_ghost(buf, row, col, lines, hl)
   local prefix = cur:sub(1, col)
   local pad = string.rep(" ", vim.fn.strdisplaywidth(prefix))
 
-  if #lines == 1 then
-    state.buf = buf
-    state.insert = { mode = "text", row = row, col = col, lines = lines }
-    vim.api.nvim_buf_set_extmark(buf, ghost_ns, row, col, {
-      virt_text = { { lines[1], hlname } },
-      virt_text_pos = "inline",
-      hl_mode = "combine",
-      priority = 200,
-    })
-    return
-  end
-
   local virt_lines = {}
   local insert_lines = {}
   for _, line in ipairs(lines) do
@@ -245,7 +226,7 @@ local function show_ghost(buf, row, col, lines, hl)
   end
 
   state.buf = buf
-  state.insert = { mode = "lines", row = row + 1, lines = insert_lines }
+  state.insert = { row = row + 1, lines = insert_lines }
   vim.api.nvim_buf_set_extmark(buf, ghost_ns, row, col, {
     virt_lines = virt_lines,
     virt_lines_above = false,
@@ -376,17 +357,9 @@ function M.accept()
     return
   end
 
-  if insert.mode == "lines" then
-    local lc = vim.api.nvim_buf_line_count(state.buf)
-    local target = math.min(insert.row, lc)
-    vim.api.nvim_buf_set_lines(state.buf, target, target, false, lines)
-  else
-    local lc = vim.api.nvim_buf_line_count(state.buf)
-    local row = math.min(insert.row, math.max(lc - 1, 0))
-    local cur = vim.api.nvim_buf_get_lines(state.buf, row, row + 1, true)[1] or ""
-    local col = math.min(insert.col, #cur)
-    vim.api.nvim_buf_set_text(state.buf, row, col, row, col, lines)
-  end
+  local lc = vim.api.nvim_buf_line_count(state.buf)
+  local target = math.min(insert.row, lc)
+  vim.api.nvim_buf_set_lines(state.buf, target, target, false, lines)
   reset()
 end
 
