@@ -204,7 +204,7 @@ local function build_prompt(buf, row, col, opts)
     "Return only the continuation to insert (no markdown, no fences, no explanations).",
     "Keep indentation consistent and avoid repeating the existing suffix.",
     string.format("Filetype: %s", ft),
-    string.format("File: %s", relpath(vim.api.nvim_buf_get_name(buf))),
+    string.format("Filename: %s", relpath(vim.api.nvim_buf_get_name(buf))),
     string.format("Cursor: line %d, column %d", row + 1, col + 1),
     "--- BEFORE ---",
     before,
