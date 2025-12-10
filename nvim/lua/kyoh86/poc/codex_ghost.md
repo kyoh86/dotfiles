@@ -10,7 +10,6 @@ Ghost-text style continuation powered by the Codex CLI. It paints inline virtual
 - `:CodexGhost` — request a continuation at the cursor. Clears any existing ghost.
 - `:CodexGhostAccept` — insert the current ghost at the stored position.
 - `:CodexGhostDismiss` — remove the ghost without inserting.
-- `:CodexGhostToggle` — enable/disable ghosting (manual trigger only).
 - `:CodexGhostShowLast` — show the last raw suggestion (for debugging).
 
 ## Keymap example
