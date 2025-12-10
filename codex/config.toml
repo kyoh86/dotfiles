@@ -1,0 +1,8 @@
+check_for_update_on_startup = false
+update_on_startup = false
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86/dotfiles"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86"]
+trust_level = "untrusted"

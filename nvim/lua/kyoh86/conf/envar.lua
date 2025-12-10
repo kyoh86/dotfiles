@@ -118,6 +118,9 @@ path.ins(path.home .. "/.deno/bin")
 -- Tig:
 path.ins(dotfiles .. "/tig/clip")
 
+-- Codex
+vim.env.CODEX_HOME = dotfiles .. "/codex"
+
 -- browser
 local glaze = require("kyoh86.lib.glaze")
 glaze.get("opener", function(opener)
