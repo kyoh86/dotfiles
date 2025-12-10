@@ -80,7 +80,7 @@ local function build_domains()
     table.insert(keys, { key = "u", mods = "SHIFT|ALT", action = wezterm.action.SpawnCommandInNewWindow({ label = "Start new Ubuntu Window", args = {}, domain = { DomainName = "WSL:Ubuntu" } }) })
     config.default_domain = "WSL:Ubuntu:Neovim"
   else
-    config.default_prog = { "nvim" }
+    config.default_prog = { "/usr/local/bin/nvim" }
   end
 
   config.wsl_domains = wsl_domains
