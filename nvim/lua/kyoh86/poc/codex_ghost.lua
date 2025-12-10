@@ -1,6 +1,6 @@
 local M = {}
 
-local ns = vim.api.nvim_create_namespace("kyoh86-codex-ghost")
+local ghost_ns = vim.api.nvim_create_namespace("kyoh86-codex-ghost")
 local ghost_hl = "CodexGhost"
 
 --- @class codex_ghost.Config
@@ -54,8 +54,6 @@ end
 
 --- @class State
 --- @field request_token codex_ghost.RequestToken
---- @field mark integer|nil
---- @field pending_mark integer|nil
 --- @field pending_buf integer|nil
 --- @field buf integer|nil
 --- @field insert  codex_ghost.InsertTargetText|codex_ghost.InsertTargetLines|nil
@@ -67,8 +65,6 @@ end
 --- @type State
 local state = {
   request_token = new_token(),
-  mark = nil,
-  pending_mark = nil,
   pending_buf = nil,
   buf = nil,
   insert = nil,
@@ -93,14 +89,12 @@ local function clear_job()
 end
 
 local function clear_mark()
-  if state.mark and state.buf and vim.api.nvim_buf_is_valid(state.buf) then
-    pcall(vim.api.nvim_buf_del_extmark, state.buf, ns, state.mark)
+  if state.pending_buf and vim.api.nvim_buf_is_valid(state.pending_buf) then
+    pcall(vim.api.nvim_buf_clear_namespace, state.pending_buf, ghost_ns, 0, -1)
   end
-  if state.pending_mark and state.pending_buf and vim.api.nvim_buf_is_valid(state.pending_buf) then
-    pcall(vim.api.nvim_buf_del_extmark, state.pending_buf, ns, state.pending_mark)
+  if state.buf and vim.api.nvim_buf_is_valid(state.buf) then
+    pcall(vim.api.nvim_buf_clear_namespace, state.buf, ghost_ns, 0, -1)
   end
-  state.mark = nil
-  state.pending_mark = nil
   state.pending_buf = nil
   state.buf = nil
   state.insert = nil
@@ -112,10 +106,9 @@ local function reset()
 end
 
 local function cancel_pending(reason)
-  local had_pending = state.pending_mark ~= nil or state.job ~= nil or state.mark ~= nil
   state.request_token = new_token()
   reset()
-  if had_pending and state.config.notify_on_cancel then
+  if state.job ~= nil and state.config.notify_on_cancel then
     vim.notify(reason or "Codex ghost cancelled", vim.log.levels.INFO)
   end
 end
@@ -233,7 +226,7 @@ local function show_ghost(buf, row, col, lines, hl)
   if #lines == 1 then
     state.buf = buf
     state.insert = { mode = "text", row = row, col = col, lines = lines }
-    state.mark = vim.api.nvim_buf_set_extmark(buf, ns, row, col, {
+    vim.api.nvim_buf_set_extmark(buf, ghost_ns, row, col, {
       virt_text = { { lines[1], hlname } },
       virt_text_pos = "inline",
       hl_mode = "combine",
@@ -252,7 +245,7 @@ local function show_ghost(buf, row, col, lines, hl)
 
   state.buf = buf
   state.insert = { mode = "lines", row = row + 1, lines = insert_lines }
-  state.mark = vim.api.nvim_buf_set_extmark(buf, ns, row, col, {
+  vim.api.nvim_buf_set_extmark(buf, ghost_ns, row, col, {
     virt_lines = virt_lines,
     virt_lines_above = false,
     hl_mode = "combine",
@@ -273,16 +266,12 @@ local function show_pending(buf, row, text)
   end
   row = math.min(row, line_count - 1)
   state.pending_buf = buf
-  local ok, mark = pcall(vim.api.nvim_buf_set_extmark, buf, ns, row, 0, {
+  pcall(vim.api.nvim_buf_set_extmark, buf, ghost_ns, row, 0, {
     virt_text = { { text, ghost_hl } },
     virt_text_pos = "eol",
     hl_mode = "combine",
     priority = 50,
   })
-  if not ok then
-    return
-  end
-  state.pending_mark = mark
 end
 
 local function read_file(path)
