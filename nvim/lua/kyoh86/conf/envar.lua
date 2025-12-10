@@ -128,7 +128,7 @@ end)
 path.ins("/opt/homebrew/bin")
 
 -- mise
-local mise_candidates = { path.home .. "/.local/bin/mise", "/opt/homebrew/bin" }
+local mise_candidates = { path.home .. "/.local/bin/mise", "/opt/homebrew/bin/mise" }
 for _, c in pairs(mise_candidates) do
   if vim.fn.executable(c) == 1 then
     local mise_result = vim.system({ c, "ls", "--json", "--installed" }, { cwd = path.home, text = true }):wait()
