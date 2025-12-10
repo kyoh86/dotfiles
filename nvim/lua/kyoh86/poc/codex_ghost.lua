@@ -19,7 +19,7 @@ local ghost_hl = "CodexGhost"
 local defaults = {
   context_before = 120,
   context_after = 60,
-  model = nil,
+  model = "gpt-5.1-codex-mini",
   max_lines = 4000,
   disable_filetypes = {},
   disable_buftypes = { "help", "prompt", "quickfix", "terminal" },
@@ -44,13 +44,13 @@ end
 
 --- @class codex_ghost.LastPrompting
 --- @field prompt string
---- @field lines string[]
+--- @field suggestion string[]
 
 --- @class codex_ghost.State
 --- @field request_token codex_ghost.RequestToken
 --- @field pending_buf integer|nil
 --- @field pos codex_ghost.Position|nil
---- @field suggest string[]|nil
+--- @field suggestion string[]|nil
 --- @field job vim.SystemObj|nil
 --- @field job_timer uv_timer_t|nil
 --- @field last codex_ghost.LastPrompting|nil
@@ -61,7 +61,7 @@ local state = {
   request_token = new_token(),
   pending_buf = nil,
   pos = nil,
-  suggest = nil,
+  suggestion = nil,
   job = nil,
   job_timer = nil,
   last = nil,
@@ -91,7 +91,7 @@ local function clear_mark()
   end
   state.pending_buf = nil
   state.pos = nil
-  state.suggest = nil
+  state.suggestion = nil
 end
 
 local function reset()
@@ -201,7 +201,7 @@ local function build_prompt(buf, row, col, opts)
 end
 
 --- Show ghost lines on the cursor
---- @param pos codex_ghost.Position
+--- @param pos codex_ghost.Position|nil
 --- @param suggest string[]
 local function show_ghost(pos, suggest)
   if not pos then
@@ -285,8 +285,6 @@ local function run_request(buf, row, col, config)
     return
   end
 
-  state.pos = { buf = buf, row = row, col = col }
-
   local tmpfile = vim.fn.tempname()
 
   local args = { "codex", "exec" }
@@ -312,7 +310,10 @@ local function run_request(buf, row, col, config)
       if token ~= state.request_token then
         return
       end
-      if not vim.api.nvim_buf_is_valid(buf) or vim.api.nvim_buf_get_changedtick(buf) ~= tick then
+      if not vim.api.nvim_buf_is_valid(buf) then
+        return
+      end
+      if vim.api.nvim_buf_get_changedtick(buf) ~= tick then
         return
       end
       if obj.code ~= 0 then
@@ -321,12 +322,14 @@ local function run_request(buf, row, col, config)
         return
       end
       if not suggestion or suggestion == "" then
+        vim.notify("Codex suggested empty")
         log_event(config, "empty suggestion")
         return
       end
       local lines = vim.split(suggestion, "\n", { plain = true })
-      state.suggest = lines
-      state.last = { prompt = prompt, lines = lines }
+      state.suggestion = lines
+      state.last = { prompt = prompt, suggestion = lines }
+      state.pos = { buf = buf, row = row, col = col }
       show_ghost(state.pos, lines)
       log_event(config, string.format("ok lines=%d file=%s", #lines, relpath(vim.api.nvim_buf_get_name(buf))))
     end)
@@ -346,7 +349,7 @@ function M.dismiss()
 end
 
 function M.accept()
-  apply_suggest(state.pos, state.suggest)
+  apply_suggest(state.pos, state.suggestion)
   reset()
 end
 
@@ -360,7 +363,7 @@ function M.show_last()
     vim.notify("Codex ghost: no history", vim.log.levels.INFO)
     return
   end
-  vim.notify(table.concat(state.last.lines, "\\n"), vim.log.levels.INFO)
+  vim.notify(table.concat(state.last.suggestion, "\\n"), vim.log.levels.INFO)
 end
 
 local function setup_autocmds()
