@@ -62,7 +62,6 @@ end
 --- @field job vim.SystemObj|nil
 --- @field job_timer uv_timer_t|nil
 --- @field last codex_ghost.LastPrompting|nil
---- @field enabled boolean
 --- @field config codex_ghost.Config
 
 --- @type State
@@ -76,7 +75,6 @@ local state = {
   job = nil,
   job_timer = nil,
   last = nil,
-  enabled = true,
   config = defaults,
 }
 
@@ -415,20 +413,7 @@ end
 
 function M.request(opts)
   local config = vim.tbl_extend("force", state.config, opts or {})
-  state.enabled = true
   run_request(vim.api.nvim_get_current_buf(), vim.api.nvim_win_get_cursor(0)[1] - 1, vim.api.nvim_win_get_cursor(0)[2], config)
-end
-
-function M.toggle(enable)
-  if enable ~= nil then
-    state.enabled = enable
-  else
-    state.enabled = not state.enabled
-  end
-  if not state.enabled then
-    reset()
-  end
-  return state.enabled
 end
 
 function M.show_last()
@@ -451,7 +436,6 @@ end
 
 function M.setup(opts)
   state.config = vim.tbl_extend("force", defaults, opts or {})
-  state.enabled = true
   vim.api.nvim_set_hl(0, ghost_hl, { link = "Comment", default = true })
 
   vim.api.nvim_create_user_command("CodexGhost", function()
@@ -462,10 +446,6 @@ function M.setup(opts)
   end, {})
   vim.api.nvim_create_user_command("CodexGhostDismiss", function()
     M.dismiss()
-  end, {})
-  vim.api.nvim_create_user_command("CodexGhostToggle", function()
-    local enabled = M.toggle()
-    vim.notify(string.format("Codex ghost %s", enabled and "enabled" or "disabled"))
   end, {})
   vim.api.nvim_create_user_command("CodexGhostShowLast", function()
     M.show_last()

@@ -21,10 +21,6 @@ local ghost = require("kyoh86.poc.codex_ghost")
 vim.keymap.set("i", "<C-g>g", ghost.request, { desc = "Codex ghost" })
 vim.keymap.set("i", "<C-g>a", ghost.accept, { desc = "Accept ghost" })
 vim.keymap.set("i", "<C-g>d", ghost.dismiss, { desc = "Dismiss ghost" })
-vim.keymap.set("n", "<leader>tg", function()
-  local enabled = ghost.toggle()
-  vim.notify(string.format("Codex ghost %s", enabled and "enabled" or "disabled"))
-end, { desc = "Toggle Codex ghost" })
 ```
 
 ## Configuration
