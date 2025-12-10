@@ -213,9 +213,10 @@ local function show_ghost(buf, row, col, lines, hl)
   end
   local line_count = vim.api.nvim_buf_line_count(buf)
   if line_count == 0 then
-    return
+    row = 0
+  else
+    row = math.min(row, line_count - 1)
   end
-  row = math.min(row, line_count - 1)
 
   local hlname = hl or ghost_hl
   local cur = vim.api.nvim_buf_get_lines(buf, row, row + 1, true)[1] or ""
@@ -322,37 +323,26 @@ local function run_request(buf, row, col, config)
       end
       state.job_timer = nil
 
+      local suggestion = read_file(tmpfile):gsub("\r", "")
+      os.remove(tmpfile)
+      clear_mark()
+
       if token ~= state.request_token then
-        os.remove(tmpfile)
-        clear_mark()
         return
       end
       if not vim.api.nvim_buf_is_valid(buf) or vim.api.nvim_buf_get_changedtick(buf) ~= tick then
-        os.remove(tmpfile)
-        clear_mark()
         return
       end
       if obj.code ~= 0 then
-        os.remove(tmpfile)
         vim.notify("Codex ghost failed: " .. (obj.stderr or obj.stdout or "unknown error"), vim.log.levels.ERROR)
         log_event(config, string.format("fail code=%s msg=%s", tostring(obj.code), obj.stderr or obj.stdout or "unknown"))
-        clear_mark()
         return
       end
-      local suggestion = read_file(tmpfile)
-      os.remove(tmpfile)
       if not suggestion or suggestion == "" then
-        clear_mark()
         log_event(config, "empty suggestion")
         return
       end
-      suggestion = suggestion:gsub("\r", "")
-      local has_trailing_newline = suggestion:sub(-1) == "\n"
       local lines = vim.split(suggestion, "\n", { plain = true })
-      if has_trailing_newline then
-        table.insert(lines, "")
-      end
-
       state.last = { prompt = prompt, lines = lines }
       show_ghost(buf, row, col, lines, ghost_hl)
       log_event(config, string.format("ok lines=%d file=%s", #lines, relpath(vim.api.nvim_buf_get_name(buf))))
