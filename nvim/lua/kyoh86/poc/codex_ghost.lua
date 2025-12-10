@@ -46,7 +46,7 @@ end
 --- @field prompt string
 --- @field lines string[]
 
---- @class State
+--- @class codex_ghost.State
 --- @field request_token codex_ghost.RequestToken
 --- @field pending_buf integer|nil
 --- @field insert codex_ghost.Insertion|nil
@@ -55,7 +55,7 @@ end
 --- @field last codex_ghost.LastPrompting|nil
 --- @field config codex_ghost.Config
 
---- @type State
+--- @type codex_ghost.State
 local state = {
   request_token = new_token(),
   pending_buf = nil,
