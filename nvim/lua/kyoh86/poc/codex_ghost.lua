@@ -37,10 +37,10 @@ local function new_token()
   return {}
 end
 
---- @class codex_ghost.Insertion
---- @field buf integer|nil
+--- @class codex_ghost.Position
+--- @field buf integer
 --- @field row integer
---- @field lines string[]
+--- @field col integer
 
 --- @class codex_ghost.LastPrompting
 --- @field prompt string
@@ -49,7 +49,8 @@ end
 --- @class codex_ghost.State
 --- @field request_token codex_ghost.RequestToken
 --- @field pending_buf integer|nil
---- @field insert codex_ghost.Insertion|nil
+--- @field pos codex_ghost.Position|nil
+--- @field suggest string[]|nil
 --- @field job vim.SystemObj|nil
 --- @field job_timer uv_timer_t|nil
 --- @field last codex_ghost.LastPrompting|nil
@@ -59,7 +60,8 @@ end
 local state = {
   request_token = new_token(),
   pending_buf = nil,
-  insert = nil,
+  pos = nil,
+  suggest = nil,
   job = nil,
   job_timer = nil,
   last = nil,
@@ -84,11 +86,12 @@ local function clear_mark()
   if state.pending_buf and vim.api.nvim_buf_is_valid(state.pending_buf) then
     pcall(vim.api.nvim_buf_clear_namespace, state.pending_buf, ghost_ns, 0, -1)
   end
-  if state.insert and state.insert.buf and vim.api.nvim_buf_is_valid(state.insert.buf) then
-    pcall(vim.api.nvim_buf_clear_namespace, state.insert.buf, ghost_ns, 0, -1)
+  if state.pos and state.pos.buf and vim.api.nvim_buf_is_valid(state.pos.buf) then
+    pcall(vim.api.nvim_buf_clear_namespace, state.pos.buf, ghost_ns, 0, -1)
   end
   state.pending_buf = nil
-  state.insert = nil
+  state.pos = nil
+  state.suggest = nil
 end
 
 local function reset()
@@ -197,39 +200,42 @@ local function build_prompt(buf, row, col, opts)
   }, "\n")
 end
 
-local function show_ghost(buf, row, col, lines, hl)
-  clear_mark()
-  if #lines == 0 then
+--- Show ghost lines on the cursor
+--- @param pos codex_ghost.Position
+--- @param suggest string[]
+local function show_ghost(pos, suggest)
+  if not pos then
     return
   end
-  local line_count = vim.api.nvim_buf_line_count(buf)
-  if line_count == 0 then
-    row = 0
-  else
-    row = math.min(row, line_count - 1)
+  if #suggest == 0 then
+    return
   end
-
-  local hlname = hl or ghost_hl
-  local cur = vim.api.nvim_buf_get_lines(buf, row, row + 1, true)[1] or ""
-  col = math.min(col, #cur)
-  local prefix = cur:sub(1, col)
-  local pad = string.rep(" ", vim.fn.strdisplaywidth(prefix))
 
   local virt_lines = {}
-  local insert_lines = {}
-  for _, line in ipairs(lines) do
-    local padded_line = pad .. line
-    virt_lines[#virt_lines + 1] = { { padded_line, hlname } }
-    insert_lines[#insert_lines + 1] = padded_line
+  for _, line in ipairs(suggest) do
+    virt_lines[#virt_lines + 1] = { { line, ghost_hl } }
   end
 
-  state.insert = { buf = buf, row = row + 1, lines = insert_lines }
-  vim.api.nvim_buf_set_extmark(buf, ghost_ns, row, col, {
+  vim.api.nvim_buf_set_extmark(pos.buf, ghost_ns, pos.row, 0, {
     virt_lines = virt_lines,
     virt_lines_above = false,
     hl_mode = "combine",
     priority = 200,
   })
+end
+
+--- Put lines under the cursor
+--- @param pos codex_ghost.Position
+--- @param suggest string[]
+local function apply_suggest(pos, suggest)
+  if not pos then
+    return
+  end
+  if #suggest == 0 then
+    return
+  end
+
+  vim.api.nvim_buf_set_lines(pos.buf, pos.row + 1, pos.row + 1, false, suggest)
 end
 
 local function show_pending(buf, row, text)
@@ -239,13 +245,8 @@ local function show_pending(buf, row, text)
   if not vim.api.nvim_buf_is_valid(buf) then
     return
   end
-  local line_count = vim.api.nvim_buf_line_count(buf)
-  if line_count == 0 then
-    return
-  end
-  row = math.min(row, line_count - 1)
   state.pending_buf = buf
-  pcall(vim.api.nvim_buf_set_extmark, buf, ghost_ns, row, 0, {
+  vim.api.nvim_buf_set_extmark(buf, ghost_ns, row, 0, {
     virt_text = { { text, ghost_hl } },
     virt_text_pos = "eol",
     hl_mode = "combine",
@@ -283,6 +284,9 @@ local function run_request(buf, row, col, config)
     clear_mark()
     return
   end
+
+  state.pos = { buf = buf, row = row, col = col }
+
   local tmpfile = vim.fn.tempname()
 
   local args = { "codex", "exec" }
@@ -321,8 +325,9 @@ local function run_request(buf, row, col, config)
         return
       end
       local lines = vim.split(suggestion, "\n", { plain = true })
+      state.suggest = lines
       state.last = { prompt = prompt, lines = lines }
-      show_ghost(buf, row, col, lines, ghost_hl)
+      show_ghost(state.pos, lines)
       log_event(config, string.format("ok lines=%d file=%s", #lines, relpath(vim.api.nvim_buf_get_name(buf))))
     end)
   end)
@@ -341,22 +346,7 @@ function M.dismiss()
 end
 
 function M.accept()
-  local insert = state.insert
-  if not insert then
-    return
-  end
-  if not insert.buf or not vim.api.nvim_buf_is_valid(insert.buf) then
-    return
-  end
-  local lines = insert.lines
-  if not lines or #lines == 0 then
-    reset()
-    return
-  end
-
-  local lc = vim.api.nvim_buf_line_count(state.buf)
-  local target = math.min(insert.row, lc)
-  vim.api.nvim_buf_set_lines(state.buf, target, target, false, lines)
+  apply_suggest(state.pos, state.suggest)
   reset()
 end
 
