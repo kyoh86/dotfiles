@@ -38,6 +38,7 @@ local function new_token()
 end
 
 --- @class codex_ghost.Insertion
+--- @field buf integer|nil
 --- @field row integer
 --- @field lines string[]
 
@@ -48,8 +49,7 @@ end
 --- @class State
 --- @field request_token codex_ghost.RequestToken
 --- @field pending_buf integer|nil
---- @field buf integer|nil
---- @field insert  codex_ghost.Insertion|nil
+--- @field insert codex_ghost.Insertion|nil
 --- @field job vim.SystemObj|nil
 --- @field job_timer uv_timer_t|nil
 --- @field last codex_ghost.LastPrompting|nil
@@ -59,7 +59,6 @@ end
 local state = {
   request_token = new_token(),
   pending_buf = nil,
-  buf = nil,
   insert = nil,
   job = nil,
   job_timer = nil,
@@ -85,11 +84,10 @@ local function clear_mark()
   if state.pending_buf and vim.api.nvim_buf_is_valid(state.pending_buf) then
     pcall(vim.api.nvim_buf_clear_namespace, state.pending_buf, ghost_ns, 0, -1)
   end
-  if state.buf and vim.api.nvim_buf_is_valid(state.buf) then
-    pcall(vim.api.nvim_buf_clear_namespace, state.buf, ghost_ns, 0, -1)
+  if state.insert and state.insert.buf and vim.api.nvim_buf_is_valid(state.insert.buf) then
+    pcall(vim.api.nvim_buf_clear_namespace, state.insert.buf, ghost_ns, 0, -1)
   end
   state.pending_buf = nil
-  state.buf = nil
   state.insert = nil
 end
 
@@ -225,8 +223,7 @@ local function show_ghost(buf, row, col, lines, hl)
     insert_lines[#insert_lines + 1] = padded_line
   end
 
-  state.buf = buf
-  state.insert = { row = row + 1, lines = insert_lines }
+  state.insert = { buf = buf, row = row + 1, lines = insert_lines }
   vim.api.nvim_buf_set_extmark(buf, ghost_ns, row, col, {
     virt_lines = virt_lines,
     virt_lines_above = false,
@@ -344,11 +341,11 @@ function M.dismiss()
 end
 
 function M.accept()
-  if not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
-    return
-  end
   local insert = state.insert
   if not insert then
+    return
+  end
+  if not insert.buf or not vim.api.nvim_buf_is_valid(insert.buf) then
     return
   end
   local lines = insert.lines
