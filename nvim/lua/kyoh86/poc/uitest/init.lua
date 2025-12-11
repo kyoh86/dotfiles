@@ -479,17 +479,10 @@ vim.opt.runtimepath:append(nvimcore)
 vim.opt.runtimepath:append(project_root)
 ]]
 
-  local spec_body = string.format(
-    [=[
-package.path = "%s" .. "/?.lua;" .. "%s" .. "/?/init.lua;"
-  .. "%s" .. "/?.lua;" .. "%s" .. "/?/init.lua;"
-  .. "%s" .. "/?.lua;" .. "%s" .. "/?/init.lua;"
-  .. "%s" .. "/?.lua;" .. "%s" .. "/?/init.lua;"
-  .. "%s" .. "/lua/?.lua;" .. "%s" .. "/lua/?/init.lua;"
-  .. "%s" .. "/?.lua;" .. "%s" .. "/?/init.lua;"
-  .. "%s" .. "/?.lua;" .. "%s" .. "/?/init.lua;"
-  .. "%s" .. "/lua/?.lua;" .. "%s" .. "/lua/?/init.lua;"
-  .. package.path
+local spec_body = string.format(
+  [=[
+local script_dir = vim.fs.dirname(vim.fs.normalize(debug.getinfo(1, "S").source:sub(2)))
+local project_root = vim.fs.normalize(script_dir .. "/../..")
 
 local t = require("test.testutil")
 local n = require("test.functional.testnvim")()
@@ -506,6 +499,11 @@ describe("basic screen check", function()
       end
     end)
     clear()
+    n.exec_lua([[
+      local root = ...
+      package.path = root .. "/lua/?.lua;" .. root .. "/lua/?/init.lua;" .. package.path
+      vim.opt.runtimepath:append(root)
+    ]], project_root)
     screen = Screen.new(6, 2)
   end)
 
@@ -527,32 +525,21 @@ describe("basic screen check", function()
   end)
 end)
 ]=],
-    core_dir,
-    core_dir,
-    busted_dir,
-    busted_dir,
-    luassert_dir,
-    luassert_dir,
-    say_dir,
-    say_dir,
-    penlight_dir,
-    penlight_dir,
-    cliargs_dir,
-    cliargs_dir,
-    mediator_dir,
-    mediator_dir,
-    plenary_dir,
-    plenary_dir,
-    minimal_init
-  )
+  minimal_init
+)
 
   local spec_path = join_path(ui_dir, string.format("%s_spec.lua", name))
-  local run_body = [[
+local run_body = [[
 -- Convenience runner for busted UI tests.
 local script = vim.fs.normalize(vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p"))
 local ui_dir = vim.fs.dirname(script)
 local test_root = vim.fs.dirname(ui_dir)
-_G.arg = { "--directory", test_root, ui_dir }
+_G.arg = {
+  [0] = "busted",
+  "--directory",
+  test_root,
+  ui_dir,
+}
 require("busted.runner")({
   standalone = false,
   output = "plainTerminal",
