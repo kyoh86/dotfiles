@@ -16,11 +16,14 @@ describe("basic screen check", function()
       end
     end)
     clear()
-    n.exec_lua([[
+    n.exec_lua(
+      [[
       local root = ...
       package.path = root .. "/lua/?.lua;" .. root .. "/lua/?/init.lua;" .. package.path
       vim.opt.runtimepath:append(root)
-    ]], project_root)
+    ]],
+      project_root
+    )
     screen = Screen.new(20, 6)
   end)
 

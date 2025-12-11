@@ -71,7 +71,7 @@ function M.show_pending(pos, message)
   end
   vim.api.nvim_buf_set_extmark(pos.buf, ghost_ns, pos.row, 0, {
     virt_text = { { message, ghost_hl } },
-    virt_text_pos = "eol",
+    virt_text_pos = "inline",
     hl_mode = "combine",
     priority = 50,
   })
