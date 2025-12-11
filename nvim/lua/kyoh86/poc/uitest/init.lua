@@ -507,8 +507,7 @@ describe("basic screen check", function()
       end
     end)
     clear()
-    screen = Screen.new(40, 8)
-    screen:attach()
+    screen = Screen.new(6, 2)
   end)
 
   after_each(function()
@@ -523,14 +522,8 @@ describe("basic screen check", function()
   it("echoes input", function()
     feed("ihello<Esc>")
     screen:expect([[
-      hello                               |
-      ~                                   |
-      ~                                   |
-      ~                                   |
-      ~                                   |
-      ~                                   |
-      ~                                   |
-                                          |
+      hell^o       |
+                  |
     ]])
   end)
 end)

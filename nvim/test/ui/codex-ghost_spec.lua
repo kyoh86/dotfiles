@@ -38,8 +38,8 @@ describe("basic screen check", function()
   it("echoes input", function()
     feed("ihello<Esc>")
     screen:expect([[
-hell^o       |
-            |
+      hell^o       |
+                  |
     ]])
   end)
 end)
