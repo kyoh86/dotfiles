@@ -1,6 +1,5 @@
 local M = {}
 
-local screen = require("kyoh86.poc.codex_ghost.screen")
 local config = require("kyoh86.poc.codex_ghost.config")
 
 --- @class codex_ghost.RequestToken
@@ -28,6 +27,8 @@ end
 --- @field job_timer uv_timer_t|nil
 --- @field last codex_ghost.LastPrompting|nil
 --- @field config codex_ghost.Config|nil
+--- @field base_tick integer|nil
+--- @field preview {buf: integer, win: integer}|nil
 
 --- @type codex_ghost.State
 local state = {
@@ -39,6 +40,16 @@ local state = {
   last = nil,
   config = nil,
 }
+
+local function close_preview()
+  if state.preview and vim.api.nvim_win_is_valid(state.preview.win) then
+    pcall(vim.api.nvim_win_close, state.preview.win, true)
+  end
+  if state.preview and vim.api.nvim_buf_is_valid(state.preview.buf) then
+    pcall(vim.api.nvim_buf_delete, state.preview.buf, { force = true })
+  end
+  state.preview = nil
+end
 
 local function clear_job()
   if state.job then
@@ -55,14 +66,119 @@ local function clear_job()
 end
 
 local function clear_mark()
-  if state.pos then
-    screen.clear(state.pos.buf)
-  end
   state.suggestion = nil
+  state.base_tick = nil
+  close_preview()
 end
 
 local function clear_pos()
   state.pos = nil
+end
+
+local function apply_current()
+  if not state.pos or not state.suggestion then
+    return false, "no suggestion"
+  end
+  if not vim.api.nvim_buf_is_valid(state.pos.buf) then
+    return false, "invalid buffer"
+  end
+  local buf = state.pos.buf
+  local curr_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  local insert_at = math.min(state.pos.row + 1, #curr_lines)
+  if vim.api.nvim_buf_get_changedtick(buf) ~= state.base_tick then
+    local conflict = {}
+    conflict[#conflict + 1] = "<<<<<<< CURRENT"
+    for i = insert_at + 1, insert_at + 1 do
+      conflict[#conflict + 1] = curr_lines[i] or ""
+    end
+    conflict[#conflict + 1] = "======="
+    vim.list_extend(conflict, state.suggestion)
+    conflict[#conflict + 1] = ">>>>>>> CODEX"
+    local ok, err = pcall(vim.api.nvim_buf_set_lines, buf, insert_at, insert_at + 1, false, conflict)
+    if not ok then
+      return false, err
+    end
+    return true, "conflict"
+  end
+  local ok, err = pcall(vim.api.nvim_buf_set_lines, buf, insert_at, insert_at, false, state.suggestion)
+  if not ok then
+    return false, err
+  end
+  return true, "applied"
+end
+
+local function open_preview()
+  if not state.pos or not state.suggestion then
+    return
+  end
+  close_preview()
+  local buf = vim.api.nvim_create_buf(false, true)
+  local original = vim.api.nvim_buf_get_lines(state.pos.buf, 0, -1, false)
+  local new_lines = { unpack(original) }
+  local insert_at = math.min(state.pos.row + 1, #new_lines)
+  for i = #state.suggestion, 1, -1 do
+    table.insert(new_lines, insert_at + 1, state.suggestion[i])
+  end
+
+  local diff = vim.diff(table.concat(original, "\n"), table.concat(new_lines, "\n"), { result_type = "unified" })
+  local lines = {
+    "Codex suggestion",
+    string.format("File: %s", vim.fn.fnamemodify(vim.api.nvim_buf_get_name(state.pos.buf), ":~:.")),
+    "Apply: <CR>/a | Close: q",
+    "",
+  }
+  if diff and diff ~= "" then
+    for line in diff:gmatch("([^\n]*)\n?") do
+      if line ~= "" then
+        lines[#lines + 1] = line
+      end
+    end
+  else
+    vim.list_extend(lines, state.suggestion)
+  end
+
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
+  vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+  vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
+
+  local width = math.min(math.max(40, math.floor(vim.o.columns * 0.6)), vim.o.columns)
+  local height = math.min(#lines, math.max(6, math.floor(vim.o.lines * 0.6)))
+  local win = vim.api.nvim_open_win(buf, false, {
+    relative = "editor",
+    row = math.floor((vim.o.lines - height) / 2),
+    col = math.floor((vim.o.columns - width) / 2),
+    width = width,
+    height = height,
+    style = "minimal",
+    border = "single",
+  })
+  vim.keymap.set("n", "<CR>", function()
+    local ok, msg = apply_current()
+    if not ok then
+      vim.notify("Codex apply failed: " .. msg, vim.log.levels.ERROR)
+    elseif msg == "conflict" then
+      vim.notify("Codex apply: conflict markers inserted", vim.log.levels.WARN)
+    else
+      vim.notify("Codex applied", vim.log.levels.INFO)
+    end
+    reset()
+  end, { buffer = buf, silent = true })
+  vim.keymap.set("n", "a", function()
+    local ok, msg = apply_current()
+    if not ok then
+      vim.notify("Codex apply failed: " .. msg, vim.log.levels.ERROR)
+    elseif msg == "conflict" then
+      vim.notify("Codex apply: conflict markers inserted", vim.log.levels.WARN)
+    else
+      vim.notify("Codex applied", vim.log.levels.INFO)
+    end
+    reset()
+  end, { buffer = buf, silent = true })
+  vim.keymap.set("n", "q", function()
+    reset()
+  end, { buffer = buf, silent = true })
+  state.preview = { buf = buf, win = win }
 end
 
 local function reset()
@@ -200,8 +316,10 @@ local function run_request(buf, row, col, conf)
   if not prompt then
     return
   end
-  screen.show_pending(pos, conf.pending_text)
-
+  close_preview()
+  state.pos = nil
+  state.suggestion = nil
+  state.base_tick = nil
   local tmpfile = vim.fn.tempname()
 
   local args = { "codex", "exec" }
@@ -246,7 +364,9 @@ local function run_request(buf, row, col, conf)
       local lines = vim.split(suggestion, "\n", { plain = true })
       state.suggestion = lines
       state.last = { prompt = prompt, suggestion = lines }
-      screen.show_ghost(pos, state.suggestion)
+      state.pos = pos
+      state.base_tick = tick
+      open_preview()
       log_event(conf, string.format("ok lines=%d file=%s", #lines, relpath(vim.api.nvim_buf_get_name(buf))))
     end)
   end)
@@ -265,8 +385,21 @@ function M.dismiss()
 end
 
 function M.accept()
-  screen.insert_lines(state.pos, state.suggestion)
+  local ok, applied, detail = pcall(apply_current)
+  if not ok then
+    vim.notify("Codex apply failed: " .. applied, vim.log.levels.ERROR)
+    reset()
+    return false, applied
+  end
+  if not applied then
+    vim.notify("Codex apply failed: " .. tostring(detail), vim.log.levels.ERROR)
+  elseif detail == "conflict" then
+    vim.notify("Codex apply: conflict markers inserted", vim.log.levels.WARN)
+  else
+    vim.notify("Codex applied", vim.log.levels.INFO)
+  end
   reset()
+  return applied, detail
 end
 
 function M.request(opts)
@@ -283,17 +416,18 @@ end
 
 local function setup_autocmds()
   local group = vim.api.nvim_create_augroup("kyoh86-codex-ghost", { clear = true })
-  vim.api.nvim_create_autocmd({ "CursorMovedI", "InsertLeave", "BufLeave" }, {
+  vim.api.nvim_create_autocmd({ "CursorMovedI", "InsertLeave" }, {
     group = group,
     callback = function()
-      cancel_pending("Codex ghost cancelled (moved or left insert)")
+      if state.job then
+        cancel_pending("Codex ghost cancelled (moved or left insert)")
+      end
     end,
   })
 end
 
 function M.setup(opts)
   state.config = config.setup(opts)
-  screen.setup()
 
   vim.api.nvim_create_user_command("CodexGhost", function()
     M.request()
@@ -309,6 +443,18 @@ function M.setup(opts)
   end, {})
 
   setup_autocmds()
+end
+
+-- testing helper
+function M._stage_for_test(pos, suggestion, opts)
+  local target = vim.api.nvim_get_current_buf()
+  pos.buf = target
+  state.pos = pos
+  state.suggestion = suggestion
+  state.base_tick = (opts and opts.base_tick) or vim.api.nvim_buf_get_changedtick(target)
+  if not (opts and opts.no_preview) then
+    open_preview()
+  end
 end
 
 return M

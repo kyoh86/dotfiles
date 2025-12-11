@@ -5,6 +5,7 @@ local t = require("test.testutil")
 local n = require("test.functional.testnvim")()
 local Screen = require("test.functional.ui.screen")
 local feed, clear = n.feed, n.clear
+local eq = t.eq
 
 describe("basic screen check", function()
   local screen
@@ -21,10 +22,12 @@ describe("basic screen check", function()
       local root = ...
       package.path = root .. "/lua/?.lua;" .. root .. "/lua/?/init.lua;" .. package.path
       vim.opt.runtimepath:append(root)
+      vim.notify = function() end
+      require("kyoh86.poc.codex_ghost").setup({ notify_on_cancel = false })
     ]],
       project_root
     )
-    screen = Screen.new(20, 6)
+    screen = Screen.new(20, 10)
   end)
 
   after_each(function()
@@ -36,49 +39,36 @@ describe("basic screen check", function()
     end
   end)
 
-  it("echoes input", function()
-    feed("ihello<Esc>")
-    screen:expect({
-      grid = [[
-      hell^o               |
-      ~                   |
-      ~                   |
-      ~                   |
-      ~                   |
-                          |
-    ]],
-      attr_ids = {},
-    })
+  it("applies suggestion when buffer unchanged", function()
+    feed("iline1<CR>line2<CR>line3<Esc>")
+    local buf = n.api.nvim_get_current_buf()
+    n.exec_lua([[require("kyoh86.poc.codex_ghost")._stage_for_test(...)]], { row = 0, col = 0 }, { "ghost1", "ghost2" }, { no_preview = true })
+    local res = n.exec_lua([[local ok,msg=require("kyoh86.poc.codex_ghost").accept(); return {ok,msg}]])
+    assert(res[1], res[2])
+    n.command("redraw!")
+    local lines = n.exec_lua([[return vim.api.nvim_buf_get_lines(0, 0, -1, false)]])
+    eq({ "line1", "ghost1", "ghost2", "line2", "line3" }, lines)
   end)
 
-  it("screen.show_ghost shows the text in the line", function()
+  it("inserts conflict markers when buffer changed", function()
     feed("iline1<CR>line2<CR>line3<Esc>")
-    screen:expect({
-      grid = [[
-      line1               |
-      line2               |
-      line^3               |
-      ~                   |
-      ~                   |
-                          |
-    ]],
-      attr_ids = {},
-    })
-
     local buf = n.api.nvim_get_current_buf()
-    n.api.nvim_win_set_cursor(0, { 1, 0 })
-    n.exec_lua([[require("kyoh86.poc.codex_ghost.screen").show_ghost(...)]], { buf = buf, row = 0, col = 0 }, { "ghost1", "ghost2" }, { color = "never" })
+    n.exec_lua([[require("kyoh86.poc.codex_ghost")._stage_for_test(...)]], { row = 0, col = 0 }, { "ghost1", "ghost2" }, { no_preview = true })
+    feed("Goedited<Esc>")
+    local res = n.exec_lua([[local ok,msg=require("kyoh86.poc.codex_ghost").accept(); return {ok,msg}]])
+    assert(res[1], res[2])
     n.command("redraw!")
-    screen:expect({
-      grid = [[
-      ^line1               |
-      ghost1              |
-      ghost2              |
-      line2               |
-      line3               |
-                          |
-    ]],
-      attr_ids = {},
-    })
+    local lines = n.exec_lua([[return vim.api.nvim_buf_get_lines(0, 0, -1, false)]])
+    eq({
+      "line1",
+      "<<<<<<< CURRENT",
+      "line2",
+      "=======",
+      "ghost1",
+      "ghost2",
+      ">>>>>>> CODEX",
+      "line3",
+      "edited",
+    }, lines)
   end)
 end)
