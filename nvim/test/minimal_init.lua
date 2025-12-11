@@ -10,6 +10,10 @@ package.path = "nvim/test/.uitest/nvimcore" .. "/?.lua;" .. "nvim/test/.uitest/n
 vim.o.termguicolors = true
 vim.o.guicursor = ""
 vim.env.NVIM_PRG = vim.env.NVIM_PRG or vim.v.progpath
+if not vim.env.NVIM_APPNAME or vim.env.NVIM_APPNAME == "" then
+  local uv = vim.uv or vim.loop
+  vim.env.NVIM_APPNAME = "nvim-uitest-" .. string.format("%x", uv.hrtime())
+end
 vim.opt.runtimepath:append("nvim/test/.uitest/plenary")
 vim.opt.runtimepath:append("nvim/test/.uitest/busted")
 vim.opt.runtimepath:append("nvim/test/.uitest/luassert")
