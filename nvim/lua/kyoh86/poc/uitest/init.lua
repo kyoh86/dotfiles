@@ -446,7 +446,7 @@ vim.o.guicursor = ""
 vim.env.NVIM_PRG = vim.env.NVIM_PRG or vim.v.progpath
 if not vim.env.NVIM_APPNAME or vim.env.NVIM_APPNAME == "" then
   local uv = vim.uv or vim.loop
-  vim.env.NVIM_APPNAME = "nvim-uitest-" .. string.format("%x", uv.hrtime())
+  vim.env.NVIM_APPNAME = "nvim-uitest-" .. string.format("%%x", uv.hrtime())
 end
 vim.opt.runtimepath:append("%s")
 vim.opt.runtimepath:append("%s")
