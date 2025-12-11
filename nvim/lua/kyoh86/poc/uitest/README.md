@@ -23,16 +23,19 @@ require("kyoh86.poc.uitest").setup_commands()
 
 ## What gets created
 
-- `test/.uitest/nvimcore/test/` — Neovim test tree (includes `functional/`)
-- `test/.uitest/plenary/` — Plenary (plenary.nvim Lua helpers)
-- `test/.uitest/busted/` — busted (test runner)
-- `test/.uitest/luassert/` — luassert (assertions used by test helpers)
-- `test/.uitest/say/` — say (luassert dependency)
-- `test/.uitest/penlight/` — Penlight (busted dependency)
-- `test/.uitest/cliargs/` — lua_cliargs (busted dependency)
-- `test/.uitest/mediator/` — mediator_lua (busted dependency)
-- `test/minimal_init.lua` — minimal init that wires `runtimepath`/`package.path`
-- `test/ui/<name>_spec.lua` — Screen attach/expect sample
+- `:UITestPull`  
+    - `test/.uitest/nvimcore/test/` — Neovim test tree (includes `functional/`)
+    - `test/.uitest/plenary/` — Plenary (plenary.nvim Lua helpers)
+    - `test/.uitest/busted/` — busted (test runner)
+    - `test/.uitest/luassert/` — luassert (assertions used by test helpers)
+    - `test/.uitest/say/` — say (luassert dependency)
+    - `test/.uitest/penlight/` — Penlight (busted dependency)
+    - `test/.uitest/cliargs/` — lua_cliargs (busted dependency)
+    - `test/.uitest/mediator/` — mediator_lua (busted dependency)
+- `:UITestScaffold`  
+    - `test/minimal_init.lua` — minimal init that wires `runtimepath`/`package.path`
+    - `test/ui/<name>_spec.lua` — Screen attach/expect sample
+    - `test/ui/run.lua` — convenience runner to invoke busted on `test/ui`
 
 ## Where to put tests
 
@@ -41,8 +44,7 @@ Place specs under `test/ui/*.lua`. `package.path` is wired in `test/minimal_init
 ## Running tests (busted runner)
 
 ```sh
-NVIM_APPNAME=plugin-screen-test nvim --headless -u test/minimal_init.lua \
-  -c "lua require('busted.runner')({ paths = { 'test/ui' }, standalone = false })" +qa
+nvim --headless -u test/minimal_init.lua -c "luafile test/ui/run.lua" +qa
 ```
 - `NVIM_APPNAME` is optional but keeps environments isolated
 - Set `NVIM_PROG` to point to a specific Neovim if needed (used by helpers); otherwise the current `nvim` binary is used.
@@ -81,9 +83,22 @@ describe("basic screen check", function()
   local screen
 
   before_each(function()
+    pcall(function()
+      if n.get_session() then
+        n.stop()
+      end
+    end)
     clear()
     screen = Screen.new(40, 8)
-    screen:attach()
+  end)
+
+  after_each(function()
+    if screen then
+      screen:detach()
+    end
+    if n.get_session() then
+      n.stop()
+    end
   end)
 
   it("echoes input", function()
@@ -101,5 +116,6 @@ describe("basic screen check", function()
   end)
 end)
 ```
+
 - For highlight checks, map IDs via `screen:set_default_attr_ids`; ignore noisy attrs with `screen:set_default_attr_ignore`.
 - For async scenarios, use `screen:wait(function() ... end)` to avoid flaky expectations.

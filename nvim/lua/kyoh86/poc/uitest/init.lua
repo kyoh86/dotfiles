@@ -425,6 +425,7 @@ function M.scaffold(name, opts)
   local mediator_dir = join_path(root, ".uitest", "mediator")
   local ui_dir = join_path(root, "ui")
   local minimal_init = join_path(root, "minimal_init.lua")
+  local runner_path = join_path(ui_dir, "run.lua")
   if not name or name == "" then
     return false, "name is required for UITestScaffold"
   end
@@ -552,6 +553,14 @@ end)
   )
 
   local spec_path = join_path(ui_dir, string.format("%s_spec.lua", name))
+  local run_body = string.format(
+    [[
+-- Convenience runner for busted UI tests.
+_G.arg = _G.arg or { "--directory", ".", "%s" }
+require("busted.runner")({ standalone = false, output = "plainTerminal" })
+]],
+    ui_dir
+  )
 
   local ok, err = write_file(minimal_init, init_body, { force = opts.force })
   if not ok then
@@ -560,6 +569,10 @@ end)
   local ok2, err2 = write_file(spec_path, spec_body, { force = opts.force })
   if not ok2 then
     return false, err2
+  end
+  local ok3, err3 = write_file(runner_path, run_body, { force = opts.force })
+  if not ok3 then
+    return false, err3
   end
   return true
 end
