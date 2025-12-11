@@ -16,7 +16,9 @@ end
 --- Show ghost lines on the cursor
 --- @param pos codex_ghost.Position|nil
 --- @param lines string[]
-function M.show_ghost(pos, lines)
+--- @param opts {color?: "never"}?
+function M.show_ghost(pos, lines, opts)
+  opts = opts or {}
   if not pos then
     return
   end
@@ -25,8 +27,14 @@ function M.show_ghost(pos, lines)
   end
 
   local virt_lines = {}
-  for _, line in ipairs(lines) do
-    virt_lines[#virt_lines + 1] = { { line, ghost_hl } }
+  if opts.color and opts.color == "never" then
+    for _, line in ipairs(lines) do
+      virt_lines[#virt_lines + 1] = { { line, "Normal" } }
+    end
+  else
+    for _, line in ipairs(lines) do
+      virt_lines[#virt_lines + 1] = { { line, ghost_hl } }
+    end
   end
 
   vim.api.nvim_buf_set_extmark(pos.buf, ghost_ns, pos.row, 0, {
