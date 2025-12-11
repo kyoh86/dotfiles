@@ -1,6 +1,6 @@
 # kyoh86/nvim-uitest
 
-Tiny helper for Neovim plugin authors to set up Screen-based UI tests. It pulls `test/functional` from the Neovim repo via `curl | tar`, drops a minimal init, and creates a UI test scaffold.
+Tiny helper for Neovim plugin authors to set up Screen-based UI tests. It pulls the minimal Screen deps from the Neovim repo via `curl | tar`, drops a minimal init, and creates a UI test scaffold.
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ require("kyoh86.poc.uitest").setup_commands()
 
 ## What gets created
 
-- `test/nvimcore/functional/` — Neovim Screen/Helpers etc.
+- `test/nvimcore/functional/` — Neovim Screen/Helpers (minimal set)
 - `test/minimal_init.lua` — minimal init that wires `runtimepath`/`package.path`
 - `test/ui/<name>_spec.lua` — Screen attach/expect sample
 
@@ -48,14 +48,16 @@ NVIM_APPNAME=plugin-screen-test nvim --headless -u test/minimal_init.lua \
 - Default flow pulls `master`; breaking changes upstream may affect your tests. Pin a tag if you need stability.
 - Scaffolding is non-destructive by default; add `!` to overwrite.
 - If your plugin needs extra deps, extend `test/minimal_init.lua` with the required `runtimepath`/settings.
+- Need the rest of `test/functional`? Manually pull it:  
+  `curl -L https://github.com/neovim/neovim/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 -C test/nvimcore "*/test/functional"`
 
 ## Quick Screen usage
 
 ```lua
 package.path = vim.fn.getcwd() .. "/test/nvimcore/?.lua;" .. vim.fn.getcwd() .. "/test/nvimcore/?/init.lua;" .. package.path
 
-local helpers = require("helpers")(after_each)
-local Screen = require("ui.screen")
+local helpers = require("test.functional.helpers")(after_each)
+local Screen = require("test.functional.ui.screen")
 local feed, clear = helpers.feed, helpers.clear
 
 describe("basic screen check", function()

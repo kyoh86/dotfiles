@@ -1,6 +1,6 @@
 # kyoh86/nvim-uitest
 
-Neovim プラグイン開発で Screen テスト用の資材をそろえるための小ツールです。`curl | tar` で本体リポジトリの `test/functional` を取り込み、最小 init と UI テストの雛形を生成します。
+Neovim プラグイン開発で Screen テスト用の資材をそろえるための小ツールです。`curl | tar` で本体リポジトリの Screen 周辺ファイルを取り込み、最小 init と UI テストの雛形を生成します。
 
 ## 前提
 
@@ -24,7 +24,7 @@ require("kyoh86.poc.uitest").setup_commands()
 
 ## 生成されるもの
 
-- `test/nvimcore/functional/` … Neovim 本体の Screen/Helpers など
+- `test/nvimcore/functional/` … Neovim 本体の Screen/Helpers（必要最小限）
 - `test/minimal_init.lua` … runtimepath と package.path を通すだけの最小 init
 - `test/ui/<name>_spec.lua` … Screen attach/expect の雛形
 
@@ -41,21 +41,22 @@ NVIM_APPNAME=plugin-screen-test nvim --headless -u test/minimal_init.lua \
 - `NVIM_APPNAME` は任意（環境を汚さない/環境に影響されないため推奨）
 - `NVIM_PROG` を変えたい場合は環境変数でパスを渡せます（helpers が参照）
 - `ref` を固定したい場合は `:UITestPull v0.10.3` などで取得し直す
-- 軽量化したいときは `:UITestPull -minimal`（Screen/Helpers 周辺のみ）。不足が出る場合は `-full` で全量取得。
 
 ## 注意
 
 - master を取る運用なので、本体の破壊的変更でテストが壊れる可能性があります。安定させたいときはタグを明示して取得してください。
 - 雛形は既存があれば上書きしません。再生成したいときはコマンドに `!` を付けてください。
 - プラグインが外部依存を読む場合は、`test/minimal_init.lua` で必要最低限の設定や runtimepath を追加してください。
+- `test/functional` を丸ごと使いたいときは手動で取得してください:  
+  `curl -L https://github.com/neovim/neovim/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 -C test/nvimcore "*/test/functional"`
 
 ## Screen のざっくり使い方
 
 ```lua
 package.path = vim.fn.getcwd() .. "/test/nvimcore/?.lua;" .. vim.fn.getcwd() .. "/test/nvimcore/?/init.lua;" .. package.path
 
-local helpers = require("helpers")(after_each)
-local Screen = require("ui.screen")
+local helpers = require("test.functional.helpers")(after_each)
+local Screen = require("test.functional.ui.screen")
 local feed, clear = helpers.feed, helpers.clear
 
 describe("basic screen check", function()

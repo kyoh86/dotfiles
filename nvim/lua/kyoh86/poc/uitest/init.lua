@@ -108,15 +108,11 @@ function M.pull_core(ref, opts)
   local ok, err = system({
     "sh",
     "-c",
-    string.format(
-      [[curl -L "%s" | tar xz --strip-components=1 -C "%s" neovim-%s/test/helpers.lua neovim-%s/test/functional/helpers.lua neovim-%s/test/functional/testutil.lua neovim-%s/test/functional/ui/screen.lua]],
-      url,
-      core_dir,
-      ref,
-      ref,
-      ref,
-      ref
-    ),
+    table.concat({
+      string.format([[curl -L "%s"]], url),
+      [[| tar xz --strip-components=1 --wildcards -C "]] .. core_dir .. [["]],
+      [["*/test/helpers.lua" "*/test/functional/helpers.lua" "*/test/functional/testutil.lua" "*/test/functional/ui/screen.lua"]],
+    }, " "),
   })
   if not ok then
     return false, err
@@ -154,8 +150,8 @@ vim.opt.runtimepath:append("%s")
     [=[
 package.path = "%s" .. "/?.lua;" .. "%s" .. "/?/init.lua;" .. package.path
 
-local helpers = require("helpers")(after_each)
-local Screen = require("ui.screen")
+local helpers = require("test.functional.helpers")(after_each)
+local Screen = require("test.functional.ui.screen")
 local feed, clear = helpers.feed, helpers.clear
 
 describe("basic screen check", function()
