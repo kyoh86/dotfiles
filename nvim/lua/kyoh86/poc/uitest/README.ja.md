@@ -1,12 +1,11 @@
 # kyoh86/nvim-uitest
 
-Neovim プラグイン開発で Screen テスト用の資材をそろえるための小ツールです。`curl | tar` で本体リポジトリの `test` をキャッシュ取得し、最小 init と UI テストの雛形を生成します。
+Neovim プラグイン開発で Screen テスト用の資材をそろえるための小ツールです。`curl | tar` で本体リポジトリの `test` と busted とその依存（Plenary/Penlight/lua_cliargs/mediator_lua/luassert/say）をキャッシュ取得し、最小 init と UI テストの雛形を生成します。
 
 ## 前提
 
 - `nvim` 0.9 以降（`--embed` 対応）
 - `curl` と `tar` が使える環境
-- Plenary を導入済み（Busted ランナーを利用）
 
 ## コマンドを有効化
 
@@ -18,28 +17,35 @@ require("kyoh86.poc.uitest").setup_commands()
 ## 提供コマンド
 
 - `:UITestPull[!] [ref] [-cwd {path}]`  
-  - `test/.uitest/nvimcore/test` に `test`（helpers/testutil/screen.lua など）を展開します。`ref` 省略時は `master`。`-cwd` で作業ディレクトリを指定、`!` で既存を強制上書き。
+  - `test/.uitest/nvimcore/test` に `test`（helpers/testutil/screen.lua など）を展開し、`test/.uitest/` に Plenary と busted の依存（Penlight/lua_cliargs/mediator_lua/luassert/say）を配置します。`ref` 省略時は `master`。`-cwd` で作業ディレクトリを指定、`!` で既存を強制上書き。
 - `:UITestScaffold[!] {name} [-cwd {path}]`  
   - `test/minimal_init.lua` と `test/ui/<name>_spec.lua` を生成します。`name` は必須。`-cwd` で作業ディレクトリを指定、`!` で既存を強制上書き。
 
 ## 生成されるもの
 
 - `test/.uitest/nvimcore/test/` … Neovim 本体の `test` ツリー（`functional/` を含む）
+- `test/.uitest/plenary/` … Plenary（plenary.nvim の Lua ユーティリティ）
+- `test/.uitest/busted/` … busted 本体
+- `test/.uitest/luassert/` … luassert（テストヘルパーで利用）
+- `test/.uitest/say/` … say（luassert の依存）
+- `test/.uitest/penlight/` … Penlight（busted の依存）
+- `test/.uitest/cliargs/` … lua_cliargs（busted の依存）
+- `test/.uitest/mediator/` … mediator_lua（busted の依存）
 - `test/minimal_init.lua` … runtimepath と package.path を通すだけの最小 init
 - `test/ui/<name>_spec.lua` … Screen attach/expect の雛形
 
 ## テストファイルの置き場所
 
-`test/ui/*.lua` を対象に Plenary の Busted ランナーで実行します。`package.path` は `test/minimal_init.lua` 内で `test/.uitest/nvimcore` を通すので、雛形のまま書けば動きます。
+`test/ui/*.lua` を対象に busted を使って実行します。`package.path` は `test/minimal_init.lua` 内で `test/.uitest/nvimcore`、`test/.uitest/plenary`、busted、luassert、say、および busted の依存に通すので、雛形のまま書けば動きます。
 
-## 実行例（Plenary Busted ランナー）
+## 実行例（busted ランナー）
 
 ```sh
 NVIM_APPNAME=plugin-screen-test nvim --headless -u test/minimal_init.lua \
-  -c "lua require('plenary.test_harness').test_directory('test/ui', { minimal_init = 'test/minimal_init.lua', sequential = true })" +qa
+  -c "lua require('busted.runner')({ paths = { 'test/ui' }, standalone = false })" +qa
 ```
 - `NVIM_APPNAME` は任意（環境を汚さない/環境に影響されないため推奨）
-- `NVIM_PROG` を変えたい場合は環境変数でパスを渡せます（helpers が参照）
+- `NVIM_PROG` を変えたい場合は環境変数でパスを渡せます（helpers が参照）。無指定なら現在の `nvim` を使います。
 - `ref` を固定したい場合は `:UITestPull v0.10.3` などで取得し直す
 
 ## 注意
@@ -49,23 +55,32 @@ NVIM_APPNAME=plugin-screen-test nvim --headless -u test/minimal_init.lua \
 - master を取る運用なので、本体の破壊的変更でテストが壊れる可能性があります。安定させたいときはタグを明示して取得してください。
 - 雛形は既存があれば上書きしません。再生成したいときはコマンドに `!` を付けてください。
 - プラグインが外部依存を読む場合は、`test/minimal_init.lua` で必要最低限の設定や runtimepath を追加してください。
+- ネイティブ依存はスタブを同梱しています: `.uitest/penlight/lua/lfs.lua`、`.uitest/busted/system.lua`、`.uitest/busted/term.lua` が自動生成されるので luarocks ビルドは不要です。
 - テストツリーを手動で更新したいとき:  
-  `curl -L https://github.com/neovim/neovim/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 --wildcards -C test/.uitest/nvimcore "*/test"`
+  `curl -L https://github.com/neovim/neovim/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 --wildcards -C test/.uitest/nvimcore "*/test/*"`
+  `curl -L https://github.com/nvim-lua/plenary.nvim/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 -C test/.uitest/plenary`
+  `curl -L https://github.com/Olivine-Labs/busted/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 -C test/.uitest/busted "busted-master/busted" "busted-master/busted.lua"`
+  `curl -L https://github.com/lunarmodules/luassert/archive/refs/heads/master.tar.gz | tar xz --strip-components=2 -C test/.uitest/luassert "luassert-master/src"`
+  `curl -L https://github.com/Olivine-Labs/say/archive/refs/heads/master.tar.gz | tar xz --strip-components=2 -C test/.uitest/say "say-master/src"`
+  `curl -L https://github.com/lunarmodules/Penlight/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 -C test/.uitest/penlight "Penlight-master/lua"`
+  `curl -L https://github.com/amireh/lua_cliargs/archive/refs/heads/master.tar.gz | tar xz --strip-components=2 -C test/.uitest/cliargs "lua_cliargs-master/src"`
+  `curl -L https://github.com/Olivine-Labs/mediator_lua/archive/refs/heads/master.tar.gz | tar xz --strip-components=2 -C test/.uitest/mediator "mediator_lua-master/src"`
 
 ## Screen のざっくり使い方
 
 ```lua
-package.path = vim.fn.getcwd() .. "/test/.uitest/nvimcore/?.lua;" .. vim.fn.getcwd() .. "/test/.uitest/nvimcore/?/init.lua;" .. package.path
+package.path = vim.fn.getcwd() .. "/test/.uitest/nvimcore/?.lua;" .. vim.fn.getcwd() .. "/test/.uitest/nvimcore/?/init.lua;" .. vim.fn.getcwd() .. "/test/.uitest/busted/?.lua;" .. vim.fn.getcwd() .. "/test/.uitest/busted/?/init.lua;" .. vim.fn.getcwd() .. "/test/.uitest/luassert/?.lua;" .. vim.fn.getcwd() .. "/test/.uitest/luassert/?/init.lua;" .. vim.fn.getcwd() .. "/test/.uitest/say/?.lua;" .. vim.fn.getcwd() .. "/test/.uitest/say/?/init.lua;" .. vim.fn.getcwd() .. "/test/.uitest/penlight/lua/?.lua;" .. vim.fn.getcwd() .. "/test/.uitest/penlight/lua/?/init.lua;" .. vim.fn.getcwd() .. "/test/.uitest/cliargs/?.lua;" .. vim.fn.getcwd() .. "/test/.uitest/cliargs/?/init.lua;" .. vim.fn.getcwd() .. "/test/.uitest/mediator/?.lua;" .. vim.fn.getcwd() .. "/test/.uitest/mediator/?/init.lua;" .. vim.fn.getcwd() .. "/test/.uitest/plenary/lua/?.lua;" .. vim.fn.getcwd() .. "/test/.uitest/plenary/lua/?/init.lua;" .. package.path
 
-local helpers = require("test.functional.helpers")(after_each)
+local t = require("test.testutil")
+local n = require("test.functional.testnvim")()
 local Screen = require("test.functional.ui.screen")
-local feed, clear = helpers.feed, helpers.clear
+local feed, clear = n.feed, n.clear
 
 describe("basic screen check", function()
   local screen
 
   before_each(function()
-    clear({ args = { "-u", vim.fn.getcwd() .. "/test/minimal_init.lua", "--cmd", "set shortmess+=I" } })
+    clear()
     screen = Screen.new(40, 8)
     screen:attach()
   end)
