@@ -1,6 +1,6 @@
 # kyoh86/nvim-uitest
 
-Neovim プラグイン開発で Screen テスト用の資材をそろえるための小ツールです。`curl | tar` で本体リポジトリの Screen 周辺ファイルを取り込み、最小 init と UI テストの雛形を生成します。
+Neovim プラグイン開発で Screen テスト用の資材をそろえるための小ツールです。`curl | tar` で本体リポジトリの `test` をキャッシュ取得し、最小 init と UI テストの雛形を生成します。
 
 ## 前提
 
@@ -18,19 +18,19 @@ require("kyoh86.poc.uitest").setup_commands()
 ## 提供コマンド
 
 - `:UITestPull[!] [ref] [-cwd {path}]`  
-  - `test/nvimcore/functional` に必要最小限の Screen 周辺（helpers/testutil/screen.lua など）を展開します。`ref` 省略時は `master`。`-cwd` で作業ディレクトリを指定、`!` で既存を強制上書き。
+  - `test/.uitest/nvimcore/test` に `test`（helpers/testutil/screen.lua など）を展開します。`ref` 省略時は `master`。`-cwd` で作業ディレクトリを指定、`!` で既存を強制上書き。
 - `:UITestScaffold[!] {name} [-cwd {path}]`  
   - `test/minimal_init.lua` と `test/ui/<name>_spec.lua` を生成します。`name` は必須。`-cwd` で作業ディレクトリを指定、`!` で既存を強制上書き。
 
 ## 生成されるもの
 
-- `test/nvimcore/functional/` … Neovim 本体の Screen/Helpers（必要最小限）
+- `test/.uitest/nvimcore/test/` … Neovim 本体の `test` ツリー（`functional/` を含む）
 - `test/minimal_init.lua` … runtimepath と package.path を通すだけの最小 init
 - `test/ui/<name>_spec.lua` … Screen attach/expect の雛形
 
 ## テストファイルの置き場所
 
-`test/ui/*.lua` を対象に Plenary の Busted ランナーで実行します。`package.path` は `test/minimal_init.lua` 内で `test/nvimcore` を通すので、雛形のまま書けば動きます。
+`test/ui/*.lua` を対象に Plenary の Busted ランナーで実行します。`package.path` は `test/minimal_init.lua` 内で `test/.uitest/nvimcore` を通すので、雛形のまま書けば動きます。
 
 ## 実行例（Plenary Busted ランナー）
 
@@ -44,16 +44,18 @@ NVIM_APPNAME=plugin-screen-test nvim --headless -u test/minimal_init.lua \
 
 ## 注意
 
+- `test/.uitest/` は生成物なので VCS から除外する前提（`test/.uitest/` 配下に `.gitignore` を自動配置します）。
+- キャッシュを消した場合はテスト実行前に `:UITestPull` を実行してください。
 - master を取る運用なので、本体の破壊的変更でテストが壊れる可能性があります。安定させたいときはタグを明示して取得してください。
 - 雛形は既存があれば上書きしません。再生成したいときはコマンドに `!` を付けてください。
 - プラグインが外部依存を読む場合は、`test/minimal_init.lua` で必要最低限の設定や runtimepath を追加してください。
-- `test/functional` を丸ごと使いたいときは手動で取得してください:  
-  `curl -L https://github.com/neovim/neovim/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 -C test/nvimcore "*/test/functional"`
+- テストツリーを手動で更新したいとき:  
+  `curl -L https://github.com/neovim/neovim/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 --wildcards -C test/.uitest/nvimcore "*/test"`
 
 ## Screen のざっくり使い方
 
 ```lua
-package.path = vim.fn.getcwd() .. "/test/nvimcore/?.lua;" .. vim.fn.getcwd() .. "/test/nvimcore/?/init.lua;" .. package.path
+package.path = vim.fn.getcwd() .. "/test/.uitest/nvimcore/?.lua;" .. vim.fn.getcwd() .. "/test/.uitest/nvimcore/?/init.lua;" .. package.path
 
 local helpers = require("test.functional.helpers")(after_each)
 local Screen = require("test.functional.ui.screen")

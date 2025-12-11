@@ -97,13 +97,15 @@ function M.pull_core(ref, opts)
   opts = opts or {}
   local cwd = opts.cwd or vim.fn.getcwd()
   local root = normalize_root(opts.root, cwd)
-  local core_dir = join_path(root, "nvimcore")
-  local target = join_path(core_dir, "functional")
+  local core_dir = join_path(root, ".uitest", "nvimcore")
+  local target = join_path(core_dir, "test")
   if vim.fn.isdirectory(target) == 1 and not opts.force then
     return false, string.format("%s already exists (use force to overwrite)", target)
   end
   vim.fn.delete(target, "rf")
   vim.fn.mkdir(core_dir, "p")
+  -- Keep cache out of VCS for consumers
+  write_file(join_path(root, ".uitest", ".gitignore"), "*\n")
   local url = string.format("https://github.com/neovim/neovim/archive/refs/heads/%s.tar.gz", ref)
   local ok, err = system({
     "sh",
@@ -111,7 +113,7 @@ function M.pull_core(ref, opts)
     table.concat({
       string.format([[curl -L "%s"]], url),
       [[| tar xz --strip-components=1 --wildcards -C "]] .. core_dir .. [["]],
-      [["*/test/helpers.lua" "*/test/functional/helpers.lua" "*/test/functional/testutil.lua" "*/test/functional/ui/screen.lua"]],
+      [["*/test"]],
     }, " "),
   })
   if not ok then
@@ -127,7 +129,7 @@ function M.scaffold(name, opts)
   opts = opts or {}
   local cwd = opts.cwd or vim.fn.getcwd()
   local root = normalize_root(opts.root, cwd)
-  local core_dir = join_path(root, "nvimcore")
+  local core_dir = join_path(root, ".uitest", "nvimcore")
   local ui_dir = join_path(root, "ui")
   local minimal_init = join_path(root, "minimal_init.lua")
   if not name or name == "" then
@@ -204,7 +206,7 @@ function M.setup_commands()
     if not ok then
       notify_error(err)
     else
-      vim.notify("pulled test/functional from Neovim " .. (ref or "master"))
+      vim.notify("pulled test tree from Neovim " .. (ref or "master"))
     end
   end, {
     nargs = "*",
