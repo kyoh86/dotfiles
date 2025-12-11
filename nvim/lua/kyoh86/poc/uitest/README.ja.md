@@ -18,7 +18,7 @@ require("kyoh86.poc.uitest").setup_commands()
 ## 提供コマンド
 
 - `:UITestPull[!] [ref] [-cwd {path}]`  
-  - `test/nvimcore/functional` に Neovim 本体の `test/functional` を展開します。`ref` 省略時は `master`。`-cwd` で作業ディレクトリを指定、`!` で既存を強制上書き。
+  - `test/nvimcore/functional` に必要最小限の Screen 周辺（helpers/testutil/screen.lua など）を展開します。`ref` 省略時は `master`。`-cwd` で作業ディレクトリを指定、`!` で既存を強制上書き。
 - `:UITestScaffold[!] {name} [-cwd {path}]`  
   - `test/minimal_init.lua` と `test/ui/<name>_spec.lua` を生成します。`name` は必須。`-cwd` で作業ディレクトリを指定、`!` で既存を強制上書き。
 
@@ -41,6 +41,7 @@ NVIM_APPNAME=plugin-screen-test nvim --headless -u test/minimal_init.lua \
 - `NVIM_APPNAME` は任意（環境を汚さない/環境に影響されないため推奨）
 - `NVIM_PROG` を変えたい場合は環境変数でパスを渡せます（helpers が参照）
 - `ref` を固定したい場合は `:UITestPull v0.10.3` などで取得し直す
+- 軽量化したいときは `:UITestPull -minimal`（Screen/Helpers 周辺のみ）。不足が出る場合は `-full` で全量取得。
 
 ## 注意
 

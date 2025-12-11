@@ -89,7 +89,7 @@ local function system(cmd, cwd)
   return true
 end
 
--- Pull test/functional from Neovim repo via tarball.
+--- Pull minimal Screen dependencies from Neovim repo via tarball.
 ---@param ref string? branch or tag. default "master"
 ---@param opts {root?:string, force?:boolean, cwd?:string}? options
 function M.pull_core(ref, opts)
@@ -108,7 +108,15 @@ function M.pull_core(ref, opts)
   local ok, err = system({
     "sh",
     "-c",
-    string.format([[curl -L "%s" | tar xz --strip-components=1 -C "%s" "neovim-%s/test/functional"]], url, core_dir, ref),
+    string.format(
+      [[curl -L "%s" | tar xz --strip-components=1 -C "%s" neovim-%s/test/helpers.lua neovim-%s/test/functional/helpers.lua neovim-%s/test/functional/testutil.lua neovim-%s/test/functional/ui/screen.lua]],
+      url,
+      core_dir,
+      ref,
+      ref,
+      ref,
+      ref
+    ),
   })
   if not ok then
     return false, err
