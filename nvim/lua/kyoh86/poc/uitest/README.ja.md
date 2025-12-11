@@ -39,7 +39,13 @@ require("kyoh86.poc.uitest").setup_commands()
 
 ## テストファイルの置き場所
 
-`test/ui/*.lua` を対象に busted を使って実行します。`package.path` は `test/minimal_init.lua` 内で `test/.uitest/nvimcore`、`test/.uitest/plenary`、busted、luassert、say、および busted の依存に通すので、雛形のまま書けば動きます。
+`test/ui/*.lua` を対象に busted を使って実行します。`package.path` は `test/minimal_init.lua` 内で `test/.uitest/nvimcore`、`test/.uitest/plenary`、busted、luassert、say、および busted の依存に通すので、雛形のまま書けば動きます。プロジェクトルートも runtimepath に追加されるので `lua/` 配下のモジュールはそのまま `require` 可能です。別のルートを足したい場合は `test/minimal_init.lua` や各 spec 冒頭で以下のように追加できます:
+
+```lua
+local root = vim.fs.normalize("path/to/module/root")
+vim.opt.runtimepath:append(root)
+package.path = root .. "/?.lua;" .. root .. "/?/init.lua;" .. package.path
+```
 
 ## 実行例（busted ランナー）
 

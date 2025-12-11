@@ -39,7 +39,13 @@ require("kyoh86.poc.uitest").setup_commands()
 
 ## Where to put tests
 
-Place specs under `test/ui/*.lua`. `package.path` is wired in `test/minimal_init.lua` to include `test/.uitest/nvimcore`, `test/.uitest/plenary`, busted, luassert, say, and busted dependencies so the scaffolded code runs as-is.
+Place specs under `test/ui/*.lua`. `package.path` is wired in `test/minimal_init.lua` to include `test/.uitest/nvimcore`, `test/.uitest/plenary`, busted, luassert, say, and busted dependencies so the scaffolded code runs as-is. The project root is appended to `runtimepath`, so modules under your `lua/` can be `require`d directly. For extra roots, append in `test/minimal_init.lua` or per-spec:
+
+```lua
+local root = vim.fs.normalize("path/to/module/root")
+vim.opt.runtimepath:append(root)
+package.path = root .. "/?.lua;" .. root .. "/?/init.lua;" .. package.path
+```
 
 ## Running tests (busted runner)
 
