@@ -106,6 +106,7 @@ function M.pull_core(ref, opts)
   local penlight_dir = join_path(vendor_root, "penlight")
   local cliargs_dir = join_path(vendor_root, "cliargs")
   local mediator_dir = join_path(vendor_root, "mediator")
+  local runtime_dir = join_path(vendor_root, "runtime")
   local cmakeconfig_dir = join_path(core_dir, "test", "cmakeconfig")
   local paths_lua = join_path(cmakeconfig_dir, "paths.lua")
   if vim.fn.isdirectory(vendor_root) == 1 and not opts.force then
@@ -212,6 +213,7 @@ function M.pull_core(ref, opts)
   if not ok_med then
     return false, err_med
   end
+  vim.fn.mkdir(runtime_dir, "p")
   vim.fn.delete(busted_dir, "rf")
   vim.fn.mkdir(busted_dir, "p")
   local busted_url = "https://github.com/Olivine-Labs/busted/archive/refs/heads/master.tar.gz"
@@ -415,14 +417,6 @@ function M.scaffold(name, opts)
   opts = opts or {}
   local cwd = opts.cwd or vim.fn.getcwd()
   local root = normalize_root(opts.root, cwd)
-  local core_dir = join_path(root, ".uitest", "nvimcore")
-  local plenary_dir = join_path(root, ".uitest", "plenary")
-  local busted_dir = join_path(root, ".uitest", "busted")
-  local luassert_dir = join_path(root, ".uitest", "luassert")
-  local say_dir = join_path(root, ".uitest", "say")
-  local penlight_dir = join_path(root, ".uitest", "penlight")
-  local cliargs_dir = join_path(root, ".uitest", "cliargs")
-  local mediator_dir = join_path(root, ".uitest", "mediator")
   local ui_dir = join_path(root, "ui")
   local minimal_init = join_path(root, "minimal_init.lua")
   local runner_path = join_path(ui_dir, "run.lua")
@@ -450,6 +444,7 @@ local penlight = join(vendor_root, "penlight")
 local cliargs = join(vendor_root, "cliargs")
 local mediator = join(vendor_root, "mediator")
 local plenary = join(vendor_root, "plenary")
+local runtime_dir = join(vendor_root, "runtime")
 
 package.path = nvimcore .. "/?.lua;" .. nvimcore .. "/?/init.lua;"
   .. busted .. "/?.lua;" .. busted .. "/?/init.lua;"
@@ -466,6 +461,7 @@ vim.env.NVIM_PRG = vim.env.NVIM_PRG or vim.v.progpath
 if not vim.env.NVIM_APPNAME or vim.env.NVIM_APPNAME == "" then
   vim.env.NVIM_APPNAME = "nvim-uitest"
 end
+vim.env.XDG_RUNTIME_DIR = vim.env.XDG_RUNTIME_DIR or runtime_dir
 vim.g.loaded_remote_plugins = 1
 vim.o.shadafile = "NONE"
 vim.opt.runtimepath:append(plenary)
@@ -479,8 +475,8 @@ vim.opt.runtimepath:append(nvimcore)
 vim.opt.runtimepath:append(project_root)
 ]]
 
-local spec_body = string.format(
-  [=[
+  local spec_body = string.format(
+    [=[
 local script_dir = vim.fs.dirname(vim.fs.normalize(debug.getinfo(1, "S").source:sub(2)))
 local project_root = vim.fs.normalize(script_dir .. "/../..")
 
@@ -525,11 +521,11 @@ describe("basic screen check", function()
   end)
 end)
 ]=],
-  minimal_init
-)
+    minimal_init
+  )
 
   local spec_path = join_path(ui_dir, string.format("%s_spec.lua", name))
-local run_body = [[
+  local run_body = [[
 -- Convenience runner for busted UI tests.
 local script = vim.fs.normalize(vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p"))
 local ui_dir = vim.fs.dirname(script)

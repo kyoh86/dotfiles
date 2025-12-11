@@ -17,6 +17,7 @@ local penlight = join(vendor_root, "penlight")
 local cliargs = join(vendor_root, "cliargs")
 local mediator = join(vendor_root, "mediator")
 local plenary = join(vendor_root, "plenary")
+local runtime_dir = join(vendor_root, "runtime")
 
 package.path = nvimcore .. "/?.lua;" .. nvimcore .. "/?/init.lua;"
   .. busted .. "/?.lua;" .. busted .. "/?/init.lua;"
@@ -33,6 +34,7 @@ vim.env.NVIM_PRG = vim.env.NVIM_PRG or vim.v.progpath
 if not vim.env.NVIM_APPNAME or vim.env.NVIM_APPNAME == "" then
   vim.env.NVIM_APPNAME = "nvim-uitest"
 end
+vim.env.XDG_RUNTIME_DIR = vim.env.XDG_RUNTIME_DIR or runtime_dir
 vim.g.loaded_remote_plugins = 1
 vim.o.shadafile = "NONE"
 vim.opt.runtimepath:append(plenary)
