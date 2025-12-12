@@ -129,37 +129,24 @@ local function open_preview()
   end
   close_preview()
   local buf = vim.api.nvim_create_buf(false, true)
-  local original = vim.api.nvim_buf_get_lines(state.pos.buf, 0, -1, false)
-  local new_lines = { unpack(original) }
-  local insert_at = math.min(state.pos.row + 1, #new_lines)
-  for i = #state.suggestion, 1, -1 do
-    table.insert(new_lines, insert_at + 1, state.suggestion[i])
-  end
 
-  local diff = vim.text.diff(table.concat(original, "\n"), table.concat(new_lines, "\n"), { result_type = "unified" }) --[[@as string result_type="unified" returns string]]
-  local lines = {
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
     "Codex suggestion",
     string.format("File: %s", vim.fn.fnamemodify(vim.api.nvim_buf_get_name(state.pos.buf), ":~:.")),
     "Apply: <CR>/a | Close: q",
     "",
-  }
-  if diff and diff ~= "" then
-    for line in diff:gmatch("([^\n]*)\n?") do
-      if line ~= "" then
-        lines[#lines + 1] = line
-      end
-    end
-  else
-    vim.list_extend(lines, state.suggestion)
-  end
+    string.format("``````%s", vim.bo[state.pos.buf].filetype),
+  })
+  vim.api.nvim_buf_set_lines(buf, -1, -1, false, state.suggestion)
+  vim.api.nvim_buf_set_lines(buf, -1, -1, false, { "``````" })
 
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
   vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+  vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
   vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
 
   local width = math.min(math.max(40, math.floor(vim.o.columns * 0.6)), vim.o.columns)
-  local height = math.min(#lines, math.max(6, math.floor(vim.o.lines * 0.6)))
+  local height = math.min(#state.suggestion + 6, math.max(6, math.floor(vim.o.lines * 0.6)))
   local win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",
     row = math.floor((vim.o.lines - height) / 2),
@@ -169,15 +156,9 @@ local function open_preview()
     style = "minimal",
     border = "single",
   })
-  vim.keymap.set("n", "<CR>", function()
-    apply()
-  end, { buffer = buf, silent = true })
-  vim.keymap.set("n", "a", function()
-    apply()
-  end, { buffer = buf, silent = true })
-  vim.keymap.set("n", "q", function()
-    reset()
-  end, { buffer = buf, silent = true })
+  vim.keymap.set("n", "<CR>", apply, { buffer = buf, silent = true })
+  vim.keymap.set("n", "a", apply, { buffer = buf, silent = true })
+  vim.keymap.set("n", "q", reset, { buffer = buf, silent = true })
   state.preview = { buf = buf, win = win }
 end
 
@@ -289,15 +270,15 @@ local function read_file(path)
   return content
 end
 
-local function run_request(buf, row, col, conf)
+local function run_request(buf, row, col, opts)
   if vim.fn.executable("codex") == 0 then
     vim.notify("codex CLI not found in PATH", vim.log.levels.ERROR)
     return
   end
-  if should_skip(buf, conf) then
+  if should_skip(buf, opts) then
     return
   end
-  log_event(conf, string.format("request row=%d col=%d file=%s", row + 1, col + 1, relpath(vim.api.nvim_buf_get_name(buf))))
+  log_event(opts, string.format("request row=%d col=%d file=%s", row + 1, col + 1, relpath(vim.api.nvim_buf_get_name(buf))))
 
   clear_mark()
 
@@ -306,7 +287,7 @@ local function run_request(buf, row, col, conf)
   local pos = { buf = buf, row = row, col = col }
   state.pos = pos
   local tick = vim.api.nvim_buf_get_changedtick(buf)
-  local prompt = build_prompt(pos, conf)
+  local prompt = build_prompt(pos, opts)
   if not prompt then
     return
   end
@@ -317,9 +298,9 @@ local function run_request(buf, row, col, conf)
   local tmpfile = vim.fn.tempname()
 
   local args = { "codex", "exec" }
-  if conf.model then
+  if opts.model then
     args[#args + 1] = "-m"
-    args[#args + 1] = conf.model
+    args[#args + 1] = opts.model
   end
   vim.list_extend(args, { "--color=never", "--skip-git-repo-check", "--output-last-message", tmpfile, "-" })
 
@@ -347,12 +328,12 @@ local function run_request(buf, row, col, conf)
       end
       if obj.code ~= 0 then
         vim.notify("Codex ghost failed: " .. (obj.stderr or obj.stdout or "unknown error"), vim.log.levels.ERROR)
-        log_event(conf, string.format("fail code=%s msg=%s", tostring(obj.code), obj.stderr or obj.stdout or "unknown"))
+        log_event(opts, string.format("fail code=%s msg=%s", tostring(obj.code), obj.stderr or obj.stdout or "unknown"))
         return
       end
       if not suggestion or suggestion == "" then
         vim.notify("Codex suggested empty")
-        log_event(conf, "empty suggestion")
+        log_event(opts, "empty suggestion")
         return
       end
       local lines = vim.split(suggestion, "\n", { plain = true })
@@ -361,16 +342,16 @@ local function run_request(buf, row, col, conf)
       state.pos = pos
       state.base_tick = tick
       open_preview()
-      log_event(conf, string.format("ok lines=%d file=%s", #lines, relpath(vim.api.nvim_buf_get_name(buf))))
+      log_event(opts, string.format("ok lines=%d file=%s", #lines, relpath(vim.api.nvim_buf_get_name(buf))))
     end)
   end)
-  if conf.timeout_ms and conf.timeout_ms > 0 then
+  if opts.timeout_ms and opts.timeout_ms > 0 then
     state.job_timer = vim.defer_fn(function()
       if state.job then
-        log_event(conf, "timeout; killing job")
+        log_event(opts, "timeout; killing job")
         cancel_pending("Codex ghost timed out")
       end
-    end, conf.timeout_ms)
+    end, opts.timeout_ms)
   end
 end
 
@@ -379,11 +360,11 @@ function M.dismiss()
 end
 
 function M.accept()
-  return apply()
+  apply()
 end
 
-function M.request(opts)
-  run_request(vim.api.nvim_get_current_buf(), vim.api.nvim_win_get_cursor(0)[1] - 1, vim.api.nvim_win_get_cursor(0)[2], vim.tbl_extend("force", state.config, opts or {}))
+function M.request()
+  run_request(vim.api.nvim_get_current_buf(), vim.api.nvim_win_get_cursor(0)[1] - 1, vim.api.nvim_win_get_cursor(0)[2], vim.tbl_extend("force", state.config, {}))
 end
 
 function M.show_last()
@@ -397,18 +378,10 @@ end
 function M.setup(opts)
   state.config = config.setup(opts)
 
-  vim.api.nvim_create_user_command("CodexGhost", function()
-    M.request()
-  end, {})
-  vim.api.nvim_create_user_command("CodexGhostAccept", function()
-    M.accept()
-  end, {})
-  vim.api.nvim_create_user_command("CodexGhostDismiss", function()
-    M.dismiss()
-  end, {})
-  vim.api.nvim_create_user_command("CodexGhostShowLast", function()
-    M.show_last()
-  end, {})
+  vim.api.nvim_create_user_command("CodexGhost", M.request, {})
+  vim.api.nvim_create_user_command("CodexGhostAccept", M.accept, {})
+  vim.api.nvim_create_user_command("CodexGhostDismiss", M.dismiss, {})
+  vim.api.nvim_create_user_command("CodexGhostShowLast", M.show_last, {})
 end
 
 -- testing helper
