@@ -3,13 +3,10 @@ local project_root = vim.fs.normalize(script_dir .. "/../..")
 
 local t = require("test.testutil")
 local n = require("test.functional.testnvim")()
-local Screen = require("test.functional.ui.screen")
 local feed, clear = n.feed, n.clear
 local eq = t.eq
 
 describe("basic screen check", function()
-  local screen
-
   before_each(function()
     pcall(function()
       if n.get_session() then
@@ -27,13 +24,9 @@ describe("basic screen check", function()
     ]],
       project_root
     )
-    screen = Screen.new(20, 10)
   end)
 
   after_each(function()
-    if screen then
-      screen:detach()
-    end
     if n.get_session() then
       n.stop()
     end
@@ -41,7 +34,6 @@ describe("basic screen check", function()
 
   it("applies suggestion when buffer unchanged", function()
     feed("iline1<CR>line2<CR>line3<Esc>")
-    local buf = n.api.nvim_get_current_buf()
     n.exec_lua([[require("kyoh86.poc.codex_ghost")._stage_for_test(...)]], { row = 0, col = 0 }, { "ghost1", "ghost2" }, { no_preview = true })
     local res = n.exec_lua([[local ok,msg=require("kyoh86.poc.codex_ghost").accept(); return {ok,msg}]])
     assert(res[1], res[2])
@@ -52,7 +44,6 @@ describe("basic screen check", function()
 
   it("inserts conflict markers when buffer changed", function()
     feed("iline1<CR>line2<CR>line3<Esc>")
-    local buf = n.api.nvim_get_current_buf()
     n.exec_lua([[require("kyoh86.poc.codex_ghost")._stage_for_test(...)]], { row = 0, col = 0 }, { "ghost1", "ghost2" }, { no_preview = true })
     feed("Goedited<Esc>")
     local res = n.exec_lua([[local ok,msg=require("kyoh86.poc.codex_ghost").accept(); return {ok,msg}]])

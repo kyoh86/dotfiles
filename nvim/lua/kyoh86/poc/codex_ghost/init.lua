@@ -153,7 +153,7 @@ local function open_preview()
 
   local width = math.min(math.max(40, math.floor(vim.o.columns * 0.6)), vim.o.columns)
   local height = math.min(#lines, math.max(6, math.floor(vim.o.lines * 0.6)))
-  local win = vim.api.nvim_open_win(buf, false, {
+  local win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",
     row = math.floor((vim.o.lines - height) / 2),
     col = math.floor((vim.o.columns - width) / 2),
