@@ -1,5 +1,8 @@
 local M = {}
 
+--- Load annotation library: vim.uv
+_ = vim.uv
+
 local config = require("kyoh86.poc.codex_ghost.config")
 
 --- @class codex_ghost.RequestToken
@@ -107,6 +110,12 @@ local function apply_current()
   return true, "applied"
 end
 
+local function reset()
+  clear_job()
+  clear_mark()
+  clear_pos()
+end
+
 local function open_preview()
   if not state.pos or not state.suggestion then
     return
@@ -120,7 +129,7 @@ local function open_preview()
     table.insert(new_lines, insert_at + 1, state.suggestion[i])
   end
 
-  local diff = vim.diff(table.concat(original, "\n"), table.concat(new_lines, "\n"), { result_type = "unified" })
+  local diff = vim.text.diff(table.concat(original, "\n"), table.concat(new_lines, "\n"), { result_type = "unified" }) --[[@as string result_type="unified" returns string]]
   local lines = {
     "Codex suggestion",
     string.format("File: %s", vim.fn.fnamemodify(vim.api.nvim_buf_get_name(state.pos.buf), ":~:.")),
@@ -179,12 +188,6 @@ local function open_preview()
     reset()
   end, { buffer = buf, silent = true })
   state.preview = { buf = buf, win = win }
-end
-
-local function reset()
-  clear_job()
-  clear_mark()
-  clear_pos()
 end
 
 local function cancel_pending(reason)
@@ -414,18 +417,6 @@ function M.show_last()
   vim.notify(table.concat(state.last.suggestion, "\\n"), vim.log.levels.INFO)
 end
 
-local function setup_autocmds()
-  local group = vim.api.nvim_create_augroup("kyoh86-codex-ghost", { clear = true })
-  vim.api.nvim_create_autocmd({ "CursorMovedI", "InsertLeave" }, {
-    group = group,
-    callback = function()
-      if state.job then
-        cancel_pending("Codex ghost cancelled (moved or left insert)")
-      end
-    end,
-  })
-end
-
 function M.setup(opts)
   state.config = config.setup(opts)
 
@@ -441,8 +432,6 @@ function M.setup(opts)
   vim.api.nvim_create_user_command("CodexGhostShowLast", function()
     M.show_last()
   end, {})
-
-  setup_autocmds()
 end
 
 -- testing helper
