@@ -1,6 +1,14 @@
 check_for_update_on_startup = false
 update_on_startup = false
 
+[profiles.local-qwen]
+model = "qwen3-vl:30b"
+model_provider = "ollama"
+
+[model_providers.ollama]
+name = "Ollama"
+base_url = "http://localhost:11434/v1"
+
 [projects."/home/kyoh86/Projects/github.com/kyoh86/dotfiles"]
 trust_level = "trusted"
 
