@@ -36,12 +36,6 @@ end
 --- @type codex_ghost.State
 local state = {
   request_token = new_token(),
-  pos = nil,
-  suggestion = nil,
-  job = nil,
-  job_timer = nil,
-  last = nil,
-  config = nil,
 }
 
 local function close_preview()
@@ -78,6 +72,13 @@ local function clear_pos()
   state.pos = nil
 end
 
+local function reset()
+  clear_job()
+  clear_mark()
+  clear_pos()
+  close_preview()
+end
+
 local function apply_current()
   if not state.pos or not state.suggestion then
     return false, "no suggestion"
@@ -110,10 +111,16 @@ local function apply_current()
   return true, "applied"
 end
 
-local function reset()
-  clear_job()
-  clear_mark()
-  clear_pos()
+local function apply()
+  local ok, msg = apply_current()
+  if not ok then
+    vim.notify("Codex apply failed: " .. msg, vim.log.levels.ERROR)
+  elseif msg == "conflict" then
+    vim.notify("Codex apply: conflict markers inserted", vim.log.levels.WARN)
+  else
+    vim.notify("Codex applied", vim.log.levels.INFO)
+  end
+  reset()
 end
 
 local function open_preview()
@@ -163,26 +170,10 @@ local function open_preview()
     border = "single",
   })
   vim.keymap.set("n", "<CR>", function()
-    local ok, msg = apply_current()
-    if not ok then
-      vim.notify("Codex apply failed: " .. msg, vim.log.levels.ERROR)
-    elseif msg == "conflict" then
-      vim.notify("Codex apply: conflict markers inserted", vim.log.levels.WARN)
-    else
-      vim.notify("Codex applied", vim.log.levels.INFO)
-    end
-    reset()
+    apply()
   end, { buffer = buf, silent = true })
   vim.keymap.set("n", "a", function()
-    local ok, msg = apply_current()
-    if not ok then
-      vim.notify("Codex apply failed: " .. msg, vim.log.levels.ERROR)
-    elseif msg == "conflict" then
-      vim.notify("Codex apply: conflict markers inserted", vim.log.levels.WARN)
-    else
-      vim.notify("Codex applied", vim.log.levels.INFO)
-    end
-    reset()
+    apply()
   end, { buffer = buf, silent = true })
   vim.keymap.set("n", "q", function()
     reset()
@@ -388,21 +379,7 @@ function M.dismiss()
 end
 
 function M.accept()
-  local ok, applied, detail = pcall(apply_current)
-  if not ok then
-    vim.notify("Codex apply failed: " .. applied, vim.log.levels.ERROR)
-    reset()
-    return false, applied
-  end
-  if not applied then
-    vim.notify("Codex apply failed: " .. tostring(detail), vim.log.levels.ERROR)
-  elseif detail == "conflict" then
-    vim.notify("Codex apply: conflict markers inserted", vim.log.levels.WARN)
-  else
-    vim.notify("Codex applied", vim.log.levels.INFO)
-  end
-  reset()
-  return applied, detail
+  return apply()
 end
 
 function M.request(opts)
