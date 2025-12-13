@@ -1,0 +1,123 @@
+local M = {}
+
+--- @class codex_ghost.Context
+--- @field filename string
+--- @field filetype string
+--- @field before string[]
+--- @field line string
+--- @field after string[]
+--- @field pos codex_ghost.Position
+
+--- @class Agent
+--- @field opts codex_ghost.Config
+--- @field stop_timeout fun(self: Agent)
+--- @field reset fun(self: Agent)
+--- @field request fun(self: Agent, context: codex_ghost.Context, callback: fun(prompt: string, suggestion: string[]))
+
+--- @param opts codex_ghost.Config
+--- @return Agent
+function M.new(opts)
+  local instance = {
+    job = nil,
+    job_timer = nil,
+    opts = opts,
+  }
+  setmetatable(instance, M)
+  return instance
+end
+
+function M:stop_timeout()
+  if self.job_timer and not self.job_timer:is_closing() then
+    self.job_timer:stop()
+    self.job_timer:close()
+  end
+  self.job_timer = nil
+end
+
+function M:reset()
+  if self.job then
+    pcall(function()
+      self.job:kill("term")
+    end)
+  end
+  self:stop_timeout()
+  self.job = nil
+end
+
+--- Build prompt message to pass to the Codex
+--- @param context codex_ghost.Context
+local function build_prompt(context)
+  return table.concat({
+    "You are a code completion engine.",
+    "Continue the code at the cursor position.",
+    "Return only the continuation to insert (no markdown, no fences, no explanations).",
+    "Keep indentation consistent and avoid repeating the existing suffix.",
+    string.format("Filetype: %s", context.filetype),
+    string.format("Filename: %s", context.filename),
+    string.format("Cursor: line %d, column %d", context.pos.row + 1, context.pos.col + 1),
+    "--- BEFORE ---",
+    context.before, -- TODO: expand
+    "--- CURRENT ---",
+    context.line,
+    "--- AFTER ---",
+    context.after,
+  }, "\n")
+end
+
+local function read_file(path)
+  local fd = io.open(path, "r")
+  if not fd then
+    return nil
+  end
+  local content = fd:read("*a")
+  fd:close()
+  return content
+end
+
+function M:request(context, callback)
+  local prompt = build_prompt(context)
+  if not prompt then
+    return
+  end
+  local tmpfile = vim.fn.tempname()
+
+  local args = { "codex", "exec" }
+  if self.opts.model then
+    vim.list_extend(args, { "-m", self.opts.model })
+  end
+  vim.list_extend(args, { "--color=never", "--skip-git-repo-check", "--output-last-message", tmpfile, "-" })
+
+  self.job = vim.system(args, { stdin = prompt, text = true }, function(obj)
+    self:stop_timeout()
+
+    local response = read_file(tmpfile):gsub("\r", "")
+    os.remove(tmpfile)
+
+    if obj.code ~= 0 then
+      vim.notify("Codex failed: " .. (obj.stderr or obj.stdout or "unknown error"), vim.log.levels.ERROR)
+      vim.notify(string.format("fail code=%s msg=%s", tostring(obj.code), obj.stderr or obj.stdout or "unknown"), vim.log.levels.TRACE)
+      return
+    end
+    if not response or response == "" then
+      vim.notify("Codex suggested empty")
+      return
+    end
+    local suggestion = vim.split(response, "\n", { plain = true })
+    vim.notify(string.format("ok lines=%d file=%s", #suggestion, context.filename), vim.log.levels.TRACE)
+    vim.schedule(function()
+      callback(prompt, suggestion)
+    end)
+    self:reset()
+  end)
+  if self.opts.timeout_ms and self.opts.timeout_ms > 0 then
+    self.job_timer = vim.defer_fn(function()
+      if self.job then
+        vim.notify("Codex ghost timed out", vim.log.levels.INFO)
+        vim.notify("timeout; killing job", vim.log.levels.TRACE)
+        self:reset()
+      end
+    end, self.opts.timeout_ms)
+  end
+end
+
+return M

@@ -87,23 +87,17 @@ local function apply_current()
     return false, "invalid buffer"
   end
   local buf = state.pos.buf
+  if vim.api.nvim_buf_get_changedtick(buf) ~= state.base_tick then
+    local yesno = vim.fn.confirm("There're lines which changed while I think. Sure you want to apply the suggestion?: ", "&Yes\n&No")
+    if yesno == 1 then --yes
+    elseif yesno == 2 then -- no
+      return true, "conflict"
+    else -- cancel
+      return true, "conflict"
+    end
+  end
   local curr_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
   local insert_at = math.min(state.pos.row + 1, #curr_lines)
-  if vim.api.nvim_buf_get_changedtick(buf) ~= state.base_tick then
-    local conflict = {}
-    conflict[#conflict + 1] = "<<<<<<< CURRENT"
-    for i = insert_at + 1, insert_at + 1 do
-      conflict[#conflict + 1] = curr_lines[i] or ""
-    end
-    conflict[#conflict + 1] = "======="
-    vim.list_extend(conflict, state.suggestion)
-    conflict[#conflict + 1] = ">>>>>>> CODEX"
-    local ok, err = pcall(vim.api.nvim_buf_set_lines, buf, insert_at, insert_at + 1, false, conflict)
-    if not ok then
-      return false, err
-    end
-    return true, "conflict"
-  end
   local ok, err = pcall(vim.api.nvim_buf_set_lines, buf, insert_at, insert_at, false, state.suggestion)
   if not ok then
     return false, err
@@ -116,20 +110,15 @@ local function apply()
   if not ok then
     vim.notify("Codex apply failed: " .. msg, vim.log.levels.ERROR)
   elseif msg == "conflict" then
-    vim.notify("Codex apply: conflict markers inserted", vim.log.levels.WARN)
+    vim.notify("Codex apply: conflicted suggestions are cancelled", vim.log.levels.WARN)
   else
     vim.notify("Codex applied", vim.log.levels.INFO)
   end
   reset()
 end
 
-local function open_preview()
-  if not state.pos or not state.suggestion then
-    return
-  end
-  close_preview()
+local function build_preview_buffer()
   local buf = vim.api.nvim_create_buf(false, true)
-
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
     "Codex suggestion",
     string.format("File: %s", vim.fn.fnamemodify(vim.api.nvim_buf_get_name(state.pos.buf), ":~:.")),
@@ -145,8 +134,23 @@ local function open_preview()
   vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
   vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
 
+  vim.keymap.set("n", "<CR>", apply, { buffer = buf, silent = true })
+  vim.keymap.set("n", "a", apply, { buffer = buf, silent = true })
+  vim.keymap.set("n", "q", reset, { buffer = buf, silent = true })
+
+  return buf, #state.suggestion + 6
+end
+
+local function open_preview()
+  if not state.pos or not state.suggestion then
+    return
+  end
+  close_preview()
+
+  local buf, lines = build_preview_buffer()
+
   local width = math.min(math.max(40, math.floor(vim.o.columns * 0.6)), vim.o.columns)
-  local height = math.min(#state.suggestion + 6, math.max(6, math.floor(vim.o.lines * 0.6)))
+  local height = math.min(lines, math.max(6, math.floor(vim.o.lines * 0.6)))
   local win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",
     row = math.floor((vim.o.lines - height) / 2),
@@ -156,9 +160,6 @@ local function open_preview()
     style = "minimal",
     border = "single",
   })
-  vim.keymap.set("n", "<CR>", apply, { buffer = buf, silent = true })
-  vim.keymap.set("n", "a", apply, { buffer = buf, silent = true })
-  vim.keymap.set("n", "q", reset, { buffer = buf, silent = true })
   state.preview = { buf = buf, win = win }
 end
 
@@ -188,11 +189,11 @@ local function should_skip(buf, cfg)
   return false
 end
 
-local function log_event(cfg, msg)
-  if not cfg.log_file or cfg.log_file == "" then
+local function log_event(opts, msg)
+  if not opts.log_file or opts.log_file == "" then
     return
   end
-  local ok, fh = pcall(io.open, cfg.log_file, "a")
+  local ok, fh = pcall(io.open, opts.log_file, "a")
   if not ok or not fh then
     return
   end
