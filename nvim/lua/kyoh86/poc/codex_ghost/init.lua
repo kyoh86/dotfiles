@@ -365,7 +365,12 @@ function M.accept()
 end
 
 function M.request()
-  run_request(vim.api.nvim_get_current_buf(), vim.api.nvim_win_get_cursor(0)[1] - 1, vim.api.nvim_win_get_cursor(0)[2], vim.tbl_extend("force", state.config, {}))
+  run_request(
+    vim.api.nvim_get_current_buf(),
+    vim.api.nvim_win_get_cursor(0)[1] - 1,
+    vim.api.nvim_win_get_cursor(0)[2],
+    vim.tbl_extend("force", state.config, {}),
+  )
 end
 
 function M.show_last()

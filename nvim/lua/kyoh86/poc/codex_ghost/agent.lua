@@ -8,15 +8,18 @@ local M = {}
 --- @field after string[]
 --- @field pos codex_ghost.Position
 
---- @class Agent
+--- @class codex_ghost.Agent
 --- @field opts codex_ghost.Config
---- @field stop_timeout fun(self: Agent)
---- @field reset fun(self: Agent)
---- @field request fun(self: Agent, context: codex_ghost.Context, callback: fun(prompt: string, suggestion: string[]))
+--- @field stop_timeout fun(self: codex_ghost.Agent)
+--- @field reset fun(self: codex_ghost.Agent)
+--- @field request fun(self: codex_ghost.Agent, context: codex_ghost.Context, callback: fun(prompt: string, suggestion: string[]))
 
 --- @param opts codex_ghost.Config
---- @return Agent
+--- @return codex_ghost.Agent
 function M.new(opts)
+  if vim.fn.executable("codex") == 0 then
+    error("codex CLI not found in PATH")
+  end
   local instance = {
     job = nil,
     job_timer = nil,
