@@ -1,5 +1,10 @@
 local M = {}
 
+--- @class codex_ghost.Position
+--- @field buf integer
+--- @field row integer
+--- @field col integer
+
 --- @class codex_ghost.Context
 --- @field filename string
 --- @field filetype string
