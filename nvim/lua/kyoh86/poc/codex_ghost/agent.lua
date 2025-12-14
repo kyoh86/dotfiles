@@ -25,7 +25,7 @@ function M.new(opts)
     job_timer = nil,
     opts = opts,
   }
-  setmetatable(instance, M)
+  setmetatable(instance, { __index = M })
   return instance
 end
 
@@ -59,11 +59,11 @@ local function build_prompt(context)
     string.format("Filename: %s", context.filename),
     string.format("Cursor: line %d, column %d", context.pos.row + 1, context.pos.col + 1),
     "--- BEFORE ---",
-    context.before, -- TODO: expand
+    table.concat(context.before, "\n"),
     "--- CURRENT ---",
     context.line,
     "--- AFTER ---",
-    context.after,
+    table.concat(context.after, "\n"),
   }, "\n")
 end
 
@@ -93,7 +93,7 @@ function M:request(context, callback)
   self.job = vim.system(args, { stdin = prompt, text = true }, function(obj)
     self:stop_timeout()
 
-    local response = read_file(tmpfile):gsub("\r", "")
+    local response_body = read_file(tmpfile)
     os.remove(tmpfile)
 
     if obj.code ~= 0 then
@@ -101,10 +101,18 @@ function M:request(context, callback)
       vim.notify(string.format("fail code=%s msg=%s", tostring(obj.code), obj.stderr or obj.stdout or "unknown"), vim.log.levels.TRACE)
       return
     end
-    if not response or response == "" then
+
+    if not response_body then
+      vim.notify("Codex suggested empty (or failed to read temp file)")
+      return
+    end
+    local response = response_body:gsub("\r", "")
+
+    if response == "" then
       vim.notify("Codex suggested empty")
       return
     end
+
     local suggestion = vim.split(response, "\n", { plain = true })
     vim.notify(string.format("ok lines=%d file=%s", #suggestion, context.filename), vim.log.levels.TRACE)
     vim.schedule(function()
