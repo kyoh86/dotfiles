@@ -51,6 +51,7 @@ tree-sitter = "latest"
 uv = "latest"
 "aqua:cli/cli" = "latest"
 "npm:@openai/codex" = "latest"
+"npm:@google/gemini-cli" = "latest"
 
 [settings]
 experimental = true
