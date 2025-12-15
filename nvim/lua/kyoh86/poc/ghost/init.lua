@@ -1,14 +1,14 @@
 local M = {}
 
-local config = require("kyoh86.poc.codex_ghost.config")
-local Agent = require("kyoh86.poc.codex_ghost.agent")
-local Preview = require("kyoh86.poc.codex_ghost.preview")
-local Target = require("kyoh86.poc.codex_ghost.target")
+local config = require("kyoh86.poc.ghost.config")
+local Agent = require("kyoh86.poc.ghost.agent")
+local Preview = require("kyoh86.poc.ghost.preview")
+local Target = require("kyoh86.poc.ghost.target")
 
---- @class codex_ghost.State
---- @field config codex_ghost.Config
---- @field agent codex_ghost.Agent
---- @field preview codex_ghost.Preview
+--- @class ghost.State
+--- @field config ghost.Config
+--- @field agent ghost.Agent
+--- @field preview ghost.Preview
 local state = {}
 
 local function should_skip(buf)
@@ -36,7 +36,7 @@ function M.request()
   local buf = vim.api.nvim_get_current_buf()
   local skip, reason = should_skip(buf)
   if skip then
-    vim.notify("Codex Ghost: skipped, " .. reason, vim.log.levels.INFO)
+    vim.notify("Ghost: skipped, " .. reason, vim.log.levels.INFO)
     return
   end
 
@@ -48,22 +48,22 @@ function M.request()
   local context = target:context()
 
   if not context then
-    vim.notify("Codex Ghost: no context to send", vim.log.levels.INFO)
+    vim.notify("Ghost: no context to send", vim.log.levels.INFO)
     return
   end
 
-  vim.notify("Codex Ghost: requesting suggestion...", vim.log.levels.INFO)
+  vim.notify("Ghost: requesting suggestion...", vim.log.levels.INFO)
   state.agent:request(context, function(_, suggestion)
     local function accept()
       local err = target:apply(suggestion)
       if err then
-        vim.notify("Codex Ghost apply failed: " .. err, vim.log.levels.ERROR)
+        vim.notify("Ghost apply failed: " .. err, vim.log.levels.ERROR)
       else
-        vim.notify("Codex Ghost applied", vim.log.levels.INFO)
+        vim.notify("Ghost applied", vim.log.levels.INFO)
       end
     end
     local function deny()
-      vim.notify("Codex Ghost suggestion denied", vim.log.levels.INFO)
+      vim.notify("Ghost suggestion denied", vim.log.levels.INFO)
     end
     state.preview:show(context, suggestion, accept, deny)
   end)
@@ -74,7 +74,7 @@ function M.setup(opts)
   state.agent = Agent.new(state.config)
   state.preview = Preview.new()
 
-  vim.api.nvim_create_user_command("CodexGhost", M.request, {})
+  vim.api.nvim_create_user_command("Ghost", M.request, {})
 end
 
 return M

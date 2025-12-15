@@ -1,10 +1,10 @@
 local M = {}
 
---- @class codex_ghost.Preview Preview handler
---- @field show fun(self: codex_ghost.Preview, context: codex_ghost.Context, suggestion:string[], accept:fun(), deny:fun())
+--- @class ghost.Preview Preview handler
+--- @field show fun(self: ghost.Preview, context: ghost.Context, suggestion:string[], accept:fun(), deny:fun())
 --- @field buf integer
 
---- @return codex_ghost.Preview
+--- @return ghost.Preview
 function M.new()
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
@@ -49,7 +49,7 @@ function M:setup()
   vim.keymap.set("n", "q", deny_and_close, { buffer = self.buf, silent = true, nowait = true })
   vim.keymap.set("n", "<ESC>", deny_and_close, { buffer = self.buf, silent = true, nowait = true })
 
-  local group = vim.api.nvim_create_augroup("CodexGhostPreview", { clear = true })
+  local group = vim.api.nvim_create_augroup("GhostPreview", { clear = true })
   vim.api.nvim_create_autocmd("BufWipeout", {
     group = group,
     buffer = self.buf,
@@ -69,7 +69,7 @@ function M:close()
   self.win = nil
 end
 
---- @param context codex_ghost.Context
+--- @param context ghost.Context
 --- @param suggestion string[]
 --- @param accept fun()
 --- @param deny fun()
@@ -83,7 +83,7 @@ function M:show(context, suggestion, accept, deny)
   self:process()
 end
 
---- @param self codex_ghost.Preview
+--- @param self ghost.Preview
 --- @param lines string[]
 --- @param replace? boolean
 function M:put_lines(lines, replace)

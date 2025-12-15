@@ -1,26 +1,26 @@
 local M = {}
 
---- @class codex_ghost.Position
+--- @class ghost.Position
 --- @field buf integer
 --- @field row integer
 --- @field col integer
 
---- @class codex_ghost.Context
+--- @class ghost.Context
 --- @field filename string
 --- @field filetype string
 --- @field before string[]
 --- @field line string
 --- @field after string[]
---- @field pos codex_ghost.Position
+--- @field pos ghost.Position
 
---- @class codex_ghost.Agent
---- @field opts codex_ghost.Config
---- @field stop_timeout fun(self: codex_ghost.Agent)
---- @field reset fun(self: codex_ghost.Agent)
---- @field request fun(self: codex_ghost.Agent, context: codex_ghost.Context, callback: fun(prompt: string, suggestion: string[]))
+--- @class ghost.Agent
+--- @field opts ghost.Config
+--- @field stop_timeout fun(self: ghost.Agent)
+--- @field reset fun(self: ghost.Agent)
+--- @field request fun(self: ghost.Agent, context: ghost.Context, callback: fun(prompt: string, suggestion: string[]))
 
---- @param opts codex_ghost.Config
---- @return codex_ghost.Agent
+--- @param opts ghost.Config
+--- @return ghost.Agent
 function M.new(opts)
   if vim.fn.executable("codex") == 0 then
     error("codex CLI not found in PATH")
@@ -53,7 +53,7 @@ function M:reset()
 end
 
 --- Build prompt message to pass to the Codex
---- @param context codex_ghost.Context
+--- @param context ghost.Context
 local function build_prompt(context)
   return table.concat({
     "You are a code completion engine.",
@@ -128,7 +128,7 @@ function M:request(context, callback)
   if self.opts.timeout_ms and self.opts.timeout_ms > 0 then
     self.job_timer = vim.defer_fn(function()
       if self.job then
-        vim.notify("Codex ghost timed out", vim.log.levels.INFO)
+        vim.notify("Ghost timed out", vim.log.levels.INFO)
         vim.notify("timeout; killing job", vim.log.levels.TRACE)
         self:reset()
       end

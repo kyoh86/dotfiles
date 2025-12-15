@@ -1,6 +1,6 @@
 local M = {}
 
---- @class codex_ghost.Config
+--- @class ghost.Config
 --- @field context_before integer
 --- @field context_after integer
 --- @field model string|nil
@@ -12,7 +12,7 @@ local M = {}
 --- @field pending_text string
 --- @field notify_on_cancel boolean
 
---- @type codex_ghost.Config
+--- @type ghost.Config
 local defaults = {
   context_before = 120,
   context_after = 60,
@@ -21,7 +21,7 @@ local defaults = {
   disable_filetypes = {},
   disable_buftypes = { "help", "prompt", "quickfix", "terminal" },
   timeout_ms = 50000,
-  log_file = nil, -- e.g. "/tmp/codex_ghost.log"
+  log_file = nil, -- e.g. "/tmp/ghost.log"
   pending_text = "⏳ Codex",
   notify_on_cancel = true,
 }

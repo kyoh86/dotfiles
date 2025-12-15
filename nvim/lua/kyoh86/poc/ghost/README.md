@@ -1,4 +1,4 @@
-# Codex Ghost POC
+# Ghost POC
 
 Ghost-text style continuation powered by the Codex CLI. It paints inline virtual text and virtual lines (like Copilot) and lets you accept or dismiss.
 
@@ -7,23 +7,20 @@ Ghost-text style continuation powered by the Codex CLI. It paints inline virtual
 - Buffers that are not readonly/large; certain buftypes/buffers can be skipped via config
 
 ## Commands
-- `:CodexGhost` — request a continuation at the cursor. Clears any existing ghost.
-- `:CodexGhostAccept` — insert the current ghost at the stored position.
-- `:CodexGhostDismiss` — remove the ghost without inserting.
-- `:CodexGhostShowLast` — show the last raw suggestion (for debugging).
+- `:Ghost` — request a continuation at the cursor.
 
 ## Keymap example
-Add to your config if you want shortcuts (see `nvim/lua/kyoh86/conf/codex_ghost.lua` for defaults):
+Add to your config if you want shortcuts (see `nvim/lua/kyoh86/conf/ghost.lua` for defaults):
 
 ```lua
-local ghost = require("kyoh86.poc.codex_ghost")
-vim.keymap.set("i", "<C-g>g", ghost.request, { desc = "Codex ghost" })
+local ghost = require("kyoh86.poc.ghost")
+vim.keymap.set("i", "<C-g>g", ghost.request, { desc = "Ghost" })
 vim.keymap.set("i", "<C-g>a", ghost.accept, { desc = "Accept ghost" })
 vim.keymap.set("i", "<C-g>d", ghost.dismiss, { desc = "Dismiss ghost" })
 ```
 
 ## Configuration
-Edit `ghost.setup` (see `nvim/lua/kyoh86/conf/codex_ghost.lua`):
+Edit `ghost.setup` (see `nvim/lua/kyoh86/conf/ghost.lua`):
 - `model`: Codex model name (optional)
 - `context_before`/`context_after`: lines of context to send (default 120/60)
 - `max_lines`, `disable_filetypes`, `disable_buftypes`: scoping controls
