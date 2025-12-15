@@ -45,7 +45,7 @@ function M.request()
   row = row - 1 -- 0-based
 
   local target = Target.new(buf, row, col, state.config)
-  local context = target:collect_context()
+  local context = target:context()
 
   if not context then
     vim.notify("Codex Ghost: no context to send", vim.log.levels.INFO)
@@ -65,7 +65,7 @@ function M.request()
     local function deny()
       vim.notify("Codex Ghost suggestion denied", vim.log.levels.INFO)
     end
-    state.preview:show(accept, deny, context.filename, context.filetype, suggestion)
+    state.preview:show(context, suggestion, accept, deny)
   end)
 end
 

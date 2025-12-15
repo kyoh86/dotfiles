@@ -1,7 +1,7 @@
 local M = {}
 
 --- @class codex_ghost.Target A buffer to get suggestion from Agent
---- @field collect_context fun(self: codex_ghost.Target)
+--- @field context fun(self: codex_ghost.Target)
 --- @field apply fun(self: codex_ghost.Target, suggestion: string[])
 
 --- @param buf integer Buffer id, or 0 for current buffer
@@ -23,7 +23,7 @@ end
 
 --- Collect context from the buffer
 --- @return codex_ghost.Context|nil
-function M:collect_context()
+function M:context()
   local line_count = vim.api.nvim_buf_line_count(self.buf)
   local current_line = vim.api.nvim_buf_get_lines(self.buf, self.row, self.row + 1, false)[1]
   -- If the cursor is on an empty line at the end of the buffer, there's no context.
