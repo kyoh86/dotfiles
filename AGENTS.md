@@ -15,7 +15,6 @@
 
 - From `nvim/`: `deno task fmt` to format TypeScript/JSONC and `deno task lint` for static analysis.
 - `deno task check` type-checks denops sources; `deno task test` runs denops tests (requires Vim/Neovim binaries available in `PATH`).
-- `deno task update` refreshes denops dependencies via `@molt/cli`; prefer this when adding or bumping denops modules.
 - Lua code: `stylua --config stylua/stylua.toml nvim/**/*.lua` to format Neovim Lua files.
 
 ## Coding Style & Naming Conventions

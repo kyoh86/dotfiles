@@ -27,14 +27,14 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Update dependencies with molt
-        id: run-deno-molt
+      - name: Update dependencies
+        id: run-deno-update
         env:
           NO_COLOR: true
         run: |
           {
-            echo 'MOLT_RESULT<<EOF'
-            deno run --allow-all jsr:@molt/cli --write $(find ./denops -type f -name '*.ts')
+            echo 'UPDATE_RESULT<<EOF'
+            deno outdated --update
             echo EOF
           } >> $GITHUB_OUTPUT
 
@@ -91,10 +91,10 @@ jobs:
             <details><summary>Details</summary><div>
 
             ```
-            ${{ steps.run-deno-molt.outputs.MOLT_RESULT }}
+            ${{ steps.run-deno-update.outputs.UPDATE_RESULT }}
             ```
 
             </div></details>
-          branch: molt-update
+          branch: deno-update
           author: GitHub <noreply@github.com>
           delete-branch: true
