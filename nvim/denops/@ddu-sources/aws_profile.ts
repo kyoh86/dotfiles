@@ -1,16 +1,12 @@
-import type {} from "jsr:@denops/std@~8.0.0";
-import type { GatherArguments } from "jsr:@shougo/ddu-vim@~11.1.0/source";
-import {
-  ActionFlags,
-  type Actions,
-  type Item,
-} from "jsr:@shougo/ddu-vim@~11.1.0/types";
-import { BaseSource } from "jsr:@shougo/ddu-vim@~11.1.0/source";
-import type { ActionData as WordActionData } from "jsr:@shougo/ddu-kind-word@~1.0.0";
-import { echoerrCommand } from "jsr:@kyoh86/denops-util@~0.1.0/command";
-import { TextLineStream } from "jsr:@std/streams@~1.0.0";
-import { environment } from "jsr:@denops/std@~8.0.0/variable";
-import { is, maybe } from "jsr:@core/unknownutil@~4.3.0";
+import type {} from "@denops/std";
+import type { GatherArguments } from "@shougo/ddu-vim/source";
+import { ActionFlags, type Actions, type Item } from "@shougo/ddu-vim/types";
+import { BaseSource } from "@shougo/ddu-vim/source";
+import type { ActionData as WordActionData } from "@shougo/ddu-kind-word";
+import { echoerrCommand } from "@kyoh86/denops-util/command";
+import { TextLineStream } from "@std/streams";
+import { environment } from "@denops/std/variable";
+import { is, maybe } from "@core/unknownutil";
 
 type ActionData = WordActionData & {
   name: string;

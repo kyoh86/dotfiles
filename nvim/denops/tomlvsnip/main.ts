@@ -1,10 +1,10 @@
-import type { Denops } from "jsr:@denops/std@~8.0.0";
-import { execute } from "jsr:@denops/std@~8.0.0/helper";
-import { ensure, is } from "jsr:@core/unknownutil@~4.3.0";
-import { expandGlob } from "jsr:@std/fs@~1.0.1";
-import { parse } from "jsr:@std/toml@~1.0.0";
-import { stringify } from "jsr:@std/toml@~1.0.0";
-import { extname, join } from "jsr:@std/path@~1.1.0";
+import type { Denops } from "@denops/std";
+import { execute } from "@denops/std/helper";
+import { ensure, is } from "@core/unknownutil";
+import { expandGlob } from "@std/fs";
+import { parse } from "@std/toml";
+import { stringify } from "@std/toml";
+import { extname, join } from "@std/path";
 
 function deconvertText(text: string) {
   const obj = JSON.parse(text);

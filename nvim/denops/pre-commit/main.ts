@@ -1,6 +1,6 @@
-import * as vars from "jsr:@denops/std@~8.0.0/variable";
-import * as fn from "jsr:@denops/std@~8.0.0/function";
-import type { Denops } from "jsr:@denops/std@~8.0.0";
+import * as vars from "@denops/std/variable";
+import * as fn from "@denops/std/function";
+import type { Denops } from "@denops/std";
 
 // The global variable name to store the pre-commit server address.
 // It maybe used in git hook script.
