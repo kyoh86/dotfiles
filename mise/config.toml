@@ -52,6 +52,7 @@ uv = "latest"
 "aqua:cli/cli" = "latest"
 "npm:@openai/codex" = "latest"
 "npm:@google/gemini-cli" = "latest"
+java = "latest"
 
 [settings]
 experimental = true
