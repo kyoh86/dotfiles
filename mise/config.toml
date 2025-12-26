@@ -53,6 +53,7 @@ uv = "latest"
 "npm:@openai/codex" = "latest"
 "npm:@google/gemini-cli" = "latest"
 java = "latest"
+"go:github.com/icholy/gomajor" = "latest"
 
 [settings]
 experimental = true
