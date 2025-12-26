@@ -1,0 +1,6 @@
+#!env zsh
+
+HOST_C="/mnt/c"
+CMD_EXE="${HOST_C}/Windows/System32/cmd.exe"
+HOST_HOME="${HOST_C}/Users/kyoh86"
+"${CMD_EXE}" /c start $@

@@ -1,0 +1,17 @@
+#!env zsh
+
+TARGET="${1}"
+HOST_C="/mnt/c"
+CMD_EXE="${HOST_C}/Windows/System32/cmd.exe"
+HOST_HOME="${HOST_C}/Users/kyoh86"
+PEEK_EXE="${HOST_HOME}/AppData/Local/PowerToys/WinUI3Apps/PowerToys.Peek.UI.exe"
+
+abspath() {
+  dirname="$(cd -- "$(dirname -- "$1")" && pwd)" || exit $?
+  echo "${dirname%/}/$(basename -- "$1")"
+}
+
+PEEK_EXE_WIN="$(wslpath -w "${PEEK_EXE}")"
+TARGET_WIN="$(wslpath -w "$(abspath "${TARGET}")")"
+
+"${CMD_EXE}" /c start "${PEEK_EXE_WIN}" "${TARGET_WIN}"
