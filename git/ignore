@@ -93,5 +93,6 @@ Session.vim
 
 # Mise
 .mise.toml
+.mise.local.toml
 
 **/.claude/settings.local.json
