@@ -74,20 +74,16 @@ function update_deno_dependencies() {
   # projectのあるディレクトリに移動する
   pushd ~/Projects/github.com/kyoh86
 
-  # 各ddu-*のディレクトリの中で、dirtyでなければgit pullを実行する。
+  # 各deno.jsoncを置かれたディレクトリで、dirtyでなければgit pullを実行する。
   # pullした時点でもdirtyでなければ、deno dependenciesの更新を実行する。
-  if _update_deno_dependencies denops-util; then
-  if _update_deno_dependencies dotfiles/nvim/denops; then
-    for dir in {ddu,denops}-*; do
-      if [ -d "$dir" ]; then
-        if ! _update_deno_dependencies "$dir"; then
-          # quit
-          break
-        fi
-      fi
-    done
-  fi
-  fi
+  find . -type f -name 'deno.jsonc' | while read file; do
+    echo $(dirname $file)
+  done | sort -u | while read dir; do
+    if ! _update_deno_dependencies "$dir"; then
+      # quit
+      break
+    fi
+  done
 
   git-statuses
 
