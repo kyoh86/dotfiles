@@ -76,7 +76,7 @@ make SKIP_GIT=yes keyball/keyball61:kyoh86
 ls keyball_*.hex
 ```
 
-### 5. Flush the built firmware
+## Flush the built firmware
 
 You can use `qmk_tookbox` or [Pro Micro Web Updater](https://sekigon-gonnoc.github.io/promicro-web-updater/index.html).
 Pushing twice quickly a "Reset" button of keyball, they recognise a keyboard.
