@@ -23,43 +23,6 @@ return function()
   vim.keymap.set("n", "<leader>jdp", f.bind_all(vim.diagnostic.jump, { count = -vim.v.count1 }), { desc = "Jump to the previous diagnostic in the current buffer" })
   vim.keymap.set("n", "<leader>jdP", f.bind_all(vim.diagnostic.jump, { count = -math.huge, wrap = false }), { desc = "Jump to the first diagnostic in the current buffer" })
 
-  local function range_from_selection(mode)
-    -- workaround for https://github.com/neovim/neovim/issues/22629
-    local start = vim.fn.getpos("v")
-    local end_ = vim.fn.getpos(".")
-    if start == nil or end_ == nil then
-      return nil
-    end
-    local start_row = start[2]
-    local start_col = start[3]
-    local end_row = end_[2]
-    local end_col = end_[3]
-
-    if start_row == end_row and end_col < start_col then
-      end_col, start_col = start_col, end_col
-    elseif end_row < start_row then
-      start_row, end_row = end_row, start_row
-      start_col, end_col = end_col, start_col
-    end
-    if mode == "V" then
-      -- select whole line in the selection (in linewise-visual mode)
-      start_col = 1
-      local lines = vim.api.nvim_buf_get_lines(0, end_row - 1, end_row, true)
-      end_col = #lines[1]
-    end
-    return {
-      start = { start_row, start_col - 1 },
-      ["end"] = { end_row, end_col - 1 },
-    }
-  end
-  setmap({ "v" }, "<leader>lca", function()
-    local range = range_from_selection(vim.api.nvim_get_mode().mode)
-    if range == nil then
-      return
-    end
-    vim.lsp.buf.code_action({ range = range })
-  end, "コードアクションを選択する")
-
   setmap("n", "<leader>lqr", vim.lsp.buf.references, "カーソル下のシンボルの参照元をQuickfixに表示する")
   setmap("n", "<leader>lqs", vim.lsp.buf.document_symbol, "現在のバッファのシンボルをQuickfixに表示する")
   setmap("n", "<leader>lqS", vim.lsp.buf.workspace_symbol, "現在のワークスペースのシンボルをQuickfixに表示する")

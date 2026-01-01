@@ -74,6 +74,7 @@ local spec = {
       },
     }, {
       start = {
+        modes = { "n", "x" },
         key = "<leader>lca",
         desc = "コードアクション",
       },
