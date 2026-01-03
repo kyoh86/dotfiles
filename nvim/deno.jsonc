@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "exports": {},
   "lock": false,
+  "fmt": { "include": ["denops/**/*.ts", "deno.jsonc"] },
+  "lint": { "include": ["denops/**/*.ts", "deno.jsonc"] },
+  "test": { "include": ["denops/**/*_test.ts"] },
+  "tasks": {
+    "update": "deno outdated --update",
+    "test": "deno test --check --permit-no-files --allow-env=DENOPS_TEST_CONNECT_TIMEOUT,DENOPS_TEST_DENOPS_PATH,DENOPS_TEST_VERBOSE,DENOPS_TEST_VIM_EXECUTABLE,DENOPS_TEST_NVIM_EXECUTABLE,MSGPACKR_NATIVE_ACCELERATION_DISABLED --allow-run=vim,nvim --allow-net=127.0.0.1:0 --allow-read"
+  },
   "workspace": [
     "./denops/@ddu-sources",
     "./denops/@ddu-filters",
@@ -22,17 +29,6 @@
     "@std/path": "jsr:@std/path@^1.1.4",
     "@std/streams": "jsr:@std/streams@^1.0.16",
     "@std/toml": "jsr:@std/toml@^1.0.11"
-  },
-  "fmt": { "include": ["denops/**/*.ts", "deno.jsonc"] },
-  "check": { "include": ["denops/**/*.ts", "deno.jsonc"] },
-  "lint": { "include": ["denops/**/*.ts", "deno.jsonc"] },
-  "test": { "include": ["denops/**/*_test.ts"] },
-  "tasks": {
-    "update": "deno outdated --update",
-    "fmt": "deno fmt",
-    "check": "deno check ./denops/**/*.ts",
-    "lint": "deno lint",
-    "test": "deno test --check --permit-no-files --allow-env=DENOPS_TEST_CONNECT_TIMEOUT,DENOPS_TEST_DENOPS_PATH,DENOPS_TEST_VERBOSE,DENOPS_TEST_VIM_EXECUTABLE,DENOPS_TEST_NVIM_EXECUTABLE,MSGPACKR_NATIVE_ACCELERATION_DISABLED --allow-run=vim,nvim --allow-net=127.0.0.1:0 --allow-read"
   },
   "nodeModulesDir": "auto"
 }
