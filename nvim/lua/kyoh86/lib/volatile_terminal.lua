@@ -19,6 +19,9 @@ function M.open(opts)
       end,
     })
   end
+  if opts.cwd then
+    vim.cmd("lcd " .. opts.cwd)
+  end
   -- 終了時にバッファを消すterminalを開く
   vim.fn.jobstart(opts.exec, opts)
 end
