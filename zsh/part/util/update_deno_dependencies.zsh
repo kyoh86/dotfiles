@@ -33,7 +33,7 @@ function _update_deno_dependencies_core() {
     echo "There's no update in $dir"
     return
   fi
-  if ! NO_COLOR=1 deno task fmt; then
+  if ! NO_COLOR=1 deno fmt; then
     echo "\e[31mFailed to fmt in $dir\e[0m"
     return
   fi
@@ -41,11 +41,11 @@ function _update_deno_dependencies_core() {
     echo "\e[31mFailed to cache in $dir\e[0m"
     return
   fi
-  if ! NO_COLOR=1 deno task check; then
+  if ! NO_COLOR=1 deno check; then
     echo "\e[31mThere're problems in $dir\e[0m"
     return
   fi
-  if ! NO_COLOR=1 deno task lint; then
+  if ! NO_COLOR=1 deno lint; then
     echo "\e[31mThere're lints in $dir\e[0m"
     return
   fi

@@ -80,7 +80,7 @@ local function main()
   end
 
   print("Formatting code...")
-  suc, _ = os.execute("NO_COLOR=1 deno task fmt")
+  suc, _ = os.execute("NO_COLOR=1 deno fmt")
   if not suc then
     print("Failed to format code. Please check your Deno setup.")
     return
@@ -94,14 +94,14 @@ local function main()
   end
 
   print("Checking code...")
-  suc, _ = os.execute("NO_COLOR=1 deno task check")
+  suc, _ = os.execute("NO_COLOR=1 deno check")
   if not suc then
     print("There are problems in the code. Please fix them before proceeding.")
     return
   end
 
   print("Linting code...")
-  suc, _ = os.execute("NO_COLOR=1 deno task lint")
+  suc, _ = os.execute("NO_COLOR=1 deno lint")
   if not suc then
     print("There are lint issues in the code. Please fix them before proceeding.")
     return

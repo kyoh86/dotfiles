@@ -13,7 +13,7 @@
 
 ## Build, Test, and Development Commands
 
-- From `nvim/`: `deno task fmt` to format TypeScript/JSONC and `deno task lint` for static analysis.
+- From `nvim/`: `deno fmt` to format TypeScript/JSONC and `deno lint` for static analysis.
 - `deno task check` type-checks denops sources; `deno task test` runs denops tests (requires Vim/Neovim binaries available in `PATH`).
 - Lua code: `stylua --config stylua/stylua.toml nvim/**/*.lua` to format Neovim Lua files.
 
@@ -32,5 +32,5 @@
 ## Commit & Pull Request Guidelines
 
 - Commit messages are short and imperative (e.g., `update plugins`, `fix denops env`); group related changes together.
-- Before opening a PR, run `deno task fmt`, `deno task lint`, `deno task check`, and `deno task test`, plus `stylua` if Lua changed.
+- Before opening a PR, run `deno fmt`, `deno lint`, `deno check`, and `deno task test`, plus `stylua` if Lua changed.
 - PRs should summarize scope, mention affected platforms (e.g., WSL, macOS), and note any manual steps (`setup/` scripts, new env vars). Link related issues when applicable.
