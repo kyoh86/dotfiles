@@ -8,6 +8,23 @@ import type { Denops } from "@denops/std";
 // See: git/hooks/pre-commit
 const PRECOMMIT_ADDRESS = "PRECOMMIT_ADDRESS";
 
+// Pick a routable IPv4 address for clients outside of Neovim's process.
+function detectHostAddress(): string {
+  try {
+    const candidates = Deno.networkInterfaces().filter((iface) =>
+      iface.family === "IPv4" &&
+      iface.address !== "0.0.0.0" &&
+      !iface.address.startsWith("127.")
+    );
+    if (candidates.length > 0) {
+      return candidates[0].address;
+    }
+  } catch {
+    // Fall back to loopback if detection fails.
+  }
+  return "127.0.0.1";
+}
+
 // Start a HTTP server to handle pre-commit hook requests.
 // The server listens on a random free port and sets the address
 // to the global variable `PRECOMMIT_ADDRESS`.
@@ -15,7 +32,7 @@ const PRECOMMIT_ADDRESS = "PRECOMMIT_ADDRESS";
 // and prompts the user to save or ignore them before committing.
 export async function main(denops: Denops): Promise<void> {
   const { finished } = Deno.serve({
-    hostname: "127.0.0.1",
+    hostname: "0.0.0.0",
     port: 0, // Automatically select free port
     handler: async (req, _info) => {
       if (req.body === null) {
@@ -37,11 +54,12 @@ export async function main(denops: Denops): Promise<void> {
       }
       return new Response("unsupported status", { status: 500 });
     },
-    onListen: async ({ hostname, port }) => {
+    onListen: async ({ port }) => {
+      const host = detectHostAddress();
       await vars.e.set(
         denops,
         PRECOMMIT_ADDRESS,
-        `${hostname}:${port}`,
+        `${host}:${port}`,
       );
     },
   });
