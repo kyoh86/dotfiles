@@ -24,18 +24,15 @@
 "github:kyoh86/git-branches" = "latest"
 "github:kyoh86/git-statuses" = "latest"
 "github:kyoh86/git-vertag" = "latest"
-"github:kyoh86/gogh" = { version = "latest", postinstall = "gogh completion zsh > $HOME/.config/zsh/completions/_gogh.zsh" }
 "github:kyoh86/zshist" = "latest"
 1password-cli = "latest"
 actionlint = "latest"
 aws-cli = "latest"
 coursier = ["latest", "2.1.9"]
 delta = "latest"
-deno = { version = "latest", postinstall = "deno completions zsh > $HOME/.config/zsh/completions/_deno.zsh" }
 direnv = "latest"
 docker-compose = "latest"
 gcloud = "latest"
-gh = { version = "latest", postinstall = "gh completion --shell zsh > $HOME/.config/zsh/completions/_gh.zsh" }
 go = "latest"
 jq = "latest"
 lua-language-server = "latest"
@@ -54,6 +51,18 @@ uv = "latest"
 "npm:@google/gemini-cli" = "latest"
 java = "latest"
 "go:github.com/icholy/gomajor" = "latest"
+
+[tools.deno]
+version = "latest"
+postinstall = "deno completions zsh > $HOME/.config/zsh/completions/_deno.zsh"
+
+[tools.gh]
+version = "latest"
+postinstall = "gh completion --shell zsh > $HOME/.config/zsh/completions/_gh.zsh"
+
+[tools."github:kyoh86/gogh"]
+version = "latest"
+postinstall = "gogh completion zsh > $HOME/.config/zsh/completions/_gogh.zsh"
 
 [settings]
 experimental = true
