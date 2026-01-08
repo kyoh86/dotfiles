@@ -17,3 +17,9 @@ trust_level = "untrusted"
 
 [projects."/home/kyoh86/Projects/github.com/kyoh86/denops-docbase.vim"]
 trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86/google-ime-dict"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86/qlean.nvim"]
+trust_level = "trusted"
