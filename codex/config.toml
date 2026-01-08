@@ -23,3 +23,6 @@ trust_level = "trusted"
 
 [projects."/home/kyoh86/Projects/github.com/kyoh86/qlean.nvim"]
 trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/jdx/mise"]
+trust_level = "trusted"
