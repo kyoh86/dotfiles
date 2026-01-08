@@ -37,6 +37,7 @@ local biomefmt = {
 local gofumpt = { --[[https://github.com/mvdan/gofumpt]]
   formatCommand = "gofumpt",
   formatStdin = true,
+  rootMarkers = {},
 }
 
 local jq = {
@@ -44,6 +45,7 @@ local jq = {
   formatStdin = true,
   lintCommand = "jq .",
   lintStdin = true,
+  rootMarkers = {},
 }
 
 local markdownlint = { --[[https://github.com/DavidAnson/markdownlint]]
@@ -53,6 +55,7 @@ local markdownlint = { --[[https://github.com/DavidAnson/markdownlint]]
   lintIgnoreExitCode = true,
   lintStdin = true,
   lintFormats = { "%f:%l:%c %m", "%f:%l %m", "%f: %l: %m" },
+  rootMarkers = {},
 }
 
 local prettier = { --[[https://github.com/prettier/prettier]]
@@ -68,6 +71,7 @@ local scalafmt = { --[[https://scalameta.org/scalafmt/docs/installation.html#edi
   formatCommand = "scalafmt --stdin --non-interactive",
   formatCanRange = true,
   formatStdin = true,
+  rootMarkers = {},
 }
 
 local stylua = { --[[https://github.com/johnnymorganz/stylua]]
@@ -81,6 +85,7 @@ local stylua = { --[[https://github.com/johnnymorganz/stylua]]
 local terraform_fmt = { --[[https://github.com/hashicorp/terraform]]
   formatCommand = "terraform fmt -",
   formatStdin = true,
+  rootMarkers = {},
 }
 
 local textlint = { --[[https://textlint.github.io/]]
@@ -95,6 +100,7 @@ local textlint = { --[[https://textlint.github.io/]]
 local tombifmt = { --[[https://tombi-toml.github.io/tombi]]
   formatCommand = "tombi format -",
   formatStdin = true,
+  rootMarkers = {},
 }
 
 ---@type vim.lsp.Config
