@@ -51,6 +51,7 @@ uv = "latest"
 "npm:@google/gemini-cli" = "latest"
 java = "latest"
 "go:github.com/icholy/gomajor" = "latest"
+usage = "latest"
 
 [tools.deno]
 version = "latest"
