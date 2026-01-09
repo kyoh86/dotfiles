@@ -26,3 +26,12 @@ trust_level = "trusted"
 
 [projects."/home/kyoh86/Projects/github.com/jdx/mise"]
 trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-lazy_nvim"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-github"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86/denops-mdlink.vim"]
+trust_level = "trusted"
