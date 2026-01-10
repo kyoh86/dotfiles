@@ -20,10 +20,14 @@ export async function main(denops: Denops): Promise<void> {
         return new Response("Invalid body", { status: 400 });
       }
       const params = parseRequestBody(body);
-      const bufs = await findDirtyBuffers(denops, params.dir);
-      if (params.mode === "status") {
+      if (!params.ok) {
+        console.error(params.message);
+        return new Response(params.message, { status: 400 });
+      }
+      const bufs = await findDirtyBuffers(denops, params.value.dir);
+      if (params.value.mode === "status") {
         const body = JSON.stringify(
-          createStatusResponse(params.dir, bufs, params.limit),
+          createStatusResponse(params.value.dir, bufs, params.value.limit),
         );
         return new Response(body, {
           headers: { "content-type": "application/json; charset=utf-8" },
@@ -94,7 +98,25 @@ function parseRequestBody(body: unknown) {
     mode: z.string().optional(),
     limit: z.number().optional(),
   });
-  return schema.parse(body);
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    return {
+      ok: false as const,
+      message: formatZodError(
+        "dirty-bufs: invalid request payload",
+        parsed.error,
+      ),
+    };
+  }
+  return { ok: true as const, value: parsed.data };
+}
+
+function formatZodError(label: string, error: z.ZodError) {
+  const issues = error.issues.map((issue) => {
+    const path = issue.path.length === 0 ? "(root)" : issue.path.join(".");
+    return `${path}: ${issue.message}`;
+  });
+  return `${label} (${issues.join("; ")})`;
 }
 
 // Find dirty buffers in the specified directory.

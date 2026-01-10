@@ -195,17 +195,22 @@ export async function main(denops: Denops): Promise<void> {
 
   await server.connect(transport);
 
-  const handler = (req: Request) => {
-    const { pathname } = new URL(req.url);
-    if (pathname === "/mcp") {
-      return transport.handleRequest(req);
+  const handler = async (req: Request) => {
+    try {
+      const { pathname } = new URL(req.url);
+      if (pathname === "/mcp") {
+        return await transport.handleRequest(req);
+      }
+      if (pathname === "/health") {
+        return new Response(JSON.stringify({ status: "ok" }), {
+          headers: { "content-type": "application/json; charset=utf-8" },
+        });
+      }
+      return new Response("Not found", { status: 404 });
+    } catch (error) {
+      logError("nvim-mcp: request failed", error);
+      throw error;
     }
-    if (pathname === "/health") {
-      return new Response(JSON.stringify({ status: "ok" }), {
-        headers: { "content-type": "application/json; charset=utf-8" },
-      });
-    }
-    return new Response("Not found", { status: 404 });
   };
 
   try {
@@ -418,6 +423,25 @@ function sliceLine(line: string, startCol: number, endCol: number) {
   const start = Math.max(startCol - 1, 0);
   const end = Math.max(endCol, 0);
   return line.slice(start, end);
+}
+
+function formatZodError(error: z.ZodError) {
+  return error.issues.map((issue) => {
+    const path = issue.path.length === 0 ? "(root)" : issue.path.join(".");
+    return `${path}: ${issue.message}`;
+  }).join("; ");
+}
+
+function logError(prefix: string, error: unknown) {
+  if (error instanceof z.ZodError) {
+    console.error(prefix, formatZodError(error));
+    return;
+  }
+  if (error instanceof Error) {
+    console.error(prefix, error.message);
+    return;
+  }
+  console.error(prefix, String(error));
 }
 
 async function getListItems(

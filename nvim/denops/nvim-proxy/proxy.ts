@@ -56,12 +56,18 @@ async function handleRegister(req: Request) {
   if (!body) {
     return json({ error: "Invalid body" }, 400);
   }
-  const record = z.object({
+  const parsed = z.object({
     pid: z.number(),
     proxy_path: z.string(),
     reverse_port: z.number(),
     reverse_path: z.string(),
-  }).parse(body);
+  }).safeParse(body);
+  if (!parsed.success) {
+    const message = formatZodError(parsed.error);
+    console.error("nvim-proxy: invalid register payload:", message);
+    return json({ error: "Invalid register payload", detail: message }, 400);
+  }
+  const record = parsed.data;
   const existing = instances.get(record.pid);
   const routes = existing?.routes ?? new Map<string, RouteInfo>();
   routes.set(record.proxy_path, {
@@ -207,7 +213,7 @@ function loadState() {
       }
     }
   } catch (error) {
-    console.error("nvim-proxy: failed to load state", error);
+    console.error("nvim-proxy: failed to load state", formatError(error));
   }
 }
 
@@ -235,7 +241,7 @@ async function saveState() {
     await Deno.mkdir(resolveStateDir(), { recursive: true });
     await Deno.writeTextFile(path, JSON.stringify(payload));
   } catch (error) {
-    console.error("nvim-proxy: failed to save state", error);
+    console.error("nvim-proxy: failed to save state", formatError(error));
   }
 }
 
@@ -296,6 +302,23 @@ function json(payload: unknown, status = 200) {
     status,
     headers: { "content-type": "application/json; charset=utf-8" },
   });
+}
+
+function formatZodError(error: z.ZodError) {
+  return error.issues.map((issue) => {
+    const path = issue.path.length === 0 ? "(root)" : issue.path.join(".");
+    return `${path}: ${issue.message}`;
+  }).join("; ");
+}
+
+function formatError(error: unknown) {
+  if (error instanceof z.ZodError) {
+    return formatZodError(error);
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
 }
 
 if (import.meta.main) {
