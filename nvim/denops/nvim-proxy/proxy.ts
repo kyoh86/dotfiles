@@ -146,7 +146,8 @@ function registerProxyTool(server: McpServer, toolName: string) {
       inputSchema: z.object({}).passthrough(),
     },
     async (args, extra) => {
-      const instance = resolveInstance(extra.sessionId);
+      const pidFromHeader = parsePid(extra.requestInfo?.headers?.["x-nvim-pid"]);
+      const instance = resolveInstance(extra.sessionId, pidFromHeader);
       if (!instance) {
         return errorResult(
           "No Neovim instance selected. Call nvim_select_instance first.",
@@ -157,7 +158,16 @@ function registerProxyTool(server: McpServer, toolName: string) {
   );
 }
 
-function resolveInstance(sessionId?: string) {
+function resolveInstance(sessionId?: string, pidFromHeader?: number) {
+  if (pidFromHeader) {
+    const byPid = instances.get(pidFromHeader);
+    if (byPid && sessionId) {
+      selections.set(sessionId, { sessionId, pid: byPid.pid });
+    }
+    if (byPid) {
+      return byPid;
+    }
+  }
   if (sessionId) {
     const selection = selections.get(sessionId);
     if (selection) {
@@ -171,6 +181,18 @@ function resolveInstance(sessionId?: string) {
       selections.set(sessionId, { sessionId, pid: only.pid });
     }
     return only;
+  }
+  return undefined;
+}
+
+function parsePid(value: string | string[] | undefined) {
+  if (!value) {
+    return undefined;
+  }
+  const raw = Array.isArray(value) ? value[0] : value;
+  const parsed = Number(raw);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
   }
   return undefined;
 }

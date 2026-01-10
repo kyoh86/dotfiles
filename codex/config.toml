@@ -7,6 +7,7 @@ network_access = true
 
 [mcp_servers.nvim_proxy]
 url = "http://127.0.0.1:37125/mcp"
+env_http_headers = { "X-Nvim-Pid" = "NVIM_PID" }
 
 [profiles.local-qwen]
 model = "qwen3-vl:30b"
