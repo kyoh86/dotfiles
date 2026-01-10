@@ -188,6 +188,30 @@ export async function main(denops: Denops): Promise<void> {
     },
   );
 
+  server.registerTool(
+    "nvim_reload_buffer",
+    {
+      title: "Reload buffer from disk",
+      description: "Reload a buffer without changing the current window.",
+      inputSchema: z.object({
+        bufnr: z.number().int().optional(),
+      }).strict(),
+      outputSchema: z.object({
+        bufnr: z.number().int(),
+        name: z.string(),
+        reloaded: z.boolean(),
+        reason: z.string().optional(),
+      }),
+    },
+    async ({ bufnr }) => {
+      const payload = await reloadBuffer(denops, { bufnr });
+      return {
+        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
+        structuredContent: payload,
+      };
+    },
+  );
+
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,
@@ -524,4 +548,48 @@ async function getDiagnostics(
       code: item.code as string | number | undefined,
     })),
   };
+}
+
+async function reloadBuffer(
+  denops: Denops,
+  options: { bufnr?: number },
+): Promise<{ bufnr: number; name: string; reloaded: boolean; reason?: string }> {
+  const bufnr = options.bufnr ?? await fn.bufnr(denops, "%");
+  const exists = await fn.bufexists(denops, bufnr);
+  if (!isTruthy(exists)) {
+    return { bufnr, name: "", reloaded: false, reason: "not found" };
+  }
+  const name = String(await fn.bufname(denops, bufnr));
+  if (name === "") {
+    return { bufnr, name, reloaded: false, reason: "no name" };
+  }
+  const buftype = String(await fn.getbufvar(denops, bufnr, "&buftype"));
+  if (buftype !== "") {
+    return {
+      bufnr,
+      name,
+      reloaded: false,
+      reason: `unsupported buftype: ${buftype}`,
+    };
+  }
+  const modified = await fn.getbufvar(denops, bufnr, "&modified");
+  if (isTruthy(modified)) {
+    return { bufnr, name, reloaded: false, reason: "modified" };
+  }
+  const loaded = await fn.bufloaded(denops, bufnr);
+  if (!isTruthy(loaded)) {
+    await fn.bufload(denops, bufnr);
+  }
+  await denops.cmd(`checktime ${bufnr}`);
+  return { bufnr, name, reloaded: true };
+}
+
+function isTruthy(value: unknown): boolean {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "number") {
+    return value !== 0;
+  }
+  return Boolean(value);
 }
