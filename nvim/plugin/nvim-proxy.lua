@@ -57,6 +57,28 @@ local function show_status()
   end
 end
 
+local function show_log()
+  local log = denops_request("log")
+  if type(log) ~= "table" then
+    return
+  end
+  local message = log.message or "log unavailable"
+  vim.api.nvim_echo({ { ("nvim-proxy: %s"):format(message) } }, false, {})
+  local detail = log.detail or {}
+  if type(detail.command) == "string" then
+    vim.api.nvim_echo({ { ("log command: %s"):format(detail.command) } }, false, {})
+  end
+  if type(detail.output) == "string" then
+    if detail.output == "" then
+      vim.api.nvim_echo({ { "  (no output)" } }, false, {})
+    else
+      for _, line in ipairs(vim.split(detail.output, "\n", { plain = true, trimempty = true })) do
+        vim.api.nvim_echo({ { "  " .. line } }, false, {})
+      end
+    end
+  end
+end
+
 vim.api.nvim_create_user_command("NvimProxyInstall", function()
   denops_notify("install")
 end, {})
@@ -74,3 +96,5 @@ vim.api.nvim_create_user_command("NvimProxyEnsure", function()
 end, {})
 
 vim.api.nvim_create_user_command("NvimProxyStatus", show_status, {})
+
+vim.api.nvim_create_user_command("NvimProxyLog", show_log, {})

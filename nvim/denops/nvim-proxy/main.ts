@@ -23,6 +23,9 @@ export async function main(denops: Denops): Promise<void> {
     status: async () => {
       return await collectStatus();
     },
+    log: async () => {
+      return await collectLog();
+    },
   };
 
   const autostart = await vars.g.get(denops, "nvim_proxy_autostart", 1);
@@ -301,6 +304,20 @@ async function collectStatus() {
   };
 }
 
+async function collectLog() {
+  switch (Deno.build.os) {
+    case "linux":
+      return await readSystemdLog(100);
+    case "darwin":
+      return await readLaunchdLog(100);
+    default:
+      return {
+        ok: false,
+        message: "service manager unavailable",
+      };
+  }
+}
+
 async function readServiceStatus() {
   switch (Deno.build.os) {
     case "linux":
@@ -361,6 +378,37 @@ async function readSystemdStatus() {
   };
 }
 
+async function readSystemdLog(lines: number) {
+  const commandArgs = [
+    "journalctl",
+    "--user",
+    "-u",
+    SYSTEMD_SERVICE_NAME,
+    "-n",
+    String(lines),
+    "--no-pager",
+  ];
+  const detail = await runCommandOutputAllowFailure(commandArgs);
+  if (detail === undefined) {
+    return {
+      ok: false,
+      message: "systemd: log unavailable",
+      detail: {
+        command: formatCommand(commandArgs),
+        output: "",
+      },
+    };
+  }
+  return {
+    ok: true,
+    message: "systemd: log",
+    detail: {
+      command: formatCommand(commandArgs),
+      output: detail,
+    },
+  };
+}
+
 function pickSystemdValue(output: string, key: string) {
   const line = output.split("\n").find((row) => row.startsWith(`${key}=`));
   if (!line) {
@@ -411,6 +459,38 @@ async function readLaunchdStatus() {
     };
 }
 
+async function readLaunchdLog(lines: number) {
+  const home = Deno.env.get("HOME");
+  if (!home) {
+    return { ok: false, message: "launchd: log unavailable" };
+  }
+  const stdoutPath = `${home}/Library/Logs/nvim-proxy.log`;
+  const stderrPath = `${home}/Library/Logs/nvim-proxy.err.log`;
+  const commandArgs = [
+    "sh",
+    "-c",
+    `tail -n ${lines} ${stderrPath} ${stdoutPath}`,
+  ];
+  const detail = await runCommandOutputAllowFailure(commandArgs);
+  if (detail === undefined) {
+    return {
+      ok: false,
+      message: "launchd: log unavailable",
+      detail: {
+        command: formatCommand(commandArgs),
+        output: "",
+      },
+    };
+  }
+  return {
+    ok: true,
+    message: "launchd: log",
+    detail: {
+      command: formatCommand(commandArgs),
+      output: detail,
+    },
+  };
+}
 function pickLaunchdPid(output: string) {
   const line = output.split("\n").find((row) => row.trim().startsWith("pid ="));
   if (!line) {
