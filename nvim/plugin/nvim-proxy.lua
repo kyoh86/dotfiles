@@ -52,6 +52,10 @@ vim.api.nvim_create_user_command("NvimProxyStart", function()
   denops_notify("start")
 end, {})
 
+vim.api.nvim_create_user_command("NvimProxyRestart", function()
+  denops_notify("restart")
+end, {})
+
 vim.api.nvim_create_user_command("NvimProxyEnsure", function()
   denops_notify("ensure")
 end, {})

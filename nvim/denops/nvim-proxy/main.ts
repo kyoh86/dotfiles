@@ -14,6 +14,9 @@ export async function main(denops: Denops): Promise<void> {
     start: async () => {
       await startService();
     },
+    restart: async () => {
+      await restartService();
+    },
     ensure: async () => {
       await ensureProxyServer(denops);
     },
@@ -60,6 +63,22 @@ async function startService() {
         "systemctl",
         "--user",
         "start",
+        SYSTEMD_SERVICE_NAME,
+      ]);
+    case "darwin":
+      return await startLaunchdService();
+    default:
+      return false;
+  }
+}
+
+async function restartService() {
+  switch (Deno.build.os) {
+    case "linux":
+      return await runCommand([
+        "systemctl",
+        "--user",
+        "restart",
         SYSTEMD_SERVICE_NAME,
       ]);
     case "darwin":

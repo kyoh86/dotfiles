@@ -97,6 +97,7 @@ Codex 側は `NVIM_PID` を `X-Nvim-Pid` ヘッダとして送信する。
 - コマンド:
   - `:NvimProxyInstall` : サービスをインストールして起動
   - `:NvimProxyStart` : サービスの起動
+  - `:NvimProxyRestart` : サービスの再起動
   - `:NvimProxyEnsure` : 起動チェック。未起動なら案内を表示
   - `:NvimProxyStatus` : サービスの状態を表示
 - `:checkhealth nvim_proxy` で状態とルート一覧を確認できる
