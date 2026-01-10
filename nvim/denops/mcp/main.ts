@@ -271,7 +271,8 @@ export async function main(denops: Denops): Promise<void> {
     "nvim_save_buffer",
     {
       title: "Save buffer",
-      description: "Write a buffer to disk without changing the current window.",
+      description:
+        "Write a buffer to disk without changing the current window.",
       inputSchema: z.object({
         bufnr: z.number().int().optional(),
       }).strict(),
@@ -295,7 +296,8 @@ export async function main(denops: Denops): Promise<void> {
     "nvim_open_file",
     {
       title: "Open file",
-      description: "Open a file, optionally without changing the current window.",
+      description:
+        "Open a file, optionally without changing the current window.",
       inputSchema: z.object({
         path: z.string(),
         focus: z.boolean().optional(),
@@ -663,7 +665,9 @@ async function getDiagnostics(
 async function reloadBuffer(
   denops: Denops,
   options: { bufnr?: number },
-): Promise<{ bufnr: number; name: string; reloaded: boolean; reason?: string }> {
+): Promise<
+  { bufnr: number; name: string; reloaded: boolean; reason?: string }
+> {
   const bufnr = options.bufnr ?? await fn.bufnr(denops, "%");
   const exists = await fn.bufexists(denops, bufnr);
   if (!isTruthy(exists)) {
