@@ -1,11 +1,12 @@
 import * as fn from "@denops/std/function";
+import * as vars from "@denops/std/variable";
 import type { Denops } from "@denops/std";
-import { ensure, is, maybe } from "@core/unknownutil";
+import { ensure, is } from "@core/unknownutil";
 
 const REGISTER_RETRY_LIMIT = 5;
 const REGISTER_BACKOFF_BASE_MS = 200;
 
-// Start a HTTP server to handle pre-commit hook requests.
+// Start a HTTP server to handle dirty buffer check requests.
 // The server listens on a random free port and sets the address
 // The server checks for dirty buffers in the specified directory
 // and prompts the user to save or ignore them before committing.
@@ -93,14 +94,19 @@ async function parseRequestBody(body: ReadableStream<Uint8Array>) {
     lines.push(line);
   }
   const parsed = JSON.parse(lines.join("\n"));
-  return ensure(
+  const record = ensure(
     parsed,
     is.ObjectOf({
       dir: is.String,
-      mode: maybe(is.String),
-      limit: maybe(is.Number),
     }),
-  );
+  ) as { dir: string; mode?: unknown; limit?: unknown };
+  const mode = is.String(record.mode) ? record.mode : undefined;
+  const limit = is.Number(record.limit) ? record.limit : undefined;
+  return {
+    dir: record.dir,
+    mode,
+    limit,
+  };
 }
 
 // Find dirty buffers in the specified directory.
@@ -138,7 +144,7 @@ async function registerToProxy(
       await delay(REGISTER_BACKOFF_BASE_MS * 2 ** attempt);
     }
   }
-  console.error("Failed to register pre-commit server to nvim-proxy.");
+  console.error("Failed to register dirty-bufs server to nvim-proxy.");
 }
 
 async function registerOnce(
@@ -155,7 +161,7 @@ async function registerOnce(
   const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
   const payload = {
     pid: options.pid,
-    path: "/pre-commit",
+    path: "/dirty-bufs",
     target_url: options.precommitAddress,
   };
   try {

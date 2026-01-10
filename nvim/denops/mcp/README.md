@@ -35,4 +35,4 @@ URL は `NVIM_MCP_URL` に保存される。
 ## 関連
 
 - `nvim/denops/nvim-proxy/README.md`
-- `nvim/denops/pre-commit/README.md`
+- `nvim/denops/dirty-bufs/README.md`

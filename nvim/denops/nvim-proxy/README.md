@@ -7,7 +7,7 @@ Neovim インスタンスは自分の情報を登録し、外部は固定ポー�
 ## 目的
 
 - 複数 Neovim の同時起動に対応する
-- MCP と pre-commit を安定した固定アドレスに集約する
+- MCP と dirty-bufs を安定した固定アドレスに集約する
 - DenopsRestart によるアドレス変更を吸収する
 
 ## アーキテクチャ
@@ -15,7 +15,7 @@ Neovim インスタンスは自分の情報を登録し、外部は固定ポー�
 ```
 Neovim (denops/mcp) --register--> nvim-proxy (37125)
 Codex (MCP) ---------------------> nvim-proxy (/mcp) --forward--> denops/mcp
-git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commit
+git pre-commit ------------------> nvim-proxy (/dirty-bufs) --> denops/dirty-bufs
 ```
 
 ### 関連コンポーネント
@@ -34,7 +34,7 @@ git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commi
 - `codex/config.toml`
   - `mcp_servers.nvim_proxy` に固定 URL を設定
   - `env_http_headers` で `X-Nvim-Pid` を送信
-- `nvim/denops/pre-commit/main.ts`
+- `nvim/denops/dirty-bufs/main.ts`
   - 起動時に `/register` へ自身を登録
 
 ## 固定ポート
@@ -54,12 +54,12 @@ git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commi
 }
 ```
 
-pre-commit 側は `/pre-commit` を登録する:
+dirty-bufs 側は `/dirty-bufs` を登録する:
 
 ```json
 {
   "pid": 12345,
-  "path": "/pre-commit",
+  "path": "/dirty-bufs",
   "target_url": "127.0.0.1:40001"
 }
 ```
@@ -70,7 +70,7 @@ pre-commit 側は `/pre-commit` を登録する:
 - `GET /routes` : 登録済みルート一覧
 - `POST /register` : Neovim インスタンスの登録/更新
 - `* /mcp` : MCP の透過転送
-- `POST /pre-commit` : pre-commit の透過転送
+- `POST /dirty-bufs` : dirty-bufs の透過転送
 
 ## ヘルスチェック
 
@@ -97,7 +97,7 @@ Codex 側は `NVIM_PID` を `X-Nvim-Pid` ヘッダとして送信する。
 ## ルーティング規則
 
 - MCP: `X-Nvim-Pid` を必須とし、その PID のインスタンスに転送
-- pre-commit: `X-Nvim-Pid` を必須とし、その PID のインスタンスに転送
+- dirty-bufs: `X-Nvim-Pid` を必須とし、その PID のインスタンスに転送
 
 ## 設定
 

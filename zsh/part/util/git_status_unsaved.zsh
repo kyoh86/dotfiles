@@ -11,7 +11,7 @@ function _denops_precommit_status_print {
 
   local payload ret total truncated
   payload="$(jq -n --arg dir "$PWD" --argjson limit 10 '{dir:$dir, mode:"status", limit:$limit}')"
-  ret="$(curl -XPOST -sSL --max-time 2 -H "X-Nvim-Pid: ${NVIM_PID}" "${NVIM_PROXY_URL}/pre-commit" -d "$payload" 2>/dev/null)"
+  ret="$(curl -XPOST -sSL --max-time 2 -H "X-Nvim-Pid: ${NVIM_PID}" "${NVIM_PROXY_URL}/dirty-bufs" -d "$payload" 2>/dev/null)"
   if [ -z "$ret" ]; then
     return
   fi

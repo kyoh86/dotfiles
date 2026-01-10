@@ -32,7 +32,7 @@
     "./denops/@ddu-sources/aws_profile",
     "./denops/@ddu-sources/slow",
     "./denops/tomlvsnip",
-    "./denops/pre-commit",
+    "./denops/dirty-bufs",
     "./denops/mcp",
     "./denops/nvim-proxy"
   ],

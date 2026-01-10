@@ -18,7 +18,7 @@ payload="$(jq -n --arg dir "${dir}" '{
 
 # Timeout : 5s
 response="$(curl -XPOST -sSL --max-time 5 -H "X-Nvim-Pid: ${NVIM_PID}" \
-  -w '\n%{http_code}' "${NVIM_PROXY_URL}/pre-commit" -d "${payload}" 2>/dev/null)"
+  -w '\n%{http_code}' "${NVIM_PROXY_URL}/dirty-bufs" -d "${payload}" 2>/dev/null)"
 curl_exit_code=$?
 http_code="${response##*$'\n'}"
 ret="${response%$'\n'*}"
