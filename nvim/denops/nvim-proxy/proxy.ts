@@ -1,7 +1,3 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import * as z from "zod";
-
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 37125;
 
@@ -25,17 +21,10 @@ export function startProxyServer(options: ProxyServerOptions = {}) {
   const host = options.host ?? DEFAULT_HOST;
   const port = options.port ?? DEFAULT_PORT;
 
-  const server = createMcpServer();
-  const transport = new WebStandardStreamableHTTPServerTransport({
-    sessionIdGenerator: () => crypto.randomUUID(),
-    enableJsonResponse: true,
-  });
-  server.connect(transport);
-
   const handler = async (req: Request) => {
     const { pathname } = new URL(req.url);
     if (pathname === "/mcp") {
-      return transport.handleRequest(req);
+      return await handleMcp(req);
     }
     if (pathname === "/health") {
       return json({ status: "ok" });
@@ -52,99 +41,22 @@ export function startProxyServer(options: ProxyServerOptions = {}) {
   return Deno.serve({ hostname: host, port, handler });
 }
 
-function createMcpServer() {
-  const server = new McpServer({
-    name: "nvim-proxy",
-    version: "0.1.0",
+async function handleMcp(req: Request) {
+  const pid = parsePid(req.headers.get("x-nvim-pid"));
+  if (!pid) {
+    return json({ error: "NVIM_PID is required" }, 400);
+  }
+  const instance = instances.get(pid);
+  if (!instance) {
+    return json({ error: `Unknown Neovim PID: ${pid}` }, 404);
+  }
+  const target = ensureHttpUrl(instance.mcpUrl);
+  const forwardReq = new Request(target, {
+    method: req.method,
+    headers: forwardHeaders(req.headers),
+    body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
   });
-
-  registerProxyTool(server, "nvim_buffers");
-  registerProxyTool(server, "nvim_current_buffer");
-  registerProxyTool(server, "nvim_current_selection");
-  registerProxyTool(server, "nvim_list_items");
-  registerProxyTool(server, "nvim_diagnostics");
-
-  return server;
-}
-
-function registerProxyTool(server: McpServer, toolName: string) {
-  server.registerTool(
-    toolName,
-    {
-      title: `Proxy ${toolName}`,
-      description: `Proxy call to ${toolName} on the selected Neovim instance.`,
-      inputSchema: z.object({}).passthrough(),
-    },
-    async (args, extra) => {
-      const pidFromHeader = parsePid(extra.requestInfo?.headers?.["x-nvim-pid"]);
-      const instance = resolveInstance(pidFromHeader);
-      if (!instance) {
-        return errorResult(
-          "No Neovim instance selected. Ensure NVIM_PID is set.",
-        );
-      }
-      return await callInstanceTool(instance, toolName, args);
-    },
-  );
-}
-
-function resolveInstance(pidFromHeader?: number) {
-  if (pidFromHeader) {
-    const byPid = instances.get(pidFromHeader);
-    if (byPid) {
-      return byPid;
-    }
-  }
-  return undefined;
-}
-
-function parsePid(value: string | string[] | undefined) {
-  if (!value) {
-    return undefined;
-  }
-  const raw = Array.isArray(value) ? value[0] : value;
-  const parsed = Number(raw);
-  if (Number.isFinite(parsed) && parsed > 0) {
-    return parsed;
-  }
-  return undefined;
-}
-
-async function callInstanceTool(
-  instance: InstanceInfo,
-  toolName: string,
-  args: unknown,
-) {
-  const url = ensureHttpUrl(instance.mcpUrl);
-  const request = {
-    jsonrpc: "2.0",
-    id: crypto.randomUUID(),
-    method: "tools/call",
-    params: {
-      name: toolName,
-      arguments: args,
-    },
-  };
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "accept": "application/json, text/event-stream",
-      },
-      body: JSON.stringify(request),
-    });
-    const json = await res.json();
-    if (json?.result) {
-      return json.result;
-    }
-    if (json?.error?.message) {
-      return errorResult(`Proxy error: ${json.error.message}`);
-    }
-    return errorResult("Proxy error: unexpected response");
-  } catch (error) {
-    return errorResult(`Proxy error: ${error instanceof Error ? error.message : String(error)}`);
-  }
+  return await fetch(forwardReq);
 }
 
 async function handleRegister(req: Request) {
@@ -224,11 +136,22 @@ function ensureHttpUrl(url: string) {
   return `http://${url}`;
 }
 
-function errorResult(message: string) {
-  return {
-    content: [{ type: "text", text: message }],
-    isError: true,
-  };
+function parsePid(value: string | null) {
+  if (!value) {
+    return undefined;
+  }
+  const parsed = Number(value);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+  return undefined;
+}
+
+function forwardHeaders(headers: Headers) {
+  const next = new Headers(headers);
+  next.delete("host");
+  next.delete("content-length");
+  return next;
 }
 
 function json(payload: unknown, status = 200) {

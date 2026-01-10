@@ -1,7 +1,5 @@
 {
   "imports": {
-    "@denops/std": "jsr:@denops/std@^8.2.0",
-    "@modelcontextprotocol/sdk": "npm:@modelcontextprotocol/sdk@^1.25.2",
-    "zod": "npm:zod@^4.3.5"
+    "@denops/std": "jsr:@denops/std@^8.2.0"
   }
 }
