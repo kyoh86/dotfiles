@@ -21,12 +21,11 @@ git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commi
 ### 関連コンポーネント
 
 - `nvim/denops/nvim-proxy/main.ts`
-  - プロキシの自動起動 (任意)
+  - プロキシの自動起動 (任意: サービス起動を優先)
   - `NVIM_PROXY_URL` / `NVIM_PID` を環境変数として設定
 - `nvim/denops/nvim-proxy/proxy.ts`
   - 固定ポートで待ち受け
-  - `/mcp` は HTTP をそのまま転送
-  - `/pre-commit` は登録済みの pre-commit サーバへ転送
+  - `path` 単位で登録済みの転送先へプロキシ
 - `nvim/denops/mcp/main.ts`
   - MCP サーバ本体 (ランダムポート)
   - 起動時に `/register` へ自身を登録
@@ -94,6 +93,10 @@ Codex 側は `NVIM_PID` を `X-Nvim-Pid` ヘッダとして送信する。
 
 - 自動起動を切りたい場合:
   - `let g:nvim_proxy_autostart = 0`
+- コマンド:
+  - `:NvimProxyInstall` : サービスをインストールして起動
+  - `:NvimProxyStart` : サービスの起動
+  - `:NvimProxyEnsure` : 起動チェックとフォールバック
 
 ### Codex
 
@@ -112,6 +115,21 @@ curl -sS http://127.0.0.1:37125/health
 ```
 
 Codex では `nvim_current_buffer` 等を呼び出す。
+
+## サービス運用
+
+### Linux (systemd user)
+
+`~/.config/systemd/user/nvim-proxy.service` を作成し、`systemctl --user`
+で起動。
+
+### macOS (launchd)
+
+`~/Library/LaunchAgents/com.kyoh86.nvim-proxy.plist` を作成し、`launchctl`
+で起動。
+
+どちらも `:NvimProxyInstall` がテンプレートを生成し、起動まで実行する。 `deno`
+のパスや `proxy.ts` の場所が変わった場合は再インストールする。
 
 ## 注意点
 
