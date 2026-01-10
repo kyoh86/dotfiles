@@ -1,41 +1,33 @@
 #!/bin/zsh
 
-if [ -n "${NVIM_PROXY_URL}" ]; then
-  exec < /dev/tty
-  dir="$(git rev-parse --show-toplevel)"
-  payload="$(jq -n --arg dir "${dir}" --arg pid "${NVIM_PID:-}" '{
-    dir: $dir
-  } + ( $pid | length > 0 ? { pid: ($pid | tonumber) } : {} )')"
-
-  # Timeout : 5s
-  ret="$(curl -XPOST -sSL --max-time 5 "${NVIM_PROXY_URL}/pre-commit" -d "${payload}" 2>/dev/null)"
-  curl_exit_code=$?
-
-  case "${ret}" in
-    "ok")
-      : # noop
-      ;;
-    *)
-      echo "Commit cancelled: unsaved buffers detected (${curl_exit_code}: ${ret})"
-      exit 1
-      ;;
-  esac
-elif [ -n "${PRECOMMIT_ADDRESS}" ]; then
-  exec < /dev/tty
-  dir="$(git rev-parse --show-toplevel | jq -R)"
-
-  # Timeout : 5s
-  ret="$(curl -XPOST -sSL --max-time 5 "${PRECOMMIT_ADDRESS}" -d '{"dir":'"${dir}"'}' 2>/dev/null)"
-  curl_exit_code=$?
-
-  case "${ret}" in
-    "ok")
-      : # noop
-      ;;
-    *)
-      echo "Commit cancelled: unsaved buffers detected (${curl_exit_code}: ${ret})"
-      exit 1
-      ;;
-  esac
+if [ -z "${NVIM_PROXY_URL}" ]; then
+  echo "Commit cancelled: NVIM_PROXY_URL is not set"
+  exit 1
 fi
+
+if [ -z "${NVIM_PID}" ]; then
+  echo "Commit cancelled: NVIM_PID is not set"
+  exit 1
+fi
+
+exec < /dev/tty
+dir="$(git rev-parse --show-toplevel)"
+payload="$(jq -n --arg dir "${dir}" --arg pid "${NVIM_PID}" '{
+  dir: $dir,
+  pid: ($pid | tonumber)
+}')"
+
+# Timeout : 5s
+ret="$(curl -XPOST -sSL --max-time 5 "${NVIM_PROXY_URL}/pre-commit" -d "${payload}" 2>/dev/null)"
+curl_exit_code=$?
+
+case "${ret}" in
+  "ok")
+    : # noop
+    ;;
+  *)
+    echo "Commit cancelled: unsaved buffers detected (${curl_exit_code}: ${ret})"
+    exit 1
+    ;;
+esac
 # vim: ft=zsh
