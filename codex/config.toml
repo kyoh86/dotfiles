@@ -1,5 +1,9 @@
 check_for_update_on_startup = false
 update_on_startup = false
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = true
 
 [profiles.local-qwen]
 model = "qwen3-vl:30b"
