@@ -14,13 +14,7 @@ type InstanceInfo = {
   updatedAt: number;
 };
 
-type Selection = {
-  sessionId: string;
-  pid: number;
-};
-
 const instances = new Map<number, InstanceInfo>();
-const selections = new Map<string, Selection>();
 
 export type ProxyServerOptions = {
   host?: string;
@@ -46,9 +40,6 @@ export function startProxyServer(options: ProxyServerOptions = {}) {
     if (pathname === "/health") {
       return json({ status: "ok" });
     }
-    if (pathname === "/instances") {
-      return json({ instances: listInstances() });
-    }
     if (pathname === "/register" && req.method === "POST") {
       return await handleRegister(req);
     }
@@ -66,67 +57,6 @@ function createMcpServer() {
     name: "nvim-proxy",
     version: "0.1.0",
   });
-
-  server.registerTool(
-    "nvim_instances",
-    {
-      title: "List Neovim instances",
-      description: "Return registered Neovim instances.",
-      inputSchema: z.object({}).strict(),
-      outputSchema: z.object({
-        instances: z.array(z.object({
-          pid: z.number().int(),
-          cwd: z.string(),
-          mcp_url: z.string(),
-          precommit_url: z.string(),
-          servername: z.string().optional(),
-          updated_at: z.number().int(),
-        })),
-      }),
-    },
-    () => {
-      const payload = { instances: listInstances() };
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
-
-  server.registerTool(
-    "nvim_select_instance",
-    {
-      title: "Select Neovim instance",
-      description: "Bind the current MCP session to a Neovim PID.",
-      inputSchema: z.object({
-        pid: z.number().int(),
-      }).strict(),
-      outputSchema: z.object({
-        pid: z.number().int(),
-        cwd: z.string(),
-        mcp_url: z.string(),
-        precommit_url: z.string(),
-        servername: z.string().optional(),
-        updated_at: z.number().int(),
-      }),
-    },
-    async ({ pid }, extra) => {
-      const sessionId = extra.sessionId;
-      if (!sessionId) {
-        return errorResult("Missing session id. Retry after initialization.");
-      }
-      const instance = instances.get(pid);
-      if (!instance) {
-        return errorResult(`Unknown Neovim PID: ${pid}`);
-      }
-      selections.set(sessionId, { sessionId, pid });
-      const payload = formatInstance(instance);
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
 
   registerProxyTool(server, "nvim_buffers");
   registerProxyTool(server, "nvim_current_buffer");
@@ -147,10 +77,10 @@ function registerProxyTool(server: McpServer, toolName: string) {
     },
     async (args, extra) => {
       const pidFromHeader = parsePid(extra.requestInfo?.headers?.["x-nvim-pid"]);
-      const instance = resolveInstance(extra.sessionId, pidFromHeader);
+      const instance = resolveInstance(pidFromHeader);
       if (!instance) {
         return errorResult(
-          "No Neovim instance selected. Call nvim_select_instance first.",
+          "No Neovim instance selected. Ensure NVIM_PID is set.",
         );
       }
       return await callInstanceTool(instance, toolName, args);
@@ -158,29 +88,12 @@ function registerProxyTool(server: McpServer, toolName: string) {
   );
 }
 
-function resolveInstance(sessionId?: string, pidFromHeader?: number) {
+function resolveInstance(pidFromHeader?: number) {
   if (pidFromHeader) {
     const byPid = instances.get(pidFromHeader);
-    if (byPid && sessionId) {
-      selections.set(sessionId, { sessionId, pid: byPid.pid });
-    }
     if (byPid) {
       return byPid;
     }
-  }
-  if (sessionId) {
-    const selection = selections.get(sessionId);
-    if (selection) {
-      return instances.get(selection.pid);
-    }
-  }
-  const list = listInstances();
-  if (list.length === 1) {
-    const only = instances.get(list[0].pid);
-    if (only && sessionId) {
-      selections.set(sessionId, { sessionId, pid: only.pid });
-    }
-    return only;
   }
   return undefined;
 }
@@ -232,23 +145,6 @@ async function callInstanceTool(
   } catch (error) {
     return errorResult(`Proxy error: ${error instanceof Error ? error.message : String(error)}`);
   }
-}
-
-function listInstances() {
-  return Array.from(instances.values())
-    .sort((a, b) => b.updatedAt - a.updatedAt)
-    .map(formatInstance);
-}
-
-function formatInstance(instance: InstanceInfo) {
-  return {
-    pid: instance.pid,
-    cwd: instance.cwd,
-    mcp_url: instance.mcpUrl,
-    precommit_url: instance.precommitUrl,
-    servername: instance.servername,
-    updated_at: instance.updatedAt,
-  };
 }
 
 async function handleRegister(req: Request) {
