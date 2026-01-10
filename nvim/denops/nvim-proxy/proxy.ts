@@ -23,18 +23,20 @@ export function startProxyServer(options: ProxyServerOptions = {}) {
 
   const handler = async (req: Request) => {
     const { pathname } = new URL(req.url);
-    if (pathname === "/mcp") {
-      return await handleMcp(req);
-    }
     if (pathname === "/health") {
       return json({ status: "ok" });
     }
     if (pathname === "/register" && req.method === "POST") {
       return await handleRegister(req);
     }
+
+    if (pathname === "/mcp") {
+      return await handleMcp(req);
+    }
     if (pathname === "/pre-commit" && req.method === "POST") {
       return await handlePreCommit(req);
     }
+
     return new Response("Not found", { status: 404 });
   };
 
