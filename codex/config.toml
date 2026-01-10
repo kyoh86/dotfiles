@@ -5,8 +5,8 @@ sandbox_mode = "workspace-write"
 [sandbox_workspace_write]
 network_access = true
 
-[mcp_servers.nvim_denops]
-url = "http://127.0.0.1:37123/mcp"
+[mcp_servers.nvim_proxy]
+url = "http://127.0.0.1:37125/mcp"
 
 [profiles.local-qwen]
 model = "qwen3-vl:30b"

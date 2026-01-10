@@ -33,7 +33,8 @@
     "./denops/@ddu-sources/slow",
     "./denops/tomlvsnip",
     "./denops/pre-commit",
-    "./denops/mcp"
+    "./denops/mcp",
+    "./denops/nvim-proxy"
   ],
   "imports": {
     "@core/unknownutil": "jsr:@core/unknownutil@^4.3.0",

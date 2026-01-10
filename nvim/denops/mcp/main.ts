@@ -5,7 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import * as z from "zod";
 
-const DEFAULT_PORT = 37123;
+const DEFAULT_PORT = 0;
 const DEFAULT_HOST = "127.0.0.1";
 
 type BufferInfo = {
@@ -191,13 +191,6 @@ export async function main(denops: Denops): Promise<void> {
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,
-    enableDnsRebindingProtection: true,
-    allowedHosts: [
-      host,
-      "localhost",
-      `${host}:${port}`,
-      `localhost:${port}`,
-    ],
   });
 
   await server.connect(transport);
@@ -233,18 +226,18 @@ export async function main(denops: Denops): Promise<void> {
 async function resolvePort(denops: Denops): Promise<number> {
   const fromVar = await vars.g.get(denops, "nvim_mcp_port");
   if (typeof fromVar === "number" && Number.isFinite(fromVar)) {
-    if (fromVar > 0 && fromVar <= 65535) {
+    if (fromVar >= 0 && fromVar <= 65535) {
       return fromVar;
     }
   }
   if (typeof fromVar === "string") {
     const parsed = Number(fromVar);
-    if (Number.isFinite(parsed) && parsed > 0 && parsed <= 65535) {
+    if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 65535) {
       return parsed;
     }
   }
   const fromEnv = Number(Deno.env.get("NVIM_MCP_PORT") ?? "");
-  if (Number.isFinite(fromEnv) && fromEnv > 0 && fromEnv <= 65535) {
+  if (Number.isFinite(fromEnv) && fromEnv >= 0 && fromEnv <= 65535) {
     return fromEnv;
   }
   return DEFAULT_PORT;
