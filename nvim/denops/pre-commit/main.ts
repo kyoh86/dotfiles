@@ -1,5 +1,6 @@
 import * as fn from "@denops/std/function";
 import type { Denops } from "@denops/std";
+import { ensure, is, maybe } from "@core/unknownutil";
 
 const REGISTER_RETRY_LIMIT = 5;
 const REGISTER_BACKOFF_BASE_MS = 200;
@@ -91,12 +92,15 @@ async function parseRequestBody(body: ReadableStream<Uint8Array>) {
   for await (const line of body.pipeThrough(new TextDecoderStream()).values()) {
     lines.push(line);
   }
-  const params = JSON.parse(lines.join("\n"));
-  return params as {
-    dir: string;
-    mode?: string;
-    limit?: number;
-  };
+  const parsed = JSON.parse(lines.join("\n"));
+  return ensure(
+    parsed,
+    is.ObjectOf({
+      dir: is.String,
+      mode: maybe(is.String),
+      limit: maybe(is.Number),
+    }),
+  );
 }
 
 // Find dirty buffers in the specified directory.
