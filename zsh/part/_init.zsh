@@ -34,3 +34,4 @@ _source_part util/switch_awsenv
 _source_part util/switch_git_branch
 _source_part util/update
 _source_part util/backup_east
+_source_part util/git_status_unsaved

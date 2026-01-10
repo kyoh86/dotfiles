@@ -40,6 +40,14 @@ export async function main(denops: Denops): Promise<void> {
       }
       const params = await parseRequestBody(req.body);
       const bufs = await findDirtyBuffers(denops, params.dir);
+      if (params.mode === "status") {
+        const body = JSON.stringify(
+          createStatusResponse(params.dir, bufs, params.limit),
+        );
+        return new Response(body, {
+          headers: { "content-type": "application/json; charset=utf-8" },
+        });
+      }
       if (bufs.length === 0) {
         return new Response("ok");
       }
@@ -82,6 +90,27 @@ function createConfirmMessage(
   return msg;
 }
 
+// Create a status response for shell integration.
+function createStatusResponse(
+  dir: string,
+  bufs: { name: string; bufnr: number; buftype: unknown }[],
+  limit?: number,
+) {
+  const prefix = dir.endsWith("/") ? dir : `${dir}/`;
+  const files = bufs.map((buf) => {
+    if (buf.name.startsWith(prefix)) {
+      return buf.name.slice(prefix.length);
+    }
+    return buf.name;
+  });
+  const sliced = typeof limit === "number" ? files.slice(0, limit) : files;
+  return {
+    total: files.length,
+    files: sliced,
+    truncated: sliced.length < files.length,
+  };
+}
+
 // Parse the request body as JSON.
 async function parseRequestBody(body: ReadableStream<Uint8Array>) {
   const lines = [];
@@ -89,7 +118,11 @@ async function parseRequestBody(body: ReadableStream<Uint8Array>) {
     lines.push(line);
   }
   const params = JSON.parse(lines.join("\n"));
-  return params;
+  return params as {
+    dir: string;
+    mode?: string;
+    limit?: number;
+  };
 }
 
 // Find dirty buffers in the specified directory.
