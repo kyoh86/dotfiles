@@ -41,24 +41,6 @@ export function startProxyServer(options: ProxyServerOptions = {}) {
   return Deno.serve({ hostname: host, port, handler });
 }
 
-async function handleMcp(req: Request) {
-  const pid = parsePid(req.headers.get("x-nvim-pid"));
-  if (!pid) {
-    return json({ error: "NVIM_PID is required" }, 400);
-  }
-  const instance = instances.get(pid);
-  if (!instance) {
-    return json({ error: `Unknown Neovim PID: ${pid}` }, 404);
-  }
-  const target = ensureHttpUrl(instance.mcpUrl);
-  const forwardReq = new Request(target, {
-    method: req.method,
-    headers: forwardHeaders(req.headers),
-    body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
-  });
-  return await fetch(forwardReq);
-}
-
 async function handleRegister(req: Request) {
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== "object") {
@@ -87,6 +69,24 @@ async function handleRegister(req: Request) {
     updatedAt: Date.now(),
   });
   return json({ ok: true });
+}
+
+async function handleMcp(req: Request) {
+  const pid = parsePid(req.headers.get("x-nvim-pid"));
+  if (!pid) {
+    return json({ error: "NVIM_PID is required" }, 400);
+  }
+  const instance = instances.get(pid);
+  if (!instance) {
+    return json({ error: `Unknown Neovim PID: ${pid}` }, 404);
+  }
+  const target = ensureHttpUrl(instance.mcpUrl);
+  const forwardReq = new Request(target, {
+    method: req.method,
+    headers: forwardHeaders(req.headers),
+    body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
+  });
+  return await fetch(forwardReq);
 }
 
 async function handlePreCommit(req: Request) {
