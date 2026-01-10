@@ -7,6 +7,8 @@ import * as z from "zod";
 
 const DEFAULT_PORT = 0;
 const DEFAULT_HOST = "127.0.0.1";
+const REGISTER_RETRY_LIMIT = 5;
+const REGISTER_BACKOFF_BASE_MS = 200;
 
 type BufferInfo = {
   name: string;
@@ -214,13 +216,62 @@ export async function main(denops: Denops): Promise<void> {
       port,
       handler,
       onListen: async ({ port }) => {
-        await vars.e.set(denops, "NVIM_MCP_URL", `http://${host}:${port}/mcp`);
+        const mcpUrl = `http://${host}:${port}/mcp`;
+        await vars.e.set(denops, "NVIM_MCP_URL", mcpUrl);
+        await registerToProxy(denops, {
+          mcpUrl,
+        });
       },
     });
     await finished;
   } catch (error) {
     console.error("Failed to start nvim MCP server:", error);
   }
+}
+
+async function registerToProxy(
+  denops: Denops,
+  options: { mcpUrl: string },
+) {
+  const pid = await fn.getpid(denops);
+  const cwd = await fn.getcwd(denops);
+  const servername = await vars.v.get(denops, "servername", "");
+  const proxyUrl = await vars.e.get(denops, "NVIM_PROXY_URL", "");
+  const precommitAddress = await vars.e.get(denops, "PRECOMMIT_ADDRESS", "");
+
+  if (!proxyUrl) {
+    return;
+  }
+  const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
+  const payload = {
+    pid,
+    cwd,
+    servername,
+    mcp_url: options.mcpUrl,
+    precommit_url: precommitAddress,
+  };
+  for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
+    try {
+      const res = await fetch(registerUrl, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        return;
+      }
+    } catch {
+      // Retry with backoff.
+    }
+    if (attempt < REGISTER_RETRY_LIMIT - 1) {
+      await delay(REGISTER_BACKOFF_BASE_MS * 2 ** attempt);
+    }
+  }
+  console.error("Failed to register MCP server to nvim-proxy.");
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function resolvePort(denops: Denops): Promise<number> {
@@ -256,8 +307,8 @@ async function listBuffers(
       bufnr: bufinfo.bufnr,
       modified: modified === 1,
       buftype: String(buftype),
-      listed: bufinfo.listed === 1,
-      loaded: bufinfo.loaded === 1,
+      listed: Boolean(bufinfo.listed),
+      loaded: Boolean(bufinfo.loaded),
     };
   }));
 
@@ -316,7 +367,11 @@ async function getCurrentSelection(denops: Denops) {
     { line: startLine, col: startCol },
     { line: endLine, col: endCol },
   );
-  const lines = await fn.getline(denops, normalized.start.line, normalized.end.line);
+  const lines = await fn.getline(
+    denops,
+    normalized.start.line,
+    normalized.end.line,
+  );
   const sliced = sliceLines(
     lines,
     normalized.start.col,
@@ -336,7 +391,9 @@ function normalizeRange(
   start: { line: number; col: number },
   end: { line: number; col: number },
 ) {
-  if (start.line > end.line || (start.line === end.line && start.col > end.col)) {
+  if (
+    start.line > end.line || (start.line === end.line && start.col > end.col)
+  ) {
     return { start: end, end: start };
   }
   return { start, end };
@@ -394,8 +451,12 @@ async function formatListItems(
       filename,
       lnum: Number(record.lnum ?? 0),
       col: Number(record.col ?? 0),
-      end_lnum: record.end_lnum === undefined ? undefined : Number(record.end_lnum),
-      end_col: record.end_col === undefined ? undefined : Number(record.end_col),
+      end_lnum: record.end_lnum === undefined
+        ? undefined
+        : Number(record.end_lnum),
+      end_col: record.end_col === undefined
+        ? undefined
+        : Number(record.end_col),
       text: String(record.text ?? ""),
       type: typeof record.type === "string" ? record.type : undefined,
       valid: Boolean(record.valid ?? true),
@@ -441,9 +502,10 @@ return result
 `;
   const bufnr = options.bufnr ?? 0;
   const severity = options.severity ?? "";
-  const diagnostics = await fn.nvim_exec_lua(denops, lua, [bufnr, severity]) as Array<
-    Record<string, unknown>
-  >;
+  const diagnostics = await denops.call("nvim_exec_lua", lua, [
+    bufnr,
+    severity,
+  ]) as Array<Record<string, unknown>>;
   return {
     total: diagnostics.length,
     diagnostics: diagnostics.map((item) => ({

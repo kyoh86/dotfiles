@@ -66,18 +66,34 @@ async function handleRegister(req: Request) {
   }
   const record = body as Record<string, unknown>;
   const pid = Number(record.pid ?? 0);
-  const cwd = String(record.cwd ?? "");
-  const mcpUrl = String(record.mcp_url ?? "");
-  const precommitUrl = String(record.precommit_url ?? "");
-  if (!pid || !cwd || !mcpUrl) {
-    return json({ error: "Missing fields" }, 400);
+  if (!pid) {
+    return json({ error: "Missing pid" }, 400);
+  }
+  const existing = instances.get(pid);
+  const cwd = typeof record.cwd === "string" && record.cwd !== ""
+    ? record.cwd
+    : existing?.cwd;
+  const mcpUrl = typeof record.mcp_url === "string" && record.mcp_url !== ""
+    ? record.mcp_url
+    : existing?.mcpUrl;
+  const precommitUrl =
+    typeof record.precommit_url === "string" && record.precommit_url !== ""
+      ? record.precommit_url
+      : existing?.precommitUrl;
+  if (!cwd) {
+    return json({ error: "Missing cwd" }, 400);
+  }
+  if (!mcpUrl && !precommitUrl) {
+    return json({ error: "Missing endpoints" }, 400);
   }
   instances.set(pid, {
     pid,
     cwd,
-    mcpUrl,
-    precommitUrl,
-    servername: typeof record.servername === "string" ? record.servername : undefined,
+    mcpUrl: mcpUrl ?? "",
+    precommitUrl: precommitUrl ?? "",
+    servername: typeof record.servername === "string"
+      ? record.servername
+      : existing?.servername,
     updatedAt: Date.now(),
   });
   return json({ ok: true });

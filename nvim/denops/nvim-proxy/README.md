@@ -1,7 +1,7 @@
 # nvim-proxy
 
-Neovim と外部クライアント (Codex / git pre-commit) の橋渡し用プロキシ。
-各 Neovim インスタンスは自分の情報を登録し、外部は固定ポートの
+Neovim と外部クライアント (Codex / git pre-commit) の橋渡し用プロキシ。 各
+Neovim インスタンスは自分の情報を登録し、外部は固定ポートの
 プロキシだけを参照する。
 
 ## 目的
@@ -22,7 +22,6 @@ git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commi
 
 - `nvim/denops/nvim-proxy/main.ts`
   - プロキシの自動起動 (任意)
-  - インスタンス登録の heartbeat
   - `NVIM_PROXY_URL` / `NVIM_PID` を環境変数として設定
 - `nvim/denops/nvim-proxy/proxy.ts`
   - 固定ポートで待ち受け
@@ -30,11 +29,14 @@ git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commi
   - `/pre-commit` は登録済みの pre-commit サーバへ転送
 - `nvim/denops/mcp/main.ts`
   - MCP サーバ本体 (ランダムポート)
+  - 起動時に `/register` へ自身を登録
 - `git/hooks/pre-commit`
   - `NVIM_PROXY_URL` と `NVIM_PID` を使ってプロキシへ問い合わせ
 - `codex/config.toml`
   - `mcp_servers.nvim_proxy` に固定 URL を設定
   - `env_http_headers` で `X-Nvim-Pid` を送信
+- `nvim/denops/pre-commit/main.ts`
+  - 起動時に `/register` へ自身を登録
 
 ## 固定ポート
 
@@ -43,7 +45,7 @@ git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commi
 
 ## 登録情報
 
-`main.ts` が `/register` に送る payload は以下:
+`/register` に送る payload は以下:
 
 ```json
 {

@@ -7,6 +7,8 @@ import type { Denops } from "@denops/std";
 //
 // See: git/hooks/pre-commit
 const PRECOMMIT_ADDRESS = "PRECOMMIT_ADDRESS";
+const REGISTER_RETRY_LIMIT = 5;
+const REGISTER_BACKOFF_BASE_MS = 200;
 
 // Pick a routable IPv4 address for clients outside of Neovim's process.
 function detectHostAddress(): string {
@@ -64,11 +66,9 @@ export async function main(denops: Denops): Promise<void> {
     },
     onListen: async ({ port }) => {
       const host = detectHostAddress();
-      await vars.e.set(
-        denops,
-        PRECOMMIT_ADDRESS,
-        `${host}:${port}`,
-      );
+      const precommitAddress = `${host}:${port}`;
+      await vars.e.set(denops, PRECOMMIT_ADDRESS, precommitAddress);
+      await registerToProxy(denops, { precommitAddress });
     },
   });
   await finished;
@@ -141,4 +141,49 @@ async function findDirtyBuffers(denops: Denops, dir: string) {
       buf.name.startsWith(dir)
     );
   return bufs;
+}
+
+async function registerToProxy(
+  denops: Denops,
+  options: { precommitAddress: string },
+) {
+  const pid = await fn.getpid(denops);
+  const cwd = await fn.getcwd(denops);
+  const servername = await vars.v.get(denops, "servername", "");
+  const proxyUrl = await vars.e.get(denops, "NVIM_PROXY_URL", "");
+  const mcpUrl = await vars.e.get(denops, "NVIM_MCP_URL", "");
+
+  if (!proxyUrl) {
+    return;
+  }
+  const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
+  const payload = {
+    pid,
+    cwd,
+    servername,
+    mcp_url: mcpUrl,
+    precommit_url: options.precommitAddress,
+  };
+  for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
+    try {
+      const res = await fetch(registerUrl, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        return;
+      }
+    } catch {
+      // Retry with backoff.
+    }
+    if (attempt < REGISTER_RETRY_LIMIT - 1) {
+      await delay(REGISTER_BACKOFF_BASE_MS * 2 ** attempt);
+    }
+  }
+  console.error("Failed to register pre-commit server to nvim-proxy.");
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
