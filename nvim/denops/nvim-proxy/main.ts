@@ -2,12 +2,9 @@ import * as vars from "@denops/std/variable";
 import * as fn from "@denops/std/function";
 import type { Denops } from "@denops/std";
 import { fromFileUrl } from "@std/path";
-import { startProxyServer } from "./proxy.ts";
-
 const DEFAULT_PROXY_URL = "http://127.0.0.1:37125";
 const SYSTEMD_SERVICE_NAME = "nvim-proxy.service";
 const LAUNCHD_LABEL = "com.kyoh86.nvim-proxy";
-let proxyServerStarted = false;
 
 export async function main(denops: Denops): Promise<void> {
   denops.dispatcher = {
@@ -18,13 +15,13 @@ export async function main(denops: Denops): Promise<void> {
       await startService();
     },
     ensure: async () => {
-      await ensureProxyServer();
+      await ensureProxyServer(denops);
     },
   };
 
   const autostart = await vars.g.get(denops, "nvim_proxy_autostart", 1);
   if (autostart !== 0) {
-    await ensureProxyServer();
+    await ensureProxyServer(denops);
   }
 
   const pid = await fn.getpid(denops);
@@ -33,10 +30,7 @@ export async function main(denops: Denops): Promise<void> {
   await vars.e.set(denops, "NVIM_PID", String(pid));
 }
 
-async function ensureProxyServer() {
-  if (proxyServerStarted) {
-    return;
-  }
+async function ensureProxyServer(denops: Denops) {
   if (await isProxyRunning()) {
     return;
   }
@@ -44,12 +38,7 @@ async function ensureProxyServer() {
   if (started && await isProxyRunning()) {
     return;
   }
-  try {
-    startProxyServer();
-    proxyServerStarted = true;
-  } catch {
-    // Another instance might have started the server.
-  }
+  await notifyInstallNeeded(denops);
 }
 
 async function isProxyRunning() {
@@ -236,4 +225,21 @@ async function runCommandOutput(args: string[]) {
   } catch {
     return undefined;
   }
+}
+
+async function notifyInstallNeeded(denops: Denops) {
+  const hasNvim = await fn.has(denops, "nvim");
+  const message =
+    "nvim-proxy service is not running. Run :NvimProxyInstall to set it up.";
+  if (hasNvim) {
+    try {
+      await denops.call("nvim_notify", message, 3, { title: "nvim-proxy" });
+      return;
+    } catch {
+      // Fall through to message output.
+    }
+  }
+  await denops.call("echohl", "WarningMsg");
+  await denops.call("echomsg", message);
+  await denops.call("echohl", "None");
 }

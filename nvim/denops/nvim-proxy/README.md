@@ -21,7 +21,7 @@ git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commi
 ### 関連コンポーネント
 
 - `nvim/denops/nvim-proxy/main.ts`
-  - プロキシの自動起動 (任意: サービス起動を優先)
+  - 起動確認とサービス起動 (任意)
   - `NVIM_PROXY_URL` / `NVIM_PID` を環境変数として設定
 - `nvim/denops/nvim-proxy/proxy.ts`
   - 固定ポートで待ち受け
@@ -96,7 +96,7 @@ Codex 側は `NVIM_PID` を `X-Nvim-Pid` ヘッダとして送信する。
 - コマンド:
   - `:NvimProxyInstall` : サービスをインストールして起動
   - `:NvimProxyStart` : サービスの起動
-  - `:NvimProxyEnsure` : 起動チェックとフォールバック
+  - `:NvimProxyEnsure` : 起動チェック。未起動なら案内を表示
 
 ### Codex
 
