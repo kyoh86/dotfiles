@@ -6,7 +6,6 @@ const REGISTER_BACKOFF_BASE_MS = 200;
 
 // Start a HTTP server to handle pre-commit hook requests.
 // The server listens on a random free port and sets the address
-// to the global variable `PRECOMMIT_ADDRESS`.
 // The server checks for dirty buffers in the specified directory
 // and prompts the user to save or ignore them before committing.
 export async function main(denops: Denops): Promise<void> {

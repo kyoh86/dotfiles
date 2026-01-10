@@ -91,7 +91,6 @@ Neovim 側でセットされる値:
 - `NVIM_PROXY_URL` : `http://127.0.0.1:37125`
 - `NVIM_PID` : Neovim 本体の PID
 - `NVIM_MCP_URL` : ランダムポートで起動した MCP の URL
-- `PRECOMMIT_ADDRESS` : denops/pre-commit の URL (プロキシ登録用)
 
 Codex 側は `NVIM_PID` を `X-Nvim-Pid` ヘッダとして送信する。
 

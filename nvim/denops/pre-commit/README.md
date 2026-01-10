@@ -16,8 +16,7 @@ Git の pre-commit から呼び出されるチェック用サーバ。
 
 ## 起動
 
-`main.ts` が `Deno.serve` で起動する。
-ランダムポートで起動し、`PRECOMMIT_ADDRESS` に `host:port` を保存する。 起動時に
+`main.ts` が `Deno.serve` で起動する。 ランダムポートで起動し、起動時に
 `nvim-proxy` へ `/register` で自身を登録する。
 
 ## 関連
