@@ -502,37 +502,13 @@ async function getDiagnostics(
   denops: Denops,
   options: { bufnr?: number; severity?: "error" | "warn" | "info" | "hint" },
 ) {
-  const lua = `
-local bufnr = select(1, ...)
-local severity = select(2, ...)
-local args = {}
-if severity and severity ~= "" then
-  args.severity = vim.diagnostic.severity[string.upper(severity)]
-end
-local list = vim.diagnostic.get(bufnr, args)
-local result = {}
-for _, item in ipairs(list) do
-  table.insert(result, {
-    bufnr = item.bufnr,
-    lnum = item.lnum,
-    col = item.col,
-    end_lnum = item.end_lnum,
-    end_col = item.end_col,
-    severity = item.severity,
-    severity_name = vim.diagnostic.severity[item.severity],
-    message = item.message,
-    source = item.source,
-    code = item.code,
-  })
-end
-return result
-`;
   const bufnr = options.bufnr ?? 0;
   const severity = options.severity ?? "";
-  const diagnostics = await denops.call("nvim_exec_lua", lua, [
+  const diagnostics = await denops.call(
+    "kyoh86#mcp#diagnostics",
     bufnr,
     severity,
-  ]) as Array<Record<string, unknown>>;
+  ) as Array<Record<string, unknown>>;
   return {
     total: diagnostics.length,
     diagnostics: diagnostics.map((item) => ({
