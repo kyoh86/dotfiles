@@ -220,8 +220,8 @@ function loadState() {
         instances.set(item.pid, { pid: item.pid, routes });
       }
     }
-  } catch {
-    // Ignore load failures.
+  } catch (error) {
+    console.error("nvim-proxy: failed to load state", error);
   }
 }
 
@@ -245,8 +245,8 @@ async function saveState() {
   try {
     await Deno.mkdir(resolveStateDir(), { recursive: true });
     await Deno.writeTextFile(path, JSON.stringify(payload));
-  } catch {
-    // Ignore save failures.
+  } catch (error) {
+    console.error("nvim-proxy: failed to save state", error);
   }
 }
 
