@@ -1,7 +1,7 @@
 import * as fn from "@denops/std/function";
 import * as vars from "@denops/std/variable";
 import type { Denops } from "@denops/std";
-import { ensure, is } from "@core/unknownutil";
+import { as, ensure, is } from "@core/unknownutil";
 
 const REGISTER_RETRY_LIMIT = 5;
 const REGISTER_BACKOFF_BASE_MS = 200;
@@ -98,15 +98,11 @@ async function parseRequestBody(body: ReadableStream<Uint8Array>) {
     parsed,
     is.ObjectOf({
       dir: is.String,
+      mode: as.Optional(is.UnionOf([is.String, is.Undefined])),
+      limit: as.Optional(is.UnionOf([is.Number, is.Undefined])),
     }),
-  ) as { dir: string; mode?: unknown; limit?: unknown };
-  const mode = is.String(record.mode) ? record.mode : undefined;
-  const limit = is.Number(record.limit) ? record.limit : undefined;
-  return {
-    dir: record.dir,
-    mode,
-    limit,
-  };
+  );
+  return record;
 }
 
 // Find dirty buffers in the specified directory.
