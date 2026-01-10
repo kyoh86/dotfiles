@@ -1,12 +1,21 @@
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 37125;
+const DEFAULT_HEALTH_INTERVAL_MS = 10 * 60 * 1000;
+const DEFAULT_HEALTH_FAILURE_LIMIT = 3;
+const DEFAULT_HEALTH_TIMEOUT_MS = 2000;
 
 type InstanceInfo = {
   pid: number;
-  routes: Map<string, string>;
+  routes: Map<string, RouteInfo>;
 };
 
 const instances = new Map<number, InstanceInfo>();
+let healthMonitorStarted = false;
+
+type RouteInfo = {
+  targetUrl: string;
+  failureCount: number;
+};
 
 export type ProxyServerOptions = {
   host?: string;
@@ -32,13 +41,19 @@ export function startProxyServer(options: ProxyServerOptions = {}) {
     return await handleProxy(req, pathname);
   };
 
+  startHealthMonitor();
   return Deno.serve({ hostname: host, port, handler });
 }
 
 function listRoutes() {
   return Array.from(instances.values()).map((instance) => ({
     pid: instance.pid,
-    routes: Object.fromEntries(instance.routes.entries()),
+    routes: Object.fromEntries(
+      Array.from(instance.routes.entries(), ([path, route]) => [
+        path,
+        route.targetUrl,
+      ]),
+    ),
   }));
 }
 
@@ -60,8 +75,11 @@ async function handleRegister(req: Request) {
     return json({ error: "Missing route" }, 400);
   }
   const existing = instances.get(pid);
-  const routes = existing?.routes ?? new Map<string, string>();
-  routes.set(path, ensureHttpUrl(targetUrl));
+  const routes = existing?.routes ?? new Map<string, RouteInfo>();
+  routes.set(path, {
+    targetUrl: ensureHttpUrl(targetUrl),
+    failureCount: 0,
+  });
   instances.set(pid, { pid, routes });
   return json({ ok: true });
 }
@@ -82,6 +100,73 @@ async function handleProxy(req: Request, pathname: string) {
     body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
   });
   return await fetch(forwardReq);
+}
+
+function startHealthMonitor() {
+  if (healthMonitorStarted) {
+    return;
+  }
+  healthMonitorStarted = true;
+  const interval = DEFAULT_HEALTH_INTERVAL_MS;
+  const failureLimit = DEFAULT_HEALTH_FAILURE_LIMIT;
+  const timeoutMs = DEFAULT_HEALTH_TIMEOUT_MS;
+  const run = async () => {
+    await sweepRoutes(interval, failureLimit, timeoutMs);
+  };
+  void run();
+  setInterval(() => {
+    void run();
+  }, interval);
+}
+
+async function sweepRoutes(
+  intervalMs: number,
+  failureLimit: number,
+  timeoutMs: number,
+) {
+  for (const [pid, instance] of instances.entries()) {
+    for (const [path, route] of instance.routes.entries()) {
+      const ok = await checkHealth(route.targetUrl, timeoutMs);
+      if (ok) {
+        route.failureCount = 0;
+        continue;
+      }
+      route.failureCount += 1;
+      if (route.failureCount >= failureLimit) {
+        instance.routes.delete(path);
+      }
+    }
+    if (instance.routes.size === 0) {
+      instances.delete(pid);
+    }
+  }
+  void intervalMs;
+}
+
+async function checkHealth(targetUrl: string, timeoutMs: number) {
+  const url = buildHealthUrl(targetUrl);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    return res.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function buildHealthUrl(targetUrl: string) {
+  try {
+    const url = new URL(targetUrl);
+    url.pathname = "/health";
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return `${targetUrl.replace(/\/+$/, "")}/health`;
+  }
 }
 
 function ensureHttpUrl(url: string) {
