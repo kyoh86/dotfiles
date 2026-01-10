@@ -98,7 +98,7 @@ async function handleProxy(req: Request, pathname: string) {
   if (!target) {
     return json({ error: `Unknown Neovim PID: ${pid}` }, 404);
   }
-  const forwardReq = new Request(target, {
+  const forwardReq = new Request(target.targetUrl, {
     method: req.method,
     headers: forwardHeaders(req.headers),
     body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
