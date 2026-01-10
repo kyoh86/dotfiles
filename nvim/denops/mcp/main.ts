@@ -236,38 +236,53 @@ async function registerToProxy(
   const pid = await fn.getpid(denops);
   const cwd = await fn.getcwd(denops);
   const servername = await vars.v.get(denops, "servername", "");
-  const proxyUrl = await vars.e.get(denops, "NVIM_PROXY_URL", "");
-  const precommitAddress = await vars.e.get(denops, "PRECOMMIT_ADDRESS", "");
-
-  if (!proxyUrl) {
-    return;
-  }
-  const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
-  const payload = {
-    pid,
-    cwd,
-    servername,
-    mcp_url: options.mcpUrl,
-    precommit_url: precommitAddress,
-  };
   for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
-    try {
-      const res = await fetch(registerUrl, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) {
-        return;
-      }
-    } catch {
-      // Retry with backoff.
+    const ok = await registerOnce(denops, {
+      pid,
+      cwd,
+      servername,
+      mcpUrl: options.mcpUrl,
+    });
+    if (ok) {
+      return;
     }
     if (attempt < REGISTER_RETRY_LIMIT - 1) {
       await delay(REGISTER_BACKOFF_BASE_MS * 2 ** attempt);
     }
   }
   console.error("Failed to register MCP server to nvim-proxy.");
+}
+
+async function registerOnce(
+  denops: Denops,
+  options: {
+    pid: number;
+    cwd: string;
+    servername: string;
+    mcpUrl: string;
+  },
+) {
+  const proxyUrl = await vars.e.get(denops, "NVIM_PROXY_URL", "");
+  if (!proxyUrl) {
+    return false;
+  }
+  const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
+  const payload = {
+    pid: options.pid,
+    cwd: options.cwd,
+    servername: options.servername,
+    mcp_url: options.mcpUrl,
+  };
+  try {
+    const res = await fetch(registerUrl, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 function delay(ms: number) {

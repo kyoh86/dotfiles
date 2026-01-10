@@ -52,8 +52,16 @@ git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commi
   "pid": 12345,
   "cwd": "/path/to/repo",
   "mcp_url": "http://127.0.0.1:37287/mcp",
-  "precommit_url": "127.0.0.1:40001",
   "servername": "/run/user/1000/nvim.12345.0"
+}
+```
+
+pre-commit 側は `precommit_url` だけを送る:
+
+```json
+{
+  "pid": 12345,
+  "precommit_url": "127.0.0.1:40001"
 }
 ```
 
