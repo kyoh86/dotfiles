@@ -32,7 +32,8 @@
     "./denops/@ddu-sources/aws_profile",
     "./denops/@ddu-sources/slow",
     "./denops/tomlvsnip",
-    "./denops/pre-commit"
+    "./denops/pre-commit",
+    "./denops/mcp"
   ],
   "imports": {
     "@core/unknownutil": "jsr:@core/unknownutil@^4.3.0",
