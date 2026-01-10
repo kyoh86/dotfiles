@@ -67,6 +67,7 @@ pre-commit 側は `/pre-commit` を登録する:
 ## プロキシのHTTPエンドポイント
 
 - `GET /health` : 稼働確認
+- `GET /routes` : 登録済みルート一覧
 - `POST /register` : Neovim インスタンスの登録/更新
 - `* /mcp` : MCP の透過転送
 - `POST /pre-commit` : pre-commit の透過転送
@@ -97,6 +98,8 @@ Codex 側は `NVIM_PID` を `X-Nvim-Pid` ヘッダとして送信する。
   - `:NvimProxyInstall` : サービスをインストールして起動
   - `:NvimProxyStart` : サービスの起動
   - `:NvimProxyEnsure` : 起動チェック。未起動なら案内を表示
+  - `:NvimProxyStatus` : サービスの状態を表示
+- `:checkhealth nvim_proxy` で状態とルート一覧を確認できる
 
 ### Codex
 

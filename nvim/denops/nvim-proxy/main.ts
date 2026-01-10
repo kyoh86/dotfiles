@@ -17,6 +17,9 @@ export async function main(denops: Denops): Promise<void> {
     ensure: async () => {
       await ensureProxyServer(denops);
     },
+    status: async () => {
+      return await collectStatus();
+    },
   };
 
   const autostart = await vars.g.get(denops, "nvim_proxy_autostart", 1);
@@ -242,4 +245,120 @@ async function notifyInstallNeeded(denops: Denops) {
   await denops.call("echohl", "WarningMsg");
   await denops.call("echomsg", message);
   await denops.call("echohl", "None");
+}
+
+async function collectStatus() {
+  const service = await readServiceStatus();
+  const proxy = await readProxyStatus();
+  const routes = await fetchRoutes();
+  return {
+    service,
+    proxy,
+    routes: routes ?? [],
+    routes_error: routes ? undefined : "unavailable",
+  };
+}
+
+async function readServiceStatus() {
+  switch (Deno.build.os) {
+    case "linux":
+      return await readSystemdStatus();
+    case "darwin":
+      return await readLaunchdStatus();
+    default:
+      return { ok: false, message: "service manager unavailable" };
+  }
+}
+
+async function readSystemdStatus() {
+  const output = await runCommandOutput([
+    "systemctl",
+    "--user",
+    "show",
+    SYSTEMD_SERVICE_NAME,
+    "--property=ActiveState,SubState",
+    "--no-page",
+  ]);
+  if (!output) {
+    return { ok: false, message: "systemd: unavailable" };
+  }
+  const active = pickSystemdValue(output, "ActiveState");
+  const sub = pickSystemdValue(output, "SubState");
+  if (!active) {
+    return { ok: false, message: "systemd: inactive" };
+  }
+  return {
+    ok: true,
+    message: sub ? `systemd: ${active}/${sub}` : `systemd: ${active}`,
+  };
+}
+
+function pickSystemdValue(output: string, key: string) {
+  const line = output.split("\n").find((row) => row.startsWith(`${key}=`));
+  if (!line) {
+    return undefined;
+  }
+  return line.slice(key.length + 1).trim() || undefined;
+}
+
+async function readLaunchdStatus() {
+  const uid = await resolveUid();
+  if (uid === undefined) {
+    return { ok: false, message: "launchd: unavailable" };
+  }
+  const output = await runCommandOutput([
+    "launchctl",
+    "print",
+    `gui/${uid}/${LAUNCHD_LABEL}`,
+  ]);
+  if (!output) {
+    return { ok: false, message: "launchd: not loaded" };
+  }
+  const pid = pickLaunchdPid(output);
+  return pid
+    ? { ok: true, message: `launchd: running (pid ${pid})` }
+    : { ok: true, message: "launchd: loaded" };
+}
+
+function pickLaunchdPid(output: string) {
+  const line = output.split("\n").find((row) => row.trim().startsWith("pid ="));
+  if (!line) {
+    return undefined;
+  }
+  const value = line.split("=").pop()?.trim().replace(/;$/, "");
+  return value && value !== "0" ? value : undefined;
+}
+
+async function fetchRoutes() {
+  try {
+    const res = await fetch(`${DEFAULT_PROXY_URL}/routes`);
+    if (!res.ok) {
+      return undefined;
+    }
+    const data = await res.json();
+    return Array.isArray(data) ? data : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+async function readProxyStatus() {
+  try {
+    const res = await fetch(`${DEFAULT_PROXY_URL}/health`);
+    if (!res.ok) {
+      return { ok: false, message: `proxy: HTTP ${res.status}` };
+    }
+    const data = await res.json().catch(() => ({}));
+    if (data && typeof data === "object" && data.status === "ok") {
+      return { ok: true, message: `proxy ok (${DEFAULT_PROXY_URL})` };
+    }
+    return { ok: false, message: "proxy: invalid response" };
+  } catch (error) {
+    return {
+      ok: false,
+      message: `proxy: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    };
+  }
 }

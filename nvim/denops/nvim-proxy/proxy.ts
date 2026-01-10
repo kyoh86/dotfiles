@@ -22,6 +22,9 @@ export function startProxyServer(options: ProxyServerOptions = {}) {
     if (pathname === "/health") {
       return json({ status: "ok" });
     }
+    if (pathname === "/routes") {
+      return json(listRoutes());
+    }
     if (pathname === "/register" && req.method === "POST") {
       return await handleRegister(req);
     }
@@ -30,6 +33,13 @@ export function startProxyServer(options: ProxyServerOptions = {}) {
   };
 
   return Deno.serve({ hostname: host, port, handler });
+}
+
+function listRoutes() {
+  return Array.from(instances.values()).map((instance) => ({
+    pid: instance.pid,
+    routes: Object.fromEntries(instance.routes.entries()),
+  }));
 }
 
 async function handleRegister(req: Request) {
