@@ -217,7 +217,6 @@ export async function main(denops: Denops): Promise<void> {
       handler,
       onListen: async ({ port }) => {
         const mcpUrl = `http://${host}:${port}/mcp`;
-        await vars.e.set(denops, "NVIM_MCP_URL", mcpUrl);
         await registerToProxy(denops, {
           mcpUrl,
         });
