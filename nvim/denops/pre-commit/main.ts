@@ -1,12 +1,6 @@
-import * as vars from "@denops/std/variable";
 import * as fn from "@denops/std/function";
 import type { Denops } from "@denops/std";
 
-// The global variable name to store the pre-commit server address.
-// It maybe used in git hook script.
-//
-// See: git/hooks/pre-commit
-const PRECOMMIT_ADDRESS = "PRECOMMIT_ADDRESS";
 const REGISTER_RETRY_LIMIT = 5;
 const REGISTER_BACKOFF_BASE_MS = 200;
 
@@ -49,7 +43,6 @@ export async function main(denops: Denops): Promise<void> {
     },
     onListen: async ({ port }) => {
       const precommitAddress = `127.0.0.1:${port}`;
-      await vars.e.set(denops, PRECOMMIT_ADDRESS, precommitAddress);
       await registerToProxy(denops, { precommitAddress });
     },
   });

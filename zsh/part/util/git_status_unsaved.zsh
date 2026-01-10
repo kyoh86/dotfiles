@@ -5,13 +5,13 @@ autoload -Uz colors
 colors
 
 function _denops_precommit_status_print {
-  if [ -z "$PRECOMMIT_ADDRESS" ]; then
+  if [ -z "$NVIM_PROXY_URL" ] || [ -z "$NVIM_PID" ]; then
     return
   fi
 
   local payload ret total truncated
   payload="$(jq -n --arg dir "$PWD" --argjson limit 10 '{dir:$dir, mode:"status", limit:$limit}')"
-  ret="$(curl -XPOST -sSL --max-time 2 "$PRECOMMIT_ADDRESS" -d "$payload" 2>/dev/null)"
+  ret="$(curl -XPOST -sSL --max-time 2 -H "X-Nvim-Pid: ${NVIM_PID}" "${NVIM_PROXY_URL}/pre-commit" -d "$payload" 2>/dev/null)"
   if [ -z "$ret" ]; then
     return
   fi
