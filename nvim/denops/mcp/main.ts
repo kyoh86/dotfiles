@@ -263,7 +263,8 @@ async function registerOnce(
   const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
   const payload = {
     pid: options.pid,
-    mcp_url: options.mcpUrl,
+    path: "/mcp",
+    target_url: options.mcpUrl,
   };
   try {
     const res = await fetch(registerUrl, {

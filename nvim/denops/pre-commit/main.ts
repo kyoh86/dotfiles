@@ -177,7 +177,8 @@ async function registerOnce(
   const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
   const payload = {
     pid: options.pid,
-    precommit_url: options.precommitAddress,
+    path: "/pre-commit",
+    target_url: options.precommitAddress,
   };
   try {
     const res = await fetch(registerUrl, {

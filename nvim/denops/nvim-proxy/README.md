@@ -50,16 +50,18 @@ git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commi
 ```json
 {
   "pid": 12345,
-  "mcp_url": "http://127.0.0.1:37287/mcp"
+  "path": "/mcp",
+  "target_url": "http://127.0.0.1:37287/mcp"
 }
 ```
 
-pre-commit 側は `precommit_url` だけを送る:
+pre-commit 側は `/pre-commit` を登録する:
 
 ```json
 {
   "pid": 12345,
-  "precommit_url": "127.0.0.1:40001"
+  "path": "/pre-commit",
+  "target_url": "127.0.0.1:40001"
 }
 ```
 
@@ -67,8 +69,8 @@ pre-commit 側は `precommit_url` だけを送る:
 
 - `GET /health` : 稼働確認
 - `POST /register` : Neovim インスタンスの登録/更新
-- `POST /pre-commit` : pre-commit の中継
-- `POST /mcp` / `GET /mcp` / `DELETE /mcp` : MCP の透過転送
+- `* /mcp` : MCP の透過転送
+- `POST /pre-commit` : pre-commit の透過転送
 
 ## 環境変数
 

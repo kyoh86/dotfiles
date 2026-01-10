@@ -3,9 +3,7 @@ const DEFAULT_PORT = 37125;
 
 type InstanceInfo = {
   pid: number;
-  mcpUrl: string;
-  precommitUrl: string;
-  updatedAt: number;
+  routes: Map<string, string>;
 };
 
 const instances = new Map<number, InstanceInfo>();
@@ -28,14 +26,7 @@ export function startProxyServer(options: ProxyServerOptions = {}) {
       return await handleRegister(req);
     }
 
-    if (pathname === "/mcp") {
-      return await handleMcp(req);
-    }
-    if (pathname === "/pre-commit" && req.method === "POST") {
-      return await handlePreCommit(req);
-    }
-
-    return new Response("Not found", { status: 404 });
+    return await handleProxy(req, pathname);
   };
 
   return Deno.serve({ hostname: host, port, handler });
@@ -51,68 +42,36 @@ async function handleRegister(req: Request) {
   if (!pid) {
     return json({ error: "Missing pid" }, 400);
   }
-  const existing = instances.get(pid);
-  const mcpUrl = typeof record.mcp_url === "string" && record.mcp_url !== ""
-    ? record.mcp_url
-    : existing?.mcpUrl;
-  const precommitUrl =
-    typeof record.precommit_url === "string" && record.precommit_url !== ""
-      ? record.precommit_url
-      : existing?.precommitUrl;
-  if (!mcpUrl && !precommitUrl) {
-    return json({ error: "Missing endpoints" }, 400);
+  const path = typeof record.path === "string" ? record.path : "";
+  const targetUrl = typeof record.target_url === "string"
+    ? record.target_url
+    : "";
+  if (!path || !targetUrl) {
+    return json({ error: "Missing route" }, 400);
   }
-  instances.set(pid, {
-    pid,
-    mcpUrl: mcpUrl ?? "",
-    precommitUrl: precommitUrl ?? "",
-    updatedAt: Date.now(),
-  });
+  const existing = instances.get(pid);
+  const routes = existing?.routes ?? new Map<string, string>();
+  routes.set(path, ensureHttpUrl(targetUrl));
+  instances.set(pid, { pid, routes });
   return json({ ok: true });
 }
 
-async function handleMcp(req: Request) {
+async function handleProxy(req: Request, pathname: string) {
   const pid = parsePid(req.headers.get("x-nvim-pid"));
   if (!pid) {
     return json({ error: "NVIM_PID is required" }, 400);
   }
   const instance = instances.get(pid);
-  if (!instance) {
+  const target = instance?.routes.get(pathname);
+  if (!target) {
     return json({ error: `Unknown Neovim PID: ${pid}` }, 404);
   }
-  const target = ensureHttpUrl(instance.mcpUrl);
   const forwardReq = new Request(target, {
     method: req.method,
     headers: forwardHeaders(req.headers),
     body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
   });
   return await fetch(forwardReq);
-}
-
-async function handlePreCommit(req: Request) {
-  const pid = parsePid(req.headers.get("x-nvim-pid"));
-  if (!pid) {
-    return new Response("NVIM_PID is required", { status: 400 });
-  }
-  const instance = instances.get(pid);
-  if (!instance || !instance.precommitUrl) {
-    return new Response("ok");
-  }
-  const url = ensureHttpUrl(instance.precommitUrl);
-  try {
-    const res = await fetch(url, {
-      method: req.method,
-      headers: forwardHeaders(req.headers),
-      body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
-    });
-    const text = await res.text();
-    return new Response(text);
-  } catch (error) {
-    return new Response(
-      `error: ${error instanceof Error ? error.message : String(error)}`,
-      { status: 500 },
-    );
-  }
 }
 
 function ensureHttpUrl(url: string) {

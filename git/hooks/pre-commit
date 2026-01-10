@@ -17,15 +17,22 @@ payload="$(jq -n --arg dir "${dir}" '{
 }')"
 
 # Timeout : 5s
-ret="$(curl -XPOST -sSL --max-time 5 -H "X-Nvim-Pid: ${NVIM_PID}" "${NVIM_PROXY_URL}/pre-commit" -d "${payload}" 2>/dev/null)"
+response="$(curl -XPOST -sSL --max-time 5 -H "X-Nvim-Pid: ${NVIM_PID}" \
+  -w '\n%{http_code}' "${NVIM_PROXY_URL}/pre-commit" -d "${payload}" 2>/dev/null)"
 curl_exit_code=$?
+http_code="${response##*$'\n'}"
+ret="${response%$'\n'*}"
+
+if [ "${http_code}" = "404" ]; then
+  exit 0
+fi
 
 case "${ret}" in
   "ok")
     : # noop
     ;;
   *)
-    echo "Commit cancelled: unsaved buffers detected (${curl_exit_code}: ${ret})"
+    echo "Commit cancelled: unsaved buffers detected (${curl_exit_code}:${http_code}: ${ret})"
     exit 1
     ;;
 esac
