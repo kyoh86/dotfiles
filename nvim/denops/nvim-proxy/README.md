@@ -77,6 +77,13 @@ pre-commit 側は `/pre-commit` を登録する:
 登録されたルートに対して `GET /health` を定期実行し、失敗が続いたら削除する。 10
 分間隔で 3 回失敗したら削除 (タイムアウトは 2 秒)。
 
+## 永続化
+
+`nvim-proxy` は登録ルートを `routes.json` に保存し、再起動時に復元する。
+
+- Linux: `~/.local/state/nvim-proxy/routes.json` (or `XDG_STATE_HOME`)
+- macOS: `~/Library` 配下ではなく `~/.local/state` を使う
+
 ## 環境変数
 
 Neovim 側でセットされる値:

@@ -3,6 +3,7 @@ const DEFAULT_PORT = 37125;
 const DEFAULT_HEALTH_INTERVAL_MS = 10 * 60 * 1000;
 const DEFAULT_HEALTH_FAILURE_LIMIT = 3;
 const DEFAULT_HEALTH_TIMEOUT_MS = 2000;
+const STATE_VERSION = 1;
 
 type InstanceInfo = {
   pid: number;
@@ -25,6 +26,8 @@ export type ProxyServerOptions = {
 export function startProxyServer(options: ProxyServerOptions = {}) {
   const host = options.host ?? DEFAULT_HOST;
   const port = options.port ?? DEFAULT_PORT;
+
+  loadState();
 
   const handler = async (req: Request) => {
     const { pathname } = new URL(req.url);
@@ -81,6 +84,7 @@ async function handleRegister(req: Request) {
     failureCount: 0,
   });
   instances.set(pid, { pid, routes });
+  void saveState();
   return json({ ok: true });
 }
 
@@ -125,6 +129,7 @@ async function sweepRoutes(
   timeoutMs: number,
 ) {
   for (const [pid, instance] of instances.entries()) {
+    let changed = false;
     for (const [path, route] of instance.routes.entries()) {
       const ok = await checkHealth(route.targetUrl, timeoutMs);
       if (ok) {
@@ -134,10 +139,15 @@ async function sweepRoutes(
       route.failureCount += 1;
       if (route.failureCount >= failureLimit) {
         instance.routes.delete(path);
+        changed = true;
       }
     }
     if (instance.routes.size === 0) {
       instances.delete(pid);
+      changed = true;
+    }
+    if (changed) {
+      void saveState();
     }
   }
   void intervalMs;
@@ -174,6 +184,84 @@ function ensureHttpUrl(url: string) {
     return url;
   }
   return `http://${url}`;
+}
+
+function loadState() {
+  const path = resolveStatePath();
+  if (!path) {
+    return;
+  }
+  try {
+    const raw = Deno.readTextFileSync(path);
+    const parsed = JSON.parse(raw) as {
+      version?: number;
+      instances?: Array<{ pid: number; routes: Record<string, string> }>;
+    };
+    if (parsed.version !== STATE_VERSION || !Array.isArray(parsed.instances)) {
+      return;
+    }
+    for (const item of parsed.instances) {
+      if (!item || typeof item.pid !== "number") {
+        continue;
+      }
+      const routes = new Map<string, RouteInfo>();
+      if (item.routes && typeof item.routes === "object") {
+        for (const [path, target] of Object.entries(item.routes)) {
+          if (typeof target !== "string" || target === "") {
+            continue;
+          }
+          routes.set(path, {
+            targetUrl: ensureHttpUrl(target),
+            failureCount: 0,
+          });
+        }
+      }
+      if (routes.size > 0) {
+        instances.set(item.pid, { pid: item.pid, routes });
+      }
+    }
+  } catch {
+    // Ignore load failures.
+  }
+}
+
+async function saveState() {
+  const path = resolveStatePath();
+  if (!path) {
+    return;
+  }
+  const payload = {
+    version: STATE_VERSION,
+    instances: Array.from(instances.values()).map((instance) => ({
+      pid: instance.pid,
+      routes: Object.fromEntries(
+        Array.from(instance.routes.entries(), ([path, route]) => [
+          path,
+          route.targetUrl,
+        ]),
+      ),
+    })),
+  };
+  try {
+    await Deno.mkdir(resolveStateDir(), { recursive: true });
+    await Deno.writeTextFile(path, JSON.stringify(payload));
+  } catch {
+    // Ignore save failures.
+  }
+}
+
+function resolveStateDir() {
+  const base = Deno.env.get("XDG_STATE_HOME") ??
+    (Deno.env.get("HOME") ? `${Deno.env.get("HOME")}/.local/state` : "");
+  return base ? `${base}/nvim-proxy` : "";
+}
+
+function resolveStatePath() {
+  const dir = resolveStateDir();
+  if (!dir) {
+    return undefined;
+  }
+  return `${dir}/routes.json`;
 }
 
 function parsePid(value: string | null) {
