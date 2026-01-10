@@ -78,7 +78,7 @@ Codex 側は `NVIM_PID` を `X-Nvim-Pid` ヘッダとして送信する。
 ## ルーティング規則
 
 - MCP: `X-Nvim-Pid` を必須とし、その PID のインスタンスに転送
-- pre-commit: `pid` がある場合はその PID を優先
+- pre-commit: `X-Nvim-Pid` を必須とし、その PID のインスタンスに転送
 
 ## 設定
 

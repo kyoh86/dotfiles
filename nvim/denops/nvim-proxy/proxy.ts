@@ -100,28 +100,20 @@ async function handleRegister(req: Request) {
 }
 
 async function handlePreCommit(req: Request) {
-  const body = await req.json().catch(() => null);
-  if (!body || typeof body !== "object") {
-    return new Response("invalid body", { status: 400 });
+  const pid = parsePid(req.headers.get("x-nvim-pid"));
+  if (!pid) {
+    return new Response("NVIM_PID is required", { status: 400 });
   }
-  const record = body as Record<string, unknown>;
-  const dir = String(record.dir ?? "");
-  if (!dir) {
-    return new Response("invalid dir", { status: 400 });
-  }
-  const pid = Number(record.pid ?? 0);
-  const instance = Number.isFinite(pid) && pid > 0
-    ? instances.get(pid)
-    : resolveInstanceForDir(dir);
+  const instance = instances.get(pid);
   if (!instance || !instance.precommitUrl) {
     return new Response("ok");
   }
   const url = ensureHttpUrl(instance.precommitUrl);
   try {
     const res = await fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ dir }),
+      method: req.method,
+      headers: forwardHeaders(req.headers),
+      body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
     });
     const text = await res.text();
     return new Response(text);
@@ -131,18 +123,6 @@ async function handlePreCommit(req: Request) {
       { status: 500 },
     );
   }
-}
-
-function resolveInstanceForDir(dir: string) {
-  const candidates = Array.from(instances.values())
-    .filter((instance) => dir.startsWith(instance.cwd))
-    .sort((a, b) => {
-      if (a.cwd.length !== b.cwd.length) {
-        return b.cwd.length - a.cwd.length;
-      }
-      return b.updatedAt - a.updatedAt;
-    });
-  return candidates[0];
 }
 
 function ensureHttpUrl(url: string) {
