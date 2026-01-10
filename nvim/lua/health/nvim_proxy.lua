@@ -26,6 +26,19 @@ function M.check()
   else
     vim.health.warn((service.message or "service unavailable") .. " (run :NvimProxyInstall)")
   end
+  local detail = service.detail or {}
+  if type(detail.command) == "string" then
+    vim.health.info(("service command: %s"):format(detail.command))
+    if type(detail.output) == "string" then
+      if detail.output == "" then
+        vim.health.info("  (no output)")
+      else
+        for _, line in ipairs(vim.split(detail.output, "\n", { plain = true, trimempty = true })) do
+          vim.health.info(("  %s"):format(line))
+        end
+      end
+    end
+  end
 
   local proxy = status.proxy or {}
   if proxy.ok then

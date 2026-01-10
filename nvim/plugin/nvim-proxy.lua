@@ -29,6 +29,19 @@ local function show_status()
   if service.message then
     vim.api.nvim_echo({ { "nvim-proxy: " .. service.message } }, false, {})
   end
+  local detail = service.detail or {}
+  if type(detail.command) == "string" then
+    vim.api.nvim_echo({ { ("service command: %s"):format(detail.command) } }, false, {})
+    if type(detail.output) == "string" then
+      if detail.output == "" then
+        vim.api.nvim_echo({ { "  (no output)" } }, false, {})
+      else
+        for _, line in ipairs(vim.split(detail.output, "\n", { plain = true, trimempty = true })) do
+          vim.api.nvim_echo({ { "  " .. line } }, false, {})
+        end
+      end
+    end
+  end
   local proxy = status.proxy or {}
   if proxy.message then
     vim.api.nvim_echo({ { proxy.message } }, false, {})

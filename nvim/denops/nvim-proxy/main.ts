@@ -249,6 +249,29 @@ async function runCommandOutput(args: string[]) {
   }
 }
 
+async function runCommandOutputAllowFailure(args: string[]) {
+  try {
+    const command = new Deno.Command(args[0], {
+      args: args.slice(1),
+      stdout: "piped",
+      stderr: "piped",
+    });
+    const { stdout, stderr } = await command.output();
+    const decoder = new TextDecoder();
+    const output = [decoder.decode(stdout), decoder.decode(stderr)]
+      .map((part) => part.trim())
+      .filter((part) => part.length > 0)
+      .join("\n");
+    return output;
+  } catch {
+    return undefined;
+  }
+}
+
+function formatCommand(args: string[]) {
+  return args.join(" ");
+}
+
 async function notifyInstallNeeded(denops: Denops) {
   const hasNvim = await fn.has(denops, "nvim");
   const message =
@@ -290,6 +313,14 @@ async function readServiceStatus() {
 }
 
 async function readSystemdStatus() {
+  const commandArgs = [
+    "systemctl",
+    "--user",
+    "status",
+    SYSTEMD_SERVICE_NAME,
+    "--no-pager",
+  ];
+  const detail = await runCommandOutputAllowFailure(commandArgs);
   const output = await runCommandOutput([
     "systemctl",
     "--user",
@@ -299,16 +330,34 @@ async function readSystemdStatus() {
     "--no-page",
   ]);
   if (!output) {
-    return { ok: false, message: "systemd: unavailable" };
+    return {
+      ok: false,
+      message: "systemd: unavailable",
+      detail: {
+        command: formatCommand(commandArgs),
+        output: detail ?? "",
+      },
+    };
   }
   const active = pickSystemdValue(output, "ActiveState");
   const sub = pickSystemdValue(output, "SubState");
   if (!active) {
-    return { ok: false, message: "systemd: inactive" };
+    return {
+      ok: false,
+      message: "systemd: inactive",
+      detail: {
+        command: formatCommand(commandArgs),
+        output: detail ?? "",
+      },
+    };
   }
   return {
     ok: true,
     message: sub ? `systemd: ${active}/${sub}` : `systemd: ${active}`,
+    detail: {
+      command: formatCommand(commandArgs),
+      output: detail ?? "",
+    },
   };
 }
 
@@ -325,18 +374,41 @@ async function readLaunchdStatus() {
   if (uid === undefined) {
     return { ok: false, message: "launchd: unavailable" };
   }
+  const commandArgs = ["launchctl", "print", `gui/${uid}/${LAUNCHD_LABEL}`];
+  const detail = await runCommandOutputAllowFailure(commandArgs);
   const output = await runCommandOutput([
     "launchctl",
     "print",
     `gui/${uid}/${LAUNCHD_LABEL}`,
   ]);
   if (!output) {
-    return { ok: false, message: "launchd: not loaded" };
+    return {
+      ok: false,
+      message: "launchd: not loaded",
+      detail: {
+        command: formatCommand(commandArgs),
+        output: detail ?? "",
+      },
+    };
   }
   const pid = pickLaunchdPid(output);
   return pid
-    ? { ok: true, message: `launchd: running (pid ${pid})` }
-    : { ok: true, message: "launchd: loaded" };
+    ? {
+      ok: true,
+      message: `launchd: running (pid ${pid})`,
+      detail: {
+        command: formatCommand(commandArgs),
+        output: detail ?? "",
+      },
+    }
+    : {
+      ok: true,
+      message: "launchd: loaded",
+      detail: {
+        command: formatCommand(commandArgs),
+        output: detail ?? "",
+      },
+    };
 }
 
 function pickLaunchdPid(output: string) {
