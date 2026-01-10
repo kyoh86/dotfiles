@@ -108,14 +108,14 @@ async function installSystemdService() {
     return;
   }
   const servicePath = `${home}/.config/systemd/user/${SYSTEMD_SERVICE_NAME}`;
-  const proxyPath = resolveProxyPath();
+  const proxy_path = resolveProxyPath();
   const denoPath = Deno.execPath();
   const content = [
     "[Unit]",
     "Description=Neovim proxy",
     "",
     "[Service]",
-    `ExecStart=${denoPath} run -A --no-lock ${proxyPath}`,
+    `ExecStart=${denoPath} run -A --no-lock ${proxy_path}`,
     "Restart=on-failure",
     "",
     "[Install]",
@@ -142,7 +142,7 @@ async function installLaunchdService() {
     return;
   }
   const plistPath = `${home}/Library/LaunchAgents/${LAUNCHD_LABEL}.plist`;
-  const proxyPath = resolveProxyPath();
+  const proxy_path = resolveProxyPath();
   const denoPath = Deno.execPath();
   const stdoutPath = `${home}/Library/Logs/nvim-proxy.log`;
   const stderrPath = `${home}/Library/Logs/nvim-proxy.err.log`;
@@ -159,7 +159,7 @@ async function installLaunchdService() {
     "    <string>run</string>",
     "    <string>-A</string>",
     "    <string>--no-lock</string>",
-    `    <string>${proxyPath}</string>`,
+    `    <string>${proxy_path}</string>`,
     "  </array>",
     "  <key>RunAtLoad</key>",
     "  <true/>",

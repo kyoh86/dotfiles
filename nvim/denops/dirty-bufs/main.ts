@@ -1,7 +1,7 @@
 import * as fn from "@denops/std/function";
 import * as vars from "@denops/std/variable";
 import type { Denops } from "@denops/std";
-import { as, ensure, is } from "@core/unknownutil";
+import { z } from "zod";
 
 const REGISTER_RETRY_LIMIT = 5;
 const REGISTER_BACKOFF_BASE_MS = 200;
@@ -15,10 +15,11 @@ export async function main(denops: Denops): Promise<void> {
     hostname: "127.0.0.1",
     port: 0, // Automatically select free port
     handler: async (req, _info) => {
-      if (req.body === null) {
-        return new Response("No body", { status: 400 });
+      const body = await req.json().catch(() => null);
+      if (!body) {
+        return new Response("Invalid body", { status: 400 });
       }
-      const params = await parseRequestBody(req.body);
+      const params = parseRequestBody(body);
       const bufs = await findDirtyBuffers(denops, params.dir);
       if (params.mode === "status") {
         const body = JSON.stringify(
@@ -43,8 +44,7 @@ export async function main(denops: Denops): Promise<void> {
       return new Response("unsupported status", { status: 500 });
     },
     onListen: async ({ port }) => {
-      const precommitAddress = `127.0.0.1:${port}`;
-      await registerToProxy(denops, { precommitAddress });
+      await registerToProxy(denops, { port });
     },
   });
   await finished;
@@ -88,21 +88,13 @@ function createStatusResponse(
 }
 
 // Parse the request body as JSON.
-async function parseRequestBody(body: ReadableStream<Uint8Array>) {
-  const lines = [];
-  for await (const line of body.pipeThrough(new TextDecoderStream()).values()) {
-    lines.push(line);
-  }
-  const parsed = JSON.parse(lines.join("\n"));
-  const record = ensure(
-    parsed,
-    is.ObjectOf({
-      dir: is.String,
-      mode: as.Optional(is.UnionOf([is.String, is.Undefined])),
-      limit: as.Optional(is.UnionOf([is.Number, is.Undefined])),
-    }),
-  );
-  return record;
+function parseRequestBody(body: unknown) {
+  const schema = z.object({
+    dir: z.string(),
+    mode: z.string().optional(),
+    limit: z.number().optional(),
+  });
+  return schema.parse(body);
 }
 
 // Find dirty buffers in the specified directory.
@@ -125,13 +117,13 @@ async function findDirtyBuffers(denops: Denops, dir: string) {
 
 async function registerToProxy(
   denops: Denops,
-  options: { precommitAddress: string },
+  options: { port: number },
 ) {
   const pid = await fn.getpid(denops);
   for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
     const ok = await registerOnce(denops, {
       pid,
-      precommitAddress: options.precommitAddress,
+      port: options.port,
     });
     if (ok) {
       return;
@@ -147,7 +139,7 @@ async function registerOnce(
   denops: Denops,
   options: {
     pid: number;
-    precommitAddress: string;
+    port: number;
   },
 ) {
   const proxyUrl = await vars.e.get(denops, "NVIM_PROXY_URL", "");
@@ -157,8 +149,9 @@ async function registerOnce(
   const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
   const payload = {
     pid: options.pid,
-    path: "/dirty-bufs",
-    target_url: options.precommitAddress,
+    proxy_path: "/dirty-bufs",
+    reverse_path: "",
+    reverse_port: options.port,
   };
   try {
     const res = await fetch(registerUrl, {

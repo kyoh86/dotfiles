@@ -1,6 +1,5 @@
 {
   "imports": {
-    "@core/unknownutil": "jsr:@core/unknownutil@^4.3.0",
     "@denops/std": "jsr:@denops/std@^8.2.0",
     "@denops/test": "jsr:@denops/test@^4.0.0",
     "@kyoh86/denops-util": "jsr:@kyoh86/denops-util@^0.1.2",
@@ -10,6 +9,7 @@
     "@std/fs": "jsr:@std/fs@^1.0.20",
     "@std/path": "jsr:@std/path@^1.1.3",
     "@std/streams": "jsr:@std/streams@^1.0.14",
-    "@std/toml": "jsr:@std/toml@^1.0.11"
+    "@std/toml": "jsr:@std/toml@^1.0.11",
+    "zod": "npm:zod@^4.3.5"
   }
 }

@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 37125;
 const DEFAULT_HEALTH_INTERVAL_MS = 10 * 60 * 1000;
@@ -14,7 +16,8 @@ const instances = new Map<number, InstanceInfo>();
 let healthMonitorStarted = false;
 
 type RouteInfo = {
-  targetUrl: string;
+  reverse_port: number;
+  reverse_path: string;
   failureCount: number;
 };
 
@@ -48,42 +51,25 @@ export function startProxyServer(options: ProxyServerOptions = {}) {
   return Deno.serve({ hostname: host, port, handler });
 }
 
-function listRoutes() {
-  return Array.from(instances.values()).map((instance) => ({
-    pid: instance.pid,
-    routes: Object.fromEntries(
-      Array.from(instance.routes.entries(), ([path, route]) => [
-        path,
-        route.targetUrl,
-      ]),
-    ),
-  }));
-}
-
 async function handleRegister(req: Request) {
   const body = await req.json().catch(() => null);
-  if (!body || typeof body !== "object") {
+  if (!body) {
     return json({ error: "Invalid body" }, 400);
   }
-  const record = body as Record<string, unknown>;
-  const pid = Number(record.pid ?? 0);
-  if (!pid) {
-    return json({ error: "Missing pid" }, 400);
-  }
-  const path = typeof record.path === "string" ? record.path : "";
-  const targetUrl = typeof record.target_url === "string"
-    ? record.target_url
-    : "";
-  if (!path || !targetUrl) {
-    return json({ error: "Missing route" }, 400);
-  }
-  const existing = instances.get(pid);
+  const record = z.object({
+    pid: z.number(),
+    proxy_path: z.string(),
+    reverse_port: z.number(),
+    reverse_path: z.string(),
+  }).parse(body);
+  const existing = instances.get(record.pid);
   const routes = existing?.routes ?? new Map<string, RouteInfo>();
-  routes.set(path, {
-    targetUrl: ensureHttpUrl(targetUrl),
+  routes.set(record.proxy_path, {
+    reverse_port: record.reverse_port,
+    reverse_path: record.reverse_path,
     failureCount: 0,
   });
-  instances.set(pid, { pid, routes });
+  instances.set(record.pid, { pid: record.pid, routes });
   void saveState();
   return json({ ok: true });
 }
@@ -98,7 +84,7 @@ async function handleProxy(req: Request, pathname: string) {
   if (!target) {
     return json({ error: `Unknown Neovim PID: ${pid}` }, 404);
   }
-  const forwardReq = new Request(target.targetUrl, {
+  const forwardReq = new Request(buildReverseUrl(target), {
     method: req.method,
     headers: forwardHeaders(req.headers),
     body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
@@ -131,7 +117,7 @@ async function sweepRoutes(
   for (const [pid, instance] of instances.entries()) {
     let changed = false;
     for (const [path, route] of instance.routes.entries()) {
-      const ok = await checkHealth(route.targetUrl, timeoutMs);
+      const ok = await checkHealth(buildReverseUrl(route), timeoutMs);
       if (ok) {
         route.failureCount = 0;
         continue;
@@ -179,13 +165,6 @@ function buildHealthUrl(targetUrl: string) {
   }
 }
 
-function ensureHttpUrl(url: string) {
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
-  }
-  return `http://${url}`;
-}
-
 function loadState() {
   const path = resolveStatePath();
   if (!path) {
@@ -193,10 +172,21 @@ function loadState() {
   }
   try {
     const raw = Deno.readTextFileSync(path);
-    const parsed = JSON.parse(raw) as {
-      version?: number;
-      instances?: Array<{ pid: number; routes: Record<string, string> }>;
-    };
+    const parsed = z.object({
+      version: z.number().optional(),
+      instances: z.array(
+        z.object({
+          pid: z.number(),
+          routes: z.record(
+            z.string(),
+            z.object({
+              reverse_port: z.number(),
+              reverse_path: z.string(),
+            }),
+          ),
+        }),
+      ).optional(),
+    }).parse(JSON.parse(raw));
     if (parsed.version !== STATE_VERSION || !Array.isArray(parsed.instances)) {
       return;
     }
@@ -205,16 +195,12 @@ function loadState() {
         continue;
       }
       const routes = new Map<string, RouteInfo>();
-      if (item.routes && typeof item.routes === "object") {
-        for (const [path, target] of Object.entries(item.routes)) {
-          if (typeof target !== "string" || target === "") {
-            continue;
-          }
-          routes.set(path, {
-            targetUrl: ensureHttpUrl(target),
-            failureCount: 0,
-          });
-        }
+      for (const [path, target] of Object.entries(item.routes)) {
+        routes.set(path, {
+          reverse_port: target.reverse_port,
+          reverse_path: target.reverse_path,
+          failureCount: 0,
+        });
       }
       if (routes.size > 0) {
         instances.set(item.pid, { pid: item.pid, routes });
@@ -237,7 +223,10 @@ async function saveState() {
       routes: Object.fromEntries(
         Array.from(instance.routes.entries(), ([path, route]) => [
           path,
-          route.targetUrl,
+          {
+            reverse_port: route.reverse_port,
+            reverse_path: route.reverse_path,
+          },
         ]),
       ),
     })),
@@ -262,6 +251,26 @@ function resolveStatePath() {
     return undefined;
   }
   return `${dir}/routes.json`;
+}
+
+function buildReverseUrl(route: RouteInfo) {
+  return `http://127.0.0.1:${route.reverse_port}${route.reverse_path}`;
+}
+
+function formatRouteDisplay(route: RouteInfo) {
+  return `:${route.reverse_port}${route.reverse_path}`;
+}
+
+function listRoutes() {
+  return Array.from(instances.values()).map((instance) => ({
+    pid: instance.pid,
+    routes: Object.fromEntries(
+      Array.from(instance.routes.entries(), ([path, route]) => [
+        path,
+        formatRouteDisplay(route),
+      ]),
+    ),
+  }));
 }
 
 function parsePid(value: string | null) {
