@@ -50,9 +50,7 @@ git pre-commit ------------------> nvim-proxy (/pre-commit) --> denops/pre-commi
 ```json
 {
   "pid": 12345,
-  "cwd": "/path/to/repo",
-  "mcp_url": "http://127.0.0.1:37287/mcp",
-  "servername": "/run/user/1000/nvim.12345.0"
+  "mcp_url": "http://127.0.0.1:37287/mcp"
 }
 ```
 

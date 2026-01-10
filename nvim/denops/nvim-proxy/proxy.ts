@@ -3,10 +3,8 @@ const DEFAULT_PORT = 37125;
 
 type InstanceInfo = {
   pid: number;
-  cwd: string;
   mcpUrl: string;
   precommitUrl: string;
-  servername?: string;
   updatedAt: number;
 };
 
@@ -72,9 +70,6 @@ async function handleRegister(req: Request) {
     return json({ error: "Missing pid" }, 400);
   }
   const existing = instances.get(pid);
-  const cwd = typeof record.cwd === "string" && record.cwd !== ""
-    ? record.cwd
-    : existing?.cwd;
   const mcpUrl = typeof record.mcp_url === "string" && record.mcp_url !== ""
     ? record.mcp_url
     : existing?.mcpUrl;
@@ -82,20 +77,13 @@ async function handleRegister(req: Request) {
     typeof record.precommit_url === "string" && record.precommit_url !== ""
       ? record.precommit_url
       : existing?.precommitUrl;
-  if (!cwd) {
-    return json({ error: "Missing cwd" }, 400);
-  }
   if (!mcpUrl && !precommitUrl) {
     return json({ error: "Missing endpoints" }, 400);
   }
   instances.set(pid, {
     pid,
-    cwd,
     mcpUrl: mcpUrl ?? "",
     precommitUrl: precommitUrl ?? "",
-    servername: typeof record.servername === "string"
-      ? record.servername
-      : existing?.servername,
     updatedAt: Date.now(),
   });
   return json({ ok: true });

@@ -148,13 +148,9 @@ async function registerToProxy(
   options: { precommitAddress: string },
 ) {
   const pid = await fn.getpid(denops);
-  const cwd = await fn.getcwd(denops);
-  const servername = await vars.v.get(denops, "servername", "");
   for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
     const ok = await registerOnce(denops, {
       pid,
-      cwd,
-      servername,
       precommitAddress: options.precommitAddress,
     });
     if (ok) {
@@ -171,8 +167,6 @@ async function registerOnce(
   denops: Denops,
   options: {
     pid: number;
-    cwd: string;
-    servername: string;
     precommitAddress: string;
   },
 ) {
@@ -183,8 +177,6 @@ async function registerOnce(
   const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
   const payload = {
     pid: options.pid,
-    cwd: options.cwd,
-    servername: options.servername,
     precommit_url: options.precommitAddress,
   };
   try {
