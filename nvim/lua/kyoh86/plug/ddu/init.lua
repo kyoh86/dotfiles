@@ -41,6 +41,31 @@ local spec = {
           desc = "AWS プロファイルの切り替え",
         },
       })
+
+      helper.setup("codex-session", {
+        sources = { {
+          name = "codex_session",
+          options = {
+            defaultAction = "resume",
+            columns = {
+              "codex_session_time",
+              "codex_session_name",
+              "codex_session_path",
+            },
+          },
+        } },
+        uiParams = {
+          ff = {
+            startAutoAction = true,
+          },
+        },
+      }, {
+        start = {
+          key = "<leader>fcs",
+          desc = "Codex セッション",
+        },
+        filelike = true,
+      })
     end,
     dependencies = { "denops.vim" },
   },
