@@ -13,6 +13,7 @@ _source_part zsh_source
 _source_part aws_ec2
 _source_part aws_ssm
 _source_part aws_completion
+_source_part codex
 _source_part env
 _source_part gcloud
 _source_part gpg
