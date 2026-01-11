@@ -15,7 +15,8 @@ vim.opt.signcolumn = "auto"
 vim.opt.more = false
 vim.opt.shortmess:append("I")
 vim.opt.diffopt:append("algorithm:histogram")
-vim.opt.guicursor = { "n-v-c-sm:block", "i-ci-ve:ver25", "r-cr-o:hor20", "t:ver25" }
+vim.opt.guicursor = { "n-v-c-sm:block", "i-ci-ve:ver20", "r-cr-o:hor20", "t:ver25" }
+-- vim.opt.guicursor = {}
 
 --- マウスを無効化
 vim.opt.mouse = {}
