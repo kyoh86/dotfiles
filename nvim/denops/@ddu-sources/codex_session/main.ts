@@ -32,9 +32,9 @@ type SessionMeta = {
   source?: string;
 };
 
-type LastMessage = {
+type Message = {
   role?: string;
-  text?: string;
+  text: string;
 };
 
 export class Source extends BaseSource<Params, ActionData> {
@@ -161,7 +161,7 @@ async function collectSessions(
         file,
         baseName,
         timeLabel,
-        info: formatInfo(session.meta, session.lastMessage),
+        info: formatInfo(session.meta, session.tailMessages),
         text: session.meta.id,
       },
     });
@@ -188,7 +188,7 @@ async function collectSessionFiles(sessionsDir: string): Promise<string[]> {
 }
 
 async function readSession(file: string): Promise<
-  { meta: SessionMeta; lastMessage?: LastMessage } | undefined
+  { meta: SessionMeta; tailMessages: Message[] } | undefined
 > {
   let content: string;
   try {
@@ -204,8 +204,8 @@ async function readSession(file: string): Promise<
   if (!meta) {
     return;
   }
-  const lastMessage = findLastMessage(lines);
-  return { meta, lastMessage };
+  const tailMessages = findTailMessages(lines, 10);
+  return { meta, tailMessages };
 }
 
 function parseSessionMeta(line: string): SessionMeta | undefined {
@@ -246,7 +246,8 @@ function parseSessionMeta(line: string): SessionMeta | undefined {
   }
 }
 
-function findLastMessage(lines: string[]): LastMessage | undefined {
+function findTailMessages(lines: string[], n: number): Message[] {
+  const msgs: Message[] = [];
   for (let i = lines.length - 1; i >= 0; i -= 1) {
     const line = lines[i];
     try {
@@ -266,12 +267,15 @@ function findLastMessage(lines: string[]): LastMessage | undefined {
       if (!text) {
         continue;
       }
-      return { role, text };
+      msgs.unshift({ role, text });
+      if (msgs.length >= n) {
+        break;
+      }
     } catch {
       continue;
     }
   }
-  return;
+  return msgs;
 }
 
 function extractMessageText(
@@ -299,51 +303,37 @@ function extractMessageText(
   return texts.join("");
 }
 
-function formatInfo(meta: SessionMeta, lastMessage?: LastMessage): string {
-  const lines: string[] = [];
-  lines.push(`ID        ${meta.id}`);
-  lines.push(`CWD       ${meta.cwd}`);
-  if (meta.timestamp) {
-    lines.push(`Time      ${formatTimestamp(meta.timestamp)}`);
-  }
-  if (meta.model) {
-    lines.push(`Model     ${meta.model}`);
-  }
-  lines.push("");
-  const messageLines = formatMessageLines(lastMessage?.text ?? "");
-  lines.push(...messageLines);
-  return lines.join("\n");
+function formatInfo(meta: SessionMeta, tailMessages: Message[]): string {
+  const msgs = tailMessages?.map(formatMessages);
+  return [
+    [
+      "-".repeat(20),
+      `ID        ${meta.id}`,
+      `CWD       ${meta.cwd}`,
+    ],
+    meta.timestamp
+      ? [
+        `Time      ${formatTimestamp(meta.timestamp)}`,
+      ]
+      : [],
+    meta.model
+      ? [
+        `Model     ${meta.model}`,
+      ]
+      : [],
+    ...msgs,
+  ].flat().join("\n");
 }
 
-function formatMessageLines(
-  text: string,
-  options: { maxWidth?: number; maxLines?: number } = {},
-): string[] {
-  const maxWidth = options.maxWidth ?? 96;
-  const maxLines = options.maxLines ?? 18;
-  const sanitized = sanitizeMessage(text);
+function formatMessages(m: Message): string[] {
+  const maxLines = 18;
+  const sanitized = sanitizeMessage(m.text);
   const sourceLines = sanitized.split(/\r?\n/);
-  const output: string[] = [];
-  for (const line of sourceLines) {
-    if (output.length >= maxLines) {
-      break;
-    }
-    const trimmed = line.trimEnd();
-    if (!trimmed) {
-      output.push("");
-      continue;
-    }
-    for (const wrapped of wrapLine(trimmed, maxWidth)) {
-      output.push(wrapped);
-      if (output.length >= maxLines) {
-        break;
-      }
-    }
+  const output: string[] = ["-".repeat(20)];
+  if (m.role) {
+    output.push(`[[ ${m.role.toLocaleUpperCase()} ]]`);
   }
-  if (output.length >= maxLines && sourceLines.length > 0) {
-    output[output.length - 1] = output[output.length - 1] + "…";
-  }
-  return output;
+  return output.concat(sourceLines.slice(-maxLines));
 }
 
 function sanitizeMessage(text: string): string {
@@ -352,26 +342,6 @@ function sanitizeMessage(text: string): string {
     .replace(/<INSTRUCTIONS>[\s\S]*?<\/INSTRUCTIONS>/g, "")
     .replace(/<\/?[^>]+>/g, "")
     .trim();
-}
-
-function wrapLine(line: string, maxWidth: number): string[] {
-  if (line.length <= maxWidth) {
-    return [line];
-  }
-  const parts: string[] = [];
-  let rest = line;
-  while (rest.length > maxWidth) {
-    let cut = rest.lastIndexOf(" ", maxWidth);
-    if (cut <= 0) {
-      cut = maxWidth;
-    }
-    parts.push(rest.slice(0, cut).trimEnd());
-    rest = rest.slice(cut).trimStart();
-  }
-  if (rest.length > 0) {
-    parts.push(rest);
-  }
-  return parts;
 }
 
 function formatTimestamp(timestamp?: string): string {
@@ -440,7 +410,10 @@ function isUnder(path: string, base: string): boolean {
   return path.startsWith(`${base}/`);
 }
 
-function buildOpenCommand(command: string | undefined, payload: string): string {
+function buildOpenCommand(
+  command: string | undefined,
+  payload: string,
+): string {
   if (!command || command === "edit") {
     return payload;
   }
