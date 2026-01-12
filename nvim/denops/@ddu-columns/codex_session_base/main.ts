@@ -1,5 +1,5 @@
 import type { DduItem, ItemHighlight } from "@shougo/ddu-vim/types";
-import { BaseColumn } from "@shougo/ddu-vim/column";
+import { BaseColumn, GetBaseTextArguments } from "@shougo/ddu-vim/column";
 import type { GetTextArguments, GetTextResult } from "@shougo/ddu-vim/column";
 import type { Denops } from "@denops/std";
 import * as fn from "@denops/std/function";
@@ -12,12 +12,16 @@ type Params = {
 export abstract class CodexSessionBaseColumn extends BaseColumn<Params> {
   #width = 1;
 
-  abstract getAttr(denops: Denops, {}: ActionData): Promise<{
+  override getBaseText(
+    {}: GetBaseTextArguments<Params>,
+  ): string {
+    return "";
+  }
+
+  abstract getAttr(denops: Denops, {}: ActionData): {
     rawText: string;
     highlights?: ItemHighlight[];
-  }>;
-
-  abstract getBaseText(): string;
+  };
 
   override async getLength(args: {
     denops: Denops;
@@ -29,12 +33,11 @@ export abstract class CodexSessionBaseColumn extends BaseColumn<Params> {
         const action = item?.action as ActionData;
         return await fn.strwidth(
           args.denops,
-          (await this.getAttr(args.denops, action)).rawText,
+          (this.getAttr(args.denops, action)).rawText,
         );
       },
     ));
-    const baseWidth = await fn.strwidth(args.denops, this.getBaseText());
-    let width = Math.max(...widths, baseWidth, this.#width);
+    let width = Math.max(...widths, this.#width);
     if (args.columnParams.limitLength) {
       width = Math.min(width, args.columnParams.limitLength);
     }
@@ -42,11 +45,11 @@ export abstract class CodexSessionBaseColumn extends BaseColumn<Params> {
     return Promise.resolve(width);
   }
 
-  override async getText(
+  override getText(
     { denops, item, startCol }: GetTextArguments<Params>,
-  ): Promise<GetTextResult> {
+  ): GetTextResult {
     const action = item?.action as ActionData;
-    const attr = await this.getAttr(denops, action);
+    const attr = this.getAttr(denops, action);
     const padding = " ".repeat(Math.max(this.#width - attr.rawText.length, 0));
     return {
       text: attr.rawText + padding,

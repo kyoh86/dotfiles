@@ -4,13 +4,13 @@ import type { ActionData } from "../../@ddu-sources/codex_session/main.ts";
 import { CodexSessionBaseColumn } from "../codex_session_base/main.ts";
 
 export class Column extends CodexSessionBaseColumn {
-  override async getAttr(
+  override getAttr(
     _denops: Denops,
     { timeLabel }: ActionData,
-  ): Promise<{
+  ): {
     rawText: string;
     highlights?: ItemHighlight[];
-  }> {
+  } {
     const rawText = timeLabel ? `${timeLabel} ` : "";
     if (!rawText) {
       return { rawText };
@@ -24,9 +24,5 @@ export class Column extends CodexSessionBaseColumn {
         name: "dduColumnCodexSessionTime0",
       }],
     };
-  }
-
-  override getBaseText(): string {
-    return "00/00 00:00 ";
   }
 }
