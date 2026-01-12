@@ -21,3 +21,9 @@ id = 'c4b4d546-f16f-44a7-b3cd-00efa6df333b'
 name = 'Set default repository when the repository forked'
 created-at = 2025-06-23T23:35:56.409943691+09:00
 updated-at = 2025-06-24T00:32:54.426939256+09:00
+
+[[scripts]]
+id = 'c8d14ab2-fc99-41d8-bd98-4006487cfdb2'
+name = 'Trust Codex project when the repository created/cloned'
+created-at = 2026-01-12T12:52:06.872507+09:00
+updated-at = 2026-01-12T12:52:06.872507+09:00

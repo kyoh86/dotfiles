@@ -14,3 +14,18 @@ trigger-event = "post-clone"
 operation-type = "script"
 operation-id = "c4b4d546-f16f-44a7-b3cd-00efa6df333b"
 
+[[hooks]]
+id = "5d3ab0da-d38e-4a70-99bd-1babafb9c5d3"
+name = "Trust Codex project when the repository created"
+repo-pattern = ""
+trigger-event = "post-create"
+operation-type = "script"
+operation-id = "c8d14ab2-fc99-41d8-bd98-4006487cfdb2"
+
+[[hooks]]
+id = "f611a561-1393-48a9-b733-4664b086eb64"
+name = "Trust Codex project when the repository cloned"
+repo-pattern = ""
+trigger-event = "post-clone"
+operation-type = "script"
+operation-id = "c8d14ab2-fc99-41d8-bd98-4006487cfdb2"

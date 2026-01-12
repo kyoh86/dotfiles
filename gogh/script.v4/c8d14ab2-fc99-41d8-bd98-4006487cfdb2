@@ -1,0 +1,21 @@
+local function main()
+  local repo_path = gogh.repo.path
+  local codex_home = os.getenv("CODEX_HOME") or (os.getenv("HOME") .. "/.config/codex")
+  local config = codex_home .. "/config.toml"
+  local level = "trusted"
+
+  local f = io.open(config, "r")
+  local content = f and f:read("*a") or ""
+  if f then
+    f:close()
+  end
+
+  local marker = string.format('[projects."%s"]', repo_path)
+  if not content:find(marker, 1, true) then
+    local out = io.open(config, "a")
+    out:write("\n" .. marker .. "\ntrust_level = \"" .. level .. "\"\n")
+    out:close()
+  end
+end
+
+main()
