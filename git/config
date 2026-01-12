@@ -60,9 +60,9 @@
 	ui = auto
 [color "status"]
 	added = green
-	changed = red
-	untracked = blue
-	unmerged = yellow
+	changed = yellow
+	untracked = cyan
+	unmerged = red
 	branch = cyan
 	localBranch = cyan
 	remoteBranch = red
