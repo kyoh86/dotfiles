@@ -28,6 +28,7 @@
     "./denops/@ddu-filters/buffer_quickfix",
     "./denops/@ddu-filters/buffer_terminal_title",
     "./denops/@ddu-filters/converter_custom_lsp_definitions",
+    "./denops/@ddu-filters/converter_git_status_custom",
     "./denops/@ddu-columns/codex_session_base",
     "./denops/@ddu-columns/codex_session_name",
     "./denops/@ddu-columns/codex_session_path",

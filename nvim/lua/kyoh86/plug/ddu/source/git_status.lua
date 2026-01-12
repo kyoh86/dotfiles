@@ -28,13 +28,35 @@ local spec = {
   "kuuote/ddu-source-git_status",
   dependencies = { "ddu.vim" },
   config = function()
+    require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
+      kyoh86.ensure(colors_name, function(m)
+        vim.api.nvim_set_hl(0, "dduGitStatusAdded", { fg = m.colors.green })
+        vim.api.nvim_set_hl(0, "dduGitStatusModified", { fg = m.colors.yellow })
+        vim.api.nvim_set_hl(0, "dduGitStatusDeleted", { fg = m.colors.red, bold = true })
+        vim.api.nvim_set_hl(0, "dduGitStatusUntracked", { fg = m.colors.blue })
+      end)
+    end, true)
     vim.fn["ddu#custom#action"]("kind", "git_status", "custom:edit", custom_open("edit"))
     vim.fn["ddu#custom#action"]("kind", "git_status", "custom:vnew", custom_open("vnew"))
     vim.fn["ddu#custom#action"]("kind", "git_status", "custom:new", custom_open("new"))
     helper.setup("git-status", {
       sources = { {
         name = "git_status",
+        options = {
+          converters = {
+            { name = "converter_hl_dir" },
+            { name = "converter_git_status_custom" },
+          },
+        },
       } },
+      filterParams = {
+        converter_git_status_custom = {
+          highlightAdded = "dduGitStatusAdded",
+          highlightModified = "dduGitStatusModified",
+          highlightDeleted = "dduGitStatusDeleted",
+          highlightUntracked = "dduGitStatusUntracked",
+        },
+      },
       kindOptions = {
         git_status = {
           defaultAction = "custom:edit",
