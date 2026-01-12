@@ -5,6 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { registerBufferTools } from "./tools/buffers.ts";
 import { registerDiagnosticsTool } from "./tools/diagnostics.ts";
+import { registerHelpTool } from "./tools/help.ts";
 import { registerListItemsTool } from "./tools/list_items.ts";
 import { registerStateTools } from "./tools/state.ts";
 import { logError } from "./util.ts";
@@ -25,6 +26,7 @@ export async function main(denops: Denops): Promise<void> {
   registerStateTools(server, denops);
   registerListItemsTool(server, denops);
   registerDiagnosticsTool(server, denops);
+  registerHelpTool(server, denops);
 
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,

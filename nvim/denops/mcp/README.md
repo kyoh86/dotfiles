@@ -26,6 +26,8 @@ Neovim 内の情報を取得するための MCP サーバ。 外部からは `nv
   - quickfix / loclist の内容
 - `nvim_diagnostics`
   - LSP diagnostics
+- `help_query`
+  - helpタグ検索と該当ファイルのコンテキスト取得
 
 ## 主要な環境変数
 
