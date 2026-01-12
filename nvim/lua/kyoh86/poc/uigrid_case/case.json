@@ -1,0 +1,14 @@
+{
+  "$schema": "case.schema.json",
+  "scenario": "scenario.lua",
+  "width": 80,
+  "height": 24,
+  "data_home": ".nvim-data",
+  "config_home": ".nvim-config",
+  "out_dir": ".out",
+  "outputs": {
+    "json": "snapshot.json",
+    "ansi": "snapshot.ansi",
+    "html": "snapshot.html"
+  }
+}

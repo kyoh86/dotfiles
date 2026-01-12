@@ -2,18 +2,31 @@ local M = {}
 
 local uv = vim.loop
 
+local function rpc_error_to_string(err)
+  if err == nil or err == vim.NIL then
+    return "unknown error"
+  end
+  if type(err) == "table" then
+    return vim.inspect(err)
+  end
+  return tostring(err)
+end
+
 local function usage()
   return table.concat({
     "usage:",
-    "  nvim -l nvim/lua/kyoh86/poc/uigrid_snapshot.lua --out PATH [options]",
+    "  nvim -l nvim/lua/kyoh86/poc/uigrid_snapshot.lua [options]",
     "",
     "options:",
+    "  --case PATH        Run case directory (case.json + scenario.lua)",
     "  --json-out PATH    JSON output path ('-' for stdout, 'none' to skip)",
     "  --ansi-out PATH    Write ANSI preview ('-' for stdout)",
     "  --html-out PATH    Write HTML preview ('-' for stdout)",
     "  --width N          UI columns (default: 80)",
     "  --height N         UI lines (default: 24)",
-    "  --cmd EX           Execute Ex command before snapshot (repeatable)",
+    "  --script PATH      Execute Lua scenario file before snapshot (repeatable)",
+    "  --data-home PATH   XDG_DATA_HOME for embedded nvim",
+    "  --config-home PATH XDG_CONFIG_HOME for embedded nvim",
     "  --wait MS          Wait for redraw flush (default: 200)",
     "  --rpc-timeout MS   RPC request timeout (default: 2000)",
     "  --nvim PATH        Embedded nvim path (default: nvim)",
@@ -24,7 +37,7 @@ end
 
 local function parse_args(args)
   local opts = {
-    cmds = {},
+    scripts = {},
     wait = 200,
     json_out = "-",
     width = 80,
@@ -33,21 +46,46 @@ local function parse_args(args)
     rpc_timeout = 2000,
     ansi_out = nil,
     html_out = nil,
+    data_home = nil,
+    config_home = nil,
+    case = nil,
+    _flags = {
+      json_out = false,
+      ansi_out = false,
+      html_out = false,
+      script = false,
+      case = false,
+    },
   }
   local i = 1
   while i <= #args do
     local arg = args[i]
-    if arg == "--out" then
+    if arg == "--case" then
+      local value = args[i + 1]
+      if value == nil then
+        opts.invalid = opts.invalid or {}
+        table.insert(opts.invalid, "--case requires a value")
+      else
+        opts.case = value
+        opts._flags.case = true
+        i = i + 1
+      end
+    elseif vim.startswith(arg, "--case=") then
+      opts.case = string.sub(arg, 8)
+      opts._flags.case = true
+    elseif arg == "--out" then
       local value = args[i + 1]
       if value == nil then
         opts.invalid = opts.invalid or {}
         table.insert(opts.invalid, "--out requires a value")
       else
         opts.json_out = value
+        opts._flags.json_out = true
         i = i + 1
       end
     elseif vim.startswith(arg, "--out=") then
       opts.json_out = string.sub(arg, 7)
+      opts._flags.json_out = true
     elseif arg == "--json-out" then
       local value = args[i + 1]
       if value == nil then
@@ -55,10 +93,12 @@ local function parse_args(args)
         table.insert(opts.invalid, "--json-out requires a value")
       else
         opts.json_out = value
+        opts._flags.json_out = true
         i = i + 1
       end
     elseif vim.startswith(arg, "--json-out=") then
       opts.json_out = string.sub(arg, 12)
+      opts._flags.json_out = true
     elseif arg == "--ansi-out" then
       local value = args[i + 1]
       if value == nil then
@@ -66,10 +106,12 @@ local function parse_args(args)
         table.insert(opts.invalid, "--ansi-out requires a value")
       else
         opts.ansi_out = value
+        opts._flags.ansi_out = true
         i = i + 1
       end
     elseif vim.startswith(arg, "--ansi-out=") then
       opts.ansi_out = string.sub(arg, 12)
+      opts._flags.ansi_out = true
     elseif arg == "--html-out" then
       local value = args[i + 1]
       if value == nil then
@@ -77,10 +119,12 @@ local function parse_args(args)
         table.insert(opts.invalid, "--html-out requires a value")
       else
         opts.html_out = value
+        opts._flags.html_out = true
         i = i + 1
       end
     elseif vim.startswith(arg, "--html-out=") then
       opts.html_out = string.sub(arg, 12)
+      opts._flags.html_out = true
     elseif arg == "--width" then
       local value = args[i + 1]
       if value == nil then
@@ -103,17 +147,41 @@ local function parse_args(args)
       end
     elseif vim.startswith(arg, "--height=") then
       opts.height = tonumber(string.sub(arg, 10)) or opts.height
-    elseif arg == "--cmd" then
+    elseif arg == "--script" then
       local value = args[i + 1]
       if value == nil then
         opts.invalid = opts.invalid or {}
-        table.insert(opts.invalid, "--cmd requires a value")
+        table.insert(opts.invalid, "--script requires a value")
       else
-        table.insert(opts.cmds, value)
+        table.insert(opts.scripts, value)
+        opts._flags.script = true
         i = i + 1
       end
-    elseif vim.startswith(arg, "--cmd=") then
-      table.insert(opts.cmds, string.sub(arg, 7))
+    elseif vim.startswith(arg, "--script=") then
+      table.insert(opts.scripts, string.sub(arg, 10))
+      opts._flags.script = true
+    elseif arg == "--data-home" then
+      local value = args[i + 1]
+      if value == nil then
+        opts.invalid = opts.invalid or {}
+        table.insert(opts.invalid, "--data-home requires a value")
+      else
+        opts.data_home = vim.fn.fnamemodify(value, ":p")
+        i = i + 1
+      end
+    elseif vim.startswith(arg, "--data-home=") then
+      opts.data_home = vim.fn.fnamemodify(string.sub(arg, 12), ":p")
+    elseif arg == "--config-home" then
+      local value = args[i + 1]
+      if value == nil then
+        opts.invalid = opts.invalid or {}
+        table.insert(opts.invalid, "--config-home requires a value")
+      else
+        opts.config_home = vim.fn.fnamemodify(value, ":p")
+        i = i + 1
+      end
+    elseif vim.startswith(arg, "--config-home=") then
+      opts.config_home = vim.fn.fnamemodify(string.sub(arg, 14), ":p")
     elseif arg == "--wait" then
       local value = args[i + 1]
       if value == nil then
@@ -157,6 +225,87 @@ local function parse_args(args)
     end
     i = i + 1
   end
+  return opts
+end
+
+local function normalize_path(base, path)
+  if not path then
+    return nil
+  end
+  if vim.fn.fnamemodify(path, ":p") == path then
+    return vim.fs.normalize(path)
+  end
+  return vim.fs.normalize(vim.fs.joinpath(base, path))
+end
+
+local function load_case(opts)
+  local case_dir = vim.fs.normalize(vim.fn.fnamemodify(opts.case, ":p"))
+  if vim.fn.isdirectory(case_dir) ~= 1 then
+    return nil, string.format("case dir not found: %s", case_dir)
+  end
+  local config_path = vim.fs.joinpath(case_dir, "case.json")
+  local config = {}
+  if vim.fn.filereadable(config_path) == 1 then
+    local fd, err = io.open(config_path, "r")
+    if not fd then
+      return nil, err
+    end
+    local text = fd:read("*a")
+    fd:close()
+    local ok, decoded = pcall(vim.json.decode, text)
+    if not ok then
+      return nil, string.format("failed to parse case.json: %s", decoded)
+    end
+    if type(decoded) == "table" then
+      config = decoded
+    end
+  end
+
+  local scenario = config.scenario or "scenario.lua"
+  local scenario_path = normalize_path(case_dir, scenario)
+  if vim.fn.filereadable(scenario_path) ~= 1 then
+    return nil, string.format("scenario not found: %s", scenario_path)
+  end
+
+  if type(config.width) == "number" then
+    opts.width = config.width
+  end
+  if type(config.height) == "number" then
+    opts.height = config.height
+  end
+
+  local out_dir = config.out_dir or ".out"
+  local out_dir_path = normalize_path(case_dir, out_dir)
+  local outputs = config.outputs or {}
+  local default_outputs = {
+    json = "snapshot.json",
+    ansi = "snapshot.ansi",
+    html = "snapshot.html",
+  }
+  local function resolve_output(key)
+    local value = outputs[key]
+    if value == nil then
+      value = default_outputs[key]
+    end
+    if value == false or value == "none" then
+      return nil
+    end
+    if value == "-" then
+      return "-"
+    end
+    if type(value) == "string" then
+      return normalize_path(out_dir_path, value)
+    end
+    return nil
+  end
+
+  opts.json_out = resolve_output("json")
+  opts.ansi_out = resolve_output("ansi")
+  opts.html_out = resolve_output("html")
+  opts.data_home = normalize_path(case_dir, config.data_home or ".nvim-data")
+  opts.config_home = normalize_path(case_dir, config.config_home or ".nvim-config")
+  opts.scripts = { scenario_path }
+
   return opts
 end
 
@@ -255,6 +404,19 @@ local function scroll_grid(grid, top, bot, left, right, rows)
 end
 
 local function start_embedded_nvim(opts)
+  local env = {}
+  for key, value in pairs(uv.os_environ()) do
+    if key ~= "XDG_DATA_HOME" and key ~= "XDG_CONFIG_HOME" then
+      env[#env + 1] = key .. "=" .. value
+    end
+  end
+  if opts.data_home then
+    env[#env + 1] = "XDG_DATA_HOME=" .. opts.data_home
+  end
+  if opts.config_home then
+    env[#env + 1] = "XDG_CONFIG_HOME=" .. opts.config_home
+  end
+
   local stdin = uv.new_pipe(false)
   local stdout = uv.new_pipe(false)
   local stderr = uv.new_pipe(false)
@@ -262,6 +424,7 @@ local function start_embedded_nvim(opts)
   local args = { "--embed", "--headless", "-u", "NONE", "-i", "NONE", "-n" }
   local handle, pid = uv.spawn(opts.nvim, {
     args = args,
+    env = env,
     stdio = { stdin, stdout, stderr },
   }, function(code, signal)
     state.exited = true
@@ -484,13 +647,16 @@ local function collect_snapshot(opts)
   }
   local _, attach_err = client:request("nvim_ui_attach", { opts.width, opts.height, attach_opts })
   if attach_err then
-    return nil, attach_err
+    return nil, rpc_error_to_string(attach_err)
   end
 
-  for _, cmd in ipairs(opts.cmds) do
-    local _, cmd_err = client:request("nvim_command", { cmd })
-    if cmd_err then
-      return nil, string.format("failed to run --cmd %q: %s", cmd, cmd_err)
+  for _, path in ipairs(opts.scripts) do
+    local _, script_err = client:request("nvim_exec_lua", {
+      "local p = ...; dofile(p)",
+      { path },
+    })
+    if script_err then
+      return nil, string.format("failed to run --script %q: %s", path, rpc_error_to_string(script_err))
     end
   end
 
@@ -891,6 +1057,21 @@ function M.main(args)
   if opts.help then
     print(usage())
     return
+  end
+  if opts.case then
+    if opts._flags.json_out or opts._flags.ansi_out or opts._flags.html_out or opts._flags.script then
+      vim.api.nvim_err_writeln("--case cannot be combined with output/script options")
+      vim.api.nvim_err_writeln(usage())
+      vim.cmd("cq")
+      return
+    end
+    local loaded, err = load_case(opts)
+    if not loaded then
+      vim.api.nvim_err_writeln(err or "failed to load case")
+      vim.cmd("cq")
+      return
+    end
+    opts = loaded
   end
   if opts.json_out == "none" then
     opts.json_out = nil
