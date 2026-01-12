@@ -13,6 +13,11 @@ local spec = { {
         defaultAction = "edit",
       },
     },
+    uiParams = {
+      ff = {
+        startAutoAction = true,
+      },
+    },
   }, {
     start = {
       key = "<leader>f:",

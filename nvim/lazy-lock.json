@@ -16,7 +16,7 @@
   "ddu-filter-merge": { "branch": "master", "commit": "06dec27e83ec61702737fe5d31ef001ba4502481" },
   "ddu-filter-sorter_alpha": { "branch": "main", "commit": "8459b120ebcfa0c0a387f1c83917d7114220d1d0" },
   "ddu-filter-sorter_treefirst": { "branch": "main", "commit": "75d3c7c44d64223a6b3f7af0428b1e6612d50936" },
-  "ddu-kind-command": { "branch": "main", "commit": "a2da53264096189d6b1cafa43a8f099d24f4dd26" },
+  "ddu-kind-command": { "branch": "main", "commit": "cfc5a35f0fc7def5acc9ee40a9b724c32eee41c0" },
   "ddu-kind-file": { "branch": "main", "commit": "b73449f0141a3f378e6492870ef706d9c8022800" },
   "ddu-kind-vim_type": { "branch": "main", "commit": "759c992da843d2e2e65e38c9dc429fdcbbc055fc" },
   "ddu-kind-word": { "branch": "main", "commit": "6526f1bafe444aac9982f09c72a9cc7281fdbe5e" },
