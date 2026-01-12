@@ -32,8 +32,7 @@ export class Filter extends BaseFilter<Params> {
       highlightModified,
       highlightDeleted,
       highlightUntracked,
-    } =
-      args.filterParams;
+    } = args.filterParams;
     const highlightEnabled = highlightAdded !== "" ||
       highlightModified !== "" ||
       highlightDeleted !== "" ||
