@@ -1,9 +1,11 @@
 local helper = require("kyoh86.plug.ddu.helper")
 
----@type LazySpec
-local spec = {
+---@type LazySpec[]
+local spec = { {
+  "kyoh86/ddu-kind-command",
+}, {
   "kyoh86/ddu-source-command",
-  dependencies = { "ddu.vim", "ddu-kind-word" },
+  dependencies = { "ddu.vim", "ddu-kind-word", "ddu-kind-command" },
   config = helper.setup_func("command", {
     sources = { { name = "command" } },
     kindOptions = {
@@ -17,5 +19,5 @@ local spec = {
       desc = "コマンド",
     },
   }),
-}
+} }
 return spec
