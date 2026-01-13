@@ -45,7 +45,7 @@ function codex_resume_last_run() {
   zle -R -c
 }
 zle -N codex_resume_last_run
-bindkey '^xcr' codex_resume_last_run
-bindkey '^xc^r' codex_resume_last_run
-bindkey '^x^cr' codex_resume_last_run
-bindkey '^x^c^r' codex_resume_last_run
+bindkey '^xxr' codex_resume_last_run
+bindkey '^xx^r' codex_resume_last_run
+bindkey '^x^xr' codex_resume_last_run
+bindkey '^x^x^r' codex_resume_last_run

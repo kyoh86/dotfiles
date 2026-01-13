@@ -26,13 +26,8 @@ _source_part sdkman
 _source_part tool
 _source_part zmv
 
-_source_part util/put_zsh_history
 _source_part util/update_deno_dependencies
-_source_part util/revive_job
 _source_part util/nvim_env
-_source_part util/show_github_issue
-_source_part util/switch_awsenv
-_source_part util/switch_git_branch
 _source_part util/update
 _source_part util/backup_east
 _source_part util/git_status_unsaved
