@@ -245,7 +245,6 @@ function extractMessageText(
   return texts.join("");
 }
 
-
 function formatTimeLabel(timestamp?: string): string {
   if (!timestamp) {
     return "";
