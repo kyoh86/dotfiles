@@ -3,7 +3,7 @@ import { BaseColumn, GetBaseTextArguments } from "@shougo/ddu-vim/column";
 import type { GetTextArguments, GetTextResult } from "@shougo/ddu-vim/column";
 import type { Denops } from "@denops/std";
 import * as fn from "@denops/std/function";
-import type { ActionData } from "../../@ddu-sources/codex_session/main.ts";
+import type { ActionData } from "../../@ddu-kinds/codex_session/main.ts";
 
 type Params = {
   limitLength: number;

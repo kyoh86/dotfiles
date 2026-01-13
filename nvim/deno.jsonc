@@ -34,6 +34,7 @@
     "./denops/@ddu-columns/codex_session_path",
     "./denops/@ddu-columns/codex_session_time",
     "./denops/@ddu-kinds/aws_profile",
+    "./denops/@ddu-kinds/codex_session",
     "./denops/@ddu-sources/aws_profile",
     "./denops/@ddu-sources/codex_session",
     "./denops/@ddu-sources/slow",

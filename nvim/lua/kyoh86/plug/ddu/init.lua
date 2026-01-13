@@ -46,7 +46,6 @@ local spec = {
         sources = { {
           name = "codex_session",
           options = {
-            defaultAction = "resume",
             columns = {
               "codex_session_time",
               "codex_session_name",
@@ -54,6 +53,11 @@ local spec = {
             },
           },
         } },
+        kindOptions = {
+          codex_session = {
+            defaultAction = "resume",
+          },
+        },
         uiParams = {
           ff = {
             startAutoAction = true,

@@ -3,19 +3,11 @@ import * as fn from "@denops/std/function";
 import * as vars from "@denops/std/variable";
 import type { GatherArguments } from "@shougo/ddu-vim/source";
 import { BaseSource } from "@shougo/ddu-vim/source";
-import { ActionFlags, type Actions, type Item } from "@shougo/ddu-vim/types";
-import type { ActionData as WordActionData } from "@shougo/ddu-kind-word";
+import type { Item } from "@shougo/ddu-vim/types";
 import { walk } from "@std/fs";
 import { basename, join } from "@std/path";
 import { is, maybe } from "@core/unknownutil";
-
-export type ActionData = WordActionData & {
-  sessionId: string;
-  cwd: string;
-  file: string;
-  baseName: string;
-  timeLabel: string;
-};
+import type { ActionData } from "../../@ddu-kinds/codex_session/main.ts";
 
 type Params = {
   cwd?: string;
@@ -38,7 +30,7 @@ type Message = {
 };
 
 export class Source extends BaseSource<Params, ActionData> {
-  override kind = "word";
+  override kind = "codex_session";
 
   override gather(
     { denops, sourceParams }: GatherArguments<Params>,
@@ -54,57 +46,6 @@ export class Source extends BaseSource<Params, ActionData> {
       },
     });
   }
-
-  override actions: Actions<Params> = {
-    resume: async (args) => {
-      if (args.items.length != 1) {
-        console.error(`multiple items are not supported to call "resume"`);
-        return ActionFlags.None;
-      }
-      const action = maybe(
-        args.items[0].action,
-        is.ObjectOf({
-          sessionId: is.String,
-        }),
-      );
-      if (!action || !action.sessionId) {
-        console.error("invalid selected item (having no sessionId)");
-        return ActionFlags.None;
-      }
-      const escaped = await fn.shellescape(args.denops, action.sessionId);
-      await args.denops.cmd(`terminal codex resume ${escaped}`);
-      return ActionFlags.None;
-    },
-    open: async (args) => {
-      if (args.items.length != 1) {
-        console.error(`multiple items are not supported to call "open"`);
-        return ActionFlags.None;
-      }
-      const action = maybe(
-        args.items[0].action,
-        is.ObjectOf({
-          sessionId: is.String,
-        }),
-      );
-      if (!action || !action.sessionId) {
-        console.error("invalid selected item (having no sessionId)");
-        return ActionFlags.None;
-      }
-      const params = maybe(
-        args.actionParams,
-        is.ObjectOf({
-          command: is.String,
-        }),
-      );
-      const escaped = await fn.shellescape(args.denops, action.sessionId);
-      const openCommand = buildOpenCommand(
-        params?.command,
-        `terminal codex resume ${escaped}`,
-      );
-      await args.denops.cmd(openCommand);
-      return ActionFlags.None;
-    },
-  };
 
   override params(): Params {
     return {
@@ -161,8 +102,9 @@ async function collectSessions(
         file,
         baseName,
         timeLabel,
-        info: formatInfo(session.meta, session.tailMessages),
-        text: session.meta.id,
+        timestamp: session.meta.timestamp,
+        model: session.meta.model,
+        tailMessages: session.tailMessages,
       },
     });
   }
@@ -303,56 +245,6 @@ function extractMessageText(
   return texts.join("");
 }
 
-function formatInfo(meta: SessionMeta, tailMessages: Message[]): string {
-  const msgs = tailMessages?.map(formatMessages);
-  return [
-    [
-      "-".repeat(20),
-      `ID        ${meta.id}`,
-      `CWD       ${meta.cwd}`,
-    ],
-    meta.timestamp
-      ? [
-        `Time      ${formatTimestamp(meta.timestamp)}`,
-      ]
-      : [],
-    meta.model
-      ? [
-        `Model     ${meta.model}`,
-      ]
-      : [],
-    ...msgs,
-  ].flat().join("\n");
-}
-
-function formatMessages(m: Message): string[] {
-  const maxLines = 18;
-  const sanitized = sanitizeMessage(m.text);
-  const sourceLines = sanitized.split(/\r?\n/);
-  const output: string[] = ["-".repeat(20)];
-  if (m.role) {
-    output.push(`[[ ${m.role.toLocaleUpperCase()} ]]`);
-  }
-  return output.concat(sourceLines.slice(-maxLines));
-}
-
-function sanitizeMessage(text: string): string {
-  return text
-    .replace(/<environment_context>[\s\S]*?<\/environment_context>/g, "")
-    .replace(/<INSTRUCTIONS>[\s\S]*?<\/INSTRUCTIONS>/g, "")
-    .replace(/<\/?[^>]+>/g, "")
-    .trim();
-}
-
-function formatTimestamp(timestamp?: string): string {
-  if (!timestamp) {
-    return "";
-  }
-  if (timestamp.length >= 19) {
-    return timestamp.slice(0, 19).replace("T", " ");
-  }
-  return timestamp.replace("T", " ").replace("Z", "");
-}
 
 function formatTimeLabel(timestamp?: string): string {
   if (!timestamp) {
@@ -408,14 +300,4 @@ function isUnder(path: string, base: string): boolean {
     return true;
   }
   return path.startsWith(`${base}/`);
-}
-
-function buildOpenCommand(
-  command: string | undefined,
-  payload: string,
-): string {
-  if (!command || command === "edit") {
-    return payload;
-  }
-  return `${command} | ${payload}`;
 }
