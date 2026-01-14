@@ -2,6 +2,7 @@ import * as fn from "@denops/std/function";
 import type { Denops } from "@denops/std";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import * as z from "zod";
+import { resolveBuffer } from "../buffer.ts";
 import { isTruthy } from "../util.ts";
 
 type BufferInfo = {
@@ -56,16 +57,22 @@ export function registerBufferTools(
       description: "Reload a buffer without changing the current window.",
       inputSchema: z.object({
         bufnr: z.number().int().optional(),
+        name: z.string().optional(),
+        match: z.enum(["exact", "suffix", "contains"]).optional(),
       }).strict(),
       outputSchema: z.object({
         bufnr: z.number().int(),
         name: z.string(),
         reloaded: z.boolean(),
         reason: z.string().optional(),
+        candidates: z.array(z.object({
+          bufnr: z.number().int(),
+          name: z.string(),
+        })).optional(),
       }),
     },
-    async ({ bufnr }) => {
-      const payload = await reloadBuffer(denops, { bufnr });
+    async ({ bufnr, name, match }) => {
+      const payload = await reloadBuffer(denops, { bufnr, name, match });
       return {
         content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
         structuredContent: payload,
@@ -80,6 +87,8 @@ export function registerBufferTools(
       description: "Return buffer lines without changing the current window.",
       inputSchema: z.object({
         bufnr: z.number().int().optional(),
+        name: z.string().optional(),
+        match: z.enum(["exact", "suffix", "contains"]).optional(),
         start: z.number().int().positive().optional(),
         end: z.number().int().positive().optional(),
         limit: z.number().int().positive().optional(),
@@ -93,11 +102,17 @@ export function registerBufferTools(
         truncated: z.boolean(),
         lines: z.array(z.string()),
         reason: z.string().optional(),
+        candidates: z.array(z.object({
+          bufnr: z.number().int(),
+          name: z.string(),
+        })).optional(),
       }),
     },
-    async ({ bufnr, start, end, limit }) => {
+    async ({ bufnr, name, match, start, end, limit }) => {
       const payload = await getBufferContent(denops, {
         bufnr,
+        name,
+        match,
         start,
         end,
         limit,
@@ -117,16 +132,22 @@ export function registerBufferTools(
         "Write a buffer to disk without changing the current window.",
       inputSchema: z.object({
         bufnr: z.number().int().optional(),
+        name: z.string().optional(),
+        match: z.enum(["exact", "suffix", "contains"]).optional(),
       }).strict(),
       outputSchema: z.object({
         bufnr: z.number().int(),
         name: z.string(),
         saved: z.boolean(),
         reason: z.string().optional(),
+        candidates: z.array(z.object({
+          bufnr: z.number().int(),
+          name: z.string(),
+        })).optional(),
       }),
     },
-    async ({ bufnr }) => {
-      const payload = await saveBuffer(denops, { bufnr });
+    async ({ bufnr, name, match }) => {
+      const payload = await saveBuffer(denops, { bufnr, name, match });
       return {
         content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
         structuredContent: payload,
@@ -196,16 +217,31 @@ async function listBuffers(
 
 async function reloadBuffer(
   denops: Denops,
-  options: { bufnr?: number },
-): Promise<
-  { bufnr: number; name: string; reloaded: boolean; reason?: string }
-> {
-  const bufnr = options.bufnr ?? await fn.bufnr(denops, "%");
-  const exists = await fn.bufexists(denops, bufnr);
-  if (!isTruthy(exists)) {
-    return { bufnr, name: "", reloaded: false, reason: "not found" };
+  options: { bufnr?: number; name?: string; match?: "exact" | "suffix" | "contains" },
+): Promise<{
+  bufnr: number;
+  name: string;
+  reloaded: boolean;
+  reason?: string;
+  candidates?: { bufnr: number; name: string }[];
+}> {
+  const resolved = options.bufnr === undefined && !options.name
+    ? await (async () => {
+      const bufnr = await fn.bufnr(denops, "%");
+      const name = String(await fn.bufname(denops, bufnr));
+      return { ok: true as const, bufnr, name };
+    })()
+    : await resolveBuffer(denops, options);
+  if (!resolved.ok) {
+    return {
+      bufnr: options.bufnr ?? 0,
+      name: "",
+      reloaded: false,
+      reason: resolved.reason,
+      candidates: resolved.candidates,
+    };
   }
-  const name = String(await fn.bufname(denops, bufnr));
+  const { bufnr, name } = resolved;
   if (name === "") {
     return { bufnr, name, reloaded: false, reason: "no name" };
   }
@@ -232,7 +268,14 @@ async function reloadBuffer(
 
 async function getBufferContent(
   denops: Denops,
-  options: { bufnr?: number; start?: number; end?: number; limit?: number },
+  options: {
+    bufnr?: number;
+    name?: string;
+    match?: "exact" | "suffix" | "contains";
+    start?: number;
+    end?: number;
+    limit?: number;
+  },
 ): Promise<{
   bufnr: number;
   name: string;
@@ -242,22 +285,29 @@ async function getBufferContent(
   truncated: boolean;
   lines: string[];
   reason?: string;
+  candidates?: { bufnr: number; name: string }[];
 }> {
-  const bufnr = options.bufnr ?? await fn.bufnr(denops, "%");
-  const exists = await fn.bufexists(denops, bufnr);
-  if (!isTruthy(exists)) {
+  const resolved = options.bufnr === undefined && !options.name
+    ? await (async () => {
+      const bufnr = await fn.bufnr(denops, "%");
+      const name = String(await fn.bufname(denops, bufnr));
+      return { ok: true as const, bufnr, name };
+    })()
+    : await resolveBuffer(denops, options);
+  if (!resolved.ok) {
     return {
-      bufnr,
+      bufnr: options.bufnr ?? 0,
       name: "",
       start: 0,
       end: 0,
       total: 0,
       truncated: false,
       lines: [],
-      reason: "not found",
+      reason: resolved.reason,
+      candidates: resolved.candidates,
     };
   }
-  const name = String(await fn.bufname(denops, bufnr));
+  const { bufnr, name } = resolved;
   const loaded = await fn.bufloaded(denops, bufnr);
   if (!isTruthy(loaded)) {
     await fn.bufload(denops, bufnr);
@@ -290,14 +340,31 @@ async function getBufferContent(
 
 async function saveBuffer(
   denops: Denops,
-  options: { bufnr?: number },
-): Promise<{ bufnr: number; name: string; saved: boolean; reason?: string }> {
-  const bufnr = options.bufnr ?? await fn.bufnr(denops, "%");
-  const exists = await fn.bufexists(denops, bufnr);
-  if (!isTruthy(exists)) {
-    return { bufnr, name: "", saved: false, reason: "not found" };
+  options: { bufnr?: number; name?: string; match?: "exact" | "suffix" | "contains" },
+): Promise<{
+  bufnr: number;
+  name: string;
+  saved: boolean;
+  reason?: string;
+  candidates?: { bufnr: number; name: string }[];
+}> {
+  const resolved = options.bufnr === undefined && !options.name
+    ? await (async () => {
+      const bufnr = await fn.bufnr(denops, "%");
+      const name = String(await fn.bufname(denops, bufnr));
+      return { ok: true as const, bufnr, name };
+    })()
+    : await resolveBuffer(denops, options);
+  if (!resolved.ok) {
+    return {
+      bufnr: options.bufnr ?? 0,
+      name: "",
+      saved: false,
+      reason: resolved.reason,
+      candidates: resolved.candidates,
+    };
   }
-  const name = String(await fn.bufname(denops, bufnr));
+  const { bufnr, name } = resolved;
   if (name === "") {
     return { bufnr, name, saved: false, reason: "no name" };
   }

@@ -1,6 +1,7 @@
 import type { Denops } from "@denops/std";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import * as z from "zod";
+import { resolveBuffer } from "../buffer.ts";
 
 export function registerDiagnosticsTool(
   server: McpServer,
@@ -13,6 +14,8 @@ export function registerDiagnosticsTool(
       description: "Return diagnostics from Neovim's built-in diagnostic API.",
       inputSchema: z.object({
         bufnr: z.number().int().optional(),
+        name: z.string().optional(),
+        match: z.enum(["exact", "suffix", "contains"]).optional(),
         severity: z.enum(["error", "warn", "info", "hint"]).optional(),
       }).strict(),
       outputSchema: z.object({
@@ -29,10 +32,20 @@ export function registerDiagnosticsTool(
           source: z.string().optional(),
           code: z.union([z.string(), z.number()]).optional(),
         })),
+        reason: z.string().optional(),
+        candidates: z.array(z.object({
+          bufnr: z.number().int(),
+          name: z.string(),
+        })).optional(),
       }),
     },
-    async ({ bufnr, severity }) => {
-      const payload = await getDiagnostics(denops, { bufnr, severity });
+    async ({ bufnr, name, match, severity }) => {
+      const payload = await getDiagnostics(denops, {
+        bufnr,
+        name,
+        match,
+        severity,
+      });
       return {
         content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
         structuredContent: payload,
@@ -43,13 +56,34 @@ export function registerDiagnosticsTool(
 
 async function getDiagnostics(
   denops: Denops,
-  options: { bufnr?: number; severity?: "error" | "warn" | "info" | "hint" },
+  options: {
+    bufnr?: number;
+    name?: string;
+    match?: "exact" | "suffix" | "contains";
+    severity?: "error" | "warn" | "info" | "hint";
+  },
 ) {
-  const bufnr = options.bufnr ?? 0;
+  let target = 0;
+  if (options.bufnr !== undefined || options.name) {
+    const resolved = await resolveBuffer(denops, {
+      bufnr: options.bufnr,
+      name: options.name,
+      match: options.match,
+    });
+    if (!resolved.ok) {
+      return {
+        total: 0,
+        diagnostics: [],
+        reason: resolved.reason,
+        candidates: resolved.candidates,
+      };
+    }
+    target = resolved.bufnr;
+  }
   const severity = options.severity ?? "";
   const diagnostics = await denops.call(
     "kyoh86#mcp#diagnostics",
-    bufnr,
+    target,
     severity,
   ) as Array<Record<string, unknown>>;
   return {
