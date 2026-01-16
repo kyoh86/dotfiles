@@ -2,6 +2,7 @@
 
 local stat = {}
 local watch_handler = assert(vim.uv.new_fs_event())
+local timer_handler = assert(vim.uv.new_timer())
 local gitdir = ""
 local group = vim.api.nvim_create_augroup("kyoh86-plug-heirline-git-status-update", { clear = true })
 local defer = require("kyoh86.lib.defer")
@@ -12,6 +13,14 @@ local function notify_update_core()
 end
 
 local notify_update, _ = defer.debounce_trailing(notify_update_core, 500)
+
+local function start_timer()
+  timer_handler:start(5000, 5000, vim.schedule_wrap(notify_update))
+end
+
+local function stop_timer()
+  timer_handler:stop()
+end
 
 local function start_watching()
   if not vim.fn.filereadable(gitdir) then
@@ -63,6 +72,13 @@ vim.api.nvim_create_autocmd({ "FileChangedShellPost", "FileWritePost", "BufWrite
   group = group,
   callback = notify_update,
 })
+
+vim.api.nvim_create_autocmd("VimLeavePre", {
+  group = group,
+  callback = stop_timer,
+})
+
+start_timer()
 
 --- Split a line which holds branch status from git-stauts-porcelain
 --- The line holds a local branch name, remote, ahead and behind commit counts like below.
