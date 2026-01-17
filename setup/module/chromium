@@ -1,0 +1,13 @@
+chromium_install() {
+  curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  sudo dpkg -i google-chrome-stable_current_amd64.deb
+  sudo apt-get -f install
+
+  # Set $BROWSER in nvim/lua/kyoh86/conf/envar.lua
+
+  xdg-mime default wslview.desktop x-scheme-handler/http
+  xdg-mime default wslview.desktop x-scheme-handler/https
+  xdg-mime default wslview.desktop text/html
+  xdg-settings set default-web-browser wslview.desktop
+}
+[ -x "$(command -v chromium)" ] || chromium_install

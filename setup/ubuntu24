@@ -13,6 +13,7 @@ MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/setup/module"
 "${MODULE}"/deno
 "${MODULE}"/mise
 "${MODULE}"/github
+"${MODULE}"/chromium
 "${MODULE}"/dotfiles
 
 grep -Fwe docker /etc/group || sudo groupadd docker
