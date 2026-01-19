@@ -50,6 +50,7 @@
   "denops-docbase.vim": { "branch": "main", "commit": "123347818cdf5f6d995e5e52c2bf25e0d83fc4f0" },
   "denops-github.vim": { "branch": "main", "commit": "6f28e0f5df898e4890ddc24bf7ac075fb061fbc9" },
   "denops-jqplay.vim": { "branch": "main", "commit": "b2e25b510e8696bc13bcea81d27b19fae15f049d" },
+  "denops-mdlink.vim": { "branch": "main", "commit": "3fc16d5a613b8a3edfc5e3fdd7b11e2a9c97b642" },
   "denops-ollama.vim": { "branch": "main", "commit": "33b8323c9c8e304173b6d798f1e18179b0b958ae" },
   "denops-qftable.vim": { "branch": "main", "commit": "02cdfcce7164f96f7ca70bd0322aa53e956aa7f4" },
   "denops-zenn_dev.vim": { "branch": "main", "commit": "e87d15ed495b77dc4f6ef7eee25f96bfeece5770" },
