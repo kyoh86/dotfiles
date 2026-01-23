@@ -217,7 +217,11 @@ async function listBuffers(
 
 async function reloadBuffer(
   denops: Denops,
-  options: { bufnr?: number; name?: string; match?: "exact" | "suffix" | "contains" },
+  options: {
+    bufnr?: number;
+    name?: string;
+    match?: "exact" | "suffix" | "contains";
+  },
 ): Promise<{
   bufnr: number;
   name: string;
@@ -340,7 +344,11 @@ async function getBufferContent(
 
 async function saveBuffer(
   denops: Denops,
-  options: { bufnr?: number; name?: string; match?: "exact" | "suffix" | "contains" },
+  options: {
+    bufnr?: number;
+    name?: string;
+    match?: "exact" | "suffix" | "contains";
+  },
 ): Promise<{
   bufnr: number;
   name: string;
