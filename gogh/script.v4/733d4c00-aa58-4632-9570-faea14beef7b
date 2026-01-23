@@ -139,3 +139,5 @@ local function main()
 end
 
 main()
+
+-- vim:filetype=lua
