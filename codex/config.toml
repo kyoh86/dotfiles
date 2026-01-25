@@ -2,6 +2,10 @@ check_for_update_on_startup = false
 update_on_startup = false
 sandbox_mode = "workspace-write"
 
+[features]
+shell_snapshot = true
+web_search_request = true
+
 [sandbox_workspace_write]
 network_access = true
 
