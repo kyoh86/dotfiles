@@ -8,6 +8,11 @@ local config = {
       url = "https://raw.githubusercontent.com/Yash-Singh1/vscode-snippets-json-schema/main/schema.json",
     })
     table.insert(schemas, {
+      description = "nvim-snap case",
+      fileMatch = { "snapcase.json" },
+      url = "https://raw.githubusercontent.com/kyoh86/nvim-snap/main/snapcase.schema.json",
+    })
+    table.insert(schemas, {
       description = "Google Tag Manager",
       fileMatch = "GTM-*_workspace*.json",
       url = vim.fn.stdpath("config") .. "/schema/gtm.json",
