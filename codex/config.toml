@@ -140,3 +140,9 @@ trust_level = "trusted"
 
 [projects."github.com/kyoh86/dotfiles"]
 trust_level = "trusted"
+
+[projects."github.com/kyoh86/setup-nvim-snap-action"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/nvim-snap-action"]
+trust_level = "trusted"
