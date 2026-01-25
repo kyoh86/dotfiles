@@ -52,6 +52,7 @@ uv = "latest"
 java = "latest"
 "go:github.com/icholy/gomajor" = "latest"
 usage = "latest"
+npm = "latest"
 
 [tools.deno]
 version = "latest"
