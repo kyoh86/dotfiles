@@ -43,7 +43,7 @@ local spec = {
       local wsl_distro = os.getenv("WSL_DISTRO_NAME")
       if wsl_distro ~= nil and wsl_distro ~= "" then
         vim.g.previm_wsl_mode = true
-        vim.g.previm_open_cmd = "explorer.exe"
+        vim.g.previm_open_cmd = "/mnt/c/Windows/explorer.exe"
       else
         local glaze = require("kyoh86.lib.glaze")
         glaze.get("opener", function(opener)
