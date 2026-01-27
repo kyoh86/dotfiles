@@ -71,7 +71,7 @@
   "mcphub.nvim": { "branch": "main", "commit": "7cd5db330f41b7bae02b2d6202218a061c3ebc1f" },
   "mini.align": { "branch": "main", "commit": "6d8a6ca3a0fd313938374abccb50cad026229db3" },
   "modesearch.vim": { "branch": "master", "commit": "71f123cadbb86e0cbacc12f472d18684fc3308a8" },
-  "momiji": { "branch": "main", "commit": "c40b6cac4d0458f025fe6bc0befe8001d7f28eec" },
+  "momiji": { "branch": "main", "commit": "9732fe439166bfe45e3a5472c069f9272007f3f2" },
   "nvim-dap": { "branch": "master", "commit": "085386b9359ddf8d76ad89b98973b8e332dc5ba3" },
   "nvim-lspconfig": { "branch": "master", "commit": "54baa4beeeabed24be24379d5b3ce402fe7b5208" },
   "nvim-notify": { "branch": "master", "commit": "8701bece920b38ea289b457f902e2ad184131a5d" },
@@ -140,5 +140,5 @@
   "wrapwidth": { "branch": "main", "commit": "a766191a1cd24ebb95d669ebd4a440c50d7f4422" },
   "yats.vim": { "branch": "master", "commit": "2d9b95b91b9f72bb1769951841b32d2a879d3cd7" },
   "zsh-abbr": { "branch": "main", "commit": "194e8f4cdd1649777625883edb060ffda103bd9e" },
-  "zsh-completions": { "branch": "master", "commit": "7dd26c5d5c3fabd630b748bd49ebd9cf02bd57e9" }
+  "zsh-completions": { "branch": "master", "commit": "a83d61b6c641056bc7b6e2f35712312400159b05" }
 }
