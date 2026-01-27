@@ -30,6 +30,7 @@ local spec = {
         cw.add({ 0xF500, 0xFD46, 2 })
 
         cw.delete({ 0x25B2, 0x25B3 })
+        cw.add({ 0x203A, 0x203A, 1 })
       end,
       build = ":CellWidthsRemove",
     })
