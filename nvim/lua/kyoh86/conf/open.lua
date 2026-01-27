@@ -5,6 +5,8 @@ glaze.glaze("opener", function()
     return "wslview"
   elseif vim.fn.executable("xdg-open") ~= 0 then
     return "xdg-open"
+  elseif vim.fn.executable("open") ~= 0 then
+    return "open"
   end
   return ""
 end)
