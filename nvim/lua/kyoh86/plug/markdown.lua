@@ -40,7 +40,8 @@ local spec = {
       vim.g.previm_code_language_show = true
       vim.g.previm_disable_default_css = true
       vim.g.previm_custom_css_path = vim.fn.stdpath("config") .. "/css/github-markdown.css"
-      if os.getenv("WSL_DISTRO_NAME") ~= "" then
+      local wsl_distro = os.getenv("WSL_DISTRO_NAME")
+      if wsl_distro ~= nil and wsl_distro ~= "" then
         vim.g.previm_wsl_mode = true
         vim.g.previm_open_cmd = "explorer.exe"
       else
