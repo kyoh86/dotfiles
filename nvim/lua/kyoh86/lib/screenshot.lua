@@ -1,4 +1,5 @@
 local uv = vim.loop
+local glaze = require("kyoh86.lib.glaze")
 
 local M = {}
 
@@ -145,7 +146,12 @@ end
 --- @return string|nil
 function M.latest(opts)
   opts = opts or {}
-  local dir = normalize_dir(opts.dir or os.getenv("SCREENSHOT_DIR") or default_dir())
+  local env_dir = os.getenv("SCREENSHOT_DIR")
+  local dir = normalize_dir(opts.dir or env_dir)
+  if not dir then
+    dir = glaze.ensure("lib.screenshot.dir.path", default_dir)
+    dir = normalize_dir(dir)
+  end
   if not dir then
     return nil, "screenshot dir is not found"
   end
