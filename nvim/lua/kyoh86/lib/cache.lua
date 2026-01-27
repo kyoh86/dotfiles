@@ -52,6 +52,21 @@ function Cache:tryget(key)
   return self.store[key]
 end
 
+--- Ensure a value exists for the key. If missing, compute and store it.
+--- @param key string The key to ensure.
+--- @param compute fun(): any Function to compute the value.
+--- @return any The stored or computed value.
+function Cache:ensure(key, compute)
+  if self.store[key] ~= nil then
+    return self.store[key]
+  end
+  local value = compute()
+  if value ~= nil then
+    self:set(key, value)
+  end
+  return value
+end
+
 --- Check whether a value is stored under the given key.
 --- @param key string The key to check.
 --- @return boolean True if a value is stored, false otherwise.

@@ -36,6 +36,14 @@ local function tryget(name)
   return cache:tryget(name)
 end
 
+--- Ensure a cached setting exists. If missing, compute and persist it.
+--- @param name string The name of the setting.
+--- @param get_variant fun(): any A function that computes the setting value.
+--- @return any The stored or computed value.
+local function ensure(name, get_variant)
+  return cache:ensure(name, get_variant)
+end
+
 --- Delete a cached setting value.
 ---
 --- @param name string The name of the setting.
@@ -73,6 +81,7 @@ return {
   set = set,
   get = get,
   tryget = tryget,
+  ensure = ensure,
   del = del,
   each = each,
   reset = reset,
