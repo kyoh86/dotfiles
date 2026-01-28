@@ -24,25 +24,33 @@ glaze.get_async("os_uname_sysname", function(
     end
     return ""
   end)
+  local command = ""
   if ime == "zenhan" then
-    vim.api.nvim_create_autocmd("InsertLeave", {
-      group = group,
-      command = "silent! !zenhan.exe 0",
-    })
+    command = "silent! !zenhan.exe 0"
   elseif ime == "ibus" then
-    vim.api.nvim_create_autocmd("InsertLeave", {
-      group = group,
-      command = "silent! !ibus engine 'xkb:us::eng'",
-    })
+    command = "silent! !ibus engine 'xkb:us::eng'"
   elseif ime == "fcitx" then
-    vim.api.nvim_create_autocmd("InsertLeave", {
-      group = group,
-      command = "silent! !fcitx-remote -c",
-    })
+    command = "silent! !fcitx-remote -c"
   elseif ime == "mac" then
+    command = [[silent! !osascript -e 'tell application "System Events"' -e 'key code 102' -e 'end tell']]
+  end
+  if command ~= "" then
     vim.api.nvim_create_autocmd("InsertLeave", {
       group = group,
-      command = [[silent! !osascript -e 'tell application "System Events"' -e 'key code 102' -e 'end tell']],
+      command = command,
+    })
+    vim.api.nvim_create_autocmd("FocusGained", {
+      group = group,
+      callback = function()
+        local m = vim.api.nvim_get_mode()
+        if not vim.list_contains({
+          "i",
+          "R",
+          "c",
+        }, string.sub(m.mode, 1, 1)) then
+          vim.cmd(command)
+        end
+      end,
     })
   end
 end)
