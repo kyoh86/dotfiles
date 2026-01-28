@@ -3,8 +3,9 @@ vim.api.nvim_create_autocmd("User", {
   pattern = "Kyoh86TermNotifReceived:precmd:*",
   callback = function(ev)
     local terms = vim.split(ev.match, ":")
+    ---@type string?, string?, string?
     local ret, bufnr, command = unpack(terms, 3)
-    if not bufnr or bufnr == "" then
+    if bufnr == nil or bufnr == "" then
       -- バッファ番号が分からないときは通知しない
       return
     end
@@ -15,7 +16,7 @@ vim.api.nvim_create_autocmd("User", {
 
     local level = vim.log.levels.INFO
     local msg = { "Process" }
-    if command and command ~= "" then
+    if command ~= nil and command ~= "" then
       command = vim.fn.trim(vim.base64.decode(command))
       if vim.fn.strcharlen(command) > 30 then
         command = vim.fn.strcharpart(command, 0, 30) .. "..."

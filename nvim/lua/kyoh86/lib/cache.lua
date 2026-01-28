@@ -102,7 +102,7 @@ function Cache:serialize()
   local FILE_MODE = 438 -- equivalent to octal 0666 permissions
   vim.fn.mkdir(vim.fs.dirname(self.filepath), "p")
   local file = vim.uv.fs_open(self.filepath, "w", FILE_MODE)
-  if file then
+  if file ~= nil then
     vim.uv.fs_write(file, data, -1)
     vim.uv.fs_close(file)
   else
@@ -115,11 +115,11 @@ end
 function Cache:load()
   local FILE_MODE = 438 -- equivalent to octal 0666 permissions
   local file = vim.uv.fs_open(self.filepath, "r", FILE_MODE)
-  if file then
+  if file ~= nil then
     local stat = vim.uv.fs_fstat(file)
-    if stat then
+    if stat ~= nil then
       local content = vim.uv.fs_read(file, stat.size, 0)
-      if content then
+      if content ~= nil then
         self.store = vim.json.decode(content) or {}
       else
         self.store = {}

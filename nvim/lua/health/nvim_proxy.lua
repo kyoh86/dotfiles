@@ -15,8 +15,12 @@ function M.check()
   vim.health.start("nvim-proxy")
 
   local status, err = request_status()
-  if not status then
-    vim.health.warn(err)
+  if status == nil then
+    if err == nil then
+      vim.health.warn("unknown request status")
+    else
+      vim.health.warn(err)
+    end
     return
   end
 

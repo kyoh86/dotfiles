@@ -105,10 +105,12 @@ path.ins("/snap/bin")
 path.ins(path.home .. "/.local/share/coursier/bin")
 vim.uv
   .new_async(vim.schedule_wrap(function()
-    if vim.fn.executable("coursier") then
+    if vim.fn.executable("coursier") ~= 0 then
       vim.env.JAVA_HOME = vim.fn.trim(vim.fn.system("coursier java-home"))
     end
-    path.ins(vim.env.JAVA_HOME .. "/bin")
+    if vim.env.JAVA_HOME ~= nil then
+      path.ins(vim.env.JAVA_HOME .. "/bin")
+    end
   end))
   :send()
 

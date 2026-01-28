@@ -5,7 +5,7 @@ local function is_tags_file(source_name, source_type)
   if source_name == "tags" then
     return true
   end
-  if string.find(source_name, "^tags-.+$") then
+  if string.find(source_name, "^tags-.+$") ~= nil then
     return true
   end
   return false

@@ -122,7 +122,7 @@ else
     vim.api.nvim_set_current_line(string.rep(" ", text_width - vim.fn.strdisplaywidth(tagline)) .. tagline)
 
     local nextline = vim.fn.trim(table.concat(words, ""), " \t", 2)
-    if nextline and string.len(nextline) > 0 then
+    if string.len(nextline) > 0 then
       vim.api.nvim_put({ nextline }, "l", true, true)
     end
   end, { desc = "タグを右寄せにする" })

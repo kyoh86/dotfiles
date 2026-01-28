@@ -12,7 +12,14 @@ local function notify_update_core()
   vim.cmd.redrawstatus()
 end
 
-local notify_update, _ = defer.debounce_trailing(notify_update_core, 500)
+local notify_update_debounced, _ = defer.debounce_trailing(notify_update_core, 500)
+
+local function notify_update()
+  if notify_update_debounced == nil then
+    return -- エラーはlib/defer.luaですでに吐いてるので要らない
+  end
+  notify_update_debounced()
+end
 
 local function start_timer()
   timer_handler:start(5000, 5000, vim.schedule_wrap(notify_update))
@@ -41,9 +48,7 @@ local function start_watching()
 end
 
 local function stop_watching()
-  if watch_handler then
-    watch_handler:stop()
-  end
+  watch_handler:stop()
 end
 
 vim.api.nvim_create_autocmd("DirChangedPre", {

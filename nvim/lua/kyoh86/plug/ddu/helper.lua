@@ -56,7 +56,7 @@ end
 function M.setup(name, dduopts, config)
   vim.fn["ddu#custom#patch_local"](name, dduopts)
 
-  if config.start then
+  if config.start ~= nil then
     local starts = config.start or {}
     if not vim.islist(starts) then
       starts = { starts }

@@ -2,7 +2,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 
 local deletedTree = vim.regex("D $")
 local function isDeleted(status)
-  return status == "D  " or deletedTree:match_str(status)
+  return status == "D  " or (deletedTree:match_str(status) ~= nil)
 end
 
 local function custom_open(editor)

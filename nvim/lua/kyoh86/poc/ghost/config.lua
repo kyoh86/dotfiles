@@ -1,6 +1,6 @@
 local M = {}
 
---- @class ghost.Config
+--- @class kyoh86.poc.ghost.Config
 --- @field context_before integer
 --- @field context_after integer
 --- @field model string|nil
@@ -12,7 +12,7 @@ local M = {}
 --- @field pending_text string
 --- @field notify_on_cancel boolean
 
---- @type ghost.Config
+--- @type kyoh86.poc.ghost.Config
 local defaults = {
   context_before = 120,
   context_after = 60,

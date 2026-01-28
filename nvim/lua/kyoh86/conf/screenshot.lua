@@ -2,8 +2,12 @@ local screenshot = require("kyoh86.lib.screenshot")
 
 local function paste_latest_screenshot_path()
   local path, err = screenshot.latest()
-  if not path then
-    vim.notify(err, vim.log.levels.WARN)
+  if path == nil then
+    if err ~= nil then
+      vim.notify(err, vim.log.levels.WARN)
+    else
+      vim.notify("unknown error from screenshot.latest", vim.log.levels.WARN)
+    end
     return
   end
 

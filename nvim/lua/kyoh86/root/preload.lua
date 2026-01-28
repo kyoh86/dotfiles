@@ -3,17 +3,17 @@
 
 --- requireを安全に実行する
 ---@param spec string 対象モジュール名
----@param callback fun(m: any) 読み込まれたモジュールを受け取るCallback
+---@param callback? fun(m: any) 読み込まれたモジュールを受け取るCallback
 ---@param failed? fun() 読み込みに失敗したときに処理を受け取るCallback
 local function ensure(spec, callback, failed)
   local ok, module = pcall(require, spec)
   if ok then
-    if callback then
+    if callback ~= nil then
       return callback(module)
     end
   else
     vim.notify(string.format("failed to load module %q", spec), vim.log.levels.WARN)
-    if failed then
+    if failed ~= nil then
       failed()
     end
   end

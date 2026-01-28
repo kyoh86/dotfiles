@@ -1,4 +1,4 @@
-vim.api.nvim_create_autocmd("QuickfixCmdPost", {
+vim.api.nvim_create_autocmd("QuickFixCmdPost", {
   pattern = "*",
   callback = function()
     local qf_list = vim.fn.getqflist()

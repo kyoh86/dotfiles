@@ -5,10 +5,10 @@ local Agent = require("kyoh86.poc.ghost.agent")
 local Preview = require("kyoh86.poc.ghost.preview")
 local Target = require("kyoh86.poc.ghost.target")
 
---- @class ghost.State
---- @field config ghost.Config
---- @field agent ghost.Agent
---- @field preview ghost.Preview
+--- @class kyoh86.poc.ghost.State
+--- @field config kyoh86.poc.ghost.Config
+--- @field agent kyoh86.poc.ghost.Agent
+--- @field preview kyoh86.poc.ghost.Preview
 local state = {}
 
 local function should_skip(buf)

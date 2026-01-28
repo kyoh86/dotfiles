@@ -1,7 +1,7 @@
 --- バッファの中身から検索に引っかかるモノを抽出したバッファを作る
 vim.api.nvim_create_user_command("FilterBuf", function(t)
-  local number = vim.opt.number:get()
-  local list = vim.opt.list:get()
+  local number = vim.opt.number
+  local list = vim.opt.list
   vim.opt.number = false
   vim.opt.list = false
   local filter = vim.fn.shellescape(t.line1 .. "," .. t.line2 .. "global" .. t.args .. "print")

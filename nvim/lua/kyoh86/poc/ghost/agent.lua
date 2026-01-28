@@ -1,26 +1,27 @@
+--- @class kyoh86.poc.ghost.Agent
+---@field job? vim.SystemObj
+---@field job_timer? table
+--- @field opts kyoh86.poc.ghost.Config
+--- @field stop_timeout fun(self: kyoh86.poc.ghost.Agent)
+--- @field reset fun(self: kyoh86.poc.ghost.Agent)
+--- @field request fun(self: kyoh86.poc.ghost.Agent, context: kyoh86.poc.ghost.Context, callback: fun(prompt: string, suggestion: string[]))
 local M = {}
 
---- @class ghost.Position
+--- @class kyoh86.poc.ghost.Position
 --- @field buf integer
 --- @field row integer
 --- @field col integer
 
---- @class ghost.Context
+--- @class kyoh86.poc.ghost.Context
 --- @field filename string
 --- @field filetype string
 --- @field before string[]
 --- @field line string
 --- @field after string[]
---- @field pos ghost.Position
+--- @field pos kyoh86.poc.ghost.Position
 
---- @class ghost.Agent
---- @field opts ghost.Config
---- @field stop_timeout fun(self: ghost.Agent)
---- @field reset fun(self: ghost.Agent)
---- @field request fun(self: ghost.Agent, context: ghost.Context, callback: fun(prompt: string, suggestion: string[]))
-
---- @param opts ghost.Config
---- @return ghost.Agent
+--- @param opts kyoh86.poc.ghost.Config
+--- @return kyoh86.poc.ghost.Agent
 function M.new(opts)
   if vim.fn.executable("codex") == 0 then
     error("codex CLI not found in PATH")
@@ -35,7 +36,7 @@ function M.new(opts)
 end
 
 function M:stop_timeout()
-  if self.job_timer and not self.job_timer:is_closing() then
+  if self.job_timer ~= nil and not self.job_timer:is_closing() then
     self.job_timer:stop()
     self.job_timer:close()
   end
@@ -43,7 +44,7 @@ function M:stop_timeout()
 end
 
 function M:reset()
-  if self.job then
+  if self.job ~= nil then
     pcall(function()
       self.job:kill("term")
     end)
@@ -53,7 +54,7 @@ function M:reset()
 end
 
 --- Build prompt message to pass to the Codex
---- @param context ghost.Context
+--- @param context kyoh86.poc.ghost.Context
 local function build_prompt(context)
   return table.concat({
     "You are a code completion engine.",
@@ -90,7 +91,7 @@ function M:request(context, callback)
   local tmpfile = vim.fn.tempname()
 
   local args = { "codex", "exec" }
-  if self.opts.model then
+  if self.opts.model ~= nil then
     vim.list_extend(args, { "-m", self.opts.model })
   end
   vim.list_extend(args, { "--color=never", "--skip-git-repo-check", "--output-last-message", tmpfile, "-" })
@@ -125,9 +126,9 @@ function M:request(context, callback)
     end)
     self:reset()
   end)
-  if self.opts.timeout_ms and self.opts.timeout_ms > 0 then
+  if self.opts.timeout_ms > 0 then
     self.job_timer = vim.defer_fn(function()
-      if self.job then
+      if self.job ~= nil then
         vim.notify("Ghost timed out", vim.log.levels.INFO)
         vim.notify("timeout; killing job", vim.log.levels.TRACE)
         self:reset()

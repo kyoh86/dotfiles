@@ -4,7 +4,7 @@ local cache = {}
 
 local function detect(path)
   local filetype = vim.filetype.match({ filename = path })
-  if filetype then
+  if filetype ~= nil then
     return filetype
   end
 

@@ -67,10 +67,10 @@ local function toggle_checkbox(args)
       if lnum == curpos[1] then
         vim.fn.setcursorcharpos({ curpos[1], curpos[2] + 6 })
       end
-    elseif vim.regex(LIST_PATTERN .. [[\[ \]\s\+]]):match_str(line) then
+    elseif vim.regex(LIST_PATTERN .. [[\[ \]\s\+]]):match_str(line) ~= nil then
       -- blank box -> check
       vim.fn.setline(lnum, vim.fn.substitute(line, "\\[ \\]", "[x]", ""))
-    elseif vim.regex(LIST_PATTERN .. [[\[x\]\s\+]]):match_str(line) then
+    elseif vim.regex(LIST_PATTERN .. [[\[x\]\s\+]]):match_str(line) ~= nil then
       -- checked box -> uncheck
       vim.fn.setline(lnum, vim.fn.substitute(line, "\\[x\\]", "[ ]", ""))
     else
@@ -94,7 +94,7 @@ local function remove_checkbox(args)
   for lnum = from, to, 1 do
     local line = lines[lnum - from + 1] --[[@as string]]
 
-    if vim.regex(LIST_PATTERN .. [[\[[ x]\]\s\+]]):match_str(line) then
+    if vim.regex(LIST_PATTERN .. [[\[[ x]\]\s\+]]):match_str(line) ~= nil then
       -- remove checkbox
       vim.fn.setline(lnum, vim.fn.substitute(line, [[\(]] .. LIST_PATTERN .. [[\)]] .. "\\[[x ]\\]\\s\\+", "\\1", ""))
     end

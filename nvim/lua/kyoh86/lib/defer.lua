@@ -20,7 +20,15 @@ end
 ---`timer:close()` at the end or you will leak memory!
 function M.throttle_leading(fn, ms)
   td_validate(fn, ms)
-  local timer = vim.uv.new_timer()
+  local timer, err = vim.uv.new_timer()
+  if timer == nil then
+    if err == nil then
+      vim.notify("failed to build new timer: unknown error", vim.log.levels.WARN)
+    else
+      vim.notify("failed to build new timer: " .. err, vim.log.levels.WARN)
+    end
+    return
+  end
   local running = false
 
   local function wrapped_fn(...)
@@ -47,7 +55,15 @@ end
 ---`timer:close()` at the end or you will leak memory!
 function M.throttle_trailing(fn, ms, last)
   td_validate(fn, ms)
-  local timer = vim.uv.new_timer()
+  local timer, err = vim.uv.new_timer()
+  if timer == nil then
+    if err == nil then
+      vim.notify("failed to build new timer: unknown error", vim.log.levels.WARN)
+    else
+      vim.notify("failed to build new timer: " .. err, vim.log.levels.WARN)
+    end
+    return
+  end
   local running = false
 
   local wrapped_fn
@@ -90,7 +106,15 @@ end
 ---`timer:close()` at the end or you will leak memory!
 function M.debounce_leading(fn, ms)
   td_validate(fn, ms)
-  local timer = vim.uv.new_timer()
+  local timer, err = vim.uv.new_timer()
+  if timer == nil then
+    if err == nil then
+      vim.notify("failed to build new timer: unknown error", vim.log.levels.WARN)
+    else
+      vim.notify("failed to build new timer: " .. err, vim.log.levels.WARN)
+    end
+    return
+  end
   local running = false
 
   local function wrapped_fn(...)
@@ -118,7 +142,15 @@ end
 ---`timer:close()` at the end or you will leak memory!
 function M.debounce_trailing(fn, ms, first)
   td_validate(fn, ms)
-  local timer = vim.uv.new_timer()
+  local timer, err = vim.uv.new_timer()
+  if timer == nil then
+    if err == nil then
+      vim.notify("failed to build new timer: unknown error", vim.log.levels.WARN)
+    else
+      vim.notify("failed to build new timer: " .. err, vim.log.levels.WARN)
+    end
+    return
+  end
   local wrapped_fn
 
   if not first then
@@ -165,6 +197,7 @@ function M.test_defer(bouncer, ms, firstlast)
   end, timeout, firstlast)
 
   for i, _ in ipairs({ 1, 2, 3, 4, 5 }) do
+---@diagnostic disable-next-line: need-check-nil
     bounced(i)
     vim.schedule(function()
       vim.cmd("echom " .. i)

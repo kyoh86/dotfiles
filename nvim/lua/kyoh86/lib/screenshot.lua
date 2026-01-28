@@ -28,7 +28,7 @@ end
 
 local function default_mac_dir()
   local out = run_cmd({ "defaults", "read", "com.apple.screencapture", "location" })
-  if out and out[1] and out[1] ~= "" then
+  if out ~= nil and out[1] ~= nil and out[1] ~= "" then
     return normalize_dir(out[1])
   end
   return normalize_dir(vim.fn.expand("~/Desktop"))
@@ -37,13 +37,13 @@ end
 local function wsl_windows_home()
   if vim.fn.executable("wslvar") ~= 0 then
     local out = run_cmd({ "wslvar", "USERPROFILE" })
-    if out and out[1] and out[1] ~= "" then
+    if out ~= nil and out[1] ~= nil and out[1] ~= "" then
       return out[1]
     end
   end
   if vim.fn.executable("cmd.exe") ~= 0 then
     local out = run_cmd({ "cmd.exe", "/c", "echo", "%USERPROFILE%" })
-    if out and out[1] and out[1] ~= "" then
+    if out ~= nil and out[1] ~= nil and out[1] ~= "" then
       return out[1]
     end
   end
@@ -55,7 +55,7 @@ local function wsl_to_linux_path(win_path)
     return nil
   end
   local out = run_cmd({ "wslpath", "-u", win_path })
-  if out and out[1] and out[1] ~= "" then
+  if out ~= nil and out[1] ~= nil and out[1] ~= "" then
     return out[1]
   end
   return nil
@@ -116,25 +116,37 @@ local function matches_patterns(name, patterns)
   return false
 end
 
+local function next_in_dir(dir, patterns, exts, handle)
+  local name, typ = uv.fs_scandir_next(handle)
+  if not name then
+    return false, nil
+  end
+  if typ == "file" and has_extension(name, exts) and matches_patterns(name, patterns) then
+    local path = dir .. "/" .. name
+    local stat = uv.fs_stat(path)
+    if stat == nil or stat.mtime == nil or stat.mtime.sec == nil then
+      return true, nil -- skip if the stat is nil (err)
+    end
+    return true, {mtime=stat.mtime.sec, path = path}
+  end
+  return true, nil -- not matched, next
+end
+
 local function latest_in_dir(dir, patterns, exts)
   local handle = uv.fs_scandir(dir)
-  if not handle then
+  if handle == nil then
     return nil
   end
   local latest_path = nil
   local latest_mtime = 0
   while true do
-    local name, typ = uv.fs_scandir_next(handle)
-    if not name then
+    local next, value = next_in_dir(dir, patterns, exts, handle)
+    if not next then
       break
     end
-    if typ == "file" and has_extension(name, exts) and matches_patterns(name, patterns) then
-      local path = dir .. "/" .. name
-      local stat = uv.fs_stat(path)
-      if stat and stat.mtime and stat.mtime.sec and stat.mtime.sec > latest_mtime then
-        latest_mtime = stat.mtime.sec
-        latest_path = path
-      end
+    if value ~= nil and value.mtime > latest_mtime then
+      latest_path = value.path
+      latest_mtime = value.mtime
     end
   end
   return latest_path
@@ -158,7 +170,7 @@ function M.latest(opts)
   local patterns = opts.patterns or default_patterns()
   local exts = opts.extensions or default_extensions()
   local path = latest_in_dir(dir, patterns, exts)
-  if path then
+  if path ~= nil then
     return path
   end
   path = latest_in_dir(dir, {}, exts)

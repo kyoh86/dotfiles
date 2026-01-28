@@ -1,10 +1,17 @@
+--- @class kyoh86.poc.ghost.Entry
+--- @field accept fun()
+--- @field context kyoh86.poc.ghost.Context
+--- @field deny fun()
+--- @field suggestion string[]
+
+--- @class kyoh86.poc.ghost.Preview Preview handler
+--- @field show fun(self: kyoh86.poc.ghost.Preview, context: kyoh86.poc.ghost.Context, suggestion:string[], accept:fun(), deny:fun())
+--- @field buf integer
+--- @field queue kyoh86.poc.ghost.Entry[]
+--- @field win? integer|nil
 local M = {}
 
---- @class ghost.Preview Preview handler
---- @field show fun(self: ghost.Preview, context: ghost.Context, suggestion:string[], accept:fun(), deny:fun())
---- @field buf integer
-
---- @return ghost.Preview
+--- @return kyoh86.poc.ghost.Preview
 function M.new()
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
@@ -54,7 +61,8 @@ function M:setup()
     group = group,
     buffer = self.buf,
     callback = vim.schedule_wrap(function()
-      if self:handle_deny() and #self.queue > 0 then
+      self:handle_deny()
+      if #self.queue > 0 then
         self:process()
       end
     end),
@@ -69,13 +77,14 @@ function M:close()
   self.win = nil
 end
 
---- @param context ghost.Context
+--- @param context kyoh86.poc.ghost.Context
 --- @param suggestion string[]
 --- @param accept fun()
 --- @param deny fun()
 function M:show(context, suggestion, accept, deny)
-  table.insert(self.queue, { context = context, suggestion = suggestion, accept = accept, deny = deny })
-  if self.win and vim.api.nvim_win_is_valid(self.win) then
+  local entry = { context = context, suggestion = suggestion, accept = accept, deny = deny }
+  table.insert(self.queue, entry)
+  if self.win ~= nil and vim.api.nvim_win_is_valid(self.win) then
     -- Do not open a new window if one is already visible.
     -- The new item will be processed when the current one is closed.
     return
@@ -83,7 +92,7 @@ function M:show(context, suggestion, accept, deny)
   self:process()
 end
 
---- @param self ghost.Preview
+--- @param self kyoh86.poc.ghost.Preview
 --- @param lines string[]
 --- @param replace? boolean
 function M:put_lines(lines, replace)

@@ -1,8 +1,19 @@
 local M = {}
 
+---@class kyoh86.lib.volaterm.Mods
+---@field silent? boolean |:silent|
+---@field noautocmd? boolean |:noautocmd|
+---@field horizontal? boolean |:horizontal|
+---@field vertical? boolean |:vertical|
+---@field split? "aboveleft"|"belowright"|"topleft"|"botright" Split modifier string, is an empty string when there's no split modifier See also: |:aboveleft| |:belowright| |:topleft| |:botright|
+
+---@class kyoh86.lib.volaterm.Opts
+---@field env? table<string, string?>
+
 --- Terminalを気軽に開いたり閉じたりする
+---@param opts? kyoh86.lib.volaterm.Opts
 function M.open(opts)
-  opts = vim.tbl_extend("keep", opts or vim.empty_dict(), {
+  opts = vim.tbl_extend("keep", opts ~= nil and opts or vim.empty_dict(), {
     term = true,
     exec = vim.o.shell,
   })
@@ -26,14 +37,8 @@ function M.open(opts)
   vim.fn.jobstart(opts.exec, opts)
 end
 
----@class VolatermMods
----@field silent? boolean |:silent|
----@field noautocmd? boolean |:noautocmd|
----@field horizontal? boolean |:horizontal|
----@field vertical? boolean |:vertical|
----@field split? "aboveleft"|"belowright"|"topleft"|"botright" Split modifier string, is an empty string when there's no split modifier See also: |:aboveleft| |:belowright| |:topleft| |:botright|
-
----@param mods VolatermMods
+---@param mods? kyoh86.lib.volaterm.Mods
+---@param opts? kyoh86.lib.volaterm.Opts
 function M.split(size, mods, opts)
   -- 指定方向に画面分割
   vim.cmd({ cmd = "new", mods = mods })

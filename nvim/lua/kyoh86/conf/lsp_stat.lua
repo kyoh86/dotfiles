@@ -97,7 +97,7 @@ end
 
 local function show_stat(client)
   if not client then
-    vim.api.nvim_err_write("client is not found")
+    vim.api.nvim_echo({ { "client is not found" } }, true, { err = true })
   else
     show_message(BUF_NAME, stringify(trim_status(client)))
   end

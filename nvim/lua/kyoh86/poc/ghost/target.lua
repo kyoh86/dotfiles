@@ -1,14 +1,14 @@
 local M = {}
 
---- @class ghost.Target A buffer to get suggestion from Agent
---- @field context fun(self: ghost.Target)
---- @field apply fun(self: ghost.Target, suggestion: string[])
+--- @class kyoh86.poc.ghost.Target A buffer to get suggestion from Agent
+--- @field context fun(self: kyoh86.poc.ghost.Target)
+--- @field apply fun(self: kyoh86.poc.ghost.Target, suggestion: string[])
 
 --- @param buf integer Buffer id, or 0 for current buffer
 --- @param row integer
 --- @param col integer
---- @param opts ghost.Config
---- @return ghost.Target
+--- @param opts kyoh86.poc.ghost.Config
+--- @return kyoh86.poc.ghost.Target
 function M.new(buf, row, col, opts)
   local instance = {
     buf = buf,
@@ -22,7 +22,7 @@ function M.new(buf, row, col, opts)
 end
 
 --- Collect context from the buffer
---- @return ghost.Context|nil
+--- @return kyoh86.poc.ghost.Context|nil
 function M:context()
   local line_count = vim.api.nvim_buf_line_count(self.buf)
   local current_line = vim.api.nvim_buf_get_lines(self.buf, self.row, self.row + 1, false)[1]

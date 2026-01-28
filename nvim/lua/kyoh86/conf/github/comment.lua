@@ -15,7 +15,7 @@ function M.create(target)
     "--editor",
     target.number,
   }
-  if target.repo then
+  if target.repo ~= nil then
     table.insert(words, "--repo")
     table.insert(words, target.repo)
   end
