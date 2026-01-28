@@ -6,7 +6,7 @@ glaze.get_async("os_uname_sysname", function(
   sysname,
   _ --[[fail]]
 )
-  glaze.ensure("ime", function()
+  local ime = glaze.ensure("ime", function()
     if sysname.sysname == "Linux" then
       if os.getenv("WSL_DISTRO_NAME") ~= "" then
         if vim.fn.executable("zenhan.exe") == 1 then
@@ -19,17 +19,11 @@ glaze.get_async("os_uname_sysname", function(
           return "fcitx"
         end
       end
-    elseif sysname.sysname == "Mac" then
+    elseif sysname.sysname == "Darwin" then
       return "mac"
     end
     return ""
   end)
-end)
-
-glaze.get_async("ime", function(
-  ime,
-  _ --[[fail]]
-)
   if ime == "zenhan" then
     vim.api.nvim_create_autocmd("InsertLeave", {
       group = group,
