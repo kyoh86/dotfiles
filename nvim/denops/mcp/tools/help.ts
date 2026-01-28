@@ -100,6 +100,7 @@ async function readHelpContext(
 ) {
   const originalWin = await fn.win_getid(denops);
   const originalBuf = await fn.bufnr(denops, "%");
+  const helpWinsBefore = await listHelpWindows(denops);
   let helpWin = originalWin;
   let helpBuf = originalBuf;
   try {
@@ -145,13 +146,28 @@ async function readHelpContext(
       context: [],
     };
   } finally {
-    const shouldClose = helpWin !== originalWin && helpBuf !== originalBuf;
+    const shouldClose = helpWin !== originalWin &&
+      helpBuf !== originalBuf &&
+      !helpWinsBefore.has(helpWin);
     if (shouldClose) {
       try {
-        await fn.win_gotoid(denops, helpWin);
-        await denops.call("close");
+        try {
+          await denops.call("nvim_win_close", helpWin, true);
+        } catch {
+          await fn.win_gotoid(denops, helpWin);
+          await denops.call("close");
+        }
       } catch {
         // ignore cleanup errors
+      }
+    } else if (helpWin === originalWin && helpBuf !== originalBuf) {
+      try {
+        await denops.call(
+          "execute",
+          `silent keepalt keepjumps buffer ${originalBuf}`,
+        );
+      } catch {
+        // ignore restore errors
       }
     }
     try {
@@ -160,4 +176,25 @@ async function readHelpContext(
       // ignore restore errors
     }
   }
+}
+
+async function listHelpWindows(denops: Denops): Promise<Set<number>> {
+  const wininfo = await fn.getwininfo(denops);
+  const wins = Array.isArray(wininfo) ? wininfo : [];
+  const helpWins: number[] = [];
+  for (const win of wins) {
+    if (!win || typeof win !== "object") {
+      continue;
+    }
+    const winid = (win as { winid?: number }).winid;
+    const bufnr = (win as { bufnr?: number }).bufnr;
+    if (!winid || !bufnr) {
+      continue;
+    }
+    const buftype = await fn.getbufvar(denops, bufnr, "&buftype");
+    if (buftype === "help") {
+      helpWins.push(winid);
+    }
+  }
+  return new Set(helpWins);
 }
