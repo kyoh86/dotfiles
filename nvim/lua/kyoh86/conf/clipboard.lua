@@ -7,7 +7,7 @@ vim.keymap.set({ "n", "x" }, "gP", '"*P')
 vim.keymap.set({ "n", "x" }, "g_", '"*_', { remap = true })
 
 local glaze = require("kyoh86.lib.glaze")
-glaze.glaze("clipboard", function()
+glaze.ensure("clipboard", function()
   if vim.fn.executable("win32yank.exe") ~= 0 then
     return "win32"
   elseif vim.fn.executable("wl-copy") ~= 0 and vim.fn.executable("wl-paste") ~= 0 then
@@ -15,7 +15,7 @@ glaze.glaze("clipboard", function()
   end
   return ""
 end)
-glaze.get("clipboard", function(env, fail)
+glaze.get_async("clipboard", function(env, fail)
   if env == "win32" then
     vim.g.clipboard = {
       name = "win32yank-wsl",

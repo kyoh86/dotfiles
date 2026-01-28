@@ -46,7 +46,7 @@ local spec = {
         vim.g.previm_open_cmd = "/mnt/c/Windows/explorer.exe"
       else
         local glaze = require("kyoh86.lib.glaze")
-        glaze.get("opener", function(opener)
+        glaze.get_async("opener", function(opener)
           vim.g.previm_open_cmd = opener
         end)
       end

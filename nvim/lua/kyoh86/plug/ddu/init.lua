@@ -12,7 +12,7 @@ local spec = {
       })
 
       local glaze = require("kyoh86.lib.glaze")
-      glaze.get("opener", function(opener)
+      glaze.get_async("opener", function(opener)
         vim.fn["ddu#custom#patch_global"]({
           actionParams = {
             browse = { opener = opener },

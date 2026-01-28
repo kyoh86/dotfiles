@@ -2,11 +2,11 @@
 local glaze = require("kyoh86.lib.glaze")
 
 local group = vim.api.nvim_create_augroup("kyoh86-conf-ime", {})
-glaze.get("os_uname_sysname", function(
+glaze.get_async("os_uname_sysname", function(
   sysname,
   _ --[[fail]]
 )
-  glaze.glaze("ime", function()
+  glaze.ensure("ime", function()
     if sysname.sysname == "Linux" then
       if os.getenv("WSL_DISTRO_NAME") ~= "" then
         if vim.fn.executable("zenhan.exe") == 1 then
@@ -26,7 +26,7 @@ glaze.get("os_uname_sysname", function(
   end)
 end)
 
-glaze.get("ime", function(
+glaze.get_async("ime", function(
   ime,
   _ --[[fail]]
 )

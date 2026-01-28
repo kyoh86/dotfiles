@@ -123,7 +123,7 @@ vim.env.CODEX_HOME = dotfiles .. "/codex"
 
 -- browser
 local glaze = require("kyoh86.lib.glaze")
-glaze.get("opener", function(opener)
+glaze.get_async("opener", function(opener)
   vim.env.BROWSER = opener
 end)
 
