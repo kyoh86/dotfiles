@@ -1,5 +1,3 @@
-local group = vim.api.nvim_create_augroup("kyoh86-conf-tomlvsinp", { clear = true })
-
 local function snippet_dirs()
   local candidates = vim.g.vsnip_snippet_dirs or {}
   table.insert(candidates, 1, vim.g.vsnip_snippet_dir)
@@ -80,8 +78,9 @@ end
 vim.api.nvim_create_user_command("Snip", open_snippet_command, { desc = "Edit snippet for the current file-type", force = true, bang = true })
 vim.api.nvim_create_user_command("Vsnip", open_snippet_command, { desc = "Edit snippet for the current file-type", force = true, bang = true })
 
-vim.api.nvim_create_autocmd("BufWritePost", {
-  group = group,
+local au = require("kyoh86.lib.autocmd")
+local group = au.group("kyoh86.conf.tomlvsnip", true)
+group:hook("BufWritePost", {
   pattern = "*.toml",
   callback = function(ev)
     local path = vim.fn.resolve(vim.fn.fnamemodify(ev.file, ":p"))
@@ -101,8 +100,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
   end,
 })
 
-vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
-  group = group,
+group:hook({ "BufNewFile", "BufRead" }, {
   pattern = "*.json",
   callback = function(ev)
     local path = vim.fn.resolve(vim.fn.fnamemodify(ev.file, ":p"))

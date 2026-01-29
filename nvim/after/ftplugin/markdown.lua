@@ -24,11 +24,11 @@ vim.opt_local.comments = {
   "b:1.",
 }
 
----@class CommandArgs
+---@class kyoh86.ft.markdown.CommandArgs
 ---@field line1 integer
 ---@field line2 integer
 
----@param args CommandArgs
+---@param args kyoh86.ft.markdown.CommandArgs
 local function get_range(args)
   -- get target range from user command args
   local from = args.line1

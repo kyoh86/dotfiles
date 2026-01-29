@@ -65,23 +65,24 @@ local spec = {
     "kyoh86/vim-zenn-autocmd",
     lazy = false,
     config = function()
+      local au = require("kyoh86.lib.autocmd")
       vim.fn["zenn_autocmd#enable"]()
-      local group = vim.api.nvim_create_augroup("kyoh86-plug-zenn-autocmd", { clear = true })
-      vim.api.nvim_create_autocmd("User", {
+      local group = au.group("kyoh86.plug.zenn.autocmd", true)
+      group:hook("User", {
         pattern = "ZennEnter",
-        group = group,
         callback = function()
           state.entered = true
           tryEnable()
         end,
       })
-      vim.api.nvim_create_autocmd("User", { pattern = "ZennLeave", group = group, callback = leave })
+      group:hook("User", { pattern = "ZennLeave", callback = leave })
     end,
   },
   {
     "kyoh86/denops-zenn_dev.vim",
     config = function()
-      vim.api.nvim_create_autocmd("User", {
+      local au = require("kyoh86.lib.autocmd")
+      au.group("kyoh86.plug.zenn_dev", true):hook("User", {
         pattern = "DenopsPluginPost:zenn_dev",
         callback = function()
           state.loaded = true

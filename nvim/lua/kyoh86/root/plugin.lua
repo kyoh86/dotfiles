@@ -56,8 +56,8 @@ local opts = {
   },
 }
 
-vim.api.nvim_create_autocmd("User", {
-  group = vim.api.nvim_create_augroup("kyoh86-lazy-help-doc", { clear = true }),
+local au = require("kyoh86.lib.autocmd")
+au.group("kyoh86.root.plugin", true):hook("User", {
   pattern = { "LazyInstall", "LazyUpdate" },
   callback = require("kyoh86.lib.lazy_help").collect,
 })

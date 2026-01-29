@@ -48,10 +48,8 @@ end
 --- イベントハンドラを登録する
 --- @param bufnr number
 local function register_event(bufnr)
-  local group = vim.api.nvim_create_augroup("partial_modifiable", { clear = true })
-  vim.api.nvim_create_autocmd("CursorMoved", {
-    group = group,
-    pattern = "<buffer=" .. bufnr .. ">",
+  local au = require("kyoh86.lib.autocmd")
+  au.buf_group(bufnr, "kyoh86.poc.partial_modifiable", true):hook("CursorMoved", {
     command = "lua require('kyoh86.poc.partial_modifiable').cursor_moved()",
   })
 end

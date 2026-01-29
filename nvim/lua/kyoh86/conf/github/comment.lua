@@ -1,12 +1,12 @@
 local M = {}
 
----@class GitHubCommentTarget
+---@class kyoh86.conf.github.CommentTarget
 ---@field type "issue"|"pr"
 ---@field repo? string
 ---@field number number
 
 --- コメントを付ける
----@param target GitHubCommentTarget
+---@param target kyoh86.conf.github.CommentTarget
 function M.create(target)
   local words = {
     "gh",

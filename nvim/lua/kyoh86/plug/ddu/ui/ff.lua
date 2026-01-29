@@ -77,14 +77,14 @@ local spec = {
       },
     })
 
-    local augroup = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff", { clear = true })
+    local au = require("kyoh86.lib.autocmd")
+    local group = au.group("kyoh86.plug.ddu.ui.ff", true)
     vim.fn.sign_define("dduSelected", { text = "✔", texthl = "dduSelectedSign" })
 
     local f = require("kyoh86.lib.func")
 
     local redraw = f.vind_all(vim.fn["ddu#ui#do_action"], "redraw", { method = "uiRedraw" })
-    vim.api.nvim_create_autocmd("VimResized", {
-      group = augroup,
+    group:hook("VimResized", {
       callback = redraw,
     })
 
@@ -93,8 +93,7 @@ local spec = {
       return f.bind_all(vim.fn["ddu#ui#do_action"], actionName, #args == 0 and vim.empty_dict() or args[1])
     end
 
-    vim.api.nvim_create_autocmd("FileType", {
-      group = augroup,
+    group:hook("FileType", {
       pattern = "ddu-ff",
       callback = function(ev)
         vim.opt_local.signcolumn = "auto"

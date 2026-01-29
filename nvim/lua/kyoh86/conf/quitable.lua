@@ -20,7 +20,7 @@ local function quit_empty_buffers()
   end
 end
 
-vim.api.nvim_create_autocmd("ExitPre", {
-  group = vim.api.nvim_create_augroup("kyoh86-conf-quitable", {}),
+local au = require("kyoh86.lib.autocmd")
+au.group("kyoh86.conf.quitable", true):hook("ExitPre", {
   callback = quit_empty_buffers,
 })

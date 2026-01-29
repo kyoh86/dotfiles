@@ -3,7 +3,8 @@ local spec = {
   "kyoh86/denops-inkdrop.vim",
   dev = true,
   config = function()
-    vim.api.nvim_create_autocmd("User", {
+    local au = require("kyoh86.lib.autocmd")
+    au.group("kyoh86.plug.inkdrop", true):hook("User", {
       pattern = "DenopsPluginPost:inkdrop",
       callback = function()
         vim.fn["inkdrop#setup#commands"]()

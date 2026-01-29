@@ -20,7 +20,8 @@ local spec = {
       require("kyoh86.plug.lsp.register")()
       require("kyoh86.plug.lsp.keymap")()
       --- Attach時の設定
-      vim.api.nvim_create_autocmd("LspAttach", {
+      local au = require("kyoh86.lib.autocmd")
+      au.group("kyoh86.plug.lsp.init", true):hook("LspAttach", {
         callback = function(args)
           require("kyoh86.plug.lsp.attach")(args)
         end,

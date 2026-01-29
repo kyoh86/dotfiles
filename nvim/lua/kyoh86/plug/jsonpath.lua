@@ -3,10 +3,9 @@ local spec = {
   "phelipetls/jsonpath.nvim",
   config = function()
     -- Define mappings for json buffers
-    local group = vim.api.nvim_create_augroup("kyoh86-plug-jsonpath", { clear = true })
-    vim.api.nvim_create_autocmd("FileType", {
+    local au = require("kyoh86.lib.autocmd")
+    au.group("kyoh86.plug.jsonpath", true):hook("FileType", {
       pattern = "json",
-      group = group,
       callback = function()
         vim.keymap.set("n", "<leader>yj", function()
           vim.fn.setreg("+", require("jsonpath").get())

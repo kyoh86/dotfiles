@@ -1,4 +1,6 @@
 local M = {}
+local au = require("kyoh86.lib.autocmd")
+local group = au.group("kyoh86.poc.toggleinsert", false)
 
 ---call :stopinsert and call back when the mode changed
 ---@param callback fun()
@@ -6,7 +8,7 @@ function M.stopInsert(callback)
   if vim.fn.mode() ~= "i" then
     callback()
   end
-  vim.api.nvim_create_autocmd("ModeChanged", {
+  group:hook("ModeChanged", {
     pattern = "i:*",
     once = true,
     callback = callback,
@@ -20,7 +22,7 @@ function M.startInsert(callback)
   if vim.fn.mode() == "i" then
     callback()
   end
-  vim.api.nvim_create_autocmd("ModeChanged", {
+  group:hook("ModeChanged", {
     pattern = "*:i",
     once = true,
     callback = callback,
@@ -34,7 +36,7 @@ function M.startInsertAtEOL(callback)
   if vim.fn.mode() == "i" then
     callback()
   end
-  vim.api.nvim_create_autocmd("ModeChanged", {
+  group:hook("ModeChanged", {
     pattern = "*:i",
     once = true,
     callback = callback,

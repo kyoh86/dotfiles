@@ -1,4 +1,5 @@
-vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+local au = require("kyoh86.lib.autocmd")
+au.group("kyoh86.conf.qfopen", true):hook("QuickFixCmdPost", {
   pattern = "*",
   callback = function()
     local qf_list = vim.fn.getqflist()

@@ -14,9 +14,8 @@ local spec = {
       vim.g.textobj_markdown_no_default_key_mappings = true
     end,
     config = function()
-      local group = vim.api.nvim_create_augroup("textobj_markdown", { clear = true })
-      vim.api.nvim_create_autocmd("FileType", {
-        group = group,
+      local au = require("kyoh86.lib.autocmd")
+      au.group("kyoh86.plug.operator.textobj_markdown", true):hook("FileType", {
         pattern = "markdown",
         callback = function()
           vim.keymap.set("o", "ic", "<Plug>(textobj-markdown-chunk-i)", { remap = true, desc = "a textobj in the markdown block" })

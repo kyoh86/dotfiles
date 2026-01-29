@@ -19,11 +19,10 @@ local spec = {
     "thinca/vim-qfreplace",
     ft = "qf",
     config = function()
-      local group = vim.api.nvim_create_augroup("kyoh86-plug-qfreplace-keymap", { clear = true })
       vim.g.qfreplace_no_save = true
-      vim.api.nvim_create_autocmd("FileType", {
+      local au = require("kyoh86.lib.autocmd")
+      au.group("kyoh86.plug.search.qfreplace_keymap", true):hook("FileType", {
         pattern = "qf",
-        group = group,
         callback = function()
           --- QuickFixに行番号を表示する
           vim.opt_local.number = true

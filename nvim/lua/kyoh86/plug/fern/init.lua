@@ -33,9 +33,8 @@ local spec = { {
     vim.keymap.set("n", "<C-_>", "<cmd>Fern . -reveal=%<cr>", { silent = true, remap = false })
     vim.keymap.set("n", "-", open_fern, { silent = true, remap = true, expr = true })
 
-    local g = vim.api.nvim_create_augroup("kyoh86-plug-fern-mode", { clear = true })
-    vim.api.nvim_create_autocmd("FileType", {
-      group = g,
+    local au = require("kyoh86.lib.autocmd")
+    au.group("kyoh86.plug.fern.init", true):hook("FileType", {
       pattern = "fern",
       callback = require("kyoh86.plug.fern.mode").setup,
     })

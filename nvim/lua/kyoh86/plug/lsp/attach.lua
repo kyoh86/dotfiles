@@ -16,10 +16,9 @@ return function(args)
   end
   -- ファイル保存時に自動でフォーマットする
   -- vtslsがassignされている場合はvtsls、efmがアサインされている場合はefm
-  vim.api.nvim_create_autocmd("BufWritePre", {
+  local au = require("kyoh86.lib.autocmd")
+  au.buf_group(bufnr, string.format("kyoh86.plug.lsp.attach.format.buf.%d", bufnr), true):hook("BufWritePre", {
     desc = "ファイル保存時に自動でフォーマットする",
-    group = vim.api.nvim_create_augroup(string.format("kyoh86-plug-lsp-format-buf-%d", bufnr), { clear = true }),
-    buffer = bufnr,
     callback = function()
       require("kyoh86.plug.lsp.format")(bufnr)
     end,

@@ -1,4 +1,5 @@
-local group = vim.api.nvim_create_augroup("kyoh86-lib-scheme-changed", { clear = true })
+local au = require("kyoh86.lib.autocmd")
+local group = au.group("kyoh86.lib.scheme", true)
 
 --- Backgroundオプションがdark/lightで切り替わった時に呼び出される関数を登録する
 --- @param f fun(name) 呼び出される関数
@@ -15,11 +16,10 @@ local function onBackgroundChanged(
     f(value)
   end
   w(vim.opt.background)
-  vim.api.nvim_create_autocmd(
+  group:hook(
     "OptionSet",
     vim.tbl_extend("force", opt or {}, {
       pattern = "background",
-      group = group,
       callback = function()
         w(vim.v.option_new)
       end,
@@ -40,8 +40,7 @@ local function onSchemeChanged(f, init)
   if init then
     w(vim.g.colors_name)
   end
-  vim.api.nvim_create_autocmd("ColorScheme", {
-    group = group,
+  group:hook("ColorScheme", {
     callback = function(ev)
       w(ev.match)
     end,

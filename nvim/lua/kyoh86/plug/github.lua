@@ -2,7 +2,8 @@
 local spec = {
   "kyoh86/denops-github.vim",
   config = function()
-    vim.api.nvim_create_autocmd("FileType", {
+    local au = require("kyoh86.lib.autocmd")
+    au.group("kyoh86.plug.github", true):hook("FileType", {
       pattern = "github-issue-view",
       callback = function(ev)
         local opt = {

@@ -49,13 +49,12 @@ local spec = {
         end
       end
       disable_color()
-      local skk_group = vim.api.nvim_create_augroup("kyoh86-plug-skk", { clear = true })
-      vim.api.nvim_create_autocmd("ModeChanged", {
-        group = skk_group,
+      local au = require("kyoh86.lib.autocmd")
+      local group = au.group("kyoh86.plug.skk", true)
+      group:hook("ModeChanged", {
         callback = apply_mode_color,
       })
-      vim.api.nvim_create_autocmd("User", {
-        group = skk_group,
+      group:hook("User", {
         pattern = "skkeleton-mode-changed",
         callback = apply_mode_color,
       })

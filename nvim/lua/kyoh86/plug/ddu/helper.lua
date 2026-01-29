@@ -17,23 +17,23 @@ local function ddu_ui_call_map(lh)
   end
 end
 
----@class Kyoh86DduHelperMapParam
+---@class kyoh86.plug.ddu.MapParam
 ---@field action string
 ---@field params table<string, any>
 
----@class Kyoh86DduHelperKeymap
+---@class kyoh86.plug.ddu.Keymap
 ---@field key string A key to start ddu
 ---@field modes? string|string[] A mode or modes for key to start ddu
 ---@field desc? string A description for the key
 
----@class Kyoh86DduHelperConfig
----@field start? Kyoh86DduHelperKeymap|Kyoh86DduHelperKeymap[] A key or keys to start ddu
+---@class kyoh86.plug.ddu.Config
+---@field start? kyoh86.plug.ddu.Keymap|kyoh86.plug.ddu.Keymap[] A key or keys to start ddu
 ---@field localmap? table<string, table> Local key maps for actions.
 ---@field filelike? boolean Set local maps for file-like kind.
 
 ---set mapping for named ddu-ui
 ---@param ui_name string ddu_ui_name
----@param map table<string, Kyoh86DduHelperMapParam | fun()>
+---@param map table<string, kyoh86.plug.ddu.MapParam | fun()>
 local function ddu_ui_set_map(ui_name, map)
   ddu_ui_map[ui_name] = vim.tbl_extend("error", ddu_ui_map[ui_name] or {}, map)
 end
@@ -44,7 +44,7 @@ end
 
 ---@param name string A name of the ddu instance or the local option.
 ---@param dduopts table<string, any> ddu options.
----@param config Kyoh86DduHelperConfig additional config
+---@param config kyoh86.plug.ddu.Config additional config
 ---@return fun()
 function M.setup_func(name, dduopts, config)
   return func.bind_all(M.setup, name, dduopts, config)
@@ -52,7 +52,7 @@ end
 
 ---@param name string A name of the ddu instance or the local option.
 ---@param dduopts table<string, any> ddu options.
----@param config Kyoh86DduHelperConfig additional config
+---@param config kyoh86.plug.ddu.Config additional config
 function M.setup(name, dduopts, config)
   vim.fn["ddu#custom#patch_local"](name, dduopts)
 
@@ -79,10 +79,9 @@ function M.setup(name, dduopts, config)
     return
   end
 
-  local group = vim.api.nvim_create_augroup("kyoh86-plug-ddu-ui-ff-map-" .. name, {})
+  local au = require("kyoh86.lib.autocmd")
   ddu_ui_set_map(name, map)
-  vim.api.nvim_create_autocmd("FileType", {
-    group = group,
+  au.group("kyoh86.plug.ddu.helper.ui_ff_map." .. name, true):hook("FileType", {
     pattern = "ddu-ff",
     callback = function(ev)
       local ok, res = pcall(vim.api.nvim_buf_get_var, ev.buf, "ddu_ui_name")

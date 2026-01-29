@@ -1,4 +1,5 @@
 --- LSPの状態をlua tableとして表示する
+
 local function trim_status(client)
   local config = {}
   for key, value in pairs(client["config"]) do
@@ -61,14 +62,12 @@ local function show_message(name, content)
   local buf = vim.fn.bufnr(BUF_NAME_ESCAPED, false)
   if buf == nil or buf == -1 then
     buf = vim.api.nvim_create_buf(false, true)
-    local group = vim.api.nvim_create_augroup("kyoh86-conf-lsp-stat", { clear = true })
-    vim.api.nvim_create_autocmd("BufWinLeave", {
-      buffer = buf,
+    local au = require("kyoh86.lib.autocmd")
+    local group = au.buf_group(buf, "kyoh86.conf.lsp_stat", true)
+    group:hook("BufWinLeave", {
       once = true,
-      group = group,
       callback = function()
-        vim.api.nvim_create_autocmd("CursorHold", {
-          group = group,
+        group:hook("CursorHold", {
           once = true,
           command = buf .. "bwipeout!",
         })

@@ -56,10 +56,8 @@ function M:setup()
   vim.keymap.set("n", "q", deny_and_close, { buffer = self.buf, silent = true, nowait = true })
   vim.keymap.set("n", "<ESC>", deny_and_close, { buffer = self.buf, silent = true, nowait = true })
 
-  local group = vim.api.nvim_create_augroup("GhostPreview", { clear = true })
-  vim.api.nvim_create_autocmd("BufWipeout", {
-    group = group,
-    buffer = self.buf,
+  local au = require("kyoh86.lib.autocmd")
+  au.buf_group(self.buf, "kyoh86.poc.ghost.preview", true):hook("BufWipeout", {
     callback = vim.schedule_wrap(function()
       self:handle_deny()
       if #self.queue > 0 then

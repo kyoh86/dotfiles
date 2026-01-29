@@ -4,7 +4,6 @@ local stat = {}
 local watch_handler = assert(vim.uv.new_fs_event())
 local timer_handler = assert(vim.uv.new_timer())
 local gitdir = ""
-local group = vim.api.nvim_create_augroup("kyoh86-plug-heirline-git-status-update", { clear = true })
 local defer = require("kyoh86.lib.defer")
 
 local function notify_update_core()
@@ -51,14 +50,15 @@ local function stop_watching()
   watch_handler:stop()
 end
 
-vim.api.nvim_create_autocmd("DirChangedPre", {
-  group = group,
+local au = require("kyoh86.lib.autocmd")
+local group = au.group("kyoh86.plug.heirline.git", true)
+
+group:hook("DirChangedPre", {
   pattern = "global",
   callback = stop_watching,
 })
 
-vim.api.nvim_create_autocmd("DirChanged", {
-  group = group,
+group:hook("DirChanged", {
   pattern = "global",
   callback = function(ev)
     notify_update()
@@ -67,19 +67,16 @@ vim.api.nvim_create_autocmd("DirChanged", {
   end,
 })
 
-vim.api.nvim_create_autocmd("User", {
-  group = group,
+group:hook("User", {
   pattern = "Kyoh86TermNotifReceived:precmd:*",
   callback = require("kyoh86.lib.func").vind_all(notify_update),
 })
 
-vim.api.nvim_create_autocmd({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave", "ModeChanged" }, {
-  group = group,
+group:hook({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave", "ModeChanged" }, {
   callback = notify_update,
 })
 
-vim.api.nvim_create_autocmd("VimLeavePre", {
-  group = group,
+group:hook("VimLeavePre", {
   callback = stop_timer,
 })
 

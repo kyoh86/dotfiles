@@ -67,10 +67,9 @@ local spec = {
       vim.keymap.set("n", "<leader>gd<", "<Plug>(gin-diffget-r)", { desc = "Get a diff chunk from WORKTREE buffer" })
       vim.keymap.set("n", "<leader>gs", "<cmd>GinStatus<cr>", { desc = "Show Git status" })
 
-      local group = vim.api.nvim_create_augroup("kyoh86-plug-gin", { clear = true })
-      vim.api.nvim_create_autocmd("FileType", {
+      local au = require("kyoh86.lib.autocmd")
+      au.group("kyoh86.plug.git", true):hook("FileType", {
         pattern = { "gitcommit", "markdown" },
-        group = group,
         callback = function()
           vim.keymap.set("n", "<leader>a", function()
             if vim.b.gin_internal_proxy_waiter then

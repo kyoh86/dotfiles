@@ -8,10 +8,9 @@ local spec = {
       vim.g.table_mode_disable_tableize_mappings = true
     end,
     config = function()
-      local group = vim.api.nvim_create_augroup("kyoh86-plug-markdown-table", { clear = true })
-      vim.api.nvim_create_autocmd("FileType", {
+      local au = require("kyoh86.lib.autocmd")
+      au.group("kyoh86.plug.markdown.table", true):hook("FileType", {
         pattern = "markdown",
-        group = group,
         callback = function(ev)
           vim.keymap.set("n", "<leader>mta", "<plug>(table-mode-realign)", { buffer = ev.buf, remap = true, desc = "Markdownテーブルを整列する" })
           vim.keymap.set("n", "<leader>mtt", "<cmd>TableModeToggle<cr>", { buffer = ev.buf, remap = true, desc = "Markdownテーブルモードを切り替える" })

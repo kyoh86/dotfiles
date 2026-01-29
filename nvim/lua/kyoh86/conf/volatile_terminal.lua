@@ -13,19 +13,17 @@ local function restore_mode()
   end
 end
 
-local group = vim.api.nvim_create_augroup("kyoh86-conf-volatile-terminal-mode", {})
-vim.api.nvim_create_autocmd("BufLeave", {
+local au = require("kyoh86.lib.autocmd")
+local group = au.group("kyoh86.conf.volatile_terminal", true)
+group:hook("BufLeave", {
   pattern = "term://*",
-  group = group,
   callback = save_mode,
 })
-vim.api.nvim_create_autocmd("BufEnter", {
+group:hook("BufEnter", {
   pattern = "term://*",
-  group = group,
   callback = restore_mode,
 })
-vim.api.nvim_create_autocmd("TermOpen", {
-  group = group,
+group:hook("TermOpen", {
   pattern = "term://*",
   callback = function()
     if vim.b.volaterm == 1 then

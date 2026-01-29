@@ -19,8 +19,8 @@ local function open_deno_deps(e)
   end)
 end
 
-vim.api.nvim_create_autocmd("FileType", {
-  group = vim.api.nvim_create_augroup("kyoh86-conf-open-deno-deps", {}),
+local au = require("kyoh86.lib.autocmd")
+au.group("kyoh86.conf.deno_deps", true):hook("FileType", {
   pattern = "typescript",
   callback = open_deno_deps,
   nested = true,

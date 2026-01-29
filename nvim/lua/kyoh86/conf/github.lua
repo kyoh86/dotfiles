@@ -1,18 +1,17 @@
-local group = vim.api.nvim_create_augroup("kyoh86-conf-github-auth", { clear = true })
+local au = require("kyoh86.lib.autocmd")
+local group = au.group("kyoh86.conf.github", true)
 
 -- GitHub 認証情報の復帰またはログイン
-vim.api.nvim_create_autocmd("User", {
+group:hook("User", {
   pattern = "DenopsPluginPost:github",
-  group = group,
   callback = function()
     require("kyoh86.conf.github.auth").login()
   end,
 })
 
 -- GitHub 認証情報をdduに引き渡す
-vim.api.nvim_create_autocmd("User", {
+group:hook("User", {
   pattern = "DenopsPluginPost:ddu-source-github",
-  group = group,
   callback = function()
     require("kyoh86.conf.github.auth").auth_ddu()
   end,

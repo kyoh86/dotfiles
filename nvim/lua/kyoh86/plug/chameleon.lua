@@ -4,7 +4,8 @@ local spec = {
   branch = "support-win",
   enabled = false,
   config = function()
-    vim.api.nvim_create_autocmd("User", {
+    local au = require("kyoh86.lib.autocmd")
+    au.group("kyoh86.plug.chameleon", true):hook("User", {
       pattern = "DenopsPluginPost:chameleon",
       callback = function()
         vim.cmd.ChameleonApply()

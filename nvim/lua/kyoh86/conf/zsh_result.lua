@@ -1,5 +1,5 @@
-vim.api.nvim_create_autocmd("User", {
-  group = vim.api.nvim_create_augroup("kyoh86-conf-zsh-result", { clear = true }),
+local au = require("kyoh86.lib.autocmd")
+au.group("kyoh86.conf.zsh_result", true):hook("User", {
   pattern = "Kyoh86TermNotifReceived:precmd:*",
   callback = function(ev)
     local terms = vim.split(ev.match, ":")

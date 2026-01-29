@@ -1,4 +1,5 @@
-vim.api.nvim_create_autocmd("DirChanged", {
+local au = require("kyoh86.lib.autocmd")
+au.group("kyoh86.conf.exrc", true):hook("DirChanged", {
   once = true, -- 離脱に「実行前の状態に戻す」ことが難しいので、onceを付けて「最初の移動」で検出するのみに留める
   callback = function(args)
     for _, file in ipairs({ ".nvim.lua", ".nvimrc", ".exrc" }) do

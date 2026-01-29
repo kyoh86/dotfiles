@@ -1,9 +1,9 @@
 --- ターミナル関係の設定
-
 vim.o.termguicolors = true
 
-vim.api.nvim_create_autocmd("TermOpen", {
-  group = vim.api.nvim_create_augroup("kyoh86-conf-terminal", {}),
+local au = require("kyoh86.lib.autocmd")
+local group = au.group("kyoh86.conf.terminal", true)
+group:hook("TermOpen", {
   pattern = "term://*",
   callback = function()
     -- 行番号を表示しない
@@ -20,7 +20,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
 -- OSC 133対応のターミナルプロンプトマーカー
 
 local ns = vim.api.nvim_create_namespace("terminal_prompt_markers")
-vim.api.nvim_create_autocmd("TermRequest", {
+group:hook("TermRequest", {
   callback = function(args)
     if string.match(args.data.sequence, "^\027]133;A") then
       local lnum = args.data.cursor[1]
@@ -34,6 +34,6 @@ vim.api.nvim_create_autocmd("TermRequest", {
 })
 
 -- Enable signcolumn in terminal buffers
-vim.api.nvim_create_autocmd("TermOpen", {
+group:hook("TermOpen", {
   command = "setlocal signcolumn=auto",
 })

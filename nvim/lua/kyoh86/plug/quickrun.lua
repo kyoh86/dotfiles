@@ -22,10 +22,10 @@ local map = function()
   vim.keymap.set({ "n", "v" }, "<leader>xx", "<plug>(quickrun)", { remap = false, buffer = true, desc = "execute the current buffer with quickrun" })
 end
 
-local group = vim.api.nvim_create_augroup("kyoh86-plug-quickrun", { clear = true })
-vim.api.nvim_create_autocmd("BufRead", {
+local au = require("kyoh86.lib.autocmd")
+local group = au.group("kyoh86.plug.quickrun", true)
+group:hook("BufRead", {
   pattern = "*.mongo.js",
-  group = group,
   callback = function()
     vim.b.quickrun_config = { type = "mongo" }
     map()
@@ -33,9 +33,8 @@ vim.api.nvim_create_autocmd("BufRead", {
 })
 
 for ft in pairs(qr_config) do
-  vim.api.nvim_create_autocmd("FileType", {
+  group:hook("FileType", {
     pattern = ft,
-    group = group,
     callback = map,
   })
 end

@@ -1,8 +1,8 @@
 --- 全角空白のハイライトを切り替える
+local au = require("kyoh86.lib.autocmd")
 
 -- ハイライトを用意
-vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("kyoh86-conf-zenkaku-sp", { clear = true }),
+au.group("kyoh86.conf.zenkaku_sp", true):hook("ColorScheme", {
   callback = function()
     require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
       kyoh86.ensure(colors_name, function(m)

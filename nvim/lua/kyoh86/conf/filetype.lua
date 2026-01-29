@@ -1,6 +1,6 @@
 --- 一部の特殊なファイルについて、filetypeの割り当てを上書きする
-vim.api.nvim_create_autocmd("BufReadPre", {
-  group = vim.api.nvim_create_augroup("kyoh86-conf-filetype", {}),
+local au = require("kyoh86.lib.autocmd")
+au.group("kyoh86.conf.filetype", true):hook("BufReadPre", {
   once = true,
   callback = function()
     vim.filetype.add({

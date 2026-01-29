@@ -1,7 +1,7 @@
 --- Insertモードから抜けるときにIMEを自動でオフにする
 local glaze = require("kyoh86.lib.glaze")
-
-local group = vim.api.nvim_create_augroup("kyoh86-conf-ime", {})
+local au = require("kyoh86.lib.autocmd")
+local group = au.group("kyoh86.conf.ime", true)
 glaze.get_async("os_uname_sysname", function(
   sysname,
   _ --[[fail]]
@@ -35,12 +35,10 @@ glaze.get_async("os_uname_sysname", function(
     command = [[silent! !osascript -e 'tell application "System Events"' -e 'key code 102' -e 'end tell']]
   end
   if command ~= "" then
-    vim.api.nvim_create_autocmd("InsertLeave", {
-      group = group,
+    group:hook("InsertLeave", {
       command = command,
     })
-    vim.api.nvim_create_autocmd("FocusGained", {
-      group = group,
+    group:hook("FocusGained", {
       callback = function()
         local m = vim.api.nvim_get_mode()
         if not vim.list_contains({
