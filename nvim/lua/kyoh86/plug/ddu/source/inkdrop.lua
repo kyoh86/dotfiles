@@ -3,7 +3,6 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-inkdrop",
-  dev = true,
   dependencies = { "ddu.vim", "kyoh86/denops-inkdrop.vim" },
   config = function()
     helper.setup("inkdrop_notes", {

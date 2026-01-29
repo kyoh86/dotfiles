@@ -1,7 +1,6 @@
 ---@type LazySpec
 local spec = {
   "kyoh86/denops-inkdrop.vim",
-  dev = true,
   config = function()
     local au = require("kyoh86.lib.autocmd")
     au.group("kyoh86.plug.inkdrop", true):hook("User", {
