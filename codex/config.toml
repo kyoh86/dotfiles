@@ -146,3 +146,12 @@ trust_level = "trusted"
 
 [projects."github.com/kyoh86/nvim-snap-action"]
 trust_level = "trusted"
+
+[projects."github.com/kyoh86/deno-local-inkdrop"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-inkdrop.vim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-inkdrop"]
+trust_level = "trusted"
