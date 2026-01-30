@@ -135,7 +135,7 @@ local ERROR_NOT_GIT_REPOSITORY = "fatal: not a git repository"
 local function get_git_stat(path)
   stop_watching()
   local completed = vim
-    .system({ "git", "status", "--porcelain", "--branch", "--ahead-behind", "--untracked-files", "--renames" }, {
+    .system({ "git", "--no-optional-locks", "status", "--porcelain", "--branch", "--ahead-behind", "--untracked-files", "--renames" }, {
       cwd = path,
       text = true,
     })
