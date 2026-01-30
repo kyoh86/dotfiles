@@ -32,21 +32,7 @@ install_homebrew() {
     git
 
   brew install \
-    ansible-language-server \
-    bash-language-server \
-    dockerfile-language-server \
-    efm-langserver \
-    eslint \
-    gopls \
-    vscode-langservers-extracted
-
-  brew install \
-    lua-language-server \
-    sql-language-server \
-    stylua \
-    taplo \
-    terraform-ls \
-    yaml-language-server
+    inkdrop
 }
 
 install_homebrew
