@@ -4,7 +4,7 @@ import type { Denops } from "@denops/std";
 import { fromFileUrl } from "@std/path";
 const DEFAULT_PROXY_URL = "http://127.0.0.1:37125";
 const SYSTEMD_SERVICE_NAME = "nvim-proxy.service";
-const LAUNCHD_LABEL = "com.kyoh86.nvim-proxy";
+const LAUNCHD_LABEL = "dev.kyoh86.nvim-proxy";
 
 export async function main(denops: Denops): Promise<void> {
   denops.dispatcher = {

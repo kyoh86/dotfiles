@@ -139,7 +139,7 @@ Codex では `nvim_current_buffer` 等を呼び出す。
 
 ### macOS (launchd)
 
-`~/Library/LaunchAgents/com.kyoh86.nvim-proxy.plist` を作成し、`launchctl`
+`~/Library/LaunchAgents/dev.kyoh86.nvim-proxy.plist` を作成し、`launchctl`
 で起動。
 
 どちらも `:NvimProxyInstall` がテンプレートを生成し、起動まで実行する。 `deno`
