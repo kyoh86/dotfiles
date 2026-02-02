@@ -44,10 +44,10 @@ return function()
   setmap("n", "<leader>lif", vim.diagnostic.open_float, "show diagnostics in a floating window")
 
   -- デフォルトのキーマップを削除する
-  vim.keymap.del({ "n", "v" }, "gra")
-  vim.keymap.del("n", "gri")
-  vim.keymap.del("n", "grn")
-  vim.keymap.del("n", "grr")
-  vim.keymap.del("n", "grt")
-  vim.keymap.del("i", "<c-s>")
+  pcall(vim.keymap.del, { "n", "v" }, "gra")
+  pcall(vim.keymap.del, "n", "gri")
+  pcall(vim.keymap.del, "n", "grn")
+  pcall(vim.keymap.del, "n", "grr")
+  pcall(vim.keymap.del, "n", "grt")
+  pcall(vim.keymap.del, "i", "<c-s>")
 end

@@ -25,7 +25,7 @@ return function(args)
   })
 
   -- デフォルトキーマップを削除する
-  vim.keymap.del("n", "K", { buffer = args.buf })
+  pcall(vim.keymap.del, "n", "K", { buffer = args.buf })
 
   if client.server_capabilities.inlayHintProvider ~= nil then
     vim.b.kyoh86_plug_lsp_inlay_hint_enabled = true
