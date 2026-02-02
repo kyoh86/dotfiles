@@ -4,9 +4,14 @@ local spec = {
   config = function()
     require("cellwidths").setup({
       name = "user/custom",
+      initialized = true,
+      log_level = "WARN",
       fallback = function(cw)
         cw.load("default")
 
+        cw.add({ 0x2387, 0x2387, 2 }) -- ⎇
+        -- Nerd fonts
+        -- ref: https://github.com/ryanoasis/nerd-fonts/wiki/Glyph-Sets-and-Code-Points
         cw.add({ 0x23FB, 0x23FE, 2 })
         cw.add({ 0xE000, 0xE00A, 2 })
         cw.add({ 0xE0A0, 0xE0A2, 2 })
@@ -28,9 +33,12 @@ local spec = {
         cw.add({ 0xF400, 0xF4A8, 2 })
         cw.add({ 0xF4A9, 0xF4A9, 2 })
         cw.add({ 0xF500, 0xFD46, 2 })
+        cw.add({ 0xF0001, 0xF1AF0, 2 })
 
         cw.delete({ 0x25B2, 0x25B3 })
         cw.add({ 0x203A, 0x203A, 1 })
+
+        return cw
       end,
       build = ":CellWidthsRemove",
     })
