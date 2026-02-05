@@ -4,7 +4,7 @@ sandbox_mode = "workspace-write"
 
 [features]
 shell_snapshot = true
-web_search_request = true
+web_search = true
 
 [sandbox_workspace_write]
 network_access = true
