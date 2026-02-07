@@ -10,6 +10,13 @@ if [ -z "${NVIM_PID}" ]; then
   exit 1
 fi
 
+if [ -t 0 ]; then
+  :
+else
+  echo "No tty detected, skipping pre-commit check"
+  exit 0
+fi
+
 exec < /dev/tty
 dir="$(git rev-parse --show-toplevel)"
 payload="$(jq -n --arg dir "${dir}" '{
