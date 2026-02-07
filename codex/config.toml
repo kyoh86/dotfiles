@@ -1,10 +1,12 @@
 check_for_update_on_startup = false
 update_on_startup = false
 sandbox_mode = "workspace-write"
+personality = "pragmatic"
+web_search = "cached"
+model = "gpt-5.3-codex"
 
 [features]
 shell_snapshot = true
-web_search = true
 
 [sandbox_workspace_write]
 network_access = true
@@ -155,3 +157,6 @@ trust_level = "trusted"
 
 [projects."github.com/kyoh86/ddu-source-inkdrop"]
 trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.2-codex" = "gpt-5.3-codex"
