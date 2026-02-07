@@ -9,7 +9,7 @@ const LAUNCHD_LABEL = "dev.kyoh86.nvim-proxy";
 export async function main(denops: Denops): Promise<void> {
   denops.dispatcher = {
     install: async () => {
-      await installService();
+      await installService(denops);
     },
     start: async () => {
       await startService();
@@ -91,34 +91,36 @@ async function restartService() {
   }
 }
 
-async function installService() {
+async function installService(denops: Denops) {
   switch (Deno.build.os) {
     case "linux":
-      await installSystemdService();
+      await installSystemdService(denops);
       break;
     case "darwin":
-      await installLaunchdService();
+      await installLaunchdService(denops);
       break;
     default:
       console.error("nvim-proxy: unsupported OS for service install.");
   }
 }
 
-async function installSystemdService() {
+async function installSystemdService(denops: Denops) {
   const home = Deno.env.get("HOME");
   if (!home) {
     console.error("nvim-proxy: HOME is not set.");
     return;
   }
   const servicePath = `${home}/.config/systemd/user/${SYSTEMD_SERVICE_NAME}`;
-  const proxy_path = resolveProxyPath();
-  const denoPath = Deno.execPath();
+  const proxyPath = resolveProxyPath();
+  const denoCommand = await vars.g.get(denops, "nvim_proxy_deno_command", [
+    Deno.execPath(),
+  ]);
   const content = [
     "[Unit]",
     "Description=Neovim proxy",
     "",
     "[Service]",
-    `ExecStart=${denoPath} run -A --no-lock ${proxy_path}`,
+    `ExecStart=${denoCommand.join(" ")} run -A --no-lock ${proxyPath}`,
     "Restart=on-failure",
     "",
     "[Install]",
@@ -137,7 +139,7 @@ async function installSystemdService() {
   ]);
 }
 
-async function installLaunchdService() {
+async function installLaunchdService(denops: Denops) {
   const home = Deno.env.get("HOME");
   const uid = await resolveUid();
   if (!home || uid === undefined) {
@@ -145,8 +147,10 @@ async function installLaunchdService() {
     return;
   }
   const plistPath = `${home}/Library/LaunchAgents/${LAUNCHD_LABEL}.plist`;
-  const proxy_path = resolveProxyPath();
-  const denoPath = Deno.execPath();
+  const proxyPath = resolveProxyPath();
+  const denoCommand = await vars.g.get(denops, "nvim_proxy_deno_command", [
+    Deno.execPath(),
+  ]);
   const stdoutPath = `${home}/Library/Logs/nvim-proxy.log`;
   const stderrPath = `${home}/Library/Logs/nvim-proxy.err.log`;
   const plist = [
@@ -158,11 +162,11 @@ async function installLaunchdService() {
     `  <string>${LAUNCHD_LABEL}</string>`,
     "  <key>ProgramArguments</key>",
     "  <array>",
-    `    <string>${denoPath}</string>`,
+    ...(denoCommand.map((s) => `    <string>${s}</string>`)),
     "    <string>run</string>",
     "    <string>-A</string>",
     "    <string>--no-lock</string>",
-    `    <string>${proxy_path}</string>`,
+    `    <string>${proxyPath}</string>`,
     "  </array>",
     "  <key>RunAtLoad</key>",
     "  <true/>",
