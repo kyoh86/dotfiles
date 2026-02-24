@@ -25,7 +25,6 @@
 "github:kyoh86/git-statuses" = "latest"
 "github:kyoh86/git-vertag" = "latest"
 "github:kyoh86/zshist" = "latest"
-1password-cli = "latest"
 actionlint = "latest"
 aws-cli = "latest"
 coursier = ["latest", "2.1.9"]
