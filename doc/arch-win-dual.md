@@ -15,4 +15,6 @@
     - efibootmgr --create....でOK
 - ネットワーク接続（忘れがちなのでメモ）
     - systemd-networkd以外使う予定なし
-    - /etc/systemd/network/20-wired.networkでのDHCP=yesを忘れずに
+    - 忘れがちなので注意
+        - systemd-networkdとsystemd-resolvd有効化
+        - /etc/systemd/network/20-wired.networkでのDHCP=yes
