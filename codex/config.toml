@@ -160,3 +160,6 @@ trust_level = "trusted"
 
 [notice.model_migrations]
 "gpt-5.2-codex" = "gpt-5.3-codex"
+
+[projects."github.com/kyoh86/minecraft-client"]
+trust_level = "trusted"
