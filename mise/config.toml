@@ -52,6 +52,7 @@ java = "latest"
 "go:github.com/icholy/gomajor" = "latest"
 usage = "latest"
 npm = "latest"
+gitleaks = "latest"
 
 [tools.deno]
 version = "latest"
