@@ -3,6 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "shun/ddu-source-rg",
+  dependencies = { "ddu.vim" },
   config = function()
     helper.setup("search-dotfiles", {
       sources = { { name = "rg", options = {
