@@ -154,6 +154,9 @@ for _, c in pairs(mise_candidates) do
   end
 end
 
+-- Claude code
+vim.env.CLAUDE_CONFIG_DIR = dotfiles .. "/claude"
+
 -- .local/bin
 path.ins(path.home .. "/.local/bin")
 path.ins(path.home .. "/.local/sbin")

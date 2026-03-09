@@ -53,6 +53,7 @@ java = "latest"
 usage = "latest"
 npm = "latest"
 gitleaks = "latest"
+claude-code = "latest"
 
 [tools.deno]
 version = "latest"
