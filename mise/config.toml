@@ -72,6 +72,5 @@ experimental = true
 
 [hooks]
 postinstall = [
-  "mise prune",
   "mise completion zsh > $HOME/.config/zsh/completions/_mise.zsh",
 ]
