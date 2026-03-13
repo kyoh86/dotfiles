@@ -62,7 +62,7 @@ function update_mise {
     pushd ~
     if command -v mise >/dev/null 2>&1; then
         mise self-update --yes
-        MISE_FETCH_REMOTE_VERSIONS_CACHE=0 mise upgrade --yes
+        MISE_FETCH_REMOTE_VERSIONS_CACHE=0 mise upgrade --yes --quiet --bump
         mise prune --yes
     fi
     popd
