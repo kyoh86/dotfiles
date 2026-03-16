@@ -3,7 +3,7 @@ update_on_startup = false
 sandbox_mode = "workspace-write"
 personality = "pragmatic"
 web_search = "cached"
-model = "gpt-5.3-codex"
+model = "gpt-5.4"
 
 [features]
 shell_snapshot = true
@@ -160,6 +160,13 @@ trust_level = "trusted"
 
 [notice.model_migrations]
 "gpt-5.2-codex" = "gpt-5.3-codex"
+"gpt-5.3-codex" = "gpt-5.4"
 
 [projects."github.com/kyoh86/minecraft-client"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86/minecraft-server"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/upmind-inc/upmind-server"]
 trust_level = "trusted"
