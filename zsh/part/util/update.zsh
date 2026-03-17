@@ -61,6 +61,7 @@ function update_mise {
     sudo echo updating mise
     pushd ~
     if command -v mise >/dev/null 2>&1; then
+        mise cache clear
         mise self-update --yes
         MISE_FETCH_REMOTE_VERSIONS_CACHE=0 mise upgrade --yes
         mise prune --yes
