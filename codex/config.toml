@@ -15,14 +15,6 @@ network_access = true
 url = "http://127.0.0.1:37125/mcp"
 env_http_headers = { "X-Nvim-Pid" = "NVIM_PID" }
 
-[profiles.local-qwen]
-model = "qwen3-vl:30b"
-model_provider = "ollama"
-
-[model_providers.ollama]
-name = "Ollama"
-base_url = "http://localhost:11434/v1"
-
 [projects."/home/kyoh86/Projects/github.com/kyoh86/dotfiles"]
 trust_level = "trusted"
 
@@ -158,10 +150,6 @@ trust_level = "trusted"
 [projects."github.com/kyoh86/ddu-source-inkdrop"]
 trust_level = "trusted"
 
-[notice.model_migrations]
-"gpt-5.2-codex" = "gpt-5.3-codex"
-"gpt-5.3-codex" = "gpt-5.4"
-
 [projects."github.com/kyoh86/minecraft-client"]
 trust_level = "trusted"
 
@@ -170,3 +158,8 @@ trust_level = "trusted"
 
 [projects."/home/kyoh86/Projects/github.com/upmind-inc/upmind-server"]
 trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.2-codex" = "gpt-5.3-codex"
+"gpt-5.3-codex" = "gpt-5.4"
+
