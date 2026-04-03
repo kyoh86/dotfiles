@@ -163,3 +163,6 @@ trust_level = "trusted"
 "gpt-5.2-codex" = "gpt-5.3-codex"
 "gpt-5.3-codex" = "gpt-5.4"
 
+
+[projects."github.com/kyoh86/rino-fukushima-whisp"]
+trust_level = "trusted"
