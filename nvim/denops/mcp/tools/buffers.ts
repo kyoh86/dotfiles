@@ -14,6 +14,29 @@ type BufferInfo = {
   loaded: boolean;
 };
 
+type ListBuffersOptions = {
+  dir?: string;
+  modifiedOnly?: boolean;
+  limit?: number;
+};
+
+type ResolveBufferOptions = {
+  bufnr?: number;
+  name?: string;
+  match?: "exact" | "suffix" | "contains";
+};
+
+type GetBufferContentOptions = ResolveBufferOptions & {
+  start?: number;
+  end?: number;
+  limit?: number;
+};
+
+type OpenFileOptions = {
+  path: string;
+  focus?: boolean;
+};
+
 export function registerBufferTools(
   server: McpServer,
   denops: Denops,
@@ -40,7 +63,7 @@ export function registerBufferTools(
         })),
       }),
     },
-    async ({ dir, modifiedOnly, limit }) => {
+    async ({ dir, modifiedOnly, limit }: ListBuffersOptions) => {
       const buffers = await listBuffers(denops, { dir, modifiedOnly, limit });
       const payload = { total: buffers.length, buffers };
       return {
@@ -71,7 +94,7 @@ export function registerBufferTools(
         })).optional(),
       }),
     },
-    async ({ bufnr, name, match }) => {
+    async ({ bufnr, name, match }: ResolveBufferOptions) => {
       const payload = await reloadBuffer(denops, { bufnr, name, match });
       return {
         content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
@@ -108,7 +131,9 @@ export function registerBufferTools(
         })).optional(),
       }),
     },
-    async ({ bufnr, name, match, start, end, limit }) => {
+    async (
+      { bufnr, name, match, start, end, limit }: GetBufferContentOptions,
+    ) => {
       const payload = await getBufferContent(denops, {
         bufnr,
         name,
@@ -146,7 +171,7 @@ export function registerBufferTools(
         })).optional(),
       }),
     },
-    async ({ bufnr, name, match }) => {
+    async ({ bufnr, name, match }: ResolveBufferOptions) => {
       const payload = await saveBuffer(denops, { bufnr, name, match });
       return {
         content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
@@ -173,7 +198,7 @@ export function registerBufferTools(
         reason: z.string().optional(),
       }),
     },
-    async ({ path, focus }) => {
+    async ({ path, focus }: OpenFileOptions) => {
       const payload = await openFile(denops, { path, focus });
       return {
         content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
@@ -185,7 +210,7 @@ export function registerBufferTools(
 
 async function listBuffers(
   denops: Denops,
-  options: { dir?: string; modifiedOnly?: boolean; limit?: number },
+  options: ListBuffersOptions,
 ): Promise<BufferInfo[]> {
   const bufinfos = await fn.getbufinfo(denops);
   const buffers = await Promise.all(bufinfos.map(async (bufinfo) => {
@@ -217,11 +242,7 @@ async function listBuffers(
 
 async function reloadBuffer(
   denops: Denops,
-  options: {
-    bufnr?: number;
-    name?: string;
-    match?: "exact" | "suffix" | "contains";
-  },
+  options: ResolveBufferOptions,
 ): Promise<{
   bufnr: number;
   name: string;

@@ -7,6 +7,12 @@ import * as z from "zod";
 const DEFAULT_CONTEXT = 4;
 const DEFAULT_LIMIT = 3;
 
+type HelpQueryOptions = {
+  query: string;
+  context?: number;
+  limit?: number;
+};
+
 export function registerHelpTool(server: McpServer, denops: Denops): void {
   server.registerTool(
     "help_query",
@@ -37,7 +43,7 @@ export function registerHelpTool(server: McpServer, denops: Denops): void {
         })),
       }),
     },
-    async ({ query, context, limit }) => {
+    async ({ query, context, limit }: HelpQueryOptions) => {
       const payload = await queryHelp(denops, {
         query,
         context: context ?? DEFAULT_CONTEXT,

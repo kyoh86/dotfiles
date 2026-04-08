@@ -3,6 +3,12 @@ import type { Denops } from "@denops/std";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import * as z from "zod";
 
+type ListItemsOptions = {
+  list?: "quickfix" | "loclist";
+  winid?: number;
+  limit?: number;
+};
+
 export function registerListItemsTool(
   server: McpServer,
   denops: Denops,
@@ -34,7 +40,7 @@ export function registerListItemsTool(
         })),
       }),
     },
-    async ({ list, winid, limit }) => {
+    async ({ list, winid, limit }: ListItemsOptions) => {
       const payload = await getListItems(denops, {
         list: list ?? "quickfix",
         winid,

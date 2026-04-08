@@ -3,6 +3,13 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import * as z from "zod";
 import { resolveBuffer } from "../buffer.ts";
 
+type DiagnosticsOptions = {
+  bufnr?: number;
+  name?: string;
+  match?: "exact" | "suffix" | "contains";
+  severity?: "error" | "warn" | "info" | "hint";
+};
+
 export function registerDiagnosticsTool(
   server: McpServer,
   denops: Denops,
@@ -39,7 +46,7 @@ export function registerDiagnosticsTool(
         })).optional(),
       }),
     },
-    async ({ bufnr, name, match, severity }) => {
+    async ({ bufnr, name, match, severity }: DiagnosticsOptions) => {
       const payload = await getDiagnostics(denops, {
         bufnr,
         name,
@@ -56,12 +63,7 @@ export function registerDiagnosticsTool(
 
 async function getDiagnostics(
   denops: Denops,
-  options: {
-    bufnr?: number;
-    name?: string;
-    match?: "exact" | "suffix" | "contains";
-    severity?: "error" | "warn" | "info" | "hint";
-  },
+  options: DiagnosticsOptions,
 ) {
   let target = 0;
   if (options.bufnr !== undefined || options.name) {
