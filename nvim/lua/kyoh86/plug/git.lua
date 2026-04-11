@@ -3,7 +3,7 @@ local func = require("kyoh86.lib.func")
 local spec = {
   {
     "lewis6991/gitsigns.nvim",
-    dependencies = { "plenary.nvim", "sakura", "momiji" },
+    dependencies = { "sakura", "momiji" },
     config = function()
       require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
         local palette = vim.g[colors_name .. "_colors"]

@@ -1,6 +1,7 @@
 ---@type LazySpec
 local spec = {
   "rcarriga/nvim-notify",
+  dependencies = { "plenary.nvim" },
   config = function()
     vim.notify = require("notify")
     vim.api.nvim_set_hl(0, "NotifyERRORBorder", { link = "DiagnosticError" })
