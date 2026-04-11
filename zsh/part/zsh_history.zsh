@@ -13,15 +13,20 @@ setopt hist_verify            # ヒストリを呼び出してから実行する
 typeset -ga HISTORY_IGNORE_COMMANDS=(
   cat
   cd
+  chmod
+  chown
   cp
   exit
   export
   gh
+  gi
   git
+  ln
   ls
   mv
   rm
   rmdir
+  t
   which
 )
 
