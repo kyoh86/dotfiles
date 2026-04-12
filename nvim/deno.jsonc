@@ -32,6 +32,7 @@
     "./denops/@ddu-columns/codex_session_base",
     "./denops/@ddu-columns/codex_session_name",
     "./denops/@ddu-columns/codex_session_path",
+    "./denops/@ddu-columns/codex_session_stats",
     "./denops/@ddu-columns/codex_session_time",
     "./denops/@ddu-kinds/aws_profile",
     "./denops/@ddu-kinds/codex_session",

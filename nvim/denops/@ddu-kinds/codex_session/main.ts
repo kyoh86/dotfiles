@@ -17,12 +17,23 @@ export type ActionData = {
   timeLabel: string;
   timestamp?: string;
   model?: string;
+  stats: SessionStats;
   tailMessages: Message[];
 };
 
 type Message = {
   role?: string;
   text: string;
+};
+
+type SessionStats = {
+  lineCount: number;
+  userCount: number;
+  assistantCount: number;
+  turnContextCount: number;
+  compactedCount: number;
+  toolCallCount: number;
+  likelyTrivial: boolean;
 };
 
 type Params = Record<PropertyKey, never>;
@@ -71,6 +82,36 @@ export class Kind extends BaseKind<Params> {
       await denops.cmd(openCommand);
       return ActionFlags.None;
     },
+    delete: async ({ denops, items }) => {
+      if (items.length === 0) {
+        return ActionFlags.None;
+      }
+      const targets = items.map((item) => item.action as ActionData);
+      const label = targets.length === 1
+        ? `${targets[0].baseName} (${targets[0].sessionId})`
+        : `${targets.length} sessions`;
+      const result = await denops.call(
+        "confirm",
+        `Delete ${label}?`,
+        "&Yes\n&No",
+        2,
+      ) as number;
+      if (result !== 1) {
+        return ActionFlags.None;
+      }
+      for (const target of targets) {
+        try {
+          await Deno.remove(target.file);
+        } catch (error) {
+          await denops.call(
+            "ddu#util#print_error",
+            `failed to delete ${target.file}: ${String(error)}`,
+            "ddu-kind-codex_session",
+          );
+        }
+      }
+      return ActionFlags.RefreshItems;
+    },
   };
 
   override getPreviewer(
@@ -110,6 +151,20 @@ function formatPreviewLines(action: ActionData): string[] {
   }
   if (action.model) {
     lines.push(`Model: ${action.model}`);
+  }
+  lines.push(
+    `Stats: ${action.stats.lineCount} lines, ${action.stats.assistantCount} assistant, ${action.stats.userCount} user`,
+  );
+  if (action.stats.turnContextCount || action.stats.compactedCount) {
+    lines.push(
+      `Extra: ${action.stats.turnContextCount} turn_context, ${action.stats.compactedCount} compacted`,
+    );
+  }
+  if (action.stats.toolCallCount) {
+    lines.push(`Tools: ${action.stats.toolCallCount} response item tool calls`);
+  }
+  if (action.stats.likelyTrivial) {
+    lines.push("Hint: likely trivial session");
   }
   lines.push("-".repeat(20));
   const messages = action.tailMessages.length > 0

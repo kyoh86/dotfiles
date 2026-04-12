@@ -48,6 +48,7 @@ local spec = {
           options = {
             columns = {
               "codex_session_time",
+              "codex_session_stats",
               "codex_session_name",
               "codex_session_path",
             },
@@ -69,6 +70,9 @@ local spec = {
           desc = "Codex セッション",
         },
         filelike = true,
+        localmap = {
+          ["<leader>d"] = { action = "itemAction", params = { name = "delete" } },
+        },
       })
     end,
     dependencies = { "denops.vim" },

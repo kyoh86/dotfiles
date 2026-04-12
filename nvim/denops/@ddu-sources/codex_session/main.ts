@@ -29,6 +29,16 @@ type Message = {
   text: string;
 };
 
+type SessionStats = {
+  lineCount: number;
+  userCount: number;
+  assistantCount: number;
+  turnContextCount: number;
+  compactedCount: number;
+  toolCallCount: number;
+  likelyTrivial: boolean;
+};
+
 export class Source extends BaseSource<Params, ActionData> {
   override kind = "codex_session";
 
@@ -104,6 +114,7 @@ async function collectSessions(
         timeLabel,
         timestamp: session.meta.timestamp,
         model: session.meta.model,
+        stats: session.stats,
         tailMessages: session.tailMessages,
       },
     });
@@ -130,7 +141,8 @@ async function collectSessionFiles(sessionsDir: string): Promise<string[]> {
 }
 
 async function readSession(file: string): Promise<
-  { meta: SessionMeta; tailMessages: Message[] } | undefined
+  | { meta: SessionMeta; stats: SessionStats; tailMessages: Message[] }
+  | undefined
 > {
   let content: string;
   try {
@@ -146,8 +158,9 @@ async function readSession(file: string): Promise<
   if (!meta) {
     return;
   }
+  const stats = collectSessionStats(lines);
   const tailMessages = findTailMessages(lines, 10);
-  return { meta, tailMessages };
+  return { meta, stats, tailMessages };
 }
 
 function parseSessionMeta(line: string): SessionMeta | undefined {
@@ -218,6 +231,68 @@ function findTailMessages(lines: string[], n: number): Message[] {
     }
   }
   return msgs;
+}
+
+function collectSessionStats(lines: string[]): SessionStats {
+  let userCount = 0;
+  let assistantCount = 0;
+  let turnContextCount = 0;
+  let compactedCount = 0;
+  let toolCallCount = 0;
+
+  for (const line of lines) {
+    try {
+      const data = JSON.parse(line) as {
+        type?: string;
+        payload?: Record<string, unknown>;
+      };
+      switch (data?.type) {
+        case "response_item": {
+          const payload = data.payload ?? {};
+          if (payload.type === "message") {
+            if (payload.role === "user") {
+              userCount += 1;
+            } else if (payload.role === "assistant") {
+              assistantCount += 1;
+            }
+          } else if (
+            payload.type === "function_call" ||
+            payload.type === "local_shell_call" ||
+            payload.type === "tool_search_call" ||
+            payload.type === "web_search_call" ||
+            payload.type === "custom_tool_call" ||
+            payload.type === "image_generation_call"
+          ) {
+            toolCallCount += 1;
+          }
+          break;
+        }
+        case "turn_context":
+          turnContextCount += 1;
+          break;
+        case "compacted":
+          compactedCount += 1;
+          break;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  const lineCount = lines.length;
+  return {
+    lineCount,
+    userCount,
+    assistantCount,
+    turnContextCount,
+    compactedCount,
+    toolCallCount,
+    likelyTrivial: lineCount <= 3 &&
+      assistantCount === 0 &&
+      turnContextCount === 0 &&
+      compactedCount === 0 &&
+      toolCallCount === 0,
+  };
 }
 
 function extractMessageText(
