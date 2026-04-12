@@ -19,7 +19,7 @@ env_http_headers = { "X-Nvim-Pid" = "NVIM_PID" }
 trust_level = "trusted"
 
 [projects."/home/kyoh86"]
-trust_level = "untrusted"
+trust_level = "trusted"
 
 [projects."/home/kyoh86/Projects/github.com/kyoh86/denops-docbase.vim"]
 trust_level = "trusted"
@@ -148,6 +148,12 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/home/kyoh86/Projects/github.com/ravitemer/mcphub.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/codex-cleanup"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86/codex-cleanup"]
 trust_level = "trusted"
 
 [notice.model_migrations]

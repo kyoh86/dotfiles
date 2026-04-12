@@ -1,0 +1,4 @@
+interface:
+  display_name: "Browser Check"
+  short_description: "Check localhost pages in a headless browser"
+  default_prompt: "Use this skill to verify a localhost page by opening it in a browser context, observing the rendered result, and reporting what is actually visible and what fails."

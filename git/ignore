@@ -95,4 +95,8 @@ Session.vim
 .mise.toml
 .mise.local.toml
 
+# Claude
 **/.claude/settings.local.json
+
+## Codex
+.codex
