@@ -42,115 +42,100 @@ trust_level = "trusted"
 [projects."/home/kyoh86/Projects/github.com/kyoh86/denops-mdlink.vim"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-kind-command"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-kind-command"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddc-source-ollama"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddc-source-ollama"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-filter-converter_hl_dir"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-filter-converter_hl_dir"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-kind-file"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-kind-file"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-kind-word"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-kind-word"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-command"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-command"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-docbase"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-docbase"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-git_branch"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-git_branch"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-git_diff_tree"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-git_diff_tree"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-git_log"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-git_log"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-github"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-gogh"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-gogh"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-local_ddu"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-lazy_nvim"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-quickfix_history"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-local_ddu"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-zenn_dev"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-quickfix_history"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/demp"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/ddu-source-zenn_dev"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/deno-jsonlines"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/demp"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/deno-test"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/deno-jsonlines"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/denops-bind-params"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/deno-test"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/denops-boilerplate.vim"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/denops-bind-params"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/denops-github.vim"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/denops-boilerplate.vim"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/denops-qftable.vim"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/denops-docbase.vim"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/denops-router"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/denops-github.vim"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/denops-util"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/denops-mdlink.vim"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/denops-zenn_dev.vim"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/denops-qftable.vim"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/denops-zshist.vim"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/denops-router"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/docbase"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/denops-util"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/setup-nvim-snap-action"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/denops-zenn_dev.vim"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/nvim-snap-action"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/denops-zshist.vim"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/deno-local-inkdrop"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/docbase"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/denops-inkdrop.vim"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/dotfiles"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/ddu-source-inkdrop"]
 trust_level = "trusted"
 
-[projects."github.com/kyoh86/setup-nvim-snap-action"]
-trust_level = "trusted"
-
-[projects."github.com/kyoh86/nvim-snap-action"]
-trust_level = "trusted"
-
-[projects."github.com/kyoh86/deno-local-inkdrop"]
-trust_level = "trusted"
-
-[projects."github.com/kyoh86/denops-inkdrop.vim"]
-trust_level = "trusted"
-
-[projects."github.com/kyoh86/ddu-source-inkdrop"]
-trust_level = "trusted"
-
-[projects."github.com/kyoh86/minecraft-client"]
+[projects."/home/kyoh86/Projects/github.com/kyoh86/minecraft-client"]
 trust_level = "trusted"
 
 [projects."/home/kyoh86/Projects/github.com/kyoh86/minecraft-server"]
@@ -159,10 +144,12 @@ trust_level = "trusted"
 [projects."/home/kyoh86/Projects/github.com/upmind-inc/upmind-server"]
 trust_level = "trusted"
 
+[projects."/home/kyoh86/Projects/github.com/kyoh86/mcphub.nvim"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/ravitemer/mcphub.nvim"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.2-codex" = "gpt-5.3-codex"
 "gpt-5.3-codex" = "gpt-5.4"
-
-
-[projects."github.com/kyoh86/rino-fukushima-whisp"]
-trust_level = "trusted"
