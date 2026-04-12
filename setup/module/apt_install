@@ -37,6 +37,10 @@ apt_install() {
       binutils \
       gettext
 
+  # Install as Codex dependency
+  sudo apt install --yes \
+      bubblewrap
+
   # To Mount NAS
   sudo apt install --yes \
     cifs-utils
