@@ -100,3 +100,6 @@ Session.vim
 
 ## Codex
 .codex
+
+# Neovim
+nvim.log
