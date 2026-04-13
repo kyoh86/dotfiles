@@ -97,6 +97,8 @@ Session.vim
 
 # Claude
 **/.claude/settings.local.json
+**/.claude/**/*.local.json
+**/.claude/**/*.local.md
 
 ## Codex
 .codex

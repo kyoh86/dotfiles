@@ -29,3 +29,19 @@ repo-pattern = ""
 trigger-event = "post-clone"
 operation-type = "script"
 operation-id = "c8d14ab2-fc99-41d8-bd98-4006487cfdb2"
+
+[[hooks]]
+id = "9dff4c31-7c8f-4e7a-827c-c8ff828252a0"
+name = "Install Claude policy when the repository created"
+repo-pattern = ""
+trigger-event = "post-create"
+operation-type = "script"
+operation-id = "7c2cc7a7-36c2-44b8-b9c4-15cda3f01fca"
+
+[[hooks]]
+id = "d8473de4-7f67-4d5f-aeb5-9761ddf98099"
+name = "Install Claude policy when the repository cloned"
+repo-pattern = ""
+trigger-event = "post-clone"
+operation-type = "script"
+operation-id = "7c2cc7a7-36c2-44b8-b9c4-15cda3f01fca"
