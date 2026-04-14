@@ -99,6 +99,7 @@ Session.vim
 **/.claude/settings.local.json
 **/.claude/**/*.local.json
 **/.claude/**/*.local.md
+.kyoh86-context/
 
 ## Codex
 .codex

@@ -4,6 +4,17 @@
 
 - Responses from Codex should be in Japanese unless quoting code or fixed English terms.
 
+## Shared Context
+
+- Shared cross-agent working context lives in `.kyoh86-context/` and must remain untracked.
+- Read `.kyoh86-context/task.md` and `.kyoh86-context/handoff.md` at the start of work if they exist.
+- Update `.kyoh86-context/handoff.md` and `.kyoh86-context/state.json` at the end of work when cross-agent handoff is useful.
+- Treat `.kyoh86-context/` as a short-lived work buffer, not a knowledge base. Keep only the current task state.
+- Never write secrets, tokens, cookies, SSH material, or machine-local credentials into `.kyoh86-context/`.
+- Use caveman-style handoff writing: no preamble, no politeness, no history dump, one fact per line, preserve file paths and commands verbatim.
+- Keep handoff sections fixed and short: `Goal`, `Done`, `Facts`, `Suspects`, `Next`.
+- Keep each handoff section to at most 3 lines. If it grows, compress it instead of appending.
+
 ## Setup
 
 ```bash
