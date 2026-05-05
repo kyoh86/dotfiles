@@ -19,7 +19,7 @@ vim.env.XDG_CACHE_HOME = cache_home
 vim.env.LANG = "ja_JP.UTF-8"
 vim.env.LC_ALL = "en_US.UTF-8"
 vim.env.LC_CTYPE = "en_US.UTF-8"
-vim.env.COLORTERM = "xterm-256color"
+vim.env.COLORTERM = "truecolor"
 vim.env.TERM = "xterm-256color"
 
 -- Neovim server name
