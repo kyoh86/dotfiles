@@ -1,5 +1,5 @@
 local function main()
-  local repo_path = gogh.repo.path
+  local repo_path = gogh.repo.full_path
   local claude_md = repo_path .. "/CLAUDE.md"
 
   local f = io.open(claude_md, "r")
@@ -17,6 +17,7 @@ local function main()
 - Keep Claude local state outside the repository, or in untracked `.claude/**/*.local.*` files only.
 ]])
   out:close()
+  os.execute("chmod 644 " .. claude_md)
 end
 
 main()

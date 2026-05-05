@@ -162,3 +162,303 @@ trust_level = "trusted"
 [notice.model_migrations]
 "gpt-5.2-codex" = "gpt-5.3-codex"
 "gpt-5.3-codex" = "gpt-5.4"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 1
+
+[projects."github.com/kyoh86/kyoh86"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/zenn-dev"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/markdown-image.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/homebrew-tap"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-zenn_dev.vim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-mdlink.vim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-boilerplate.vim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-zenn_dev"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-gogh"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-github"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/go-base"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/gogh"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-git_log"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/gigamoji"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/richgo"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/docbase"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/nolint"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-local_ddu"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/kyoh86.dev"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/go-spdx"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/go-docbase"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/git-vertag"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/git-statuses"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/git-branches"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/climbdir.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/notifail"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/zshist"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/codex-cleanup"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-metarw-docbase"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/momiji"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/rino-fukushima-whisp"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/minecraft-server"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-lazy_nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-inkdrop"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ariadne"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-zshist.vim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-inkdrop.vim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-github.vim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-docbase.vim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-bind-params"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-quickfix_history"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-git_diff_tree"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-git_branch"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-command"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-kind-command"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-filter-converter_hl_dir"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-docbase"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/deno-inkdrop-local"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-jsonl"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/nvim-snap"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/qlean.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/nvim-snap-action"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/setup-nvim-snap-action"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/tryout"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/demp"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/google-ime-dict"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-docbase"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-zenn-autocmd"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-ripgrep"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-packload"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-gitname"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-gogh"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-editerm"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-go-coverage"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-cinfo"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/unload-buffers.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-qftable.vim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/wipeout-buffers.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddc-source-ollama"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/curtain.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/bdelete-buffers.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/backgroundfile.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-router"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/denops-util"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/go-check-action"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/generate-pkgbuild-action"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/telescope-windows.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/aws-tryout"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/macbeth"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-wipeout"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/twinkle"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/sakura"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/nvim-minimal"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/chromext-copy-go-package"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/hello-rust"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/nix-tryout"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-quotem"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-beedle"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/telescope-gogh.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/kyoh86.deno.dev"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ts-type-expand-plugin"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/ratelimit.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-go-filetype"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-go-scaffold"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/kyoh86.work"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/vim-go-testfile"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/gitstat.nvim"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/qiita"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/telescope-zenn.nvim"]
+trust_level = "trusted"
