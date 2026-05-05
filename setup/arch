@@ -34,9 +34,11 @@
 # =============================================================
 #
 # In Arch:
-# $ git clone https://github.com/kyoh86/dotfiles $HOME/Projects/github.com/kyoh86/dotfiles
-# $ cd $HOME/Projects/github.com/kyoh86/dotfiles
-# $ ./setup/ubuntu24
+#
+# $ git clone --bare https://github.com/kyoh86/dotfiles $HOME/Projects/github.com/kyoh86/dotfiles
+# $ git -C $HOME/Projects/github.com/kyoh86/dotfiles worktree add $HOME/Projects/github.com/kyoh86/dotfiles/.worktree/main
+# $ cd $HOME/Projects/github.com/kyoh86/dotfiles/.worktree/main
+# $ ./setup/arch
 #
 # =============================================================
 # # 4. Link to hosts
@@ -215,9 +217,11 @@ upload_ssh_key
 # Clone dotfiles
 clone_dotfiles() {
   DOTFILES_DIR="${HOME}/Projects/github.com/kyoh86/dotfiles"
-  [ -d "${DOTFILES_DIR}" ] || git clone --branch ubuntu https://github.com/kyoh86/dotfiles "${DOTFILES_DIR}"
+  DOTFILES_WORKTREE="${DOTFILES_DIR}/.worktree/main"
+  [ -d "${DOTFILES_DIR}" ] || git clone --bare https://github.com/kyoh86/dotfiles "${DOTFILES_DIR}"
+  [ -d "${DOTFILES_WORKTREE}" ] || git -C "${DOTFILES_DIR}" worktree add "${DOTFILES_WORKTREE}" main
   rm -rf ~/.config
-  ln -s "${DOTFILES_DIR}" ~/.config
+  ln -s "${DOTFILES_WORKTREE}" ~/.config
   cat << EOS > ~/.config/git/host.conf
 [user]
   name = ${GITHUB_NAME}

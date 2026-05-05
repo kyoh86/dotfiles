@@ -4,7 +4,7 @@
 
 set -ex
 
-MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/setup/module"
+MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/.worktree/main/setup/module"
 
 "${MODULE}"/github
 "${MODULE}"/dotfiles

@@ -19,8 +19,9 @@
 
 ```bash
 # Clone and setup dotfiles
-git clone --branch ubuntu https://github.com/kyoh86/dotfiles $HOME/Projects/github.com/kyoh86/dotfiles
-cd $HOME/Projects/github.com/kyoh86/dotfiles
+git clone --bare https://github.com/kyoh86/dotfiles $HOME/Projects/github.com/kyoh86/dotfiles
+git -C $HOME/Projects/github.com/kyoh86/dotfiles worktree add $HOME/Projects/github.com/kyoh86/dotfiles/.worktree/main
+cd $HOME/Projects/github.com/kyoh86/dotfiles/.worktree/main
 
 # Arch Linux (WSL)
 ./setup/arch

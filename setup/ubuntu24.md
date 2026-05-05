@@ -25,8 +25,9 @@ $ wsl --distribution Ubuntu-24.04 --user kyoh86
 ## 3. Setup 
 
 In Ubuntu:
-$ git clone https://github.com/kyoh86/dotfiles $HOME/Projects/github.com/kyoh86/dotfiles
-$ cd $HOME/Projects/github.com/kyoh86/dotfiles
+$ git clone --bare https://github.com/kyoh86/dotfiles $HOME/Projects/github.com/kyoh86/dotfiles
+$ git -C $HOME/Projects/github.com/kyoh86/dotfiles worktree add $HOME/Projects/github.com/kyoh86/dotfiles/.worktree/main main
+$ cd $HOME/Projects/github.com/kyoh86/dotfiles/.worktree/main
 $ ./setup/ubuntu24
 
 ## 4. Link to hosts
