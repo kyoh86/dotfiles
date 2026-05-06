@@ -67,6 +67,26 @@ local spec = {
       },
     })
 
+    helper.setup("gogh-worktree", {
+      sources = { { name = "gogh_worktree" } },
+      kindOptions = {
+        gogh_worktree = {
+          defaultAction = "cd",
+        },
+      },
+    }, {
+      start = {
+        key = "<leader>fpw",
+        desc = "ワークツリー",
+      },
+      filelike = true,
+      localmap = {
+        ["<leader>e"] = { action = "itemAction", params = { name = "open" } },
+        ["<leader>b"] = { action = "itemAction", params = { name = "browse" } },
+        ["<leader>ff"] = { action = "itemAction", params = { name = "custom:ff_file" } },
+      },
+    })
+
     helper.setup("gogh-repo", {
       sources = { { name = "gogh_repo", params = { limit = -1 } } },
       kindOptions = {

@@ -131,6 +131,7 @@ local function signif(x)
 end
 
 local ERROR_NOT_GIT_REPOSITORY = "fatal: not a git repository"
+local ERROR_NOT_GIT_WORKTREE = "fatal: this operation must be run in a work tree"
 
 local function get_git_stat(path)
   stop_watching()
@@ -144,6 +145,9 @@ local function get_git_stat(path)
   local info = { has_git = false, ahead = 0, behind = 0, unmerged = 0, untracked = 0, staged = 0, unstaged = 0, dirty = false }
   if completed.code ~= 0 then
     if string.sub(completed.stderr, 1, string.len(ERROR_NOT_GIT_REPOSITORY)) == ERROR_NOT_GIT_REPOSITORY then
+      return info
+    end
+    if string.sub(completed.stderr, 1, string.len(ERROR_NOT_GIT_WORKTREE)) == ERROR_NOT_GIT_WORKTREE then
       return info
     end
     local msg = "failed to call git-status (code: " .. completed.code .. ") " .. completed.stderr

@@ -64,7 +64,7 @@ version = "latest"
 postinstall = "gh completion --shell zsh > $HOME/.config/zsh/completions/_gh.zsh"
 
 [tools."github:kyoh86/gogh"]
-version = "latest"
+version = "5.0.0-alpha.3"
 postinstall = "gogh completion zsh > $HOME/.config/zsh/completions/_gogh.zsh"
 
 [settings]
