@@ -9,6 +9,7 @@ apt_install() {
       unzip     \
       ripgrep   \
       git       \
+      tmux      \
       cmake
 
     # Shell environment
