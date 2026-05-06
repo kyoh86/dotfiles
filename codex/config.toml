@@ -462,3 +462,6 @@ trust_level = "trusted"
 
 [projects."github.com/kyoh86/telescope-zenn.nvim"]
 trust_level = "trusted"
+
+[projects."github.com/kyoh86/keyball"]
+trust_level = "trusted"
