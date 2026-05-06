@@ -27,7 +27,6 @@ _source_part sdkman
 _source_part tool
 _source_part zmv
 
-_source_part util/update_deno_dependencies
 _source_part util/nvim_env
 _source_part util/update
 _source_part util/backup_east
