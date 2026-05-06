@@ -150,6 +150,7 @@ local function get_git_stat(path)
     if string.sub(completed.stderr, 1, string.len(ERROR_NOT_GIT_WORKTREE)) == ERROR_NOT_GIT_WORKTREE then
       return info
     end
+
     local msg = "failed to call git-status (code: " .. completed.code .. ") " .. completed.stderr
     vim.print(msg)
     return info
