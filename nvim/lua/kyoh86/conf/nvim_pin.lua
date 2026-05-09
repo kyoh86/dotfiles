@@ -1,1 +1,2 @@
--- vim.env.NVIM_PINNED_COMMIT = "bdff50dee56ebf6de58d58315920abf2f8e262f7"
+-- local envar = require("kyoh86.lib.envar")
+-- envar.NVIM_PINNED_COMMIT = "bdff50dee56ebf6de58d58315920abf2f8e262f7"

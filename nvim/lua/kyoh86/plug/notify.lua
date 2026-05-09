@@ -4,6 +4,7 @@ local spec = {
   dependencies = { "plenary.nvim" },
   config = function()
     vim.notify = require("notify")
+
     vim.api.nvim_set_hl(0, "NotifyERRORBorder", { link = "DiagnosticError" })
     vim.api.nvim_set_hl(0, "NotifyWARNBorder", { link = "DiagnosticWarn" })
     vim.api.nvim_set_hl(0, "NotifyINFOBorder", { link = "DiagnosticInfo" })
@@ -19,6 +20,13 @@ local spec = {
     vim.api.nvim_set_hl(0, "NotifyINFOTitle", { link = "DiagnosticInfo" })
     vim.api.nvim_set_hl(0, "NotifyDEBUGTitle", { link = "DiagnosticHint" })
     vim.api.nvim_set_hl(0, "NotifyTRACETitle", { link = "DiagnosticHint" })
+
+    kyoh86.ensure("momiji", function(m)
+      require("notify").setup({
+        merge_duplicates = true,
+        background_colour = m.colors.black,
+      })
+    end)
   end,
 }
 return spec

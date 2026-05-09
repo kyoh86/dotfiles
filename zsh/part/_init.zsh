@@ -1,5 +1,8 @@
 #!/bin/sh
 
+_source_part env
+_source_part nvim
+
 _source_part zsh_history
 _source_part zsh_prompt
 _source_part zsh_completion
@@ -15,12 +18,10 @@ _source_part aws_ssm
 _source_part aws_completion
 _source_part claude
 _source_part codex
-_source_part env
 _source_part gcloud
 _source_part gpg
 _source_part homebrew
 _source_part ls
-_source_part nvim_cmd
 _source_part nvim_startuptime
 _source_part pnpm
 _source_part sdkman

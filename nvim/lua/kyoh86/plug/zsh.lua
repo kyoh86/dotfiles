@@ -1,28 +1,30 @@
 ---ZSHプラグインをここで管理しちゃう
 
----zsh_sources環境変数に、sourceしてほしいファイルのパスを追加する
+local envar = require("kyoh86.lib.envar")
+
+---ZSH_SOURCES環境変数に、sourceしてほしいファイルのパスを追加する
 ---zsh/part/source.zshで全部sourceしてる
 ---@param file string
 local function reg_source(file)
-  local p = vim.env.zsh_sources
+  local p = envar.ZSH_SOURCES
   if not p or p == "" then
     p = file
   else
     p = p .. ":" .. file
   end
-  vim.env.zsh_sources = p
+  envar.ZSH_SOURCES = p
 end
 
 ---FPATH環境変数に、autoloadするディレクトリを追加する
 ---@param dir string
 local function reg_fpath(dir)
-  local p = vim.env.NVIM_ZSH_FPATH
+  local p = envar.NVIM_ZSH_FPATH
   if not p or p == "" then
     p = dir
   else
     p = p .. ":" .. dir
   end
-  vim.env.NVIM_ZSH_FPATH = p
+  envar.NVIM_ZSH_FPATH = p
 end
 
 ---@type LazySpec

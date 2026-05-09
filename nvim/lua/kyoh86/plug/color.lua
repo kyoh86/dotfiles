@@ -4,6 +4,16 @@ local spec = {
   {
     "kyoh86/momiji",
     priority = 1000,
+    config = function()
+      local au = require("kyoh86.lib.autocmd")
+      local group = au.group("kyoh86.plug.color", true)
+      group:hook("ColorScheme", {
+        callback = function(ev)
+          -- vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", default = true })
+          vim.cmd("highlight Normal guibg=NONE ctermbg=NONE")
+        end,
+      })
+    end,
   },
   {
     "kyoh86/sakura",
