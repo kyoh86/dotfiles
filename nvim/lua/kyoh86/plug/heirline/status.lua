@@ -38,7 +38,7 @@ return {
     {
       Git,
       -- condition = conditions.is_git_repo,
-      hl = { fg = "foreground", bg = "background", bold = true },
+      hl = { fg = "brightwhite", bg = "black", bold = true },
     },
     init = function(self)
       self.mode_colors = palette.mode_colors()
