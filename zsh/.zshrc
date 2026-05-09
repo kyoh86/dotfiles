@@ -16,7 +16,6 @@ _source_part _init
 
 # ZSHRC 終了処理 {{{
 # ------------------------------------------------------------------------------
-export PATH=".:${PATH}"
 
 # ZSHRC コンパイル{{{
 if [ ! -e ${ZDOTDIR:-${HOME}}/.zshrc.zwc ] || [ ${ZDOTDIR:-${HOME}}/.zshrc -nt ${ZDOTDIR:-${HOME}}/.zshrc.zwc ]; then

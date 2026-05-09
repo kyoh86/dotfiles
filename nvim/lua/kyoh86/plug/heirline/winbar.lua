@@ -18,7 +18,7 @@ return {
         Ruler,
         hl = function(self)
           if conditions.is_active() then
-            return { fg = "foreground", bg = self.mode_colors.deep }
+            return { fg = "brightwhite", bg = self.mode_colors.deep }
           else
             return { fg = "gradation2", bg = "gradation4" }
           end
@@ -45,7 +45,7 @@ return {
 
     hl = function(self)
       if conditions.is_active() then
-        return { fg = "background", bg = self.mode_colors.bright }
+        return { fg = "brightwhite", bg = self.mode_colors.bright }
       else
         return { fg = "gradation4", bg = "gradation2" }
       end
