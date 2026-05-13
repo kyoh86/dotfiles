@@ -11,6 +11,7 @@ local spec = {
         callback = function(ev)
           -- vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", default = true })
           vim.cmd("highlight Normal guibg=NONE ctermbg=NONE")
+          vim.cmd("highlight NormalNC guibg=NONE ctermbg=NONE")
         end,
       })
     end,
