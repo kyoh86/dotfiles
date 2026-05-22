@@ -27,6 +27,7 @@ type Node = Leaf | Split;
 type State = {
   selectedPath: number[];
   preselect: Axis | null;
+  popups: string[];
 };
 
 const SELECT_BG = "#2a2230";
@@ -189,7 +190,7 @@ async function loadState(): Promise<State> {
     const raw = await Deno.readTextFile(path);
     return JSON.parse(raw) as State;
   } catch {
-    return { selectedPath: [], preselect: null };
+    return { selectedPath: [], preselect: null, popups: [] };
   }
 }
 
@@ -218,18 +219,108 @@ async function clearStyles(): Promise<void> {
   }
 }
 
+async function clearPopups(state: State): Promise<void> {
+  // Kill all popups running "true" (our dummy command)
+  const panes = (await tmux(["list-panes", "-a", "-F", "#{pane_id}:#{pane_current_command}"]))
+    .split("\n")
+    .filter(Boolean)
+    .filter((line) => line.endsWith(":true"));
+
+  for (const line of panes) {
+    const id = line.split(":")[0];
+    await tmux(["kill-pane", "-t", id]);
+  }
+  state.popups = [];
+}
+
+async function paneRect(paneId: string): Promise<Rect | null> {
+  const info = await tmux(["list-panes", "-t", paneId, "-F", "#{pane_left},#{pane_top},#{pane_width},#{pane_height}"]);
+  const parts = info.split(",");
+  if (parts.length !== 4) return null;
+  return { x: Number(parts[0]), y: Number(parts[1]), w: Number(parts[2]), h: Number(parts[3]) };
+}
+
+async function nodeRect(node: Node): Promise<Rect | null> {
+  if (node.type === "leaf") {
+    return await paneRect(node.pane);
+  }
+
+  const childRects = await Promise.all([nodeRect(node.children[0]), nodeRect(node.children[1])]);
+  const [a, b] = childRects;
+  if (!a || !b) return a || b || null;
+
+  return {
+    x: Math.min(a.x, b.x),
+    y: Math.min(a.y, b.y),
+    w: Math.max(a.x + a.w, b.x + b.w) - Math.min(a.x, b.x),
+    h: Math.max(a.y + a.h, b.y + b.h) - Math.min(a.y, b.y),
+  };
+}
+
+async function drawFrame(state: State, rect: Rect, title: string, style: string): Promise<void> {
+  // Skip small frames
+  if (rect.w < 3 || rect.h < 2) return;
+
+  await tmux([
+    "display-popup",
+    "-b", "rounded",
+    "-h", rect.h.toString(),
+    "-w", rect.w.toString(),
+    "-x", rect.x.toString(),
+    "-y", rect.y.toString(),
+    "-T", title,
+    "-S", style,
+    "true",
+  ]);
+}
+
 async function paint(root: Node, state: State): Promise<void> {
   const selected = nodeAt(root, state.selectedPath);
   const selectedLeaves = leaves(selected).map((l) => l.pane);
   const focus = await currentPane();
   await clearStyles();
+
+  // Draw selection background
   for (const p of selectedLeaves) {
     await tmux(["set-option", "-pt", p, "window-style", `bg=${SELECT_BG}`]);
   }
+
+  // Highlight focused pane
   if (selectedLeaves.includes(focus)) {
     await tmux(["set-option", "-pt", focus, "window-style", `bg=${FOCUS_BG}`]);
   }
-  await tmux(["display-message", `selection: ${compact(selected)}  path=[${state.selectedPath.join(",")}]${state.preselect ? `  preselect=${state.preselect}` : ""}`]);
+
+  // Show preselect preview by tinting the relevant panes
+  if (state.preselect) {
+    const selectedRect = await nodeRect(selected);
+
+    if (state.preselect === "v" && selectedRect) {
+      // Tint right side: panes whose center is in the right half of selection
+      const centerX = selectedRect.x + selectedRect.w / 2;
+      for (const p of selectedLeaves) {
+        const rect = await paneRect(p);
+        if (rect && rect.x + rect.w / 2 > centerX) {
+          await tmux(["set-option", "-pt", p, "window-style", `bg=#3a2a30`]); // Darker tint for preview
+        }
+      }
+    } else if (state.preselect === "s" && selectedRect) {
+      // Tint bottom side: panes whose center is in the bottom half of selection
+      const centerY = selectedRect.y + selectedRect.h / 2;
+      for (const p of selectedLeaves) {
+        const rect = await paneRect(p);
+        if (rect && rect.y + rect.h / 2 > centerY) {
+          await tmux(["set-option", "-pt", p, "window-style", `bg=#3a2a30`]); // Darker tint for preview
+        }
+      }
+    }
+  }
+
+  let msg = `selection: ${compact(selected)}  path=[${state.selectedPath.join(",")}]`;
+  if (state.preselect) {
+    const splitDesc = state.preselect === "v" ? "vertical (right)" : "horizontal (below)";
+    msg += `  preselect=${state.preselect}  Enter to split ${splitDesc}`;
+  }
+  await tmux(["display-message", msg]);
 }
 
 async function selectPane(pane: string): Promise<void> {
@@ -332,10 +423,28 @@ async function main() {
       break;
     }
     case "pre-v": {
+      // Only allow preselect on leaf nodes (single pane selection)
+      const root = await readTree();
+      const selected = nodeAt(root, state.selectedPath);
+      if (selected.type === "split") {
+        await tmux(["display-message", "preselect: only available on single pane (use u/1/2 to select a leaf)"]);
+        await saveState(state);
+        await paint(root, state);
+        break;
+      }
       state.preselect = "row";
       break;
     }
     case "pre-s": {
+      // Only allow preselect on leaf nodes (single pane selection)
+      const root = await readTree();
+      const selected = nodeAt(root, state.selectedPath);
+      if (selected.type === "split") {
+        await tmux(["display-message", "preselect: only available on single pane (use u/1/2 to select a leaf)"]);
+        await saveState(state);
+        await paint(root, state);
+        break;
+      }
       state.preselect = "col";
       break;
     }

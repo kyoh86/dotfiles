@@ -352,9 +352,35 @@ local function draw()
   if state.preselect then
     local pre_title = state.preselect == "v" and " PRESELECT vertical split " or " PRESELECT horizontal split "
     open_frame(rect, pre_title, "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditPreselectBorder,FloatTitle:LayoutPareditPreselectTitle")
+
+    -- Draw ghost frame for split preview
+    local ghost_rect = {}
+    if state.preselect == "v" then
+      -- Vertical split: new window on the right
+      local new_width = math.floor(rect.width / 2)
+      ghost_rect = {
+        row = rect.row,
+        col = rect.col + rect.width - new_width,
+        width = new_width,
+        height = rect.height,
+      }
+    else
+      -- Horizontal split: new window below
+      local new_height = math.floor(rect.height / 2)
+      ghost_rect = {
+        row = rect.row + rect.height - new_height,
+        col = rect.col,
+        width = rect.width,
+        height = new_height,
+      }
+    end
+
+    if ghost_rect.width > 1 and ghost_rect.height > 1 then
+      open_frame(ghost_rect, " NEW WINDOW ", "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditPreselectBorder,FloatTitle:LayoutPareditPreselectTitle")
+    end
   end
 
-  vim.api.nvim_echo({ { "layout-paredit: " .. selected_text() .. (state.preselect and (" preselect=" .. state.preselect) or ""), "ModeMsg" } }, false, {})
+  vim.api.nvim_echo({ { "layout-paredit: " .. selected_text() .. (state.preselect and (" preselect=" .. state.preselect .. ", Enter to split") or ""), "ModeMsg" } }, false, {})
   state.drawing = false
 end
 
@@ -416,10 +442,50 @@ end
 
 local function focus_neighbor(dir)
   local cur = vim.api.nvim_get_current_win()
-  vim.cmd("wincmd " .. dir)
-  local now = vim.api.nvim_get_current_win()
-  if now ~= cur then
-    state.selected_path = path_of_winid(vim.fn.winlayout(), now)
+  local cur_rect = win_rect(cur)
+  if not cur_rect then
+    return
+  end
+  local cur_center = center_rect(cur_rect)
+
+  local layout = vim.fn.winlayout()
+  local candidates = {}
+
+  for _, item in ipairs(all_nodes(layout)) do
+    if is_leaf(item.node) then
+      local winid = leaf_winid(item.node)
+      if winid ~= cur then
+        local rect = win_rect(winid)
+        if rect then
+          local nc = center_rect(rect)
+          local dx = nc.col - cur_center.col
+          local dy = nc.row - cur_center.row
+          local ok = false
+          if dir == "h" then
+            ok = dx < 0 and math.abs(dy) < rect.height / 2
+          elseif dir == "l" then
+            ok = dx > 0 and math.abs(dy) < rect.height / 2
+          elseif dir == "k" then
+            ok = dy < 0 and math.abs(dx) < rect.width / 2
+          elseif dir == "j" then
+            ok = dy > 0 and math.abs(dx) < rect.width / 2
+          end
+          if ok then
+            local primary = (dir == "h" or dir == "l") and math.abs(dx) or math.abs(dy)
+            local secondary = (dir == "h" or dir == "l") and math.abs(dy) or math.abs(dx)
+            table.insert(candidates, { winid = winid, score = primary * 10 + secondary })
+          end
+        end
+      end
+    end
+  end
+
+  if #candidates > 0 then
+    table.sort(candidates, function(a, b)
+      return a.score < b.score
+    end)
+    vim.api.nvim_set_current_win(candidates[1].winid)
+    state.selected_path = path_of_winid(vim.fn.winlayout(), candidates[1].winid)
   end
   draw()
 end
