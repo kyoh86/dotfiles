@@ -3,7 +3,8 @@ update_on_startup = false
 sandbox_mode = "workspace-write"
 personality = "pragmatic"
 web_search = "cached"
-model = "gpt-5.4"
+model = "gpt-5.5"
+model_reasoning_effort = "medium"
 
 [features]
 shell_snapshot = true
@@ -162,9 +163,13 @@ trust_level = "trusted"
 [notice.model_migrations]
 "gpt-5.2-codex" = "gpt-5.3-codex"
 "gpt-5.3-codex" = "gpt-5.4"
+"gpt-5.4" = "gpt-5.5"
 
 [tui.model_availability_nux]
-"gpt-5.5" = 1
+"gpt-5.5" = 4
+
+[plugins."github@openai-curated"]
+enabled = true
 
 [projects."github.com/kyoh86/kyoh86"]
 trust_level = "trusted"
@@ -464,4 +469,16 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."github.com/kyoh86/keyball"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/.local/share/nvim/lazy/heirline.nvim"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86/gogh"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/Projects/github.com/kyoh86/heirline.nvim"]
 trust_level = "trusted"

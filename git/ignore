@@ -1,6 +1,8 @@
 ### Claude Code
 .claude-temp/
 
+/.worktree/
+
 ### direnv
 .envrc
 .direnv/

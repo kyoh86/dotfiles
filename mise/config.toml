@@ -44,7 +44,6 @@ stylua = "latest"
 terraform = ["latest", "1.10"]
 terraform-ls = "latest"
 tree-sitter = "latest"
-uv = "latest"
 "aqua:cli/cli" = "latest"
 "npm:@openai/codex" = "latest"
 "npm:@google/gemini-cli" = "latest"
@@ -54,6 +53,8 @@ usage = "latest"
 npm = "latest"
 gitleaks = "latest"
 claude-code = "latest"
+uv = "latest"
+"github:kyoh86/gogh"= { version = "v5.0.0-alpha.4", postinstall = "gogh completion zsh > $HOME/.config/zsh/completions/_gogh.zsh" }
 
 [tools.deno]
 version = "latest"
@@ -62,10 +63,6 @@ postinstall = "deno completions zsh > $HOME/.config/zsh/completions/_deno.zsh"
 [tools.gh]
 version = "latest"
 postinstall = "gh completion --shell zsh > $HOME/.config/zsh/completions/_gh.zsh"
-
-[tools."github:kyoh86/gogh"]
-version = "5.0.0-alpha.3"
-postinstall = "gogh completion zsh > $HOME/.config/zsh/completions/_gogh.zsh"
 
 [settings]
 experimental = true
