@@ -467,17 +467,18 @@ function swapNodes(root: Node, pathA: number[], pathB: number[]): Node {
 // Parent rect determines child rects
 function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
   if (node.type === "leaf") {
-    // Leaf nodes: if parent is provided, update position to match parent
+    // Leaf nodes: keep original size, only update x/y to match parent
     if (parentRect) {
-      return { ...node, rect: { ...node.rect, x: parentRect.x, y: parentRect.y, w: parentRect.w, h: parentRect.h } };
+      return { ...node, rect: { ...node.rect, x: parentRect.x, y: parentRect.y } };
     }
     return node;
   }
 
-  // First, calculate this node's rect from children (for size)
-  const leftChild = node.children[0];
-  const rightChild = node.children[1];
+  // Recalculate children first to get their actual sizes
+  const leftChild = recalculateRects(node.children[0], null);
+  const rightChild = recalculateRects(node.children[1], null);
 
+  // Calculate this node's rect from children
   let newRect: Rect;
   if (node.axis === "row") {
     // Horizontal split: width = sum, height = max
@@ -498,17 +499,17 @@ function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
   // Now update child rects based on parent rect and axis (top-down)
   const updatedChildren: Node[] = [];
   if (node.axis === "row") {
-    // Left child: x = parent.x, y = parent.y, width = original, height = parent.height
+    // Left child: x = parent.x, y = parent.y
     const leftRect = { w: leftChild.rect.w, h: newRect.h, x: newRect.x, y: newRect.y };
     updatedChildren.push(recalculateRects(leftChild, leftRect));
-    // Right child: x = parent.x + left.width, y = parent.y, width = original, height = parent.height
+    // Right child: x = parent.x + left.width, y = parent.y
     const rightRect = { w: rightChild.rect.w, h: newRect.h, x: newRect.x + leftChild.rect.w, y: newRect.y };
     updatedChildren.push(recalculateRects(rightChild, rightRect));
   } else {
-    // Left child: x = parent.x, y = parent.y, width = parent.width, height = original
+    // Left child: x = parent.x, y = parent.y
     const leftRect = { w: newRect.w, h: leftChild.rect.h, x: newRect.x, y: newRect.y };
     updatedChildren.push(recalculateRects(leftChild, leftRect));
-    // Right child: x = parent.x, y = parent.y + left.height, width = parent.width, height = original
+    // Right child: x = parent.x, y = parent.y + left.height
     const rightRect = { w: newRect.w, h: rightChild.rect.h, x: newRect.x, y: newRect.y + leftChild.rect.h };
     updatedChildren.push(recalculateRects(rightChild, rightRect));
   }
