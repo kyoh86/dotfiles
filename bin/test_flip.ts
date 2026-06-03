@@ -1,124 +1,163 @@
 #!/usr/bin/env -S deno run --allow-run
 
-// Test coordinate-based flip mapping
+// Test cycle-based swap for unequal length
 
-type Leaf = {
-  pane: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-};
+type Leaf = { pane: string };
 
-function testEqualLength() {
-  console.log("=== Test 1: Equal length [[A,B],[C,D]] → [[C,D],[A,B]] ===");
-  const leftLeaves: Leaf[] = [
-    { pane: "%0", x: 0, y: 0, w: 50, h: 50 },
-    { pane: "%1", x: 0, y: 50, w: 50, h: 50 },
-  ];
-  const rightLeaves: Leaf[] = [
-    { pane: "%2", x: 50, y: 0, w: 50, h: 50 },
-    { pane: "%3", x: 50, y: 50, w: 50, h: 50 },
-  ];
-
-  const paneIdOverride = new Map<string, string>();
-
-  for (let i = 0; i < Math.max(leftLeaves.length, rightLeaves.length); i++) {
-    if (i < leftLeaves.length && i < rightLeaves.length) {
-      const leftCoord = `${leftLeaves[i].x},${leftLeaves[i].y},${leftLeaves[i].w},${leftLeaves[i].h}`;
-      const rightPane = rightLeaves[i].pane.slice(1);
-      paneIdOverride.set(leftCoord, rightPane);
-
-      const rightCoord = `${rightLeaves[i].x},${rightLeaves[i].y},${rightLeaves[i].w},${rightLeaves[i].h}`;
-      const leftPane = leftLeaves[i].pane.slice(1);
-      paneIdOverride.set(rightCoord, leftPane);
-    }
+function simulateSwap(paneA: string, paneB: string, panes: string[]): void {
+  const idxA = panes.indexOf(paneA);
+  const idxB = panes.indexOf(paneB);
+  if (idxA >= 0 && idxB >= 0) {
+    [panes[idxA], panes[idxB]] = [panes[idxB], panes[idxA]];
   }
-
-  console.log(`Coordinate mappings:`);
-  for (const [coord, pane] of paneIdOverride) {
-    console.log(`  ${coord} -> ${pane}`);
-  }
-
-  // Verify expected mappings
-  const expected = new Map([
-    ["0,0,50,50", "2"], // left[0] coord -> right[0] pane
-    ["0,50,50,50", "3"], // left[1] coord -> right[1] pane
-    ["50,0,50,50", "0"], // right[0] coord -> left[0] pane
-    ["50,50,50,50", "1"], // right[1] coord -> left[1] pane
-  ]);
-
-  let pass = true;
-  for (const [coord, pane] of expected) {
-    const actual = paneIdOverride.get(coord);
-    if (actual !== pane) {
-      console.log(`FAIL: ${coord} expected ${pane}, got ${actual ?? "undefined"}`);
-      pass = false;
-    }
-  }
-  console.log(`Pass? ${pass}`);
-  console.log("");
 }
 
 function testUnequalLength() {
-  console.log("=== Test 2: Unequal length [A, [B,C]] → [[B,C], A] ===");
-  const leftLeaves: Leaf[] = [
-    { pane: "%0", x: 0, y: 0, w: 50, h: 100 },
-  ];
-  const rightLeaves: Leaf[] = [
-    { pane: "%1", x: 50, y: 0, w: 50, h: 50 },
-    { pane: "%2", x: 50, y: 50, w: 50, h: 50 },
-  ];
+  console.log("=== Test 1: [A, [B,C]] → [[B,C], A] ===");
+  const allLeaves = [{ pane: "A" }, { pane: "B" }, { pane: "C" }];
+  const newLeaves = [{ pane: "B" }, { pane: "C" }, { pane: "A" }];
 
-  const paneIdOverride = new Map<string, string>();
+  const panes = allLeaves.map(l => l.pane);
+  console.log(`Before: ${panes.join(", ")}`);
+  console.log(`Expected: ${newLeaves.map(l => l.pane).join(", ")}`);
 
-  for (let i = 0; i < Math.max(leftLeaves.length, rightLeaves.length); i++) {
-    if (i < leftLeaves.length && i < rightLeaves.length) {
-      const leftCoord = `${leftLeaves[i].x},${leftLeaves[i].y},${leftLeaves[i].w},${leftLeaves[i].h}`;
-      const rightPane = rightLeaves[i].pane.slice(1);
-      paneIdOverride.set(leftCoord, rightPane);
+  // Build mapping
+  const targetAt: (number | null)[] = [];
+  for (let i = 0; i < allLeaves.length; i++) {
+    const paneId = allLeaves[i].pane;
+    const targetIdx = newLeaves.findIndex(l => l.pane === paneId);
+    targetAt[i] = targetIdx >= 0 ? targetIdx : null;
+  }
 
-      const rightCoord = `${rightLeaves[i].x},${rightLeaves[i].y},${rightLeaves[i].w},${rightLeaves[i].h}`;
-      const leftPane = leftLeaves[i].pane.slice(1);
-      paneIdOverride.set(rightCoord, leftPane);
+  console.log(`Target mapping: ${targetAt.map((t, i) => `${allLeaves[i].pane}->pos${t}`).join(", ")}`);
+
+  // Perform swaps using cycle decomposition
+  const visited = new Set<number>();
+  for (let i = 0; i < allLeaves.length; i++) {
+    if (visited.has(i)) continue;
+    const cycle: number[] = [];
+    let current = i;
+    while (current !== null && !visited.has(current) && targetAt[current] !== null) {
+      cycle.push(current);
+      visited.add(current);
+      const next = targetAt[current];
+      if (next === cycle[0]) break;
+      current = next;
+    }
+
+    if (cycle.length > 1) {
+      console.log(`Cycle: ${cycle.map(c => allLeaves[c].pane).join(" -> ")}`);
+      const tempPane = allLeaves[cycle[cycle.length - 1]].pane;
+      for (let j = cycle.length - 1; j > 0; j--) {
+        const fromPane = allLeaves[cycle[j - 1]].pane;
+        console.log(`  swap ${fromPane} -> ${tempPane}`);
+        simulateSwap(fromPane, tempPane, panes);
+      }
+      console.log(`  After cycle: ${panes.join(", ")}`);
     }
   }
 
-  console.log(`Coordinate mappings:`);
-  for (const [coord, pane] of paneIdOverride) {
-    console.log(`  ${coord} -> ${pane}`);
-  }
-
-  // Expected:
-  // left[0] coord (0,0,50,100) -> right[0] pane (1)
-  // right[0] coord (50,0,50,50) -> left[0] pane (0)
-  // right[1] coord (50,50,50,50) -> no mapping (no left[1])
-
-  const expected = new Map([
-    ["0,0,50,100", "1"],
-    ["50,0,50,50", "0"],
-  ]);
-
-  let pass = true;
-  for (const [coord, pane] of expected) {
-    const actual = paneIdOverride.get(coord);
-    if (actual !== pane) {
-      console.log(`FAIL: ${coord} expected ${pane}, got ${actual ?? "undefined"}`);
-      pass = false;
-    }
-  }
-
-  // Check that right[1] has no mapping
-  if (paneIdOverride.has("50,50,50,50")) {
-    console.log(`FAIL: 50,50,50,50 should have no mapping, got ${paneIdOverride.get("50,50,50,50")}`);
-    pass = false;
-  } else {
-    console.log(`OK: 50,50,50,50 has no mapping (will keep original pane)`);
-  }
-
-  console.log(`Pass? ${pass}`);
+  console.log(`Final: ${panes.join(", ")}`);
+  console.log(`Pass? ${panes.join(",") === newLeaves.map(l => l.pane).join(",")}`);
   console.log("");
 }
 
-testEqualLength();
+function testUnequalLengthReverse() {
+  console.log("=== Test 2: [[B,C], A] → [A, [B,C]] ===");
+  const allLeaves = [{ pane: "B" }, { pane: "C" }, { pane: "A" }];
+  const newLeaves = [{ pane: "A" }, { pane: "B" }, { pane: "C" }];
+
+  const panes = allLeaves.map(l => l.pane);
+  console.log(`Before: ${panes.join(", ")}`);
+  console.log(`Expected: ${newLeaves.map(l => l.pane).join(", ")}`);
+
+  const targetAt: (number | null)[] = [];
+  for (let i = 0; i < allLeaves.length; i++) {
+    const paneId = allLeaves[i].pane;
+    const targetIdx = newLeaves.findIndex(l => l.pane === paneId);
+    targetAt[i] = targetIdx >= 0 ? targetIdx : null;
+  }
+
+  console.log(`Target mapping: ${targetAt.map((t, i) => `${allLeaves[i].pane}->pos${t}`).join(", ")}`);
+
+  const visited = new Set<number>();
+  for (let i = 0; i < allLeaves.length; i++) {
+    if (visited.has(i)) continue;
+    const cycle: number[] = [];
+    let current = i;
+    while (current !== null && !visited.has(current) && targetAt[current] !== null) {
+      cycle.push(current);
+      visited.add(current);
+      const next = targetAt[current];
+      if (next === cycle[0]) break;
+      current = next;
+    }
+
+    if (cycle.length > 1) {
+      console.log(`Cycle: ${cycle.map(c => allLeaves[c].pane).join(" -> ")}`);
+      const tempPane = allLeaves[cycle[cycle.length - 1]].pane;
+      for (let j = cycle.length - 1; j > 0; j--) {
+        const fromPane = allLeaves[cycle[j - 1]].pane;
+        console.log(`  swap ${fromPane} -> ${tempPane}`);
+        simulateSwap(fromPane, tempPane, panes);
+      }
+      console.log(`  After cycle: ${panes.join(", ")}`);
+    }
+  }
+
+  console.log(`Final: ${panes.join(", ")}`);
+  console.log(`Pass? ${panes.join(",") === newLeaves.map(l => l.pane).join(",")}`);
+  console.log("");
+}
+
+function testEqualLength() {
+  console.log("=== Test 3: Equal length [[A,B],[C,D]] → [[C,D],[A,B]] ===");
+  const allLeaves = [{ pane: "A" }, { pane: "B" }, { pane: "C" }, { pane: "D" }];
+  const newLeaves = [{ pane: "C" }, { pane: "D" }, { pane: "A" }, { pane: "B" }];
+
+  const panes = allLeaves.map(l => l.pane);
+  console.log(`Before: ${panes.join(", ")}`);
+  console.log(`Expected: ${newLeaves.map(l => l.pane).join(", ")}`);
+
+  const targetAt: (number | null)[] = [];
+  for (let i = 0; i < allLeaves.length; i++) {
+    const paneId = allLeaves[i].pane;
+    const targetIdx = newLeaves.findIndex(l => l.pane === paneId);
+    targetAt[i] = targetIdx >= 0 ? targetIdx : null;
+  }
+
+  console.log(`Target mapping: ${targetAt.map((t, i) => `${allLeaves[i].pane}->pos${t}`).join(", ")}`);
+
+  const visited = new Set<number>();
+  for (let i = 0; i < allLeaves.length; i++) {
+    if (visited.has(i)) continue;
+    const cycle: number[] = [];
+    let current = i;
+    while (current !== null && !visited.has(current) && targetAt[current] !== null) {
+      cycle.push(current);
+      visited.add(current);
+      const next = targetAt[current];
+      if (next === cycle[0]) break;
+      current = next;
+    }
+
+    if (cycle.length > 1) {
+      console.log(`Cycle: ${cycle.map(c => allLeaves[c].pane).join(" -> ")}`);
+      const tempPane = allLeaves[cycle[cycle.length - 1]].pane;
+      for (let j = cycle.length - 1; j > 0; j--) {
+        const fromPane = allLeaves[cycle[j - 1]].pane;
+        console.log(`  swap ${fromPane} -> ${tempPane}`);
+        simulateSwap(fromPane, tempPane, panes);
+      }
+      console.log(`  After cycle: ${panes.join(", ")}`);
+    }
+  }
+
+  console.log(`Final: ${panes.join(", ")}`);
+  console.log(`Pass? ${panes.join(",") === newLeaves.map(l => l.pane).join(",")}`);
+  console.log("");
+}
+
 testUnequalLength();
+testUnequalLengthReverse();
+testEqualLength();
