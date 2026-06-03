@@ -421,37 +421,46 @@ async function swapPane(a: string, b: string): Promise<void> {
 async function swapSubtree(root: Node, state: State, dir: "h" | "j" | "k" | "l"): Promise<void> {
   await log(`swap ${dir}: selectedPath=[${state.selectedPath.join(",")}]`);
 
-  if (state.selectedPath.length === 0) {
-    await log(`swap ${dir}: root node has no sibling`);
-    return;
+  try {
+    if (state.selectedPath.length === 0) {
+      await log(`swap ${dir}: root node has no sibling`);
+      return;
+    }
+
+    const parentPath = parentPath(state.selectedPath);
+    const parent = nodeAt(root, parentPath);
+    await log(`swap ${dir}: parentPath=[${parentPath.join(",")}] parentType=${parent.type}`);
+
+    if (parent.type === "leaf") {
+      await log(`swap ${dir}: parent is leaf`);
+      return;
+    }
+
+    const currentIndex = state.selectedPath[state.selectedPath.length - 1];
+    const siblingIndex = 1 - currentIndex;
+    const siblingNode = parent.children[siblingIndex];
+    const siblingPath = [...parentPath, siblingIndex];
+
+    await log(`swap ${dir}: pathA=[${state.selectedPath.join(",")}](${compact(nodeAt(root, state.selectedPath))}) pathB=[${siblingPath.join(",")}](${compact(siblingNode)})`);
+
+    // Get the panes to swap
+    const aPane = firstLeaf(nodeAt(root, state.selectedPath)).pane;
+    const bPane = firstLeaf(siblingNode).pane;
+
+    await log(`swap ${dir}: swapping pane ${aPane} with ${bPane}`);
+
+    // Swap panes using tmux swap-pane
+    await swapPane(aPane, bPane);
+
+    await log(`swap ${dir}: swap complete`);
+
+    // Update the selected path
+    state.selectedPath = siblingPath;
+    await saveState(state);
+  } catch (e) {
+    await log(`swap ${dir} error: ${e.message}\n${e.stack}`);
+    throw e;
   }
-
-  const parentPath = parentPath(state.selectedPath);
-  const parent = nodeAt(root, parentPath);
-  if (parent.type === "leaf") {
-    await log(`swap ${dir}: parent is leaf`);
-    return;
-  }
-
-  const currentIndex = state.selectedPath[state.selectedPath.length - 1];
-  const siblingIndex = 1 - currentIndex;
-  const siblingNode = parent.children[siblingIndex];
-  const siblingPath = [...parentPath, siblingIndex];
-
-  await log(`swap ${dir}: pathA=[${state.selectedPath.join(",")}](${compact(nodeAt(root, state.selectedPath))}) pathB=[${siblingPath.join(",")}](${compact(siblingNode)})`);
-
-  // Get the panes to swap
-  const aPane = firstLeaf(nodeAt(root, state.selectedPath)).pane;
-  const bPane = firstLeaf(siblingNode).pane;
-
-  await log(`swap ${dir}: swapping pane ${aPane} with ${bPane}`);
-
-  // Swap panes using tmux swap-pane
-  await swapPane(aPane, bPane);
-
-  // Update the selected path
-  state.selectedPath = siblingPath;
-  await saveState(state);
 }
 
 function sortLeavesByGeometry(a: Leaf, b: Leaf): number {
@@ -549,8 +558,10 @@ async function splitSelected(root: Node, state: State): Promise<void> {
 
 async function main() {
   const cmd = Deno.args[0] ?? "paint";
-  const root = await readTree();
-  const state = await loadState();
+  await log(`main: cmd=${cmd}`);
+  try {
+    const root = await readTree();
+    const state = await loadState();
 
   switch (cmd) {
     case "enter": {
@@ -630,11 +641,19 @@ async function main() {
       await saveState(state);
       return;
     }
+    default: {
+      await log(`main: unknown command: ${cmd}`);
+      return;
+    }
   }
 
   await saveState(state);
   const updatedRoot = await readTree();
   await paint(updatedRoot, state);
+  } catch (e) {
+    await log(`main error: ${e.message}\n${e.stack}`);
+    throw e;
+  }
 }
 
 if (import.meta.main) {
