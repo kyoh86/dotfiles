@@ -517,47 +517,36 @@ function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
     return node;
   }
 
-  // Recalculate children first to get their actual sizes
+  // Use the original node's rect as the base, but update position from parent
+  let rect = { ...node.rect };
+  if (parentRect) {
+    rect.x = parentRect.x;
+    rect.y = parentRect.y;
+  }
+
+  // Recalculate children with this node as parent
   const leftChild = recalculateRects(node.children[0], null);
   const rightChild = recalculateRects(node.children[1], null);
 
-  // Calculate this node's rect from children
-  let newRect: Rect;
-  if (node.axis === "row") {
-    // Horizontal split: width = sum, height = max
-    const width = leftChild.rect.w + rightChild.rect.w;
-    const height = Math.max(leftChild.rect.h, rightChild.rect.h);
-    const x = parentRect ? parentRect.x : 0;
-    const y = parentRect ? parentRect.y : 0;
-    newRect = { w: width, h: height, x, y };
-  } else {
-    // Vertical split: width = max, height = sum + 1 (for divider line)
-    const width = Math.max(leftChild.rect.w, rightChild.rect.w);
-    const height = leftChild.rect.h + rightChild.rect.h + 1;
-    const x = parentRect ? parentRect.x : 0;
-    const y = parentRect ? parentRect.y : 0;
-    newRect = { w: width, h: height, x, y };
-  }
-
-  // Now update child rects based on parent rect and axis (top-down)
+  // Update child rects based on parent rect and axis (top-down)
   const updatedChildren: Node[] = [];
   if (node.axis === "row") {
     // Left child: x = parent.x, y = parent.y
-    const leftRect = { w: leftChild.rect.w, h: newRect.h, x: newRect.x, y: newRect.y };
+    const leftRect = { w: leftChild.rect.w, h: rect.h, x: rect.x, y: rect.y };
     updatedChildren.push(recalculateRects(leftChild, leftRect));
     // Right child: x = parent.x + left.width, y = parent.y
-    const rightRect = { w: rightChild.rect.w, h: newRect.h, x: newRect.x + leftChild.rect.w, y: newRect.y };
+    const rightRect = { w: rightChild.rect.w, h: rect.h, x: rect.x + leftChild.rect.w, y: rect.y };
     updatedChildren.push(recalculateRects(rightChild, rightRect));
   } else {
     // Left child: x = parent.x, y = parent.y, height = original
-    const leftRect = { w: newRect.w, h: leftChild.rect.h, x: newRect.x, y: newRect.y };
+    const leftRect = { w: rect.w, h: leftChild.rect.h, x: rect.x, y: rect.y };
     updatedChildren.push(recalculateRects(leftChild, leftRect));
     // Right child: x = parent.x, y = parent.y + left.height + 1, height = original
-    const rightRect = { w: newRect.w, h: rightChild.rect.h, x: newRect.x, y: newRect.y + leftChild.rect.h + 1 };
+    const rightRect = { w: rect.w, h: rightChild.rect.h, x: rect.x, y: rect.y + leftChild.rect.h + 1 };
     updatedChildren.push(recalculateRects(rightChild, rightRect));
   }
 
-  return { type: "split", axis: node.axis, rect: newRect, children: updatedChildren };
+  return { type: "split", axis: node.axis, rect, children: updatedChildren };
 }
 
 async function flipSelected(root: Node, state: State): Promise<void> {
