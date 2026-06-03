@@ -143,7 +143,7 @@ function reconstructLayoutWithChecksum(root: Node): string {
 
 // Apply layout to tmux
 async function applyLayout(root: Node): Promise<void> {
-  const recalculatedRoot = recalculateRects(root);
+  const recalculatedRoot = recalculateRects(root, null);
   const layout = reconstructLayout(recalculatedRoot);
   await log(`applying layout: ${layout}`);
   try {
@@ -464,12 +464,17 @@ function swapNodes(root: Node, pathA: number[], pathB: number[]): Node {
 }
 
 // Recalculate rect values for all split nodes from top to bottom
-// Parent rect determines child rects, not the other way around
-function recalculateRects(node: Node): Node {
-  if (node.type === "leaf") return node;
+// Parent rect determines child rects
+function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
+  if (node.type === "leaf") {
+    // Leaf nodes keep their original rect (from tmux)
+    return node;
+  }
 
-  // Calculate parent rect from children first (for window size)
-  const children = node.children.map(c => recalculateRects(c));
+  // Recalculate children first
+  const children = node.children.map(c => recalculateRects(c, null));
+
+  // Calculate this node's rect from children
   const leftChild = children[0];
   const rightChild = children[1];
 
@@ -478,15 +483,17 @@ function recalculateRects(node: Node): Node {
     // Horizontal split: width = sum, height = max
     const width = leftChild.rect.w + rightChild.rect.w;
     const height = Math.max(leftChild.rect.h, rightChild.rect.h);
-    const x = Math.min(leftChild.rect.x, rightChild.rect.x);
-    const y = Math.min(leftChild.rect.y, rightChild.rect.y);
+    // If this is the root (no parent), set x=0, y=0
+    const x = parentRect ? parentRect.x : 0;
+    const y = parentRect ? parentRect.y : 0;
     newRect = { w: width, h: height, x, y };
   } else {
     // Vertical split: width = max, height = sum
     const width = Math.max(leftChild.rect.w, rightChild.rect.w);
     const height = leftChild.rect.h + rightChild.rect.h;
-    const x = Math.min(leftChild.rect.x, rightChild.rect.x);
-    const y = Math.min(leftChild.rect.y, rightChild.rect.y);
+    // If this is the root (no parent), set x=0, y=0
+    const x = parentRect ? parentRect.x : 0;
+    const y = parentRect ? parentRect.y : 0;
     newRect = { w: width, h: height, x, y };
   }
 
