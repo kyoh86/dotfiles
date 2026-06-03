@@ -133,10 +133,25 @@ function reconstructLayout(node: Node): string {
   return `${node.rect.w}x${node.rect.h},${node.rect.x},${node.rect.y}${bracket}${childrenStr}${closing}`;
 }
 
+// Reconstruct tmux layout string with checksum
+function reconstructLayoutWithChecksum(root: Node): string {
+  const layout = reconstructLayout(root);
+  // Generate a simple checksum (tmux uses a real checksum, but we'll use a placeholder)
+  const checksum = "0000";
+  return `${checksum},${layout}`;
+}
+
 // Apply layout to tmux
 async function applyLayout(root: Node): Promise<void> {
   const layout = reconstructLayout(root);
-  await tmux(["select-layout", layout]);
+  await log(`applying layout: ${layout}`);
+  try {
+    await tmux(["select-layout", layout]);
+    await log(`layout applied successfully`);
+  } catch (e) {
+    await log(`layout apply failed: ${e.message}`);
+    throw e;
+  }
 }
 
 function nodeAt(root: Node, path: number[]): Node {
@@ -194,6 +209,27 @@ function compact(node: Node): string {
 function neighbor(root: Node, selectedPath: number[], dir: "h" | "j" | "k" | "l"): { node: Node; path: number[] } | null {
   const selected = nodeAt(root, selectedPath);
   const c = center(selected);
+
+  // First, try to find a neighbor in the binary tree structure
+  if (selectedPath.length > 0) {
+    const parentPath = parentPath(selectedPath);
+    const parent = nodeAt(root, parentPath);
+    if (parent.type === "split") {
+      const currentIndex = selectedPath[selectedPath.length - 1];
+      const siblingIndex = 1 - currentIndex;
+
+      // For horizontal moves (h/l), if the parent is a row split, use the sibling
+      if ((dir === "h" || dir === "l") && parent.axis === "row") {
+        return { node: parent.children[siblingIndex], path: [...parentPath, siblingIndex] };
+      }
+      // For vertical moves (j/k), if the parent is a col split, use the sibling
+      if ((dir === "j" || dir === "k") && parent.axis === "col") {
+        return { node: parent.children[siblingIndex], path: [...parentPath, siblingIndex] };
+      }
+    }
+  }
+
+  // Fall back to geometric-based search
   const candidates = allNodes(root).filter(({ path }) => {
     if (path.join(",") === selectedPath.join(",")) return false;
     if (isPrefix(path, selectedPath) || isPrefix(selectedPath, path)) return false;
@@ -249,6 +285,12 @@ async function readTree(): Promise<Node> {
 
 async function currentPane(): Promise<string> {
   return await tmux(["display-message", "-p", "#{pane_id}"]);
+}
+
+async function log(msg: string): Promise<void> {
+  const base = Deno.env.get("XDG_RUNTIME_DIR") ?? "/tmp";
+  const path = `${base}/tmux-layout-paredit-_0:_0.log`;
+  await Deno.writeTextFile(path, `[${new Date().toISOString()}] ${msg}\n`, { append: true });
 }
 
 function pathOfPane(root: Node, pane: string): number[] {
@@ -379,25 +421,36 @@ async function swapPane(a: string, b: string): Promise<void> {
 async function swapSubtree(root: Node, state: State, dir: "h" | "j" | "k" | "l"): Promise<void> {
   await log(`swap ${dir}: selectedPath=[${state.selectedPath.join(",")}]`);
 
-  const a = nodeAt(root, state.selectedPath);
-  const bHit = neighbor(root, state.selectedPath, dir);
-  if (!bHit) {
-    await log(`swap ${dir}: no neighbor found`);
+  if (state.selectedPath.length === 0) {
+    await log(`swap ${dir}: root node has no sibling`);
     return;
   }
 
-  await log(`swap ${dir}: pathA=[${state.selectedPath.join(",")}] pathB=[${bHit.path.join(",")}]`);
+  const parentPath = parentPath(state.selectedPath);
+  const parent = nodeAt(root, parentPath);
+  if (parent.type === "leaf") {
+    await log(`swap ${dir}: parent is leaf`);
+    return;
+  }
 
-  // Swap nodes in the binary tree
-  const newRoot = swapNodes(root, state.selectedPath, bHit.path);
+  const currentIndex = state.selectedPath[state.selectedPath.length - 1];
+  const siblingIndex = 1 - currentIndex;
+  const siblingNode = parent.children[siblingIndex];
+  const siblingPath = [...parentPath, siblingIndex];
 
-  await log(`swap ${dir}: original layout: ${reconstructLayout(root)}`);
-  await log(`swap ${dir}: new layout: ${reconstructLayout(newRoot)}`);
+  await log(`swap ${dir}: pathA=[${state.selectedPath.join(",")}](${compact(nodeAt(root, state.selectedPath))}) pathB=[${siblingPath.join(",")}](${compact(siblingNode)})`);
 
-  // Apply the new layout to tmux
-  await applyLayout(newRoot);
+  // Get the panes to swap
+  const aPane = firstLeaf(nodeAt(root, state.selectedPath)).pane;
+  const bPane = firstLeaf(siblingNode).pane;
 
-  state.selectedPath = bHit.path;
+  await log(`swap ${dir}: swapping pane ${aPane} with ${bPane}`);
+
+  // Swap panes using tmux swap-pane
+  await swapPane(aPane, bPane);
+
+  // Update the selected path
+  state.selectedPath = siblingPath;
   await saveState(state);
 }
 
