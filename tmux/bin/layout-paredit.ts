@@ -443,14 +443,21 @@ async function swapSubtree(root: Node, state: State, dir: "h" | "j" | "k" | "l")
 
     await log(`swap ${dir}: pathA=[${state.selectedPath.join(",")}](${compact(nodeAt(root, state.selectedPath))}) pathB=[${siblingPath.join(",")}](${compact(siblingNode)})`);
 
-    // Get the panes to swap
-    const aPane = firstLeaf(nodeAt(root, state.selectedPath)).pane;
-    const bPane = firstLeaf(siblingNode).pane;
+    // Get all panes in both subtrees, sorted geometrically
+    const aLeaves = leaves(nodeAt(root, state.selectedPath));
+    const bLeaves = leaves(siblingNode);
 
-    await log(`swap ${dir}: swapping pane ${aPane} with ${bPane}`);
+    // Sort leaves by geometry (top-to-bottom, then left-to-right)
+    const sortedA = [...aLeaves].sort(sortLeavesByGeometry);
+    const sortedB = [...bLeaves].sort(sortLeavesByGeometry);
 
-    // Swap panes using tmux swap-pane
-    await swapPane(aPane, bPane);
+    await log(`swap ${dir}: swapping ${sortedA.length} panes with ${sortedB.length} panes`);
+
+    // Swap corresponding panes
+    const count = Math.min(sortedA.length, sortedB.length);
+    for (let i = 0; i < count; i++) {
+      await swapPane(sortedA[i].pane, sortedB[i].pane);
+    }
 
     await log(`swap ${dir}: swap complete`);
 
