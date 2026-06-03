@@ -469,7 +469,7 @@ function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
   if (node.type === "leaf") {
     // Leaf nodes: if parent is provided, update position to match parent
     if (parentRect) {
-      return { ...node, rect: { ...node.rect, x: parentRect.x, y: parentRect.y } };
+      return { ...node, rect: { ...node.rect, x: parentRect.x, y: parentRect.y, w: parentRect.w, h: parentRect.h } };
     }
     return node;
   }
@@ -498,17 +498,17 @@ function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
   // Now update child rects based on parent rect and axis (top-down)
   const updatedChildren: Node[] = [];
   if (node.axis === "row") {
-    // Left child: x = parent.x, y = parent.y
+    // Left child: x = parent.x, y = parent.y, width = original, height = parent.height
     const leftRect = { w: leftChild.rect.w, h: newRect.h, x: newRect.x, y: newRect.y };
     updatedChildren.push(recalculateRects(leftChild, leftRect));
-    // Right child: x = parent.x + left.width, y = parent.y
+    // Right child: x = parent.x + left.width, y = parent.y, width = original, height = parent.height
     const rightRect = { w: rightChild.rect.w, h: newRect.h, x: newRect.x + leftChild.rect.w, y: newRect.y };
     updatedChildren.push(recalculateRects(rightChild, rightRect));
   } else {
-    // Left child: x = parent.x, y = parent.y
+    // Left child: x = parent.x, y = parent.y, width = parent.width, height = original
     const leftRect = { w: newRect.w, h: leftChild.rect.h, x: newRect.x, y: newRect.y };
     updatedChildren.push(recalculateRects(leftChild, leftRect));
-    // Right child: x = parent.x, y = parent.y + left.height
+    // Right child: x = parent.x, y = parent.y + left.height, width = parent.width, height = original
     const rightRect = { w: newRect.w, h: rightChild.rect.h, x: newRect.x, y: newRect.y + leftChild.rect.h };
     updatedChildren.push(recalculateRects(rightChild, rightRect));
   }
