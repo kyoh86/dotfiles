@@ -463,16 +463,17 @@ function swapNodes(root: Node, pathA: number[], pathB: number[]): Node {
   return recalculateRects(newRoot);
 }
 
-// Recalculate rect values for all split nodes from top to bottom
-// Parent rect determines child rects
-function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
+// Recalculate rect values for all split nodes from bottom to top, then top to bottom
+// First pass: calculate parent rects from children
+// Second pass: update child rects from parent rect
+function recalculateRects(node: Node, parentRect: Rect | null = null, isRoot: boolean = true): Node {
   if (node.type === "leaf") {
     // Leaf nodes keep their original rect (from tmux)
     return node;
   }
 
-  // Recalculate children first
-  const children = node.children.map(c => recalculateRects(c, null));
+  // Recalculate children first (bottom-up)
+  const children = node.children.map(c => recalculateRects(c, null, false));
 
   // Calculate this node's rect from children
   const leftChild = children[0];
@@ -483,21 +484,19 @@ function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
     // Horizontal split: width = sum, height = max
     const width = leftChild.rect.w + rightChild.rect.w;
     const height = Math.max(leftChild.rect.h, rightChild.rect.h);
-    // If this is the root (no parent), set x=0, y=0
-    const x = parentRect ? parentRect.x : 0;
-    const y = parentRect ? parentRect.y : 0;
+    const x = isRoot ? 0 : (parentRect ? parentRect.x : leftChild.rect.x);
+    const y = isRoot ? 0 : (parentRect ? parentRect.y : leftChild.rect.y);
     newRect = { w: width, h: height, x, y };
   } else {
     // Vertical split: width = max, height = sum
     const width = Math.max(leftChild.rect.w, rightChild.rect.w);
     const height = leftChild.rect.h + rightChild.rect.h;
-    // If this is the root (no parent), set x=0, y=0
-    const x = parentRect ? parentRect.x : 0;
-    const y = parentRect ? parentRect.y : 0;
+    const x = isRoot ? 0 : (parentRect ? parentRect.x : leftChild.rect.x);
+    const y = isRoot ? 0 : (parentRect ? parentRect.y : leftChild.rect.y);
     newRect = { w: width, h: height, x, y };
   }
 
-  // Now update child rects based on parent rect and axis
+  // Now update child rects based on parent rect and axis (top-down)
   const updatedChildren: Node[] = [];
   if (node.axis === "row") {
     // Left child: x = parent.x, y = parent.y
