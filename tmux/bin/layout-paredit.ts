@@ -575,23 +575,11 @@ async function flipSelected(root: Node, state: State): Promise<void> {
   await log(`flip: left subtree (${leftLeaves.length} leaves): ${leftLeaves.map(l => l.pane).join(", ")}`);
   await log(`flip: right subtree (${rightLeaves.length} leaves): ${rightLeaves.map(l => l.pane).join(", ")}`);
 
-  // Build coordinate mapping: after flip, left should have right's panes, right should have left's panes
-  const paneIdOverride = new Map<string, string>();
-
-  // Map original left coordinates to right's pane IDs, and vice versa
-  for (let i = 0; i < Math.max(leftLeaves.length, rightLeaves.length); i++) {
-    // Left position i should get right[i]'s pane
-    if (i < leftLeaves.length && i < rightLeaves.length) {
-      const leftCoord = `${leftLeaves[i].rect.x},${leftLeaves[i].rect.y},${leftLeaves[i].rect.w},${leftLeaves[i].rect.h}`;
-      const rightPane = rightLeaves[i].pane.slice(1); // Remove % prefix
-      paneIdOverride.set(leftCoord, rightPane);
-      await log(`flip: map left coord ${leftCoord} -> pane ${rightPane}`);
-
-      const rightCoord = `${rightLeaves[i].rect.x},${rightLeaves[i].rect.y},${rightLeaves[i].rect.w},${rightLeaves[i].rect.h}`;
-      const leftPane = leftLeaves[i].pane.slice(1);
-      paneIdOverride.set(rightCoord, leftPane);
-      await log(`flip: map right coord ${rightCoord} -> pane ${leftPane}`);
-    }
+  // Only support equal length for now
+  if (leftLeaves.length !== rightLeaves.length) {
+    await tmux(["display-message", "flip: only supported for equal-length subtrees"]);
+    await log(`flip: skipped - unequal lengths`);
+    return;
   }
 
   // Swap children in the binary tree (structural change only)
@@ -604,8 +592,18 @@ async function flipSelected(root: Node, state: State): Promise<void> {
 
   await log(`flip: structure after: left=${compact(newN.children[0])}, right=${compact(newN.children[1])}`);
 
-  // Apply the new layout to tmux with pane ID overrides
-  await applyLayout(newRoot, paneIdOverride);
+  // Apply the new layout to tmux
+  await applyLayout(newRoot);
+
+  // Swap pane contents pair-wise
+  for (let i = 0; i < leftLeaves.length; i++) {
+    const leftPane = leftLeaves[i].pane;
+    const rightPane = rightLeaves[i].pane;
+    if (leftPane !== rightPane) {
+      await log(`flip: swap ${leftPane} <-> ${rightPane}`);
+      await swapPane(leftPane, rightPane);
+    }
+  }
 
   await log(`flip: === AFTER FLIP ===`);
   await logPaneContents();
