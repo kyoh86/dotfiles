@@ -466,19 +466,15 @@ async function flipSelected(root: Node, state: State): Promise<void> {
   const n = nodeAt(root, state.selectedPath);
   if (n.type === "leaf") return;
 
-  // Get all panes in both child subtrees, sorted geometrically
-  const aLeaves = leaves(n.children[0]);
-  const bLeaves = leaves(n.children[1]);
+  // Swap children in the binary tree
+  const path = state.selectedPath;
+  const childPath = [...path, 0];
+  const otherChildPath = [...path, 1];
 
-  // Sort leaves by geometry (top-to-bottom, then left-to-right)
-  const sortedA = [...aLeaves].sort(sortLeavesByGeometry);
-  const sortedB = [...bLeaves].sort(sortLeavesByGeometry);
+  const newRoot = swapNodes(root, childPath, otherChildPath);
 
-  // Swap corresponding panes
-  const count = Math.min(sortedA.length, sortedB.length);
-  for (let i = 0; i < count; i++) {
-    await swapPane(sortedA[i].pane, sortedB[i].pane);
-  }
+  // Apply the new layout to tmux
+  await applyLayout(newRoot);
 }
 
 async function growChild(root: Node, state: State, child: 0 | 1): Promise<void> {
