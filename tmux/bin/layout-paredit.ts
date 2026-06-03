@@ -488,9 +488,9 @@ function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
     const y = parentRect ? parentRect.y : 0;
     newRect = { w: width, h: height, x, y };
   } else {
-    // Vertical split: width = max, height = sum
+    // Vertical split: width = max, height = sum + 1 (for divider line)
     const width = Math.max(leftChild.rect.w, rightChild.rect.w);
-    const height = leftChild.rect.h + rightChild.rect.h;
+    const height = leftChild.rect.h + rightChild.rect.h + 1;
     const x = parentRect ? parentRect.x : 0;
     const y = parentRect ? parentRect.y : 0;
     newRect = { w: width, h: height, x, y };
