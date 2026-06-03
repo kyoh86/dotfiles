@@ -406,22 +406,24 @@ function swapNodes(root: Node, pathA: number[], pathB: number[]): Node {
 
   const newRoot = copy(root);
 
-  // Get nodes at paths
-  const getNode = (node: Node, path: number[]): { node: Node; parent: Node | null; index: number } => {
-    if (path.length === 0) return { node, parent: null, index: -1 };
-    let current: Node = node;
+  // Get parent and index at path
+  const getParentAndIndex = (node: Node, path: number[]): { parent: Node | null; index: number } => {
+    if (path.length === 0) return { parent: null, index: -1 };
+    if (path.length === 1) return { parent: newRoot, index: path[0] };
+
+    let current: Node = newRoot;
     let parent: Node | null = null;
     for (let i = 0; i < path.length - 1; i++) {
-      if (current.type === "leaf") return { node: current, parent, index: -1 };
+      if (current.type === "leaf") return { parent: null, index: -1 };
       parent = current;
       current = current.children[path[i]];
     }
     const index = path[path.length - 1];
-    return { node: current.type === "split" ? current.children[index] : current, parent: current.type === "split" ? current : null, index };
+    return { parent: current.type === "split" ? current : null, index };
   };
 
-  const { node: nodeA, parent: parentA, index: indexA } = getNode(newRoot, pathA);
-  const { node: nodeB, parent: parentB, index: indexB } = getNode(newRoot, pathB);
+  const { parent: parentA, index: indexA } = getParentAndIndex(newRoot, pathA);
+  const { parent: parentB, index: indexB } = getParentAndIndex(newRoot, pathB);
 
   if (!parentA || !parentB || parentA.type === "leaf" || parentB.type === "leaf") return newRoot;
 
