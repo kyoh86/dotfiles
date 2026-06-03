@@ -463,36 +463,35 @@ function swapNodes(root: Node, pathA: number[], pathB: number[]): Node {
   return recalculateRects(newRoot);
 }
 
-// Recalculate rect values for all split nodes from bottom to top, then top to bottom
-// First pass: calculate parent rects from children
-// Second pass: update child rects from parent rect
-function recalculateRects(node: Node, parentRect: Rect | null = null, isRoot: boolean = true): Node {
+// Recalculate rect values for all split nodes from top to bottom
+// Parent rect determines child rects
+function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
   if (node.type === "leaf") {
-    // Leaf nodes keep their original rect (from tmux)
+    // Leaf nodes: if parent is provided, update position to match parent
+    if (parentRect) {
+      return { ...node, rect: { ...node.rect, x: parentRect.x, y: parentRect.y } };
+    }
     return node;
   }
 
-  // Recalculate children first (bottom-up)
-  const children = node.children.map(c => recalculateRects(c, null, false));
-
-  // Calculate this node's rect from children
-  const leftChild = children[0];
-  const rightChild = children[1];
+  // First, calculate this node's rect from children (for size)
+  const leftChild = node.children[0];
+  const rightChild = node.children[1];
 
   let newRect: Rect;
   if (node.axis === "row") {
     // Horizontal split: width = sum, height = max
     const width = leftChild.rect.w + rightChild.rect.w;
     const height = Math.max(leftChild.rect.h, rightChild.rect.h);
-    const x = isRoot ? 0 : (parentRect ? parentRect.x : leftChild.rect.x);
-    const y = isRoot ? 0 : (parentRect ? parentRect.y : leftChild.rect.y);
+    const x = parentRect ? parentRect.x : 0;
+    const y = parentRect ? parentRect.y : 0;
     newRect = { w: width, h: height, x, y };
   } else {
     // Vertical split: width = max, height = sum
     const width = Math.max(leftChild.rect.w, rightChild.rect.w);
     const height = leftChild.rect.h + rightChild.rect.h;
-    const x = isRoot ? 0 : (parentRect ? parentRect.x : leftChild.rect.x);
-    const y = isRoot ? 0 : (parentRect ? parentRect.y : leftChild.rect.y);
+    const x = parentRect ? parentRect.x : 0;
+    const y = parentRect ? parentRect.y : 0;
     newRect = { w: width, h: height, x, y };
   }
 
@@ -500,26 +499,18 @@ function recalculateRects(node: Node, parentRect: Rect | null = null, isRoot: bo
   const updatedChildren: Node[] = [];
   if (node.axis === "row") {
     // Left child: x = parent.x, y = parent.y
-    updatedChildren.push({
-      ...leftChild,
-      rect: { ...leftChild.rect, x: newRect.x, y: newRect.y, h: newRect.h }
-    });
+    const leftRect = { w: leftChild.rect.w, h: newRect.h, x: newRect.x, y: newRect.y };
+    updatedChildren.push(recalculateRects(leftChild, leftRect));
     // Right child: x = parent.x + left.width, y = parent.y
-    updatedChildren.push({
-      ...rightChild,
-      rect: { ...rightChild.rect, x: newRect.x + leftChild.rect.w, y: newRect.y, h: newRect.h }
-    });
+    const rightRect = { w: rightChild.rect.w, h: newRect.h, x: newRect.x + leftChild.rect.w, y: newRect.y };
+    updatedChildren.push(recalculateRects(rightChild, rightRect));
   } else {
     // Left child: x = parent.x, y = parent.y
-    updatedChildren.push({
-      ...leftChild,
-      rect: { ...leftChild.rect, x: newRect.x, y: newRect.y, w: newRect.w }
-    });
+    const leftRect = { w: newRect.w, h: leftChild.rect.h, x: newRect.x, y: newRect.y };
+    updatedChildren.push(recalculateRects(leftChild, leftRect));
     // Right child: x = parent.x, y = parent.y + left.height
-    updatedChildren.push({
-      ...rightChild,
-      rect: { ...rightChild.rect, x: newRect.x, y: newRect.y + leftChild.rect.h, w: newRect.w }
-    });
+    const rightRect = { w: newRect.w, h: rightChild.rect.h, x: newRect.x, y: newRect.y + leftChild.rect.h };
+    updatedChildren.push(recalculateRects(rightChild, rightRect));
   }
 
   return { type: "split", axis: node.axis, rect: newRect, children: updatedChildren };
