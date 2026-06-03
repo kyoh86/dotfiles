@@ -418,58 +418,6 @@ async function swapPane(a: string, b: string): Promise<void> {
   await tmux(["swap-pane", "-s", a, "-t", b]);
 }
 
-async function swapSubtree(root: Node, state: State, dir: "h" | "j" | "k" | "l"): Promise<void> {
-  await log(`swap ${dir}: selectedPath=[${state.selectedPath.join(",")}]`);
-
-  try {
-    if (state.selectedPath.length === 0) {
-      await log(`swap ${dir}: root node has no sibling`);
-      return;
-    }
-
-    const pPath = parentPath(state.selectedPath);
-    const parent = nodeAt(root, pPath);
-    await log(`swap ${dir}: parentPath=[${pPath.join(",")}] parentType=${parent.type}`);
-
-    if (parent.type === "leaf") {
-      await log(`swap ${dir}: parent is leaf`);
-      return;
-    }
-
-    const currentIndex = state.selectedPath[state.selectedPath.length - 1];
-    const siblingIndex = 1 - currentIndex;
-    const siblingNode = parent.children[siblingIndex];
-    const siblingPath = [...pPath, siblingIndex];
-
-    await log(`swap ${dir}: pathA=[${state.selectedPath.join(",")}](${compact(nodeAt(root, state.selectedPath))}) pathB=[${siblingPath.join(",")}](${compact(siblingNode)})`);
-
-    // Get all panes in both subtrees, sorted geometrically
-    const aLeaves = leaves(nodeAt(root, state.selectedPath));
-    const bLeaves = leaves(siblingNode);
-
-    // Sort leaves by geometry (top-to-bottom, then left-to-right)
-    const sortedA = [...aLeaves].sort(sortLeavesByGeometry);
-    const sortedB = [...bLeaves].sort(sortLeavesByGeometry);
-
-    await log(`swap ${dir}: swapping ${sortedA.length} panes with ${sortedB.length} panes`);
-
-    // Swap corresponding panes
-    const count = Math.min(sortedA.length, sortedB.length);
-    for (let i = 0; i < count; i++) {
-      await swapPane(sortedA[i].pane, sortedB[i].pane);
-    }
-
-    await log(`swap ${dir}: swap complete`);
-
-    // Update the selected path
-    state.selectedPath = siblingPath;
-    await saveState(state);
-  } catch (e) {
-    await log(`swap ${dir} error: ${e.message}\n${e.stack}`);
-    throw e;
-  }
-}
-
 function sortLeavesByGeometry(a: Leaf, b: Leaf): number {
   if (Math.abs(a.rect.y - b.rect.y) > 1) return a.rect.y - b.rect.y;
   return a.rect.x - b.rect.x;
@@ -518,15 +466,19 @@ async function flipSelected(root: Node, state: State): Promise<void> {
   const n = nodeAt(root, state.selectedPath);
   if (n.type === "leaf") return;
 
-  // Swap children in the binary tree
-  const path = state.selectedPath;
-  const childPath = [...path, 0];
-  const otherChildPath = [...path, 1];
+  // Get all panes in both child subtrees, sorted geometrically
+  const aLeaves = leaves(n.children[0]);
+  const bLeaves = leaves(n.children[1]);
 
-  const newRoot = swapNodes(root, childPath, otherChildPath);
+  // Sort leaves by geometry (top-to-bottom, then left-to-right)
+  const sortedA = [...aLeaves].sort(sortLeavesByGeometry);
+  const sortedB = [...bLeaves].sort(sortLeavesByGeometry);
 
-  // Apply the new layout to tmux
-  await applyLayout(newRoot);
+  // Swap corresponding panes
+  const count = Math.min(sortedA.length, sortedB.length);
+  for (let i = 0; i < count; i++) {
+    await swapPane(sortedA[i].pane, sortedB[i].pane);
+  }
 }
 
 async function growChild(root: Node, state: State, child: 0 | 1): Promise<void> {
@@ -636,10 +588,6 @@ async function main() {
       await flipSelected(root, state);
       break;
     }
-    case "swap-left": await swapSubtree(root, state, "h"); break;
-    case "swap-down": await swapSubtree(root, state, "j"); break;
-    case "swap-up": await swapSubtree(root, state, "k"); break;
-    case "swap-right": await swapSubtree(root, state, "l"); break;
     case "grow0": await growChild(root, state, 0); break;
     case "grow1": await growChild(root, state, 1); break;
     case "clear": {
