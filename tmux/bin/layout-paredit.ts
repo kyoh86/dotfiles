@@ -120,6 +120,25 @@ function normalizeToBinary(node: Node): Node {
   return result;
 }
 
+// Reconstruct tmux layout string from binary tree
+function reconstructLayout(node: Node): string {
+  if (node.type === "leaf") {
+    // Format: width,height,x,y,pane_id
+    return `${node.rect.w}x${node.rect.h},${node.rect.x},${node.rect.y},${node.pane.slice(1)}`;
+  }
+
+  const childrenStr = node.children.map(c => reconstructLayout(c)).join(",");
+  const bracket = node.axis === "row" ? "{" : "[";
+  const closing = node.axis === "row" ? "}" : "]";
+  return `${node.rect.w}x${node.rect.h},${node.rect.x},${node.rect.y}${bracket}${childrenStr}${closing}`;
+}
+
+// Apply layout to tmux
+async function applyLayout(root: Node): Promise<void> {
+  const layout = reconstructLayout(root);
+  await tmux(["select-layout", layout]);
+}
+
 function nodeAt(root: Node, path: number[]): Node {
   let n = root;
   for (const p of path) {
@@ -361,15 +380,13 @@ async function swapSubtree(root: Node, state: State, dir: "h" | "j" | "k" | "l")
   const a = nodeAt(root, state.selectedPath);
   const bHit = neighbor(root, state.selectedPath, dir);
   if (!bHit) return;
-  const b = bHit.node;
 
-  const aLeaves = leaves(a).sort(sortLeavesByGeometry);
-  const bLeaves = leaves(b).sort(sortLeavesByGeometry);
-  const n = Math.min(aLeaves.length, bLeaves.length);
+  // Swap nodes in the binary tree
+  const newRoot = swapNodes(root, state.selectedPath, bHit.path);
 
-  for (let i = 0; i < n; i++) {
-    await swapPane(aLeaves[i].pane, bLeaves[i].pane);
-  }
+  // Apply the new layout to tmux
+  await applyLayout(newRoot);
+
   state.selectedPath = bHit.path;
   await saveState(state);
 }
@@ -379,13 +396,56 @@ function sortLeavesByGeometry(a: Leaf, b: Leaf): number {
   return a.rect.x - b.rect.x;
 }
 
+// Swap two nodes in the binary tree (returns new root)
+function swapNodes(root: Node, pathA: number[], pathB: number[]): Node {
+  // Create a deep copy of the tree
+  const copy = (node: Node): Node => {
+    if (node.type === "leaf") return { ...node };
+    return { type: node.type, axis: node.axis, rect: { ...node.rect }, children: node.children.map(c => copy(c)) };
+  };
+
+  const newRoot = copy(root);
+
+  // Get nodes at paths
+  const getNode = (node: Node, path: number[]): { node: Node; parent: Node | null; index: number } => {
+    if (path.length === 0) return { node, parent: null, index: -1 };
+    let current: Node = node;
+    let parent: Node | null = null;
+    for (let i = 0; i < path.length - 1; i++) {
+      if (current.type === "leaf") return { node: current, parent, index: -1 };
+      parent = current;
+      current = current.children[path[i]];
+    }
+    const index = path[path.length - 1];
+    return { node: current.type === "split" ? current.children[index] : current, parent: current.type === "split" ? current : null, index };
+  };
+
+  const { node: nodeA, parent: parentA, index: indexA } = getNode(newRoot, pathA);
+  const { node: nodeB, parent: parentB, index: indexB } = getNode(newRoot, pathB);
+
+  if (!parentA || !parentB || parentA.type === "leaf" || parentB.type === "leaf") return newRoot;
+
+  // Swap children
+  const temp = parentA.children[indexA];
+  parentA.children[indexA] = parentB.children[indexB];
+  parentB.children[indexB] = temp;
+
+  return newRoot;
+}
+
 async function flipSelected(root: Node, state: State): Promise<void> {
   const n = nodeAt(root, state.selectedPath);
   if (n.type === "leaf") return;
-  const a = leaves(n.children[0]).sort(sortLeavesByGeometry);
-  const b = leaves(n.children[1]).sort(sortLeavesByGeometry);
-  const count = Math.min(a.length, b.length);
-  for (let i = 0; i < count; i++) await swapPane(a[i].pane, b[i].pane);
+
+  // Swap children in the binary tree
+  const path = state.selectedPath;
+  const childPath = [...path, 0];
+  const otherChildPath = [...path, 1];
+
+  const newRoot = swapNodes(root, childPath, otherChildPath);
+
+  // Apply the new layout to tmux
+  await applyLayout(newRoot);
 }
 
 async function growChild(root: Node, state: State, child: 0 | 1): Promise<void> {
@@ -409,9 +469,17 @@ async function splitSelected(root: Node, state: State): Promise<void> {
   const selected = nodeAt(root, state.selectedPath);
   const target = firstLeaf(selected).pane;
   const flag = state.preselect === "row" ? "-h" : "-v";
-  await tmux(["split-window", flag, "-t", target]);
+
+  // Create new pane using tmux split-window
+  await tmux(["split-window", flag, "-t", target, "-P", "-F", "#{pane_id}"]);
+
+  // Read the new layout and normalize it
+  const newRoot = await readTree();
+
   state.preselect = null;
+  state.selectedPath = pathOfPane(newRoot, await currentPane());
   await saveState(state);
+  await paint(newRoot, state);
 }
 
 async function main() {
@@ -479,7 +547,7 @@ async function main() {
     }
     case "split": {
       await splitSelected(root, state);
-      break;
+      return; // splitSelected already handles repaint
     }
     case "flip": {
       await flipSelected(root, state);
