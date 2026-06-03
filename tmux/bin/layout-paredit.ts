@@ -19,7 +19,7 @@ type Split = {
   type: "split";
   axis: Axis;
   rect: Rect;
-  children: [Node, Node];
+  children: Node[];
 };
 
 type Node = Leaf | Split;
@@ -63,14 +63,12 @@ function parseLayout(input: string): Node {
     if (input[i] === "{") {
       i++;
       const children = parseChildren("}");
-      if (children.length !== 2) throw new Error("only binary row splits are supported in this prototype");
-      return { type: "split", axis: "row", rect, children: [children[0], children[1]] };
+      return { type: "split", axis: "row", rect, children };
     }
     if (input[i] === "[") {
       i++;
       const children = parseChildren("]");
-      if (children.length !== 2) throw new Error("only binary col splits are supported in this prototype");
-      return { type: "split", axis: "col", rect, children: [children[0], children[1]] };
+      return { type: "split", axis: "col", rect, children };
     }
 
     if (!paneId) throw new Error(`pane id not found at ${i}: ${rest.slice(0, 40)}`);
@@ -94,6 +92,32 @@ function parseLayout(input: string): Node {
     i = firstComma + 1;
   }
   return parseNode();
+}
+
+// Normalize n-ary tree to binary tree using left-associative folding
+// e.g., [A, B, C] → [[A, B], C]
+function normalizeToBinary(node: Node): Node {
+  if (node.type === "leaf") return node;
+
+  const normalizedChildren = node.children.map(c => normalizeToBinary(c));
+
+  if (normalizedChildren.length === 0) return node;
+  if (normalizedChildren.length === 1) return normalizedChildren[0];
+  if (normalizedChildren.length === 2) {
+    return { type: "split", axis: node.axis, rect: node.rect, children: [normalizedChildren[0], normalizedChildren[1]] };
+  }
+
+  // Left-associative folding: [A, B, C, D] → [[[A, B], C], D]
+  let result = normalizedChildren[0];
+  for (let i = 1; i < normalizedChildren.length; i++) {
+    result = {
+      type: "split",
+      axis: node.axis,
+      rect: node.rect,
+      children: [result, normalizedChildren[i]]
+    };
+  }
+  return result;
 }
 
 function nodeAt(root: Node, path: number[]): Node {
@@ -200,7 +224,8 @@ async function saveState(state: State): Promise<void> {
 
 async function readTree(): Promise<Node> {
   const layout = await tmux(["display-message", "-p", "#{window_layout}"]);
-  return parseLayout(layout);
+  const parsed = parseLayout(layout);
+  return normalizeToBinary(parsed);
 }
 
 async function currentPane(): Promise<string> {
