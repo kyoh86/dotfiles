@@ -380,17 +380,17 @@ async function swapSubtree(root: Node, state: State, dir: "h" | "j" | "k" | "l")
   const a = nodeAt(root, state.selectedPath);
   const bHit = neighbor(root, state.selectedPath, dir);
   if (!bHit) {
-    console.log(`swap ${dir}: no neighbor found at path [${state.selectedPath.join(",")}]`);
+    await log(`swap ${dir}: no neighbor found at path [${state.selectedPath.join(",")}]`);
     return;
   }
 
-  console.log(`swap ${dir}: pathA=[${state.selectedPath.join(",")}] pathB=[${bHit.path.join(",")}]`);
+  await log(`swap ${dir}: pathA=[${state.selectedPath.join(",")}] pathB=[${bHit.path.join(",")}]`);
 
   // Swap nodes in the binary tree
   const newRoot = swapNodes(root, state.selectedPath, bHit.path);
 
-  console.log(`swap ${dir}: original layout: ${reconstructLayout(root)}`);
-  console.log(`swap ${dir}: new layout: ${reconstructLayout(newRoot)}`);
+  await log(`swap ${dir}: original layout: ${reconstructLayout(root)}`);
+  await log(`swap ${dir}: new layout: ${reconstructLayout(newRoot)}`);
 
   // Apply the new layout to tmux
   await applyLayout(newRoot);
