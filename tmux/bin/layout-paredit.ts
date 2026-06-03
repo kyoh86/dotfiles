@@ -156,25 +156,26 @@ function reconstructLayoutWithChecksum(root: Node): string {
 
 // Apply layout to tmux
 async function applyLayout(root: Node): Promise<void> {
+  // Log original layout for comparison
+  const originalLayout = await tmux(["display-message", "-p", "#{window_layout}"]);
+  await log(`original layout: ${originalLayout}`);
+
   const recalculatedRoot = recalculateRects(root, null);
+  await log(`recalculated tree: ${compact(recalculatedRoot)}`);
+
   const layout = reconstructLayout(recalculatedRoot);
-  await log(`applying layout: ${layout}`);
+  await log(`generated layout: ${layout}`);
+
+  const checksum = calculateChecksum(layout);
+  await log(`checksum: ${checksum}`);
+
+  const layoutWithChecksum = `${checksum},${layout}`;
+  await log(`applying layout: ${layoutWithChecksum}`);
   try {
-    // Try without checksum first
-    await tmux(["select-layout", layout]);
+    await tmux(["select-layout", layoutWithChecksum]);
     await log(`layout applied successfully`);
   } catch (e) {
     await log(`layout apply failed: ${e.message}`);
-    // Try with checksum
-    const layoutWithChecksum = reconstructLayoutWithChecksum(recalculatedRoot);
-    await log(`trying with checksum: ${layoutWithChecksum}`);
-    try {
-      await tmux(["select-layout", layoutWithChecksum]);
-      await log(`layout with checksum applied successfully`);
-    } catch (e2) {
-      await log(`layout with checksum also failed: ${e2.message}`);
-      throw e2;
-    }
     throw e;
   }
 }
