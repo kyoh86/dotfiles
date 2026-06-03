@@ -1,134 +1,124 @@
 #!/usr/bin/env -S deno run --allow-run
 
-// Test simplified flip logic
+// Test coordinate-based flip mapping
 
-type Leaf = { pane: string };
+type Leaf = {
+  pane: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
 
 function testEqualLength() {
   console.log("=== Test 1: Equal length [[A,B],[C,D]] → [[C,D],[A,B]] ===");
-  const leftLeaves = [{ pane: "A" }, { pane: "B" }];
-  const rightLeaves = [{ pane: "C" }, { pane: "D" }];
+  const leftLeaves: Leaf[] = [
+    { pane: "%0", x: 0, y: 0, w: 50, h: 50 },
+    { pane: "%1", x: 0, y: 50, w: 50, h: 50 },
+  ];
+  const rightLeaves: Leaf[] = [
+    { pane: "%2", x: 50, y: 0, w: 50, h: 50 },
+    { pane: "%3", x: 50, y: 50, w: 50, h: 50 },
+  ];
 
-  const allPanes = [...leftLeaves, ...rightLeaves].map(l => l.pane);
-  console.log(`All panes: ${allPanes.join(", ")}`);
+  const paneIdOverride = new Map<string, string>();
 
-  const newLeftCount = rightLeaves.length;  // 2
-  const newRightCount = leftLeaves.length; // 2
+  for (let i = 0; i < Math.max(leftLeaves.length, rightLeaves.length); i++) {
+    if (i < leftLeaves.length && i < rightLeaves.length) {
+      const leftCoord = `${leftLeaves[i].x},${leftLeaves[i].y},${leftLeaves[i].w},${leftLeaves[i].h}`;
+      const rightPane = rightLeaves[i].pane.slice(1);
+      paneIdOverride.set(leftCoord, rightPane);
 
-  // After layout change, the structure is flipped
-  // But pane IDs stay at original positions, so:
-  // newLeftLeaves = [A, B] (pane IDs that are now in left subtree)
-  // newRightLeaves = [C, D] (pane IDs that are now in right subtree)
-  const newLeftLeaves = [{ pane: "A" }, { pane: "B" }];
-  const newRightLeaves = [{ pane: "C" }, { pane: "D" }];
-
-  for (let i = 0; i < allPanes.length; i++) {
-    const sourcePane = allPanes[i];
-    let targetPane: string | null = null;
-
-    if (i < newLeftCount) {
-      targetPane = newLeftLeaves[i]?.pane ?? null;
-    } else {
-      targetPane = newRightLeaves[i - newLeftCount]?.pane ?? null;
-    }
-
-    if (targetPane && sourcePane !== targetPane) {
-      console.log(`  swap ${sourcePane} -> ${targetPane}`);
-      // Simulate swap
-      const allIdx = allPanes.indexOf(sourcePane);
-      const targetIdx = allPanes.indexOf(targetPane);
-      [allPanes[allIdx], allPanes[targetIdx]] = [allPanes[targetIdx], allPanes[allIdx]];
+      const rightCoord = `${rightLeaves[i].x},${rightLeaves[i].y},${rightLeaves[i].w},${rightLeaves[i].h}`;
+      const leftPane = leftLeaves[i].pane.slice(1);
+      paneIdOverride.set(rightCoord, leftPane);
     }
   }
 
-  console.log(`Final allPanes: ${allPanes.join(", ")}`);
-  console.log(`Expected distribution: left=[C,D], right=[A,B]`);
-  console.log(`Pass? ${allPanes.slice(0, 2).join(",") === "C,D" && allPanes.slice(2).join(",") === "A,B"}`);
+  console.log(`Coordinate mappings:`);
+  for (const [coord, pane] of paneIdOverride) {
+    console.log(`  ${coord} -> ${pane}`);
+  }
+
+  // Verify expected mappings
+  const expected = new Map([
+    ["0,0,50,50", "2"], // left[0] coord -> right[0] pane
+    ["0,50,50,50", "3"], // left[1] coord -> right[1] pane
+    ["50,0,50,50", "0"], // right[0] coord -> left[0] pane
+    ["50,50,50,50", "1"], // right[1] coord -> left[1] pane
+  ]);
+
+  let pass = true;
+  for (const [coord, pane] of expected) {
+    const actual = paneIdOverride.get(coord);
+    if (actual !== pane) {
+      console.log(`FAIL: ${coord} expected ${pane}, got ${actual ?? "undefined"}`);
+      pass = false;
+    }
+  }
+  console.log(`Pass? ${pass}`);
   console.log("");
 }
 
 function testUnequalLength() {
   console.log("=== Test 2: Unequal length [A, [B,C]] → [[B,C], A] ===");
-  const leftLeaves = [{ pane: "A" }];
-  const rightLeaves = [{ pane: "B" }, { pane: "C" }];
+  const leftLeaves: Leaf[] = [
+    { pane: "%0", x: 0, y: 0, w: 50, h: 100 },
+  ];
+  const rightLeaves: Leaf[] = [
+    { pane: "%1", x: 50, y: 0, w: 50, h: 50 },
+    { pane: "%2", x: 50, y: 50, w: 50, h: 50 },
+  ];
 
-  const allPanes = [...leftLeaves, ...rightLeaves].map(l => l.pane);
-  console.log(`All panes: ${allPanes.join(", ")}`);
+  const paneIdOverride = new Map<string, string>();
 
-  const newLeftCount = rightLeaves.length;  // 2
-  const newRightCount = leftLeaves.length; // 1
+  for (let i = 0; i < Math.max(leftLeaves.length, rightLeaves.length); i++) {
+    if (i < leftLeaves.length && i < rightLeaves.length) {
+      const leftCoord = `${leftLeaves[i].x},${leftLeaves[i].y},${leftLeaves[i].w},${leftLeaves[i].h}`;
+      const rightPane = rightLeaves[i].pane.slice(1);
+      paneIdOverride.set(leftCoord, rightPane);
 
-  // After layout change, pane IDs stay at original positions:
-  // newLeftLeaves = [A] (A was in left, still in left structurally)
-  // newRightLeaves = [B, C] (B,C were in right, still in right structurally)
-  const newLeftLeaves = [{ pane: "A" }];
-  const newRightLeaves = [{ pane: "B" }, { pane: "C" }];
-
-  for (let i = 0; i < allPanes.length; i++) {
-    const sourcePane = allPanes[i];
-    let targetPane: string | null = null;
-
-    if (i < newLeftCount) {
-      targetPane = newLeftLeaves[i]?.pane ?? null;
-    } else {
-      targetPane = newRightLeaves[i - newLeftCount]?.pane ?? null;
-    }
-
-    if (targetPane && sourcePane !== targetPane) {
-      console.log(`  swap ${sourcePane} -> ${targetPane}`);
-      const allIdx = allPanes.indexOf(sourcePane);
-      const targetIdx = allPanes.indexOf(targetPane);
-      [allPanes[allIdx], allPanes[targetIdx]] = [allPanes[targetIdx], allPanes[allIdx]];
+      const rightCoord = `${rightLeaves[i].x},${rightLeaves[i].y},${rightLeaves[i].w},${rightLeaves[i].h}`;
+      const leftPane = leftLeaves[i].pane.slice(1);
+      paneIdOverride.set(rightCoord, leftPane);
     }
   }
 
-  console.log(`Final allPanes: ${allPanes.join(", ")}`);
-  console.log(`Expected distribution: left=[B,C], right=[A]`);
-  console.log(`Pass? ${allPanes.slice(0, 2).join(",") === "B,C" && allPanes.slice(2).join(",") === "A"}`);
-  console.log("");
-}
+  console.log(`Coordinate mappings:`);
+  for (const [coord, pane] of paneIdOverride) {
+    console.log(`  ${coord} -> ${pane}`);
+  }
 
-function testUnequalLengthReverse() {
-  console.log("=== Test 3: Reverse [[B,C], A] → [A, [B,C]] ===");
-  const leftLeaves = [{ pane: "B" }, { pane: "C" }];
-  const rightLeaves = [{ pane: "A" }];
+  // Expected:
+  // left[0] coord (0,0,50,100) -> right[0] pane (1)
+  // right[0] coord (50,0,50,50) -> left[0] pane (0)
+  // right[1] coord (50,50,50,50) -> no mapping (no left[1])
 
-  const allPanes = [...leftLeaves, ...rightLeaves].map(l => l.pane);
-  console.log(`All panes: ${allPanes.join(", ")}`);
+  const expected = new Map([
+    ["0,0,50,100", "1"],
+    ["50,0,50,50", "0"],
+  ]);
 
-  const newLeftCount = rightLeaves.length;  // 1
-  const newRightCount = leftLeaves.length; // 2
-
-  // After layout change:
-  // newLeftLeaves = [B, C] (still in left structurally)
-  // newRightLeaves = [A] (still in right structurally)
-  const newLeftLeaves = [{ pane: "B" }, { pane: "C" }];
-  const newRightLeaves = [{ pane: "A" }];
-
-  for (let i = 0; i < allPanes.length; i++) {
-    const sourcePane = allPanes[i];
-    let targetPane: string | null = null;
-
-    if (i < newLeftCount) {
-      targetPane = newLeftLeaves[i]?.pane ?? null;
-    } else {
-      targetPane = newRightLeaves[i - newLeftCount]?.pane ?? null;
-    }
-
-    if (targetPane && sourcePane !== targetPane) {
-      console.log(`  swap ${sourcePane} -> ${targetPane}`);
-      const allIdx = allPanes.indexOf(sourcePane);
-      const targetIdx = allPanes.indexOf(targetPane);
-      [allPanes[allIdx], allPanes[targetIdx]] = [allPanes[targetIdx], allPanes[allIdx]];
+  let pass = true;
+  for (const [coord, pane] of expected) {
+    const actual = paneIdOverride.get(coord);
+    if (actual !== pane) {
+      console.log(`FAIL: ${coord} expected ${pane}, got ${actual ?? "undefined"}`);
+      pass = false;
     }
   }
 
-  console.log(`Final allPanes: ${allPanes.join(", ")}`);
-  console.log(`Expected distribution: left=[A], right=[B,C]`);
-  console.log(`Pass? ${allPanes.slice(0, 1).join(",") === "A" && allPanes.slice(1).join(",") === "B,C"}`);
+  // Check that right[1] has no mapping
+  if (paneIdOverride.has("50,50,50,50")) {
+    console.log(`FAIL: 50,50,50,50 should have no mapping, got ${paneIdOverride.get("50,50,50,50")}`);
+    pass = false;
+  } else {
+    console.log(`OK: 50,50,50,50 has no mapping (will keep original pane)`);
+  }
+
+  console.log(`Pass? ${pass}`);
   console.log("");
 }
 
 testEqualLength();
 testUnequalLength();
-testUnequalLengthReverse();

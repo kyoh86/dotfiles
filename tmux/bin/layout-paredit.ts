@@ -121,13 +121,17 @@ function normalizeToBinary(node: Node): Node {
 }
 
 // Reconstruct tmux layout string from binary tree
-function reconstructLayout(node: Node): string {
+// Optional paneIdOverride maps coordinate keys "x,y,w,h" to pane IDs
+function reconstructLayout(node: Node, paneIdOverride: Map<string, string> = new Map()): string {
   if (node.type === "leaf") {
+    // Check if there's an override for this position
+    const coordKey = `${node.rect.x},${node.rect.y},${node.rect.w},${node.rect.h}`;
+    const paneId = paneIdOverride.get(coordKey) ?? node.pane.slice(1);
     // Format: width,height,x,y,pane_id
-    return `${node.rect.w}x${node.rect.h},${node.rect.x},${node.rect.y},${node.pane.slice(1)}`;
+    return `${node.rect.w}x${node.rect.h},${node.rect.x},${node.rect.y},${paneId}`;
   }
 
-  const childrenStr = node.children.map(c => reconstructLayout(c)).join(",");
+  const childrenStr = node.children.map(c => reconstructLayout(c, paneIdOverride)).join(",");
   const bracket = node.axis === "row" ? "{" : "[";
   const closing = node.axis === "row" ? "}" : "]";
   return `${node.rect.w}x${node.rect.h},${node.rect.x},${node.rect.y}${bracket}${childrenStr}${closing}`;
@@ -155,7 +159,7 @@ function reconstructLayoutWithChecksum(root: Node): string {
 }
 
 // Apply layout to tmux
-async function applyLayout(root: Node): Promise<void> {
+async function applyLayout(root: Node, paneIdOverride: Map<string, string> = new Map()): Promise<void> {
   // Log original layout for comparison
   const originalLayout = await tmux(["display-message", "-p", "#{window_layout}"]);
   await log(`original layout: ${originalLayout}`);
@@ -163,7 +167,7 @@ async function applyLayout(root: Node): Promise<void> {
   const recalculatedRoot = recalculateRects(root, null);
   await log(`recalculated tree: ${compact(recalculatedRoot)}`);
 
-  const layout = reconstructLayout(recalculatedRoot);
+  const layout = reconstructLayout(recalculatedRoot, paneIdOverride);
   await log(`generated layout: ${layout}`);
 
   const checksum = calculateChecksum(layout);
@@ -555,11 +559,23 @@ async function flipSelected(root: Node, state: State): Promise<void> {
   await log(`flip: left subtree (${leftLeaves.length} leaves): ${leftLeaves.map(l => l.pane).join(", ")}`);
   await log(`flip: right subtree (${rightLeaves.length} leaves): ${rightLeaves.map(l => l.pane).join(", ")}`);
 
-  // Only support equal length subtrees for now
-  if (leftLeaves.length !== rightLeaves.length) {
-    await tmux(["display-message", "flip: only supported for equal-length subtrees"]);
-    await log(`flip: skipped - unequal lengths (left=${leftLeaves.length}, right=${rightLeaves.length})`);
-    return;
+  // Build coordinate mapping: after flip, left should have right's panes, right should have left's panes
+  const paneIdOverride = new Map<string, string>();
+
+  // Map original left coordinates to right's pane IDs, and vice versa
+  for (let i = 0; i < Math.max(leftLeaves.length, rightLeaves.length); i++) {
+    // Left position i should get right[i]'s pane
+    if (i < leftLeaves.length && i < rightLeaves.length) {
+      const leftCoord = `${leftLeaves[i].rect.x},${leftLeaves[i].rect.y},${leftLeaves[i].rect.w},${leftLeaves[i].rect.h}`;
+      const rightPane = rightLeaves[i].pane.slice(1); // Remove % prefix
+      paneIdOverride.set(leftCoord, rightPane);
+      await log(`flip: map left coord ${leftCoord} -> pane ${rightPane}`);
+
+      const rightCoord = `${rightLeaves[i].rect.x},${rightLeaves[i].rect.y},${rightLeaves[i].rect.w},${rightLeaves[i].rect.h}`;
+      const leftPane = leftLeaves[i].pane.slice(1);
+      paneIdOverride.set(rightCoord, leftPane);
+      await log(`flip: map right coord ${rightCoord} -> pane ${leftPane}`);
+    }
   }
 
   // Swap children in the binary tree (structural change only)
@@ -572,19 +588,8 @@ async function flipSelected(root: Node, state: State): Promise<void> {
 
   await log(`flip: structure after: left=${compact(newN.children[0])}, right=${compact(newN.children[1])}`);
 
-  // Apply the new layout to tmux
-  await applyLayout(newRoot);
-
-  // After select-layout, panes are at their ORIGINAL positions
-  // For equal-length subtrees, we just need to swap corresponding pairs
-  for (let i = 0; i < leftLeaves.length; i++) {
-    const leftPane = leftLeaves[i].pane;
-    const rightPane = rightLeaves[i].pane;
-    if (leftPane !== rightPane) {
-      await log(`flip: swap left[${i}] ${leftPane} <-> right[${i}] ${rightPane}`);
-      await swapPane(leftPane, rightPane);
-    }
-  }
+  // Apply the new layout to tmux with pane ID overrides
+  await applyLayout(newRoot, paneIdOverride);
 
   await log(`flip: done`);
 }
