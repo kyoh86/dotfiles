@@ -546,15 +546,43 @@ async function flipSelected(root: Node, state: State): Promise<void> {
   const n = nodeAt(root, state.selectedPath);
   if (n.type === "leaf") return;
 
+  await log(`flip: selected node is ${compact(n)}`);
+
+  // Get all leaves from the entire selected subtree (before flip)
+  const originalLeaves = leaves(n).sort((a, b) => sortLeavesByGeometry(a, b));
+  await log(`flip: original leaves (sorted): ${originalLeaves.map(l => l.pane).join(", ")}`);
+
   // Swap children in the binary tree
   const path = state.selectedPath;
   const childPath = [...path, 0];
   const otherChildPath = [...path, 1];
 
   const newRoot = swapNodes(root, childPath, otherChildPath);
+  const newN = nodeAt(newRoot, path);
 
-  // Apply the new layout to tmux
+  await log(`flip: structure after: left=${compact(newN.children[0])}, right=${compact(newN.children[1])}`);
+
+  // Apply the new layout to tmux first
   await applyLayout(newRoot);
+
+  // After layout change, the pane contents are at their original positions.
+  // We need to swap them so each position gets the content that belongs there.
+  // Get the new leaves in the same order
+  const newLeaves = leaves(newN).sort((a, b) => sortLeavesByGeometry(a, b));
+  await log(`flip: new leaves (sorted): ${newLeaves.map(l => l.pane).join(", ")}`);
+
+  // Swap pane contents based on position mapping
+  // original[i] should end up at new[i]'s position
+  for (let i = 0; i < Math.min(originalLeaves.length, newLeaves.length); i++) {
+    const originalPane = originalLeaves[i].pane;
+    const newPane = newLeaves[i].pane;
+    if (originalPane !== newPane) {
+      await log(`flip: swapping ${originalPane} -> ${newPane} (position ${i})`);
+      await swapPane(originalPane, newPane);
+    }
+  }
+
+  await log(`flip: done`);
 }
 
 async function growChild(root: Node, state: State, child: 0 | 1): Promise<void> {
