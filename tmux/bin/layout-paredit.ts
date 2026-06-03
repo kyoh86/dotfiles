@@ -143,7 +143,8 @@ function reconstructLayoutWithChecksum(root: Node): string {
 
 // Apply layout to tmux
 async function applyLayout(root: Node): Promise<void> {
-  const layout = reconstructLayout(root);
+  const recalculatedRoot = recalculateRects(root);
+  const layout = reconstructLayout(recalculatedRoot);
   await log(`applying layout: ${layout}`);
   try {
     await tmux(["select-layout", layout]);
@@ -459,7 +460,38 @@ function swapNodes(root: Node, pathA: number[], pathB: number[]): Node {
   parentA.children[indexA] = parentB.children[indexB];
   parentB.children[indexB] = temp;
 
-  return newRoot;
+  return recalculateRects(newRoot);
+}
+
+// Recalculate rect values for all split nodes from bottom to top
+function recalculateRects(node: Node): Node {
+  if (node.type === "leaf") return node;
+
+  // Recalculate children first
+  const children = node.children.map(c => recalculateRects(c));
+
+  // Calculate rect from children
+  const leftChild = children[0];
+  const rightChild = children[1];
+
+  let newRect: Rect;
+  if (node.axis === "row") {
+    // Horizontal split: width = sum, height = max
+    const width = leftChild.rect.w + rightChild.rect.w;
+    const height = Math.max(leftChild.rect.h, rightChild.rect.h);
+    const x = Math.min(leftChild.rect.x, rightChild.rect.x);
+    const y = Math.min(leftChild.rect.y, rightChild.rect.y);
+    newRect = { w: width, h: height, x, y };
+  } else {
+    // Vertical split: width = max, height = sum
+    const width = Math.max(leftChild.rect.w, rightChild.rect.w);
+    const height = leftChild.rect.h + rightChild.rect.h;
+    const x = Math.min(leftChild.rect.x, rightChild.rect.x);
+    const y = Math.min(leftChild.rect.y, rightChild.rect.y);
+    newRect = { w: width, h: height, x, y };
+  }
+
+  return { type: "split", axis: node.axis, rect: newRect, children };
 }
 
 async function flipSelected(root: Node, state: State): Promise<void> {
