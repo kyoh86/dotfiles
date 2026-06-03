@@ -427,9 +427,9 @@ async function swapSubtree(root: Node, state: State, dir: "h" | "j" | "k" | "l")
       return;
     }
 
-    const parentPath = parentPath(state.selectedPath);
-    const parent = nodeAt(root, parentPath);
-    await log(`swap ${dir}: parentPath=[${parentPath.join(",")}] parentType=${parent.type}`);
+    const pPath = parentPath(state.selectedPath);
+    const parent = nodeAt(root, pPath);
+    await log(`swap ${dir}: parentPath=[${pPath.join(",")}] parentType=${parent.type}`);
 
     if (parent.type === "leaf") {
       await log(`swap ${dir}: parent is leaf`);
@@ -439,7 +439,7 @@ async function swapSubtree(root: Node, state: State, dir: "h" | "j" | "k" | "l")
     const currentIndex = state.selectedPath[state.selectedPath.length - 1];
     const siblingIndex = 1 - currentIndex;
     const siblingNode = parent.children[siblingIndex];
-    const siblingPath = [...parentPath, siblingIndex];
+    const siblingPath = [...pPath, siblingIndex];
 
     await log(`swap ${dir}: pathA=[${state.selectedPath.join(",")}](${compact(nodeAt(root, state.selectedPath))}) pathB=[${siblingPath.join(",")}](${compact(siblingNode)})`);
 
