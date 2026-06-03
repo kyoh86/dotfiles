@@ -323,6 +323,20 @@ async function log(msg: string): Promise<void> {
   await Deno.writeTextFile(path, `[${new Date().toISOString()}] ${msg}\n`, { append: true });
 }
 
+async function logPaneContents(): Promise<void> {
+  try {
+    const panes = (await tmux(["list-panes", "-F", "#{pane_id}"])).split("\n").filter(Boolean);
+    for (const pane of panes) {
+      const content = await tmux(["capture-pane", "-p", "-t", pane, "-C", "-J"]);
+      // Get first line of content as preview
+      const preview = content.split("\n")[0]?.replace(/\x1b\[.*?m/g, "") ?? "";
+      await log(`pane ${pane}: ${preview.substring(0, 50)}`);
+    }
+  } catch (e) {
+    await log(`failed to capture pane contents: ${e.message}`);
+  }
+}
+
 function pathOfPane(root: Node, pane: string): number[] {
   const found = allNodes(root).find(({ node }) => node.type === "leaf" && node.pane === pane);
   return found?.path ?? [];
@@ -551,6 +565,8 @@ async function flipSelected(root: Node, state: State): Promise<void> {
   if (n.type === "leaf") return;
 
   await log(`flip: selected node is ${compact(n)}`);
+  await log(`flip: === BEFORE FLIP ===`);
+  await logPaneContents();
 
   // Get leaves from left and right subtrees BEFORE flip
   const leftLeaves = leaves(n.children[0]);
@@ -590,6 +606,9 @@ async function flipSelected(root: Node, state: State): Promise<void> {
 
   // Apply the new layout to tmux with pane ID overrides
   await applyLayout(newRoot, paneIdOverride);
+
+  await log(`flip: === AFTER FLIP ===`);
+  await logPaneContents();
 
   await log(`flip: done`);
 }
