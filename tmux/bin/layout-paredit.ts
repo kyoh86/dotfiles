@@ -463,14 +463,13 @@ function swapNodes(root: Node, pathA: number[], pathB: number[]): Node {
   return recalculateRects(newRoot);
 }
 
-// Recalculate rect values for all split nodes from bottom to top
+// Recalculate rect values for all split nodes from top to bottom
+// Parent rect determines child rects, not the other way around
 function recalculateRects(node: Node): Node {
   if (node.type === "leaf") return node;
 
-  // Recalculate children first
+  // Calculate parent rect from children first (for window size)
   const children = node.children.map(c => recalculateRects(c));
-
-  // Calculate rect from children
   const leftChild = children[0];
   const rightChild = children[1];
 
@@ -491,7 +490,33 @@ function recalculateRects(node: Node): Node {
     newRect = { w: width, h: height, x, y };
   }
 
-  return { type: "split", axis: node.axis, rect: newRect, children };
+  // Now update child rects based on parent rect and axis
+  const updatedChildren: Node[] = [];
+  if (node.axis === "row") {
+    // Left child: x = parent.x, y = parent.y
+    updatedChildren.push({
+      ...leftChild,
+      rect: { ...leftChild.rect, x: newRect.x, y: newRect.y, h: newRect.h }
+    });
+    // Right child: x = parent.x + left.width, y = parent.y
+    updatedChildren.push({
+      ...rightChild,
+      rect: { ...rightChild.rect, x: newRect.x + leftChild.rect.w, y: newRect.y, h: newRect.h }
+    });
+  } else {
+    // Left child: x = parent.x, y = parent.y
+    updatedChildren.push({
+      ...leftChild,
+      rect: { ...leftChild.rect, x: newRect.x, y: newRect.y, w: newRect.w }
+    });
+    // Right child: x = parent.x, y = parent.y + left.height
+    updatedChildren.push({
+      ...rightChild,
+      rect: { ...rightChild.rect, x: newRect.x, y: newRect.y + leftChild.rect.h, w: newRect.w }
+    });
+  }
+
+  return { type: "split", axis: node.axis, rect: newRect, children: updatedChildren };
 }
 
 async function flipSelected(root: Node, state: State): Promise<void> {
