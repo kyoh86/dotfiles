@@ -575,13 +575,6 @@ async function flipSelected(root: Node, state: State): Promise<void> {
   await log(`flip: left subtree (${leftLeaves.length} leaves): ${leftLeaves.map(l => l.pane).join(", ")}`);
   await log(`flip: right subtree (${rightLeaves.length} leaves): ${rightLeaves.map(l => l.pane).join(", ")}`);
 
-  // Only support equal length for now
-  if (leftLeaves.length !== rightLeaves.length) {
-    await tmux(["display-message", "flip: only supported for equal-length subtrees"]);
-    await log(`flip: skipped - unequal lengths`);
-    return;
-  }
-
   // Swap children in the binary tree (structural change only)
   const path = state.selectedPath;
   const childPath = [...path, 0];
@@ -595,13 +588,51 @@ async function flipSelected(root: Node, state: State): Promise<void> {
   // Apply the new layout to tmux
   await applyLayout(newRoot);
 
-  // Swap pane contents pair-wise
-  for (let i = 0; i < leftLeaves.length; i++) {
-    const leftPane = leftLeaves[i].pane;
-    const rightPane = rightLeaves[i].pane;
-    if (leftPane !== rightPane) {
-      await log(`flip: swap ${leftPane} <-> ${rightPane}`);
-      await swapPane(leftPane, rightPane);
+  // After select-layout, panes are at their ORIGINAL positions
+  // We need to swap them to match the new structure
+  // Use cycle-based swap for correct positioning
+
+  const allLeaves = [...leftLeaves, ...rightLeaves];
+  const newLeftLeaves = leaves(newN.children[0]);
+  const newRightLeaves = leaves(newN.children[1]);
+  const newLeaves = [...newLeftLeaves, ...newRightLeaves];
+
+  // Build mapping: current position -> target position
+  // After select-layout, allLeaves[i] is at position i
+  // It should end up at the position where newLeaves has the same pane ID
+  const targetAt: (number | null)[] = [];
+  for (let i = 0; i < allLeaves.length; i++) {
+    const paneId = allLeaves[i].pane;
+    // Find where this pane should be in the new layout
+    const targetIdx = newLeaves.findIndex(l => l.pane === paneId);
+    targetAt[i] = targetIdx >= 0 ? targetIdx : null;
+  }
+
+  await log(`flip: target mapping: ${targetAt.map((t, i) => `${allLeaves[i].pane}->pos${t}`).join(", ")}`);
+
+  // Perform swaps using cycle decomposition
+  const visited = new Set<number>();
+  for (let i = 0; i < allLeaves.length; i++) {
+    if (visited.has(i)) continue;
+    const cycle: number[] = [];
+    let current = i;
+    while (current !== null && !visited.has(current) && targetAt[current] !== null) {
+      cycle.push(current);
+      visited.add(current);
+      const next = targetAt[current];
+      if (next === cycle[0]) break;
+      current = next;
+    }
+
+    if (cycle.length > 1) {
+      await log(`flip: cycle: ${cycle.map(c => allLeaves[c].pane).join(" -> ")}`);
+      // Rotate the cycle: last->first, second-last->last, ..., first->second
+      const tempPane = allLeaves[cycle[cycle.length - 1]].pane;
+      for (let j = cycle.length - 1; j > 0; j--) {
+        const fromPane = allLeaves[cycle[j - 1]].pane;
+        await log(`flip: swap ${fromPane} -> ${tempPane}`);
+        await swapPane(fromPane, tempPane);
+      }
     }
   }
 
