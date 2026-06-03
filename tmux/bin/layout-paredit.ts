@@ -133,11 +133,24 @@ function reconstructLayout(node: Node): string {
   return `${node.rect.w}x${node.rect.h},${node.rect.x},${node.rect.y}${bracket}${childrenStr}${closing}`;
 }
 
+// Calculate tmux layout checksum
+function calculateChecksum(layout: string): string {
+  let csum = 0;
+  for (let i = 0; i < layout.length; i++) {
+    const char = layout.charCodeAt(i);
+    csum = (csum >> 1) + ((csum & 1) << 15);
+    csum += char;
+    if (csum >= 2 ** 16) {
+      csum -= 2 ** 16;
+    }
+  }
+  return csum.toString(16).padStart(4, '0');
+}
+
 // Reconstruct tmux layout string with checksum
 function reconstructLayoutWithChecksum(root: Node): string {
   const layout = reconstructLayout(root);
-  // Generate a simple checksum (tmux uses a real checksum, but we'll use a placeholder)
-  const checksum = "0000";
+  const checksum = calculateChecksum(layout);
   return `${checksum},${layout}`;
 }
 
