@@ -506,11 +506,11 @@ function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
     const rightRect = { w: rightChild.rect.w, h: newRect.h, x: newRect.x + leftChild.rect.w, y: newRect.y };
     updatedChildren.push(recalculateRects(rightChild, rightRect));
   } else {
-    // Left child: x = parent.x, y = parent.y
+    // Left child: x = parent.x, y = parent.y, height = original
     const leftRect = { w: newRect.w, h: leftChild.rect.h, x: newRect.x, y: newRect.y };
     updatedChildren.push(recalculateRects(leftChild, leftRect));
-    // Right child: x = parent.x, y = parent.y + left.height
-    const rightRect = { w: newRect.w, h: rightChild.rect.h, x: newRect.x, y: newRect.y + leftChild.rect.h };
+    // Right child: x = parent.x, y = parent.y + left.height + 1, height = original
+    const rightRect = { w: newRect.w, h: rightChild.rect.h, x: newRect.x, y: newRect.y + leftChild.rect.h + 1 };
     updatedChildren.push(recalculateRects(rightChild, rightRect));
   }
 
