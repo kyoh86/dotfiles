@@ -377,10 +377,12 @@ async function swapPane(a: string, b: string): Promise<void> {
 }
 
 async function swapSubtree(root: Node, state: State, dir: "h" | "j" | "k" | "l"): Promise<void> {
+  await log(`swap ${dir}: selectedPath=[${state.selectedPath.join(",")}]`);
+
   const a = nodeAt(root, state.selectedPath);
   const bHit = neighbor(root, state.selectedPath, dir);
   if (!bHit) {
-    await log(`swap ${dir}: no neighbor found at path [${state.selectedPath.join(",")}]`);
+    await log(`swap ${dir}: no neighbor found`);
     return;
   }
 
