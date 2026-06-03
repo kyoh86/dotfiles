@@ -147,10 +147,21 @@ async function applyLayout(root: Node): Promise<void> {
   const layout = reconstructLayout(recalculatedRoot);
   await log(`applying layout: ${layout}`);
   try {
+    // Try without checksum first
     await tmux(["select-layout", layout]);
     await log(`layout applied successfully`);
   } catch (e) {
     await log(`layout apply failed: ${e.message}`);
+    // Try with checksum
+    const layoutWithChecksum = reconstructLayoutWithChecksum(recalculatedRoot);
+    await log(`trying with checksum: ${layoutWithChecksum}`);
+    try {
+      await tmux(["select-layout", layoutWithChecksum]);
+      await log(`layout with checksum applied successfully`);
+    } catch (e2) {
+      await log(`layout with checksum also failed: ${e2.message}`);
+      throw e2;
+    }
     throw e;
   }
 }
