@@ -110,11 +110,34 @@ function normalizeToBinary(node: Node): Node {
   // Left-associative folding: [A, B, C, D] → [[[A, B], C], D]
   let result = normalizedChildren[0];
   for (let i = 1; i < normalizedChildren.length; i++) {
+    const leftChild = result;
+    const rightChild = normalizedChildren[i];
+
+    // Calculate rect for intermediate node based on children
+    let intermediateRect: Rect;
+    if (node.axis === "row") {
+      // Row split: horizontal layout
+      intermediateRect = {
+        x: leftChild.rect.x,
+        y: leftChild.rect.y,
+        w: leftChild.rect.w + 1 + rightChild.rect.w,  // left + border + right
+        h: Math.max(leftChild.rect.h, rightChild.rect.h),
+      };
+    } else {
+      // Col split: vertical layout
+      intermediateRect = {
+        x: leftChild.rect.x,
+        y: leftChild.rect.y,
+        w: Math.max(leftChild.rect.w, rightChild.rect.w),
+        h: leftChild.rect.h + 1 + rightChild.rect.h,  // top + border + bottom
+      };
+    }
+
     result = {
       type: "split",
       axis: node.axis,
-      rect: node.rect,
-      children: [result, normalizedChildren[i]]
+      rect: intermediateRect,
+      children: [leftChild, rightChild]
     };
   }
   return result;
@@ -467,8 +490,9 @@ function sortLeavesByGeometry(a: Leaf, b: Leaf): number {
   return a.rect.x - b.rect.x;
 }
 
-// Swap two nodes in the binary tree (returns new root)
-function swapNodes(root: Node, pathA: number[], pathB: number[]): Node {
+// Swap children of a node at the given path (returns new root)
+// For flip operation: swap the two direct children (0 and 1) of the selected node
+function swapChildren(root: Node, path: number[]): Node {
   // Create a deep copy of the tree
   const copy = (node: Node): Node => {
     if (node.type === "leaf") return { ...node };
@@ -477,33 +501,21 @@ function swapNodes(root: Node, pathA: number[], pathB: number[]): Node {
 
   const newRoot = copy(root);
 
-  // Get parent and index at path
-  const getParentAndIndex = (node: Node, path: number[]): { parent: Node | null; index: number } => {
-    if (path.length === 0) return { parent: null, index: -1 };
-    if (path.length === 1) return { parent: newRoot, index: path[0] };
+  // Navigate to the node at the given path
+  let current: Node = newRoot;
+  for (const i of path) {
+    if (current.type === "leaf") return newRoot; // Can't swap children of a leaf
+    current = current.children[i];
+  }
 
-    let current: Node = newRoot;
-    let parent: Node | null = null;
-    for (let i = 0; i < path.length - 1; i++) {
-      if (current.type === "leaf") return { parent: null, index: -1 };
-      parent = current;
-      current = current.children[path[i]];
-    }
-    const index = path[path.length - 1];
-    return { parent: current.type === "split" ? current : null, index };
-  };
+  if (current.type === "leaf") return newRoot; // Can't swap children of a leaf
 
-  const { parent: parentA, index: indexA } = getParentAndIndex(newRoot, pathA);
-  const { parent: parentB, index: indexB } = getParentAndIndex(newRoot, pathB);
+  // Swap the two children
+  const temp = current.children[0];
+  current.children[0] = current.children[1];
+  current.children[1] = temp;
 
-  if (!parentA || !parentB || parentA.type === "leaf" || parentB.type === "leaf") return newRoot;
-
-  // Swap children
-  const temp = parentA.children[indexA];
-  parentA.children[indexA] = parentB.children[indexB];
-  parentB.children[indexB] = temp;
-
-  return recalculateRects(newRoot);
+  return newRoot;
 }
 
 // Recalculate rect values for all split nodes from top to bottom
@@ -524,26 +536,30 @@ function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
     rect.y = parentRect.y;
   }
 
-  // Recalculate children with this node as parent
-  const leftChild = recalculateRects(node.children[0], null);
-  const rightChild = recalculateRects(node.children[1], null);
-
   // Update child rects based on parent rect and axis (top-down)
   const updatedChildren: Node[] = [];
   if (node.axis === "row") {
+    // Row split: horizontal layout with 1px border between children
     // Left child: x = parent.x, y = parent.y
-    const leftRect = { w: leftChild.rect.w, h: rect.h, x: rect.x, y: rect.y };
-    updatedChildren.push(recalculateRects(leftChild, leftRect));
-    // Right child: x = parent.x + left.width, y = parent.y
-    const rightRect = { w: rightChild.rect.w, h: rect.h, x: rect.x + leftChild.rect.w, y: rect.y };
-    updatedChildren.push(recalculateRects(rightChild, rightRect));
+    const leftRect = { w: node.children[0].rect.w, h: rect.h, x: rect.x, y: rect.y };
+    updatedChildren.push(recalculateRects(node.children[0], leftRect));
+    // Right child: x = parent.x + left.width + 1 (border), y = parent.y
+    const rightRect = { w: node.children[1].rect.w, h: rect.h, x: rect.x + node.children[0].rect.w + 1, y: rect.y };
+    updatedChildren.push(recalculateRects(node.children[1], rightRect));
+
+    // Update parent width to match actual children width (including border)
+    rect.w = node.children[0].rect.w + 1 + node.children[1].rect.w;
   } else {
-    // Left child: x = parent.x, y = parent.y, height = original
-    const leftRect = { w: rect.w, h: leftChild.rect.h, x: rect.x, y: rect.y };
-    updatedChildren.push(recalculateRects(leftChild, leftRect));
-    // Right child: x = parent.x, y = parent.y + left.height + 1, height = original
-    const rightRect = { w: rect.w, h: rightChild.rect.h, x: rect.x, y: rect.y + leftChild.rect.h + 1 };
-    updatedChildren.push(recalculateRects(rightChild, rightRect));
+    // Col split: vertical layout with 1px border between children
+    // Left child: x = parent.x, y = parent.y
+    const leftRect = { w: rect.w, h: node.children[0].rect.h, x: rect.x, y: rect.y };
+    updatedChildren.push(recalculateRects(node.children[0], leftRect));
+    // Right child: x = parent.x, y = parent.y + left.height + 1 (border)
+    const rightRect = { w: rect.w, h: node.children[1].rect.h, x: rect.x, y: rect.y + node.children[0].rect.h + 1 };
+    updatedChildren.push(recalculateRects(node.children[1], rightRect));
+
+    // Update parent height to match actual children height (including border)
+    rect.h = node.children[0].rect.h + 1 + node.children[1].rect.h;
   }
 
   return { type: "split", axis: node.axis, rect, children: updatedChildren };
@@ -566,10 +582,7 @@ async function flipSelected(root: Node, state: State): Promise<void> {
 
   // Swap children in the binary tree (structural change only)
   const path = state.selectedPath;
-  const childPath = [...path, 0];
-  const otherChildPath = [...path, 1];
-
-  const newRoot = swapNodes(root, childPath, otherChildPath);
+  const newRoot = swapChildren(root, path);
   const newN = nodeAt(newRoot, path);
 
   await log(`flip: structure after: left=${compact(newN.children[0])}, right=${compact(newN.children[1])}`);
