@@ -1,30 +1,30 @@
 #!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-env
 
-type Axis = "row" | "col";
+export type Axis = "row" | "col";
 
-type Rect = {
+export type Rect = {
   x: number;
   y: number;
   w: number;
   h: number;
 };
 
-type Leaf = {
+export type Leaf = {
   type: "leaf";
   pane: string;
   rect: Rect;
 };
 
-type Split = {
+export type Split = {
   type: "split";
   axis: Axis;
   rect: Rect;
   children: Node[];
 };
 
-type Node = Leaf | Split;
+export type Node = Leaf | Split;
 
-type State = {
+export type State = {
   selectedPath: number[];
   preselect: Axis | null;
   popups: string[];
@@ -44,7 +44,7 @@ async function tmux(args: string[]): Promise<string> {
   return new TextDecoder().decode(out.stdout).trimEnd();
 }
 
-function parseRectParts(w: string, h: string, x: string, y: string): Rect {
+export function parseRectParts(w: string, h: string, x: string, y: string): Rect {
   return { w: Number(w), h: Number(h), x: Number(x), y: Number(y) };
 }
 
@@ -96,7 +96,7 @@ function parseLayout(input: string): Node {
 
 // Normalize n-ary tree to binary tree using left-associative folding
 // e.g., [A, B, C] → [[A, B], C]
-function normalizeToBinary(node: Node): Node {
+export function normalizeToBinary(node: Node): Node {
   if (node.type === "leaf") return node;
 
   const normalizedChildren = node.children.map(c => normalizeToBinary(c));
@@ -145,7 +145,7 @@ function normalizeToBinary(node: Node): Node {
 
 // Reconstruct tmux layout string from binary tree
 // Optional paneIdOverride maps coordinate keys "x,y,w,h" to pane IDs
-function reconstructLayout(node: Node, paneIdOverride: Map<string, string> = new Map()): string {
+export function reconstructLayout(node: Node, paneIdOverride: Map<string, string> = new Map()): string {
   if (node.type === "leaf") {
     // Check if there's an override for this position
     const coordKey = `${node.rect.x},${node.rect.y},${node.rect.w},${node.rect.h}`;
@@ -161,7 +161,7 @@ function reconstructLayout(node: Node, paneIdOverride: Map<string, string> = new
 }
 
 // Calculate tmux layout checksum
-function calculateChecksum(layout: string): string {
+export function calculateChecksum(layout: string): string {
   let csum = 0;
   for (let i = 0; i < layout.length; i++) {
     const char = layout.charCodeAt(i);
@@ -202,12 +202,13 @@ async function applyLayout(root: Node, paneIdOverride: Map<string, string> = new
     await tmux(["select-layout", layoutWithChecksum]);
     await log(`layout applied successfully`);
   } catch (e) {
-    await log(`layout apply failed: ${e.message}`);
+    const msg = e instanceof Error ? e.message : String(e);
+    await log(`layout apply failed: ${msg}`);
     throw e;
   }
 }
 
-function nodeAt(root: Node, path: number[]): Node {
+export function nodeAt(root: Node, path: number[]): Node {
   let n = root;
   for (const p of path) {
     if (n.type === "leaf") return n;
@@ -216,23 +217,23 @@ function nodeAt(root: Node, path: number[]): Node {
   return n;
 }
 
-function parentPath(path: number[]): number[] {
+export function parentPath(path: number[]): number[] {
   return path.slice(0, -1);
 }
 
-function siblingPath(path: number[]): number[] {
+export function siblingPath(path: number[]): number[] {
   if (path.length === 0) return path;
   const out = path.slice();
   out[out.length - 1] = 1 - out[out.length - 1];
   return out;
 }
 
-function leaves(node: Node): Leaf[] {
+export function leaves(node: Node): Leaf[] {
   if (node.type === "leaf") return [node];
   return [...leaves(node.children[0]), ...leaves(node.children[1])];
 }
 
-function allNodes(node: Node, path: number[] = []): Array<{ node: Node; path: number[] }> {
+export function allNodes(node: Node, path: number[] = []): Array<{ node: Node; path: number[] }> {
   const out = [{ node, path }];
   if (node.type === "split") {
     out.push(...allNodes(node.children[0], [...path, 0]));
@@ -241,19 +242,19 @@ function allNodes(node: Node, path: number[] = []): Array<{ node: Node; path: nu
   return out;
 }
 
-function firstLeaf(node: Node): Leaf {
+export function firstLeaf(node: Node): Leaf {
   return leaves(node)[0];
 }
 
-function center(n: Node): { x: number; y: number } {
+export function center(n: Node): { x: number; y: number } {
   return { x: n.rect.x + n.rect.w / 2, y: n.rect.y + n.rect.h / 2 };
 }
 
-function isPrefix(a: number[], b: number[]): boolean {
+export function isPrefix(a: number[], b: number[]): boolean {
   return a.length <= b.length && a.every((v, i) => v === b[i]);
 }
 
-function compact(node: Node): string {
+export function compact(node: Node): string {
   if (node.type === "leaf") return node.pane;
   const op = node.axis === "row" ? "|" : "/";
   return `(${compact(node.children[0])}${op}${compact(node.children[1])})`;
@@ -265,19 +266,19 @@ function neighbor(root: Node, selectedPath: number[], dir: "h" | "j" | "k" | "l"
 
   // First, try to find a neighbor in the binary tree structure
   if (selectedPath.length > 0) {
-    const parentPath = parentPath(selectedPath);
-    const parent = nodeAt(root, parentPath);
+    const pParent = parentPath(selectedPath);
+    const parent = nodeAt(root, pParent);
     if (parent.type === "split") {
       const currentIndex = selectedPath[selectedPath.length - 1];
       const siblingIndex = 1 - currentIndex;
 
       // For horizontal moves (h/l), if the parent is a row split, use the sibling
       if ((dir === "h" || dir === "l") && parent.axis === "row") {
-        return { node: parent.children[siblingIndex], path: [...parentPath, siblingIndex] };
+        return { node: parent.children[siblingIndex], path: [...pParent, siblingIndex] };
       }
       // For vertical moves (j/k), if the parent is a col split, use the sibling
       if ((dir === "j" || dir === "k") && parent.axis === "col") {
-        return { node: parent.children[siblingIndex], path: [...parentPath, siblingIndex] };
+        return { node: parent.children[siblingIndex], path: [...pParent, siblingIndex] };
       }
     }
   }
@@ -356,11 +357,12 @@ async function logPaneContents(): Promise<void> {
       await log(`pane ${pane}: ${preview.substring(0, 50)}`);
     }
   } catch (e) {
-    await log(`failed to capture pane contents: ${e.message}`);
+    const msg = e instanceof Error ? e.message : String(e);
+    await log(`failed to capture pane contents: ${msg}`);
   }
 }
 
-function pathOfPane(root: Node, pane: string): number[] {
+export function pathOfPane(root: Node, pane: string): number[] {
   const found = allNodes(root).find(({ node }) => node.type === "leaf" && node.pane === pane);
   return found?.path ?? [];
 }
@@ -485,14 +487,14 @@ async function swapPane(a: string, b: string): Promise<void> {
   await tmux(["swap-pane", "-s", a, "-t", b]);
 }
 
-function sortLeavesByGeometry(a: Leaf, b: Leaf): number {
+export function sortLeavesByGeometry(a: Leaf, b: Leaf): number {
   if (Math.abs(a.rect.y - b.rect.y) > 1) return a.rect.y - b.rect.y;
   return a.rect.x - b.rect.x;
 }
 
 // Swap children of a node at the given path (returns new root)
 // For flip operation: swap the two direct children (0 and 1) of the selected node
-function swapChildren(root: Node, path: number[]): Node {
+export function swapChildren(root: Node, path: number[]): Node {
   // Create a deep copy of the tree
   const copy = (node: Node): Node => {
     if (node.type === "leaf") return { ...node };
@@ -520,7 +522,7 @@ function swapChildren(root: Node, path: number[]): Node {
 
 // Recalculate rect values for all split nodes from top to bottom
 // Parent rect determines child rects
-function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
+export function recalculateRects(node: Node, parentRect: Rect | null = null): Node {
   if (node.type === "leaf") {
     // Leaf nodes: keep original size, only update x/y to match parent
     if (parentRect) {
@@ -584,6 +586,8 @@ async function flipSelected(root: Node, state: State): Promise<void> {
   const path = state.selectedPath;
   const newRoot = swapChildren(root, path);
   const newN = nodeAt(newRoot, path);
+
+  if (newN.type === "leaf") return; // Should not happen since we checked n.type above
 
   await log(`flip: structure after: left=${compact(newN.children[0])}, right=${compact(newN.children[1])}`);
 
@@ -769,14 +773,17 @@ async function main() {
   const updatedRoot = await readTree();
   await paint(updatedRoot, state);
   } catch (e) {
-    await log(`main error: ${e.message}\n${e.stack}`);
+    const msg = e instanceof Error ? e.message : String(e);
+    const stack = e instanceof Error ? e.stack : undefined;
+    await log(`main error: ${msg}\n${stack ?? ""}`);
     throw e;
   }
 }
 
 if (import.meta.main) {
   main().catch(async (e) => {
-    await tmux(["display-message", `layout-paredit error: ${e.message}`]).catch(() => {});
+    const msg = e instanceof Error ? e.message : String(e);
+    await tmux(["display-message", `layout-paredit error: ${msg}`]).catch(() => {});
     console.error(e);
     Deno.exit(1);
   });
