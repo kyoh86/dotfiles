@@ -178,7 +178,7 @@ func printStatus(status GitStatus) {
 		}
 
 		if len(parts) > 0 {
-			fmt.Printf(" %s ", strings.Join(parts, " "))
+			fmt.Printf("#[fg=green,bg=brightgreen,bold]\uE0BA#[default]#[fg=brightwhite,bg=green,bold] %s #[default]", strings.Join(parts, " "))
 		}
 	}
 
@@ -203,7 +203,7 @@ func printStatus(status GitStatus) {
 		output := strings.Join(result, " ")
 		if status.Dirty {
 			// Apply style only when dirty
-			output = "#[fg=black,bg=yellow,bold] " + output + " #[default]"
+			output = "#[fg=yellow,bg=green,bold]\uE0BA#[default]#[fg=black,bg=yellow,bold] " + output + " #[default]"
 		}
 		fmt.Print(output)
 	}
