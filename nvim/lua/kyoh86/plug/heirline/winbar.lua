@@ -2,6 +2,7 @@
 local conditions = require("heirline.conditions")
 local palette = require("kyoh86.plug.heirline.palette")
 local File = require("kyoh86.plug.heirline.file")
+local Mode = require("kyoh86.plug.heirline.mode")
 local Bufnr = require("kyoh86.plug.heirline.bufnr")
 local Ruler = require("kyoh86.plug.heirline.ruler")
 local Diagnostics = require("kyoh86.plug.heirline.diagnostics")
@@ -11,6 +12,12 @@ return {
     self.mode_colors = palette.mode_colors()
   end,
   {
+    {
+      Mode,
+      hl = function(self)
+        return { fg = "brightwhite", bg = self.mode_colors.deep }
+      end,
+    },
     {
       {
         File,

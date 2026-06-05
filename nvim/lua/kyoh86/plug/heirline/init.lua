@@ -6,8 +6,8 @@ local function setup_heirline()
   require("kyoh86.lib.scheme").onSchemeChanged(function(colors_name)
     palette.set(vim.g[colors_name .. "_palette"])
 
-    vim.opt.showmode = false -- feline で表示するので、vim標準のモード表示は隠す
-    vim.opt.laststatus = 3 -- statuslineにはGlobalな情報だけ表示して、一番下に表示する
+    vim.opt.showmode = false -- winbar color で表示するので、vim標準のモード表示は隠す
+    vim.opt.laststatus = 0 -- statuslineには何も表示しない（tmux statusに任せる）
 
     local winbar = require("kyoh86.plug.heirline.winbar")
     local status = require("kyoh86.plug.heirline.status")
