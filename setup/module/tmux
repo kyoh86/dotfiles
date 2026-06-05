@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# tmux
+install_tmux() {
+  if command -v tmux >/dev/null 2>&1; then
+    return
+  fi
+
+  TGZ_DIR="${HOME}/.cache/tmux-install/"
+  rm -rf "${TGZ_DIR}"
+  mkdir -p "${TGZ_DIR}"
+
+  gh --repo tmux/tmux-builds release download -p '*-linux-x86_64.tar.gz' --output - | tar --directory "${TGZ_DIR}" -xvz
+  BIN_DIR="${HOME}/.local/bin/"
+  mv "${TGZ_DIR}/tmux" "${BIN_DIR}/tmux"
+  chmod +x "${BIN_DIR}/tmux"
+}
+
+install_tmux

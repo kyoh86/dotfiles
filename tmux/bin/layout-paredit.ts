@@ -671,7 +671,7 @@ async function splitSelected(root: Node, state: State): Promise<void> {
   const flag = state.preselect === "row" ? "-h" : "-v";
 
   // Create new pane using tmux split-window
-  await tmux(["split-window", flag, "-t", target, "-P", "-F", "#{pane_id}"]);
+  await tmux(["split-window", flag, "-t", target, "-P", "-F", "#{pane_id}", "-c", "#{pane_current_path}"]);
 
   // Read the new layout and normalize it
   const newRoot = await readTree();

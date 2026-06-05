@@ -72,7 +72,7 @@ group:hook("User", {
   callback = require("kyoh86.lib.func").vind_all(notify_update),
 })
 
-group:hook({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave", "ModeChanged" }, {
+group:hook({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave" }, {
   callback = notify_update,
 })
 

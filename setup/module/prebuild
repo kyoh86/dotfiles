@@ -1,0 +1,3 @@
+#!/bin/bash
+
+make -C "${XDG_CONFIG_HOME}/prebuild" install
