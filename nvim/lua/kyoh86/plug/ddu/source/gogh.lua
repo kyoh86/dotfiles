@@ -23,6 +23,7 @@ local spec = {
       return 0
     end
     vim.fn["ddu#custom#action"]("kind", "gogh_project", "custom:ff_file", custom_ff_file)
+    vim.fn["ddu#custom#action"]("kind", "gogh_worktree", "custom:ff_file", custom_ff_file)
 
     local custom_gh_issue = function(args)
       if #args.items ~= 1 then
