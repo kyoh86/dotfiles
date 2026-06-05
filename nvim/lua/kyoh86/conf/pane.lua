@@ -684,9 +684,9 @@ local function split_selected()
   local cur = vim.api.nvim_get_current_win()
   vim.api.nvim_set_current_win(target)
   if state.preselect == "v" then
-    vim.cmd("vsplit")
+    vim.cmd("vnew")
   else
-    vim.cmd("split")
+    vim.cmd("new")
   end
   state.preselect = nil
   state.selected_path = path_of_winid(vim.fn.winlayout(), vim.api.nvim_get_current_win())

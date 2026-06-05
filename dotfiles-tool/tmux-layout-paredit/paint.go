@@ -201,7 +201,7 @@ func splitSelected(root Node, state *State) error {
 		flag = "-v"
 	}
 
-	if _, err := tmux("split-window", flag, "-t", target, "-P", "-F", "#{pane_id}", "-c", "#{pane_current_path}"); err != nil {
+	if _, err := tmux("split-window", flag, "-t", target, "-P", "-F", "#{pane_id}", "-c", "#{pane_current_path}", "-b"); err != nil {
 		return err
 	}
 
