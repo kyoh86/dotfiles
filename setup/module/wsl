@@ -11,6 +11,12 @@ default=kyoh86
 [interop]
 appendWindowsPath=false
 EOS
+
+  cat - << EOS | tee $HOME/.zshenv
+if [ -n "$XDG_CONFIG_HOME" ] ; then
+    export ZDOTDIR=${XDG_CONFIG_HOME}/zsh
+fi
+EOS
 }
 
 create_wsl_config
