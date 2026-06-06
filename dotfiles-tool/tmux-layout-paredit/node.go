@@ -7,7 +7,7 @@ import (
 func nodeAt(root Node, path []int) Node {
 	n := root
 	for _, p := range path {
-		if n.Type() == "leaf" {
+		if n.IsLeaf() {
 			return n
 		}
 		split := n.AsSplit()
@@ -37,7 +37,7 @@ func siblingPath(path []int) []int {
 }
 
 func leaves(node Node) []*Leaf {
-	if node.Type() == "leaf" {
+	if node.IsLeaf() {
 		return []*Leaf{node.AsLeaf()}
 	}
 	split := node.AsSplit()
@@ -55,7 +55,7 @@ type NodePath struct {
 
 func allNodes(node Node, path []int) []NodePath {
 	out := []NodePath{{node, path}}
-	if node.Type() == "split" {
+	if node.IsSplit() {
 		split := node.AsSplit()
 		leftPath := append([]int{}, path...)
 		leftPath = append(leftPath, 0)
@@ -72,7 +72,7 @@ func firstLeaf(node Node) *Leaf {
 }
 
 func compact(node Node) string {
-	if node.Type() == "leaf" {
+	if node.IsLeaf() {
 		return node.AsLeaf().Pane
 	}
 	split := node.AsSplit()
@@ -93,7 +93,7 @@ func intsToStrings(ints []int) []string {
 
 func pathOfPane(root Node, pane string) []int {
 	for _, np := range allNodes(root, nil) {
-		if np.Node.Type() == "leaf" && np.Node.AsLeaf().Pane == pane {
+		if np.Node.IsLeaf() && np.Node.AsLeaf().Pane == pane {
 			return np.Path
 		}
 	}

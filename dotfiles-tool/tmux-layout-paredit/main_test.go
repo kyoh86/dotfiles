@@ -17,7 +17,7 @@ func TestParseLayout(t *testing.T) {
 			input:   "145x71,0,0,0",
 			wantErr: false,
 			check: func(n Node) bool {
-				return n.Type() == "leaf" && n.AsLeaf().Pane == "%0"
+				return n.IsLeaf() && n.AsLeaf().Pane == "%0"
 			},
 		},
 		{
@@ -25,7 +25,7 @@ func TestParseLayout(t *testing.T) {
 			input:   "b7fd,145x71,0,0,0",
 			wantErr: false,
 			check: func(n Node) bool {
-				return n.Type() == "leaf" && n.AsLeaf().Pane == "%0"
+				return n.IsLeaf() && n.AsLeaf().Pane == "%0"
 			},
 		},
 		{
@@ -33,7 +33,7 @@ func TestParseLayout(t *testing.T) {
 			input:   "145x71,0,0{73x71,0,0,0,72x71,74,0,1}",
 			wantErr: false,
 			check: func(n Node) bool {
-				if n.Type() != "split" || n.AsSplit().Axis != AxisRow {
+				if !n.IsSplit() || n.AsSplit().Axis != AxisRow {
 					return false
 				}
 				return len(n.AsSplit().Children) == 2
@@ -44,7 +44,7 @@ func TestParseLayout(t *testing.T) {
 			input:   "145x71,0,0[73x71,0,0,0,72x71,0,73,1]",
 			wantErr: false,
 			check: func(n Node) bool {
-				if n.Type() != "split" || n.AsSplit().Axis != AxisCol {
+				if !n.IsSplit() || n.AsSplit().Axis != AxisCol {
 					return false
 				}
 				return len(n.AsSplit().Children) == 2
@@ -88,7 +88,7 @@ func TestNormalizeToBinary(t *testing.T) {
 			name:  "leaf node stays leaf",
 			input: NewLeaf("%0", Rect{X: 0, Y: 0, W: 100, H: 50}),
 			check: func(n Node) bool {
-				return n.Type() == "leaf"
+				return n.IsLeaf()
 			},
 		},
 		{
@@ -97,7 +97,7 @@ func TestNormalizeToBinary(t *testing.T) {
 				NewLeaf("%0", Rect{X: 0, Y: 0, W: 100, H: 50}),
 			}),
 			check: func(n Node) bool {
-				return n.Type() == "leaf" && n.AsLeaf().Pane == "%0"
+				return n.IsLeaf() && n.AsLeaf().Pane == "%0"
 			},
 		},
 		{
@@ -107,7 +107,7 @@ func TestNormalizeToBinary(t *testing.T) {
 				NewLeaf("%1", Rect{X: 51, Y: 0, W: 49, H: 50}),
 			}),
 			check: func(n Node) bool {
-				if n.Type() != "split" || len(n.AsSplit().Children) != 2 {
+				if !n.IsSplit() || len(n.AsSplit().Children) != 2 {
 					return false
 				}
 				return true
@@ -121,7 +121,7 @@ func TestNormalizeToBinary(t *testing.T) {
 				NewLeaf("%2", Rect{X: 68, Y: 0, W: 32, H: 50}),
 			}),
 			check: func(n Node) bool {
-				if n.Type() != "split" {
+				if !n.IsSplit() {
 					return false
 				}
 				split := n.AsSplit()
@@ -141,7 +141,7 @@ func TestNormalizeToBinary(t *testing.T) {
 				NewLeaf("%3", Rect{X: 78, Y: 0, W: 22, H: 50}),
 			}),
 			check: func(n Node) bool {
-				if n.Type() != "split" {
+				if !n.IsSplit() {
 					return false
 				}
 				return len(n.AsSplit().Children) == 2
@@ -197,8 +197,8 @@ func TestRecalculateRects(t *testing.T) {
 	split := NewSplit(AxisRow, Rect{X: 0, Y: 0, W: 100, H: 50}, []Node{leaf1, leaf2})
 
 	got := recalculateRects(split, nil)
-	if got.Type() != "split" {
-		t.Fatalf("expected split, got %s", got.Type())
+	if !got.IsSplit() {
+		t.Fatalf("expected split, got %s", "leaf")
 	}
 
 	splitNode := got.AsSplit()
@@ -228,11 +228,11 @@ func TestPathOperations(t *testing.T) {
 		}
 		for _, tt := range tests {
 			got := nodeAt(root, tt.path)
-			if tt.want == "leaf" && got.Type() != "leaf" {
-				t.Errorf("nodeAt(%v) = %s, want leaf", tt.path, got.Type())
+			if tt.want == "leaf" && !got.IsLeaf() {
+				t.Errorf("nodeAt(%v) = %s, want leaf", tt.path, "split")
 			}
-			if tt.want == "split" && got.Type() != "split" {
-				t.Errorf("nodeAt(%v) = %s, want split", tt.path, got.Type())
+			if tt.want == "split" && !got.IsSplit() {
+				t.Errorf("nodeAt(%v) = %s, want split", tt.path, "leaf")
 			}
 		}
 	})
@@ -279,8 +279,8 @@ func TestSwapChildren(t *testing.T) {
 
 	// Swap children at path []
 	got := swapChildren(split, []int{})
-	if got.Type() != "split" {
-		t.Fatalf("expected split, got %s", got.Type())
+	if !got.IsSplit() {
+		t.Fatalf("expected split, got %s", "leaf")
 	}
 
 	splitNode := got.AsSplit()
@@ -341,8 +341,8 @@ func TestAllNodes(t *testing.T) {
 		if len(got) != 1 {
 			t.Fatalf("expected 1 node, got %d", len(got))
 		}
-		if got[0].Node.Type() != "leaf" {
-			t.Errorf("expected leaf, got %s", got[0].Node.Type())
+		if !got[0].Node.IsLeaf() {
+			t.Errorf("expected leaf, got %s", "split")
 		}
 	})
 
@@ -435,9 +435,9 @@ func TestPathOfPane(t *testing.T) {
 	root := NewSplit(AxisRow, Rect{X: 0, Y: 0, W: 1, H: 1}, []Node{leftSplit, leaf2})
 
 	tests := []struct {
-		pane       string
-		wantPath   []int
-		wantFound  bool
+		pane      string
+		wantPath  []int
+		wantFound bool
 	}{
 		{"%0", []int{0, 0}, true},
 		{"%1", []int{0, 1}, true},

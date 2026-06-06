@@ -6,7 +6,7 @@ import (
 )
 
 func copyNode(n Node) Node {
-	if n.Type() == "leaf" {
+	if n.IsLeaf() {
 		leaf := n.AsLeaf()
 		return NewLeaf(leaf.Pane, Rect{X: leaf.Rect.X, Y: leaf.Rect.Y, W: leaf.Rect.W, H: leaf.Rect.H})
 	}
@@ -24,14 +24,14 @@ func swapChildren(root Node, path []int) Node {
 	// Navigate to path
 	current := newRoot
 	for _, i := range path {
-		if current.Type() == "leaf" {
+		if current.IsLeaf() {
 			return newRoot
 		}
 		split := current.AsSplit()
 		current = split.Children[i]
 	}
 
-	if current.Type() == "leaf" {
+	if current.IsLeaf() {
 		return newRoot
 	}
 
@@ -42,7 +42,7 @@ func swapChildren(root Node, path []int) Node {
 }
 
 func recalculateRects(node Node, parentRect *Rect) Node {
-	if node.Type() == "leaf" {
+	if node.IsLeaf() {
 		leaf := node.AsLeaf()
 		if parentRect != nil {
 			return NewLeaf(leaf.Pane, Rect{X: parentRect.X, Y: parentRect.Y, W: leaf.Rect.W, H: leaf.Rect.H})
@@ -85,7 +85,7 @@ func leafPanes(leaves []*Leaf) string {
 
 func flipSelected(root Node, state *State) error {
 	n := nodeAt(root, state.SelectedPath)
-	if n.Type() == "leaf" {
+	if n.IsLeaf() {
 		return nil
 	}
 
@@ -102,7 +102,7 @@ func flipSelected(root Node, state *State) error {
 
 	newRoot := swapChildren(root, state.SelectedPath)
 	newN := nodeAt(newRoot, state.SelectedPath)
-	if newN.Type() == "leaf" {
+	if newN.IsLeaf() {
 		return nil
 	}
 
