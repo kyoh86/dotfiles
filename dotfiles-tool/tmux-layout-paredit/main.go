@@ -46,7 +46,7 @@ func run() error {
 
 	case "child0":
 		n := nodeAt(root, state.SelectedPath)
-		if n.Type() == "split" {
+		if n.IsSplit() {
 			newPath := append([]int{}, state.SelectedPath...)
 			newPath = append(newPath, 0)
 			state.SelectedPath = newPath
@@ -54,7 +54,7 @@ func run() error {
 
 	case "child1":
 		n := nodeAt(root, state.SelectedPath)
-		if n.Type() == "split" {
+		if n.IsSplit() {
 			newPath := append([]int{}, state.SelectedPath...)
 			newPath = append(newPath, 1)
 			state.SelectedPath = newPath
@@ -65,7 +65,7 @@ func run() error {
 
 	case "pre-v":
 		selected := nodeAt(root, state.SelectedPath)
-		if selected.Type() == "split" {
+		if selected.IsSplit() {
 			tmuxIgnoreError("display-message", "preselect: only available on single pane (use u/1/2 to select a leaf)")
 			saveState(state)
 			paint(root, state)
@@ -76,7 +76,7 @@ func run() error {
 
 	case "pre-s":
 		selected := nodeAt(root, state.SelectedPath)
-		if selected.Type() == "split" {
+		if selected.IsSplit() {
 			tmuxIgnoreError("display-message", "preselect: only available on single pane (use u/1/2 to select a leaf)")
 			saveState(state)
 			paint(root, state)
@@ -145,7 +145,7 @@ func main() {
 		if r := recover(); r != nil {
 			stack := debug.Stack()
 			tmuxIgnoreError("display-message", "layout-paredit panic: "+fmt.Sprint(r))
-			log("panic: "+fmt.Sprint(r))
+			log("panic: " + fmt.Sprint(r))
 			log(string(stack))
 			fmt.Fprintln(os.Stderr, "panic:", r)
 			fmt.Fprintln(os.Stderr, string(stack))
