@@ -62,7 +62,7 @@ type State struct {
 }
 
 const (
-	SelectBG = "#2a2230"
-	FocusBG  = "#33283a"
+	SelectBG = "#4f4f75"
+	FocusBG  = "#4f7553"
 	Step     = 5
 )
