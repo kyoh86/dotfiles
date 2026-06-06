@@ -42,7 +42,7 @@ func paneRect(paneID string) (*Rect, error) {
 }
 
 func nodeRect(node Node) (*Rect, error) {
-	if node.Type() == "leaf" {
+	if node.IsLeaf() {
 		return paneRect(node.AsLeaf().Pane)
 	}
 
@@ -159,7 +159,7 @@ func swapPane(a, b string) error {
 
 func growChild(root Node, state *State, child int) error {
 	n := nodeAt(root, state.SelectedPath)
-	if n.Type() == "leaf" {
+	if n.IsLeaf() {
 		return nil
 	}
 

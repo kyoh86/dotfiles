@@ -42,7 +42,7 @@ func isHex(s string) bool {
 }
 
 func getRect(n Node) Rect {
-	if n.Type() == "leaf" {
+	if n.IsLeaf() {
 		return n.AsLeaf().Rect
 	}
 	return n.AsSplit().Rect
@@ -122,7 +122,7 @@ func parseLayout(input string) (Node, error) {
 }
 
 func normalizeToBinary(node Node) Node {
-	if node.Type() == "leaf" {
+	if node.IsLeaf() {
 		return node
 	}
 
@@ -171,7 +171,7 @@ func normalizeToBinary(node Node) Node {
 }
 
 func reconstructLayout(node Node, paneIDOverride map[string]string) string {
-	if node.Type() == "leaf" {
+	if node.IsLeaf() {
 		leaf := node.AsLeaf()
 		coordKey := fmt.Sprintf("%d,%d,%d,%d", leaf.Rect.X, leaf.Rect.Y, leaf.Rect.W, leaf.Rect.H)
 		var paneID string
