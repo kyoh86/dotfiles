@@ -532,18 +532,148 @@ local function swap_win_contents(a, b)
   pcall(vim.fn.win_execute, b, "normal! " .. atop .. "zt")
 end
 
+-- get_target_layout: 操作後のあるべき姿を構築する
+local function get_target_layout(node)
+  if is_leaf(node) then
+    return { winid = leaf_winid(node), buffer = vim.api.nvim_win_get_buf(leaf_winid(node)) }
+  end
+
+  local axis = axis_of(node)
+  local childs = children(node)
+
+  local result = {
+    axis = axis,
+    children = {}
+  }
+
+  for _, child in ipairs(childs) do
+    table.insert(result.children, get_target_layout(child))
+  end
+
+  return result
+end
+
+-- apply_target_layout: あるべき姿通りにウィンドウを再配置
+local function apply_target_layout(target, parent_win, parent_axis)
+  if target.winid then
+    -- leaf の場合
+    if not vim.api.nvim_win_is_valid(target.winid) then
+      -- ウィンドウが無効な場合、新しく作成
+      local new_win = vim.api.nvim_win_get_parent(parent_win)
+      vim.api.nvim_set_current_win(new_win)
+      vim.cmd("split")
+      target.winid = vim.api.nvim_get_current_win()
+    end
+    return target.winid
+  end
+
+  -- split の場合
+  local axis = target.axis
+  local childs = target.children
+
+  if #childs == 0 then
+    return parent_win
+  end
+
+  -- 最初の child を配置
+  local first_win = apply_target_layout(childs[1], parent_win, parent_axis)
+
+  -- 2番目以降の child を配置
+  for i = 2, #childs do
+    local next_win = apply_target_layout(childs[i], first_win, axis)
+    first_win = next_win
+  end
+
+  return first_win
+end
+
+-- rebuild_layout: 操作後のあるべき姿に基づいてウィンドウを再構築
+local function rebuild_layout(target_layout)
+  -- 全てのウィンドウを取得
+  local all_wins = vim.api.nvim_list_wins()
+  if #all_wins == 0 then
+    return
+  end
+
+  -- 最初のウィンドウ（list_wins の最初）を残して、他を閉じる
+  local first_win = all_wins[1]
+  if not vim.api.nvim_win_is_valid(first_win) then
+    return
+  end
+
+  local wins_to_close = {}
+  for i = 2, #all_wins do
+    table.insert(wins_to_close, all_wins[i])
+  end
+
+  for _, win in ipairs(wins_to_close) do
+    vim.api.nvim_win_close(win, true)
+  end
+
+  -- target_layout に基づいて再構築
+  apply_target_layout(target_layout, first_win, nil)
+end
+
+-- apply_layout: ツリー構造に基づいてウィンドウを再配置
+local function apply_layout(node)
+  if not node then
+    return
+  end
+
+  if is_leaf(node) then
+    return
+  end
+
+  local axis = axis_of(node)
+  local childs = children(node)
+
+  -- 各 child を再帰的に配置
+  local prev_win = nil
+  for i, child in ipairs(childs) do
+    -- まず child の内部を配置
+    apply_layout(child)
+
+    -- child の最初の leaf を取得
+    local first_leaf_ref = first_leaf(child)
+    if not vim.api.nvim_win_is_valid(first_leaf_ref) then
+      goto continue
+    end
+
+    if i == 1 then
+      -- 最初の child は何もしない（基準位置）
+      prev_win = first_leaf_ref
+    else
+      -- 2番目以降の child は、前の child の隣に配置
+      if prev_win and vim.api.nvim_win_is_valid(prev_win) then
+        pcall(vim.fn.win_splitmove, first_leaf_ref, prev_win, { vertical = axis == "col", rightbelow = true })
+      end
+      prev_win = first_leaf_ref
+    end
+
+    ::continue::
+  end
+end
+
 local function flip_selected()
   local n = selected_node()
   if not n or is_leaf(n) then
     draw()
     return
   end
-  local a = sort_wins_by_geometry(leaves(children(n)[1]))
-  local b = sort_wins_by_geometry(leaves(children(n)[2]))
-  local count = math.min(#a, #b)
-  for i = 1, count do
-    swap_win_contents(a[i], b[i])
-  end
+
+  -- 元の children を保存
+  local original_childs = children(n)
+
+  -- children を swap した「新しいノード」を作る
+  local axis = axis_of(n)
+  local swapped_node = { axis, { original_childs[2], original_childs[1] } }
+
+  -- 「あるべき姿」を構築
+  local target_layout = get_target_layout(swapped_node)
+
+  -- ウィンドウを再構築
+  rebuild_layout(target_layout)
+
   draw()
 end
 
