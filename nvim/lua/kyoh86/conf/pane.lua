@@ -573,6 +573,37 @@ local function rebuild_layout(node)
   pane_layout.reset_and_apply(layout)
 end
 
+-- replace_node_at_path: パスに従ってノードを置換する
+local function replace_node_at_path(layout, path, new_node)
+  if #path == 0 then
+    return new_node
+  end
+
+  if is_leaf(layout) then
+    return layout
+  end
+
+  local index = path[1]
+  local rest_path = {}
+  for i = 2, #path do
+    table.insert(rest_path, path[i])
+  end
+
+  local axis = axis_of(layout)
+  local childs = children(layout)
+
+  local new_childs = {}
+  for i, child in ipairs(childs) do
+    if i == index then
+      table.insert(new_childs, replace_node_at_path(child, rest_path, new_node))
+    else
+      table.insert(new_childs, child)
+    end
+  end
+
+  return { axis, new_childs }
+end
+
 -- apply_layout: ツリー構造に基づいてウィンドウを再配置
 local function apply_layout(node)
   if not node then
@@ -620,6 +651,9 @@ local function flip_selected()
     return
   end
 
+  -- 全体のレイアウトを取得
+  local layout = normalized_layout()
+
   -- 元の children を保存
   local original_childs = children(n)
 
@@ -627,8 +661,11 @@ local function flip_selected()
   local axis = axis_of(n)
   local swapped_node = { axis, { original_childs[2], original_childs[1] } }
 
+  -- 全体のレイアウトの該当位置に新しいノードを埋め込む
+  local new_layout = replace_node_at_path(layout, state.selected_path, swapped_node)
+
   -- ウィンドウを再構築
-  rebuild_layout(swapped_node)
+  rebuild_layout(new_layout)
 
   draw()
 end
@@ -641,6 +678,9 @@ local function rotate_selected()
     return
   end
 
+  -- 全体のレイアウトを取得
+  local layout = normalized_layout()
+
   local axis = axis_of(n)
   local childs = children(n)
 
@@ -648,8 +688,11 @@ local function rotate_selected()
   local new_axis = axis == "row" and "col" or "row"
   local rotated_node = { new_axis, childs }
 
+  -- 全体のレイアウトの該当位置に新しいノードを埋め込む
+  local new_layout = replace_node_at_path(layout, state.selected_path, rotated_node)
+
   -- ウィンドウを再構築
-  rebuild_layout(rotated_node)
+  rebuild_layout(new_layout)
 
   -- 選択パスを更新（ルートから現在のウィンドウへのパスを再取得して親を選択）
   local cur = vim.api.nvim_get_current_win()
@@ -665,6 +708,9 @@ local function toggle_selected()
     return
   end
 
+  -- 全体のレイアウトを取得
+  local layout = normalized_layout()
+
   local axis = axis_of(n)
   local childs = children(n)
 
@@ -672,8 +718,11 @@ local function toggle_selected()
   local new_axis = axis == "row" and "col" or "row"
   local toggled_node = { new_axis, childs }
 
+  -- 全体のレイアウトの該当位置に新しいノードを埋め込む
+  local new_layout = replace_node_at_path(layout, state.selected_path, toggled_node)
+
   -- ウィンドウを再構築
-  rebuild_layout(toggled_node)
+  rebuild_layout(new_layout)
 
   -- 選択パスを更新（ルートから現在のウィンドウへのパスを再取得）
   local cur = vim.api.nvim_get_current_win()
