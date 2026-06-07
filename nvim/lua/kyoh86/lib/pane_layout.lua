@@ -62,6 +62,16 @@ function M.build_node(node, parent_win)
   -- second を構築
   local second_result = M.build_node(node.second, second_win)
 
+  -- 子ノード構築後にサイズを再設定（内側の構築によってサイズが変更された場合に修正）
+  if node.size then
+    vim.api.nvim_set_current_win(first_win)
+    if node.kind == "col" then
+      vim.cmd("resize " .. node.size)
+    else
+      vim.cmd("vertical resize " .. node.size)
+    end
+  end
+
   -- サイズ固定オプションを元に戻す
   vim.api.nvim_set_option_value("winfixheight", wo, { win = first_win })
   vim.api.nvim_set_option_value("winfixwidth", wo_v, { win = first_win })
