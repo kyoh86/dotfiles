@@ -37,6 +37,20 @@ function M.build_node(node, parent_win)
   local second_win = vim.api.nvim_get_current_win()
   local first_win = parent_win
 
+  -- 内側ノードのサイズを保存（後で再設定するため）
+  local inner_size = nil
+  local inner_kind = nil
+  if node.first and node.first.kind and node.first.kind ~= "pane" and node.first.size then
+    inner_size = node.first.size
+    inner_kind = node.first.kind
+  end
+
+  -- 同方向の分割かどうかをチェック
+  local same_direction = false
+  if node.first and node.first.kind and node.first.kind ~= "pane" then
+    same_direction = (node.kind == node.first.kind)
+  end
+
   -- サイズを固定するオプションを設定（子ノード構築前にサイズを固定）
   local wo = vim.api.nvim_get_option_value("winfixheight", { win = first_win })
   local wo_v = vim.api.nvim_get_option_value("winfixwidth", { win = first_win })
@@ -46,8 +60,8 @@ function M.build_node(node, parent_win)
     vim.api.nvim_set_option_value("winfixwidth", true, { win = first_win })
   end
 
-  -- 子ノード構築前にサイズを設定
-  if node.size then
+  -- 子ノード構築前にサイズを設定（同方向の場合はスキップ）
+  if node.size and not same_direction then
     vim.api.nvim_set_current_win(first_win)
     if node.kind == "col" then
       vim.cmd("resize " .. node.size)
@@ -62,8 +76,102 @@ function M.build_node(node, parent_win)
   -- second を構築
   local second_result = M.build_node(node.second, second_win)
 
-  -- 子ノード構築後にサイズを再設定（内側の構築によってサイズが変更された場合に修正）
-  if node.size then
+  -- 内側ノード構築後、内側ノードのサイズを再設定（同方向の場合のみ）
+  if same_direction and inner_size and first_result and second_result then
+    local inner_first_win = first_result.win
+    local inner_second_win = second_result.win
+
+    -- 内側全体のサイズを取得
+    local inner_first_size, inner_second_size
+    if inner_kind == "col" then
+      inner_first_size = vim.api.nvim_win_get_height(inner_first_win)
+      inner_second_size = vim.api.nvim_win_get_height(inner_second_win)
+    else
+      inner_first_size = vim.api.nvim_win_get_width(inner_first_win)
+      inner_second_size = vim.api.nvim_win_get_width(inner_second_win)
+    end
+    local inner_total = inner_first_size + inner_second_size
+
+    -- 内側全体が目標サイズ + 1になるように、内側firstとsecondのサイズを計算
+    -- 内側firstをinner_sizeにして、内側secondを1にする（内側全体はinner_size + 1になる）
+    local new_inner_second = 1
+    local new_inner_first = inner_size
+    if new_inner_first < 1 then
+      new_inner_first = 1
+      new_inner_second = inner_size - new_inner_first + 1
+    end
+
+    -- 内側secondを先に設定（サイズを固定）
+    vim.api.nvim_set_current_win(inner_second_win)
+    if inner_kind == "col" then
+      vim.cmd("resize " .. new_inner_second)
+    else
+      vim.cmd("vertical resize " .. new_inner_second)
+    end
+
+    -- 内側firstをinner_sizeに設定
+    vim.api.nvim_set_current_win(inner_first_win)
+    if inner_kind == "col" then
+      vim.cmd("resize " .. new_inner_first)
+    else
+      vim.cmd("vertical resize " .. new_inner_first)
+    end
+
+    -- 内側全体のサイズを確認
+    if inner_kind == "col" then
+      inner_first_size = vim.api.nvim_win_get_height(inner_first_win)
+      inner_second_size = vim.api.nvim_win_get_height(inner_second_win)
+    else
+      inner_first_size = vim.api.nvim_win_get_width(inner_first_win)
+      inner_second_size = vim.api.nvim_win_get_width(inner_second_win)
+    end
+    inner_total = inner_first_size + inner_second_size
+
+    -- デバッグ: 内側全体のサイズを出力
+    print(string.format("inner after setting: first_w=%d, second_w=%d, total=%d, target=%d",
+      inner_first_size, inner_second_size, inner_total, inner_size))
+
+    -- 内側全体がinner_sizeでない場合、再度調整（最大3回まで試行）
+    local max_attempts = 3
+    for attempt = 1, max_attempts do
+      if inner_total ~= inner_size then
+        -- 内側secondを1に設定
+        vim.api.nvim_set_current_win(inner_second_win)
+        if inner_kind == "col" then
+          vim.cmd("resize " .. new_inner_second)
+        else
+          vim.cmd("vertical resize " .. new_inner_second)
+        end
+
+        -- 内側firstをinner_size - 1に設定
+        vim.api.nvim_set_current_win(inner_first_win)
+        if inner_kind == "col" then
+          vim.cmd("resize " .. new_inner_first)
+        else
+          vim.cmd("vertical resize " .. new_inner_first)
+        end
+
+        -- 内側全体のサイズを再取得
+        if inner_kind == "col" then
+          inner_first_size = vim.api.nvim_win_get_height(inner_first_win)
+          inner_second_size = vim.api.nvim_win_get_height(inner_second_win)
+        else
+          inner_first_size = vim.api.nvim_win_get_width(inner_first_win)
+          inner_second_size = vim.api.nvim_win_get_width(inner_second_win)
+        end
+        inner_total = inner_first_size + inner_second_size
+      else
+        break
+      end
+    end
+
+    -- 同方向の場合、外側サイズの設定はスキップ
+    -- 外側サイズを設定すると内側サイズが変わってしまうため
+    -- 外側サイズは内側サイズとsecond_sizeの合計として自動的に決まる
+  end
+
+  -- 外側ノードのサイズを再設定（同方向の場合はスキップ - すでに内側構築後に設定済み）
+  if node.size and not same_direction then
     vim.api.nvim_set_current_win(first_win)
     if node.kind == "col" then
       vim.cmd("resize " .. node.size)
