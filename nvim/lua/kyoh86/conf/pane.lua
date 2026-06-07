@@ -573,7 +573,7 @@ local function rebuild_layout(node)
   pane_layout.reset_and_apply(layout)
 end
 
--- replace_node_at_path: パスに従ってノードを置換する
+-- replace_node_at_path: パスに従ってノードを置換する（winlayout形式）
 local function replace_node_at_path(layout, path, new_node)
   if #path == 0 then
     return new_node
@@ -602,6 +602,42 @@ local function replace_node_at_path(layout, path, new_node)
   end
 
   return { axis, new_childs }
+end
+
+-- replace_node_at_path_pane_layout: パスに従ってノードを置換する（pane_layout形式）
+local function replace_node_at_path_pane_layout(layout, path, new_node)
+  if #path == 0 then
+    return new_node
+  end
+
+  if layout.kind == "pane" then
+    return layout
+  end
+
+  local index = path[1]
+  local rest_path = {}
+  for i = 2, #path do
+    table.insert(rest_path, path[i])
+  end
+
+  local new_layout
+  if index == 1 then
+    new_layout = {
+      kind = layout.kind,
+      first = replace_node_at_path_pane_layout(layout.first, rest_path, new_node),
+      second = layout.second,
+      size = layout.size,
+    }
+  else
+    new_layout = {
+      kind = layout.kind,
+      first = layout.first,
+      second = replace_node_at_path_pane_layout(layout.second, rest_path, new_node),
+      size = layout.size,
+    }
+  end
+
+  return new_layout
 end
 
 -- apply_layout: ツリー構造に基づいてウィンドウを再配置
@@ -678,21 +714,61 @@ local function rotate_selected()
     return
   end
 
-  -- 全体のレイアウトを取得
-  local layout = normalized_layout()
+  -- 全体のレイアウトを取得（pane_layout形式）
+  local layout = convert_to_pane_layout(normalized_layout())
+
+  -- 選択されたノードをpane_layout形式で取得
+  local pane_n = convert_to_pane_layout(n)
 
   local axis = axis_of(n)
   local childs = children(n)
 
   -- axis を反転した新しいノードを作る
   local new_axis = axis == "row" and "col" or "row"
-  local rotated_node = { new_axis, childs }
+
+  -- 現在の分割比率を計算して、新しい分割方向に反映
+  local node_rect_n = node_rect(n)
+  if not node_rect_n then
+    draw()
+    return
+  end
+
+  -- 元のsizeと全体サイズから比率を計算
+  local ratio = nil
+  if pane_n.size and axis == "row" then
+    -- row: sizeは幅
+    ratio = pane_n.size / node_rect_n.width
+  elseif pane_n.size and axis == "col" then
+    -- col: sizeは高さ
+    ratio = pane_n.size / node_rect_n.height
+  end
+
+  -- 新しい分割方向で同じ比率になるようなsizeを計算
+  local new_size = nil
+  if ratio then
+    if new_axis == "row" then
+      -- row: 幅としてsizeを計算
+      new_size = math.floor(node_rect_n.width * ratio + 0.5)
+    else
+      -- col: 高さとしてsizeを計算
+      new_size = math.floor(node_rect_n.height * ratio + 0.5)
+    end
+  end
+
+  -- 新しいノードを作る（pane_layout形式）
+  local rotated_node = {
+    kind = new_axis,
+    first = convert_to_pane_layout(childs[1]),
+    second = convert_to_pane_layout(childs[2]),
+    size = new_size,
+  }
 
   -- 全体のレイアウトの該当位置に新しいノードを埋め込む
-  local new_layout = replace_node_at_path(layout, state.selected_path, rotated_node)
+  local new_layout = replace_node_at_path_pane_layout(layout, state.selected_path, rotated_node)
 
   -- ウィンドウを再構築
-  rebuild_layout(new_layout)
+  local pane_layout = require("kyoh86.lib.pane_layout")
+  pane_layout.reset_and_apply(new_layout)
 
   -- 選択パスを更新（ルートから現在のウィンドウへのパスを再取得して親を選択）
   local cur = vim.api.nvim_get_current_win()
