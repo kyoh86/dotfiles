@@ -198,9 +198,52 @@ local function test_same_direction_manual()
   end
 end
 
+-- :new | new | new | vnew | wincmd j | vnew | new コマンドで作成したレイアウトのテスト
+local function test_cmd_layout()
+  print("\n=== Test 6: Command layout (:new | new | new | vnew | wincmd j | vnew | new) ===")
+  vim.cmd("only")
+
+  -- ユーザーのコマンドでレイアウトを作成
+  vim.cmd("new")
+  vim.cmd("new")
+  vim.cmd("new")
+  vim.cmd("vnew")
+  vim.cmd("wincmd j")
+  vim.cmd("vnew")
+  vim.cmd("new")
+
+  -- バッファ名を設定（一意な名前を使用）
+  local wins = vim.api.nvim_list_wins()
+  for i, win in ipairs(wins) do
+    local buf = vim.fn.bufadd("test_cmd_" .. i .. ".txt")
+    vim.fn.bufload(buf)
+    vim.api.nvim_win_set_buf(win, buf)
+  end
+
+  -- レイアウトを取得（dump）
+  local layout1 = pane_layout.get()
+  print("Original: " .. vim.fn.json_encode(layout1))
+
+  -- リセットしてロード
+  vim.cmd("only")
+  pane_layout.reset_and_apply(layout1)
+
+  -- レイアウトを再取得（dump）
+  local layout2 = pane_layout.get()
+  print("Restored: " .. vim.fn.json_encode(layout2))
+
+  -- 比較
+  if vim.fn.json_encode(layout1) == vim.fn.json_encode(layout2) then
+    print("✓ PASSED")
+  else
+    print("✗ FAILED")
+  end
+end
+
 -- テストを実行
 test_simple()
 test_nested()
 test_complex()
 test_same_direction()
 test_same_direction_manual()
+test_cmd_layout()
