@@ -167,7 +167,57 @@ function M.build_node(node, parent_win)
 
     -- 同方向の場合、外側サイズの設定はスキップ
     -- 外側サイズを設定すると内側サイズが変わってしまうため
-    -- 外側サイズは内側サイズとsecond_sizeの合計として自動的に決まる
+    -- 代わりに、内側サイズをtargetに設定してからsecond_winのサイズを調整
+    if node.size then
+      -- 内側全体のサイズをtargetに設定
+      local new_inner_first = inner_size - 1
+      if new_inner_first < 1 then
+        new_inner_first = 1
+      end
+
+      vim.api.nvim_set_current_win(inner_first_win)
+      if inner_kind == "col" then
+        vim.cmd("resize " .. new_inner_first)
+      else
+        vim.cmd("vertical resize " .. new_inner_first)
+      end
+
+      vim.api.nvim_set_current_win(inner_second_win)
+      if inner_kind == "col" then
+        vim.cmd("resize 1")
+      else
+        vim.cmd("vertical resize 1")
+      end
+
+      -- 内側サイズを固定してからsecond_sizeを設定
+      if inner_kind == "col" then
+        vim.api.nvim_set_option_value("winfixheight", true, { win = inner_first_win })
+        vim.api.nvim_set_option_value("winfixheight", true, { win = inner_second_win })
+      else
+        vim.api.nvim_set_option_value("winfixwidth", true, { win = inner_first_win })
+        vim.api.nvim_set_option_value("winfixwidth", true, { win = inner_second_win })
+      end
+
+      -- second_sizeを計算して設定
+      local second_size = node.size - inner_size
+      if second_size > 0 then
+        vim.api.nvim_set_current_win(second_win)
+        if node.kind == "col" then
+          vim.cmd("resize " .. second_size)
+        else
+          vim.cmd("vertical resize " .. second_size)
+        end
+      end
+
+      -- 内側サイズの固定を解除
+      if inner_kind == "col" then
+        vim.api.nvim_set_option_value("winfixheight", wo, { win = inner_first_win })
+        vim.api.nvim_set_option_value("winfixheight", wo_v, { win = inner_second_win })
+      else
+        vim.api.nvim_set_option_value("winfixwidth", wo, { win = inner_first_win })
+        vim.api.nvim_set_option_value("winfixwidth", wo_v, { win = inner_second_win })
+      end
+    end
   end
 
   -- 外側ノードのサイズを再設定（同方向の場合はスキップ - すでに内側構築後に設定済み）
