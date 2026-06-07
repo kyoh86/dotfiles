@@ -17,47 +17,90 @@ local M = {}
 -- }
 
 -- ノードを構築する
--- 新しいアプローチ: 各ノードで parent_win を分割して first_win と second_win を作成
+-- 戻り値: {node, win} のペア
 function M.build_node(node, parent_win)
   if node.kind == "pane" then
     -- 葉: parent_win にバッファを設定
     if node.buffer then
       vim.api.nvim_win_set_buf(parent_win, node.buffer)
     end
-    return parent_win
+    return { node = node, win = parent_win }
   end
 
   -- row/col: parent_win を分割して first_win と second_win を作成
-  -- まず second を作成するために分割
   vim.api.nvim_set_current_win(parent_win)
   if node.kind == "col" then
-    -- 上下分割: second を下に作成
     vim.cmd("belowright split")
   else
-    -- 左右分割: second を右に作成
     vim.cmd("belowright vsplit")
   end
   local second_win = vim.api.nvim_get_current_win()
-
-  -- parent_win が first_win になる
   local first_win = parent_win
 
-  -- first を構築
-  M.build_node(node.first, first_win)
+  -- サイズを固定するオプションを設定（子ノード構築前にサイズを固定）
+  local wo = vim.api.nvim_get_option_value("winfixheight", { win = first_win })
+  local wo_v = vim.api.nvim_get_option_value("winfixwidth", { win = first_win })
+  if node.kind == "col" then
+    vim.api.nvim_set_option_value("winfixheight", true, { win = first_win })
+  else
+    vim.api.nvim_set_option_value("winfixwidth", true, { win = first_win })
+  end
 
-  -- second を構築
-  M.build_node(node.second, second_win)
-
-  -- サイズ調整（first_win のサイズを変更）
+  -- 子ノード構築前にサイズを設定
   if node.size then
+    vim.api.nvim_set_current_win(first_win)
     if node.kind == "col" then
-      vim.api.nvim_win_set_height(first_win, node.size)
+      vim.cmd("resize " .. node.size)
     else
-      vim.api.nvim_win_set_width(first_win, node.size)
+      vim.cmd("vertical resize " .. node.size)
     end
   end
 
-  return first_win
+  -- first を構築
+  local first_result = M.build_node(node.first, first_win)
+
+  -- second を構築
+  local second_result = M.build_node(node.second, second_win)
+
+  -- サイズ固定オプションを元に戻す
+  vim.api.nvim_set_option_value("winfixheight", wo, { win = first_win })
+  vim.api.nvim_set_option_value("winfixwidth", wo_v, { win = first_win })
+
+  return { node = node, win = first_win, first = first_result, second = second_result }
+end
+
+-- トップダウンでサイズを適用（ルート→葉）
+local function apply_sizes_topdown(node_win_pair)
+  if not node_win_pair or not node_win_pair.node then
+    return
+  end
+
+  local node = node_win_pair.node
+
+  if node.kind == "pane" then
+    return
+  end
+
+  -- 自分のサイズを先に適用
+  if node.size then
+    local win = node_win_pair.win
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_set_current_win(win)
+      if node.kind == "col" then
+        vim.cmd("resize " .. node.size)
+      else
+        vim.cmd("vertical resize " .. node.size)
+      end
+    end
+  end
+
+  -- 子ノードのサイズを後に適用（トップダウン）
+  if node_win_pair.first then
+    apply_sizes_topdown(node_win_pair.first)
+  end
+  if node_win_pair.second then
+    apply_sizes_topdown(node_win_pair.second)
+  end
 end
 
 -- レイアウトを適用
