@@ -886,7 +886,13 @@ local function split_selected()
   end
 
   local node = selected_node()
-  local target = first_leaf(node)
+  if not is_leaf(node) then
+    notify("split ignored: only leaves (panes) can be split", vim.log.levels.WARN)
+    draw()
+    return
+  end
+
+  local target = leaf_winid(node)
   if not vim.api.nvim_win_is_valid(target) then
     return
   end
