@@ -175,3 +175,79 @@ func flipSelected(root Node, state *State) error {
 	log("flip: done")
 	return nil
 }
+
+func toggleAxis(root Node, state *State) error {
+	n := nodeAt(root, state.SelectedPath)
+	if n.IsLeaf() {
+		return nil
+	}
+
+	split := n.AsSplit()
+	oldAxis := split.Axis
+
+	// Toggle axis
+	var newAxis Axis
+	if oldAxis == AxisRow {
+		newAxis = AxisCol
+	} else {
+		newAxis = AxisRow
+	}
+
+	log("toggle: axis " + string(oldAxis) + " -> " + string(newAxis))
+
+	// Create new tree with toggled axis
+	newRoot := copyNode(root)
+	newN := nodeAt(newRoot, state.SelectedPath)
+	if newN.IsLeaf() {
+		return nil
+	}
+
+	newSplit := newN.AsSplit()
+	newSplit.Axis = newAxis
+
+	// Apply layout with new axis
+	if err := applyLayout(newRoot, nil); err != nil {
+		return err
+	}
+
+	log("toggle: done")
+	return nil
+}
+
+func rotateSelected(root Node, state *State) error {
+	n := nodeAt(root, state.SelectedPath)
+	if n.IsLeaf() {
+		return nil
+	}
+
+	split := n.AsSplit()
+	oldAxis := split.Axis
+
+	// Rotate: flip axis and swap children
+	var newAxis Axis
+	if oldAxis == AxisRow {
+		newAxis = AxisCol
+	} else {
+		newAxis = AxisRow
+	}
+
+	log("rotate: axis " + string(oldAxis) + " -> " + string(newAxis))
+
+	// Create new tree with rotated axis and swapped children
+	newRoot := swapChildren(root, state.SelectedPath)
+	newN := nodeAt(newRoot, state.SelectedPath)
+	if newN.IsLeaf() {
+		return nil
+	}
+
+	newSplit := newN.AsSplit()
+	newSplit.Axis = newAxis
+
+	// Apply layout
+	if err := applyLayout(newRoot, nil); err != nil {
+		return err
+	}
+
+	log("rotate: done")
+	return nil
+}

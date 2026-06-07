@@ -1,0 +1,653 @@
+<h1
+id="neovimtmuxのペイン配置について">Neovim/tmuxのペイン配置について</h1>
+<p>Neovim,tmuxのペイン配置をキーボード操作する方法を、同じI/Fで扱えるようにする。
+NOTE: Neovimでは <code>window</code> 、tmuxでは <code>pane</code>
+だが、紛らわしいのでともに「<code>Pane</code>ペイン」と呼ぶことにする。</p>
+<style>
+.view {
+    margin: 1em 0;
+    display: flex;
+    gap: 12px;
+
+    > pre {
+        margin-bottom: 0 !important;
+    }
+
+    .anot {
+        font-size: 8pt;
+        text-wrap: wrap;
+    }
+
+    div {
+        font-family: monospace;
+        align-self: start;
+        border-radius: 6px;
+
+        &.focus {
+            box-shadow: rgba(79, 79, 117, 100%) 0 0 1px 2px;
+            background-color: rgba(194, 194, 242, 100%);
+
+            &>div:nth-child(2) {
+                background-color: rgba(255, 255, 255, 40%);
+            }
+            &.pane {
+                background-color: rgba(242, 194, 194, 100%);
+            }
+        }
+
+        &.pane {
+            border: 1px solid #666666;
+            min-width: 8em;
+            min-height: 8em;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            &.incw {
+                min-width: 10em;
+            }
+            &.decw {
+                min-width: 6em;
+            }
+
+            &.inch {
+                min-height: 10em;
+            }
+            &.dech {
+                min-height: 6em;
+            }
+        }
+
+        &.H {
+            display: grid;
+            grid-auto-flow: row;
+            grid-template-columns: auto auto;
+        }
+
+        &.V {
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-rows: auto auto;
+        }
+    }
+}
+</style>
+<h2 id="サポートしたい機能">サポートしたい機能</h2>
+<ul>
+<li>フォーカスの変更</li>
+<li>ペインの分割（作成）</li>
+<li>ペインの入れ替え</li>
+<li>分割方向の変更</li>
+<li>分割サイズの変更</li>
+</ul>
+<h2 id="ペイン構造の表現方法">ペイン構造の表現方法</h2>
+<p>分割されたペイン群は、<strong>全二分木</strong>として表現する。
+本来はn分木で表現することも可能だが、検討の結果二分木のほうが扱いやすいためそうする。</p>
+<p>以下に例を示す。 Pane
+の各番号は分割ごとに新しいペインに次の順序を割り当てたものとする。</p>
+<h3 id="例1-分割されてない状態">例1: 分割されてない状態</h3>
+<div class="view">
+<pre><code>&lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;</code></pre>
+<pre><code>-- pane</code></pre>
+</div>
+<h3 id="例2-ヨコに1回だけ分割した状態">例2:
+ヨコに1回だけ分割した状態</h3>
+<div class="view">
+<pre><code>&lt;div class=&quot;H&quot;&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- H
+    +- pane
+    +- pane</code></pre>
+</div>
+<h3 id="例3-タテヨコに分割した状態">例3: タテヨコに分割した状態</h3>
+<ol type="1">
+<li>タテに分割</li>
+<li>上のペインをヨコに分割</li>
+</ol>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H
+    |   +- pane
+    |   +- pane
+    |
+    +- pane</code></pre>
+</div>
+<h3 id="例4-ヨコに2回分割した状態">例4: ヨコに2回分割した状態</h3>
+<ol type="1">
+<li>ヨコに分割</li>
+<li>右のペインを更にヨコに分割</li>
+</ol>
+<div class="view">
+<pre><code>&lt;div class=&quot;H&quot;&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- H
+    +- H
+    |   +- pane
+    |   +- pane
+    |
+    +- pane</code></pre>
+</div>
+<h3 id="データ表現の形">データ表現の形</h3>
+<p>各ペインはツリー構造で表現されるが、各ノードは以下のような構造で表現できるだろう。
+（便宜上TypeScriptで表現する）</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="bu">Node</span> <span class="op">=</span> Horizontal <span class="op">|</span> Vertical <span class="op">|</span> Pane</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> Pane {</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">:</span> <span class="st">&quot;pane&quot;</span><span class="op">;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span> <span class="co">// その他のペインに関する情報群を持ちうる。PaneIDやWindowIDなど</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> Horizontal {</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">:</span> <span class="st">&quot;horizontal&quot;</span><span class="op">;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    first<span class="op">:</span> <span class="bu">Node</span><span class="op">;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    second<span class="op">:</span> <span class="bu">Node</span><span class="op">;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span> <span class="co">// サイズなどの情報を持ちうる。未検討</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> Vertical {</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">:</span> <span class="st">&quot;vertical&quot;</span><span class="op">;</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    first<span class="op">:</span> <span class="bu">Node</span><span class="op">;</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    second<span class="op">:</span> <span class="bu">Node</span><span class="op">;</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span> <span class="co">// サイズなどの情報を持ちうる。未検討</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> <span class="bu">root</span> <span class="bu">Node</span></span></code></pre></div>
+<p>全ての<code>Horizontal</code>,<code>Vertical</code>の<code>first</code>/<code>second</code>が<strong>nullableではない</strong>点に要注意（冒頭に述べた通り、全二分木であるため、欠落はない）。</p>
+<h2 id="操作">操作</h2>
+<p>ペインの操作は、特別なモードを設けてその中で完結させる。
+以下の各操作での状態を、ペインの図（HTML）と入れ子リストで表現している。</p>
+<p>凡例は以下の通り:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane A&lt;span class=&quot;anot&quot;&gt;フォーカスされた&lt;br /&gt;ノードの最初の子&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane B&lt;span class=&quot;anot&quot;&gt;フォーカスされた&lt;br /&gt;ノードの2番目の子&lt;/span&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;pane C&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H           &lt;&lt;╮  // フォーカスされたノード
+    |   +- pane A    │  // フォーカスされたノードの子孫 (1st child)
+    |   +- pane B    │
+    |               ─╯  // フォーカスされたノードの終端
+    +- pane C</code></pre>
+</div>
+<div class="view">
+<pre><code>&lt;div class=&quot;H&quot;&gt;
+    &lt;div class=&quot;pane focus&quot;&gt;pane A&lt;span class=&quot;anot&quot;&gt;フォーカスされた&lt;br /&gt;末端ノード&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;pane B&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- H
+    +- pane A   &lt;&lt;   // フォーカスされた末端ノード
+    +- pane B        // フォーカス外のノード</code></pre>
+</div>
+<h3 id="操作モードの開始">操作モードの開始</h3>
+<p>操作モードに入ると、操作を開始したペインにそのままフォーカスされた状態から始まる。</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;H&quot;&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;pane focus&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- H
+    +- pane
+    +- pane    &lt;&lt;</code></pre>
+</div>
+<h3 id="フォーカスの変更-親">フォーカスの変更: 親</h3>
+<p>親のあるノードがフォーカスされているとき、親ノードへフォーカスを変更できる。
+また、さらにその親ノードへと繰り返し（親がなくなるまで）フォーカスを変更できる。</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane focus&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H
+    |   +- pane
+    |   +- pane   &lt;&lt;
+    |
+    +- pane</code></pre>
+</div>
+<p>親ノードへフォーカスを変更した場合:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H         &lt;&lt;╮
+    |   +- pane    │
+    |   +- pane    │
+    |             ─╯
+    +- pane</code></pre>
+</div>
+<p>さらに親ノードへフォーカスを変更した場合:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V focus&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V             &lt;&lt;╮
+    +- H           │
+    |   +- pane    │
+    |   +- pane    │
+    |              │
+    +- pane        │
+                  ─╯</code></pre>
+</div>
+<h3 id="フォーカスの変更-子">フォーカスの変更: 子</h3>
+<p>子を持つノードがフォーカスされているとき、1つ目の子ノード、2つ目の子ノードにそれぞれ直接フォーカスを変更することができる。</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V focus&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V             &lt;&lt;╮
+    +- H           │
+    |   +- pane    │
+    |   +- pane    │
+    |              │
+    +- pane        │
+                  ─╯</code></pre>
+</div>
+<p>1つ目の子にフォーカスを変更した場合:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H         &lt;&lt;╮
+    |   +- pane    │
+    |   +- pane    │
+    |             ─╯
+    +- pane</code></pre>
+</div>
+<p>2つ目の子にフォーカスを変更した場合:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane focus&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H
+    |   +- pane
+    |   +- pane
+    +- pane       &lt;&lt;</code></pre>
+</div>
+<h3 id="フォーカスの変更-兄弟">フォーカスの変更: 兄弟</h3>
+<p>親のあるノードがフォーカスされているとき、兄弟要素へフォーカスを変更できる。
+もう一度同じ操作を行えば、元のノードにフォーカスが戻る（全二分木なので、兄弟は常に2つである）</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane focus&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H
+    |   +- pane
+    |   +- pane   &lt;&lt;
+    +- pane</code></pre>
+</div>
+<p>1回目の変更:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane focus&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H
+    |   +- pane   &lt;&lt;
+    |   +- pane
+    +- pane</code></pre>
+</div>
+<p>2回目の変更:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane focus&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H
+    |   +- pane
+    |   +- pane   &lt;&lt;
+    +- pane</code></pre>
+</div>
+<p>フォーカス中のノードが末端のペインでなく子を持つノードだったとしても、同じ親を持つ兄弟間でフォーカスを変更できる。
+もう一度操作すれば元のフォーカスに戻るのも同様である。</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H         &lt;&lt;╮
+    |   +- pane    │
+    |   +- pane    │
+    |             ─╯
+    +- pane</code></pre>
+</div>
+<p>1回目の変更:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane focus&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H
+    |   +- pane
+    |   +- pane
+    |
+    +- pane       &lt;&lt;</code></pre>
+</div>
+<p>2回目の変更:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H         &lt;&lt;╮
+    |   +- pane    │
+    |   +- pane    │
+    |             ─╯
+    +- pane</code></pre>
+</div>
+<h3 id="ペインの分割">ペインの分割</h3>
+<p>末端のノード（＝ペイン）がフォーカスされている時、タテまたはヨコに分割することができる。</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;pane focus&quot;&gt;&lt;/div&gt;</code></pre>
+<pre><code>-- pane   &lt;&lt;</code></pre>
+</div>
+<p>ヨコに分割した場合:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;H&quot;&gt;
+    &lt;div class=&quot;pane focus&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- H
+    +- pane   &lt;&lt;
+    +- pane</code></pre>
+</div>
+<p>タテに分割した場合:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;pane focus&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- pane   &lt;&lt;
+    +- pane</code></pre>
+</div>
+<p>子があるノードにフォーカスしているときは、この操作はできないものとする。</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H         &lt;&lt;╮
+        +- pane    │
+        +- pane    │
+                  ─╯</code></pre>
+</div>
+<p>→分割できない</p>
+<h3 id="ペインの入れ替え">ペインの入れ替え</h3>
+<p>子を持つノードがフォーカスされているとき、子ノード同士を入れ替えることができる。</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H           &lt;&lt;╮
+        +- pane A    │
+        +- pane B    │
+                    ─╯</code></pre>
+</div>
+<p>入れ替え後:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane B&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane A&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H           &lt;&lt;╮
+        +- pane B    │
+        +- pane A    │
+                    ─╯</code></pre>
+</div>
+<p>直接の子が末端ノード（ペイン）でなくても、入れ替え可能である。</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V focus&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;pane C&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V               &lt;&lt;╮
+    +- H             │
+    |   +- pane A    │
+    |   +- pane B    │
+    |                │
+    +- pane C        │
+                    ─╯</code></pre>
+</div>
+<p>入れ替え後:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V focus&quot;&gt;
+    &lt;div class=&quot;pane&quot;&gt;pane C&lt;/div&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V               &lt;&lt;╮
+    +- pane C        │
+    |                │
+    +- H             │
+        +- pane A    │
+        +- pane B    │
+                    ─╯</code></pre>
+</div>
+<p>末端ノード（ペイン）を選択しているときは、入れ替え操作はできないものとする。</p>
+<h3 id="分割方向の変更">分割方向の変更</h3>
+<p>子を持つノードがフォーカスされているとき、分割の方向を変更することができる。</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H           &lt;&lt;╮
+        +- pane A    │
+        +- pane B    │
+                    ─╯</code></pre>
+</div>
+<p>入れ替え後:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;V focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- V           &lt;&lt;╮
+        +- pane A    │
+        +- pane B    │
+                    ─╯</code></pre>
+</div>
+<p>もう一度変更すれば、もとに戻る:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H           &lt;&lt;╮
+        +- pane A    │
+        +- pane B    │
+                    ─╯</code></pre>
+</div>
+<p>末端ノード（ペイン）を選択しているときは、分割方向の変更操作はできないものとする。</p>
+<h3 id="分割サイズの変更">分割サイズの変更</h3>
+<p>子を持つノードがフォーカスされているとき、子ノード同士のサイズを変えることができる。
+1つ目のノードを大きくするか、2つ目のノードを大きくするかの2択となる。
+（区切り線を上下左右に動かすイメージ）</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H           &lt;&lt;╮
+        +- pane A    │
+        +- pane B    │
+                    ─╯</code></pre>
+</div>
+<p>1つ目のノードを拡大した場合:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus inc1&quot;&gt;
+        &lt;div class=&quot;pane incw&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane decw&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H           &lt;&lt;╮
+        +- pane A    │
+        +- pane B    │
+                    ─╯</code></pre>
+</div>
+<p>2つ目のノードを拡大した場合:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V&quot;&gt;
+    &lt;div class=&quot;H focus inc2&quot;&gt;
+        &lt;div class=&quot;pane decw&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane incw&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V
+    +- H           &lt;&lt;╮
+        +- pane A    │
+        +- pane B    │
+                    ─╯</code></pre>
+</div>
+<p>フォーカスしたノードの直接の子が末端ノード（ペイン）でなくても、リサイズ可能である。</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V focus&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane&quot;&gt;pane C&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V               &lt;&lt;╮
+    +- H             │
+    |   +- pane A    │
+    |   +- pane B    │
+    |                │
+    +- pane C        │
+                    ─╯</code></pre>
+</div>
+<p>1つ目のノードを拡大した場合:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V focus&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane inch&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane inch&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane dech&quot;&gt;pane C&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V               &lt;&lt;╮
+    +- H             │
+    |   +- pane A    │
+    |   +- pane B    │
+    |                │
+    +- pane C        │
+                    ─╯</code></pre>
+</div>
+<p>2つ目のノードを拡大した場合:</p>
+<div class="view">
+<pre><code>&lt;div class=&quot;V focus&quot;&gt;
+    &lt;div class=&quot;H&quot;&gt;
+        &lt;div class=&quot;pane dech&quot;&gt;pane A&lt;/div&gt;
+        &lt;div class=&quot;pane dech&quot;&gt;pane B&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pane inch&quot;&gt;pane C&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<pre><code>-- V               &lt;&lt;╮
+    +- H             │
+    |   +- pane A    │
+    |   +- pane B    │
+    |                │
+    +- pane C        │
+                    ─╯</code></pre>
+</div>
+<p>末端ノード（ペイン）を選択しているときは、分割サイズの変更操作はできないものとする。</p>
