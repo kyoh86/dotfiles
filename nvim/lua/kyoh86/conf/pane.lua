@@ -62,18 +62,6 @@ local function deepcopy(t)
   return out
 end
 
-local function path_eq(a, b)
-  if #a ~= #b then
-    return false
-  end
-  for i = 1, #a do
-    if a[i] ~= b[i] then
-      return false
-    end
-  end
-  return true
-end
-
 local function path_parent(path)
   local out = deepcopy(path)
   table.remove(out)
@@ -166,6 +154,43 @@ local function first_leaf(node)
   return first_leaf(children(node)[1])
 end
 
+local function normalizeToBinary(node)
+  if is_leaf(node) then
+    return node
+  end
+
+  local axis = axis_of(node)
+  local childs = children(node)
+
+  -- 子ノードを再帰的に正規化
+  local normalizedChildren = {}
+  for i, child in ipairs(childs) do
+    normalizedChildren[i] = normalizeToBinary(child)
+  end
+
+  -- 子が0個または1個の場合
+  if #normalizedChildren == 0 then
+    return node
+  end
+  if #normalizedChildren == 1 then
+    return normalizedChildren[1]
+  end
+  if #normalizedChildren == 2 then
+    return { axis, normalizedChildren }
+  end
+
+  -- Left-associative folding: [A, B, C, D] -> [[[A, B], C], D]
+  local result = normalizedChildren[1]
+  for i = 2, #normalizedChildren do
+    result = { axis, { result, normalizedChildren[i] } }
+  end
+  return result
+end
+
+local function normalized_layout()
+  return normalizeToBinary(vim.fn.winlayout())
+end
+
 local function path_of_winid(layout, winid)
   for _, item in ipairs(all_nodes(layout)) do
     if is_leaf(item.node) and leaf_winid(item.node) == winid then
@@ -224,20 +249,8 @@ local function center_rect(rect)
   }
 end
 
-local function is_prefix(a, b)
-  if #a > #b then
-    return false
-  end
-  for i = 1, #a do
-    if a[i] ~= b[i] then
-      return false
-    end
-  end
-  return true
-end
-
 local function selected_node()
-  return node_at(vim.fn.winlayout(), state.selected_path)
+  return node_at(normalized_layout(), state.selected_path)
 end
 
 local function selected_text()
@@ -344,7 +357,7 @@ local function draw()
   ensure_highlights()
   close_floats()
 
-  local layout = vim.fn.winlayout()
+  local layout = normalized_layout()
   local node = node_at(layout, state.selected_path)
   local rect = node_rect(node)
   open_frame(rect, " SELECTED " .. selected_text() .. " ", config.winhighlight)
@@ -395,51 +408,6 @@ local function schedule_draw()
   end)
 end
 
-local function neighbor_node(dir)
-  local layout = vim.fn.winlayout()
-  local selected = node_at(layout, state.selected_path)
-  local selected_rect = node_rect(selected)
-  if not selected_rect then
-    return nil
-  end
-  local c = center_rect(selected_rect)
-
-  local candidates = {}
-  for _, item in ipairs(all_nodes(layout)) do
-    if not path_eq(item.path, state.selected_path) and not is_prefix(item.path, state.selected_path) and not is_prefix(state.selected_path, item.path) then
-      local r = node_rect(item.node)
-      if r then
-        local nc = center_rect(r)
-        local dx = nc.col - c.col
-        local dy = nc.row - c.row
-        local ok = false
-        if dir == "h" then
-          ok = dx < 0
-        end
-        if dir == "l" then
-          ok = dx > 0
-        end
-        if dir == "k" then
-          ok = dy < 0
-        end
-        if dir == "j" then
-          ok = dy > 0
-        end
-        if ok then
-          local primary = (dir == "h" or dir == "l") and math.abs(dx) or math.abs(dy)
-          local secondary = (dir == "h" or dir == "l") and math.abs(dy) or math.abs(dx)
-          table.insert(candidates, { item = item, score = primary * 10 + secondary })
-        end
-      end
-    end
-  end
-
-  table.sort(candidates, function(a, b)
-    return a.score < b.score
-  end)
-  return candidates[1] and candidates[1].item or nil
-end
-
 local function focus_neighbor(dir)
   local cur = vim.api.nvim_get_current_win()
   local cur_rect = win_rect(cur)
@@ -448,7 +416,7 @@ local function focus_neighbor(dir)
   end
   local cur_center = center_rect(cur_rect)
 
-  local layout = vim.fn.winlayout()
+  local layout = normalized_layout()
   local candidates = {}
 
   for _, item in ipairs(all_nodes(layout)) do
@@ -485,7 +453,7 @@ local function focus_neighbor(dir)
       return a.score < b.score
     end)
     vim.api.nvim_set_current_win(candidates[1].winid)
-    state.selected_path = path_of_winid(vim.fn.winlayout(), candidates[1].winid)
+    state.selected_path = path_of_winid(normalized_layout(), candidates[1].winid)
   end
   draw()
 end
@@ -501,7 +469,7 @@ local function select_child(index)
   local n = selected_node()
   if n and not is_leaf(n) and children(n)[index] then
     table.insert(state.selected_path, index)
-    local winid = first_leaf(node_at(vim.fn.winlayout(), state.selected_path))
+    local winid = first_leaf(node_at(normalized_layout(), state.selected_path))
     if vim.api.nvim_win_is_valid(winid) then
       vim.api.nvim_set_current_win(winid)
     end
@@ -521,7 +489,7 @@ local function select_sibling()
 end
 
 local function select_focus()
-  state.selected_path = path_of_winid(vim.fn.winlayout(), vim.api.nvim_get_current_win())
+  state.selected_path = path_of_winid(normalized_layout(), vim.api.nvim_get_current_win())
   draw()
 end
 
@@ -562,30 +530,6 @@ local function swap_win_contents(a, b)
   pcall(vim.api.nvim_win_set_cursor, b, acur)
   pcall(vim.fn.win_execute, a, "normal! " .. btop .. "zt")
   pcall(vim.fn.win_execute, b, "normal! " .. atop .. "zt")
-end
-
-local function swap_selected_dir(dir)
-  local layout = vim.fn.winlayout()
-  local a_node = node_at(layout, state.selected_path)
-  local b_item = neighbor_node(dir)
-  if not b_item then
-    draw()
-    return
-  end
-
-  local a_wins = sort_wins_by_geometry(leaves(a_node))
-  local b_wins = sort_wins_by_geometry(leaves(b_item.node))
-  local count = math.min(#a_wins, #b_wins)
-  for i = 1, count do
-    swap_win_contents(a_wins[i], b_wins[i])
-  end
-
-  state.selected_path = b_item.path
-  local winid = first_leaf(node_at(vim.fn.winlayout(), state.selected_path))
-  if vim.api.nvim_win_is_valid(winid) then
-    vim.api.nvim_set_current_win(winid)
-  end
-  draw()
 end
 
 local function flip_selected()
@@ -629,8 +573,35 @@ local function rotate_selected()
   if not ok then
     notify("rotate failed for this layout", vim.log.levels.WARN)
   end
-  state.selected_path = path_of_winid(vim.fn.winlayout(), a)
+  state.selected_path = path_of_winid(normalized_layout(), a)
   select_parent()
+end
+
+local function toggle_selected()
+  -- Toggle split direction: H <-> V
+  local n = selected_node()
+  if not n or is_leaf(n) then
+    draw()
+    return
+  end
+
+  local axis = axis_of(n)
+  local a = first_leaf(children(n)[1])
+  local b = first_leaf(children(n)[2])
+  if not (vim.api.nvim_win_is_valid(a) and vim.api.nvim_win_is_valid(b)) then
+    draw()
+    return
+  end
+
+  -- To toggle direction in Neovim, we use win_splitmove with opposite orientation
+  local ok = pcall(function()
+    -- Create new split with opposite direction
+    vim.fn.win_splitmove(b, a, { vertical = axis == "row", rightbelow = true })
+  end)
+  if not ok then
+    notify("toggle failed for this layout", vim.log.levels.WARN)
+  end
+  draw()
 end
 
 local function grow_child(index)
@@ -641,27 +612,139 @@ local function grow_child(index)
   end
 
   local axis = axis_of(n)
-  local target = first_leaf(children(n)[index])
-  if not vim.api.nvim_win_is_valid(target) then
+  local childs = children(n)
+  local amount = config.resize_step
+
+  -- 各 children の leaves を取得
+  local leaves1 = leaves(childs[1])
+  local leaves2 = leaves(childs[2])
+
+  if #leaves1 == 0 or #leaves2 == 0 then
+    return
+  end
+
+  -- children[1] の各 leaf の現在サイズを取得
+  local sizes1 = {}
+  local total1 = 0
+  for _, win in ipairs(leaves1) do
+    if vim.api.nvim_win_is_valid(win) then
+      local size = axis == "row" and vim.api.nvim_win_get_width(win) or vim.api.nvim_win_get_height(win)
+      table.insert(sizes1, size)
+      total1 = total1 + size
+    else
+      table.insert(sizes1, 0)
+    end
+  end
+
+  -- children[2] の各 leaf の現在サイズを取得
+  local sizes2 = {}
+  local total2 = 0
+  for _, win in ipairs(leaves2) do
+    if vim.api.nvim_win_is_valid(win) then
+      local size = axis == "row" and vim.api.nvim_win_get_width(win) or vim.api.nvim_win_get_height(win)
+      table.insert(sizes2, size)
+      total2 = total2 + size
+    else
+      table.insert(sizes2, 0)
+    end
+  end
+
+  if total1 == 0 or total2 == 0 then
     return
   end
 
   local cur = vim.api.nvim_get_current_win()
-  vim.api.nvim_set_current_win(target)
-  local amount = config.resize_step
-  if axis == "row" then
-    if index == 1 then
-      vim.cmd("vertical resize +" .. amount)
-    else
-      vim.cmd("vertical resize +" .. amount)
+
+  if index == 1 then
+    -- children[1] を拡大、children[2] を縮小
+    local new_total1 = total1 + amount
+    local new_total2 = total2 - amount
+    if new_total2 < 1 then
+      new_total2 = 1
+      new_total1 = total1 + total2 - 1
+    end
+
+    -- children[1] をリサイズ
+    local target1 = {}
+    local t1 = 0
+    for i, size in ipairs(sizes1) do
+      local target = math.floor(size * new_total1 / total1)
+      table.insert(target1, target)
+      t1 = t1 + target
+    end
+    target1[#target1] = target1[#target1] + (new_total1 - t1)
+
+    for i, win in ipairs(leaves1) do
+      if vim.api.nvim_win_is_valid(win) then
+        vim.api.nvim_set_current_win(win)
+        local cmd = (axis == "row") and ("vertical resize " .. target1[i]) or ("resize " .. target1[i])
+        vim.cmd(cmd)
+      end
+    end
+
+    -- children[2] をリサイズ
+    local target2 = {}
+    local t2 = 0
+    for i, size in ipairs(sizes2) do
+      local target = math.floor(size * new_total2 / total2)
+      table.insert(target2, target)
+      t2 = t2 + target
+    end
+    target2[#target2] = target2[#target2] + (new_total2 - t2)
+
+    for i, win in ipairs(leaves2) do
+      if vim.api.nvim_win_is_valid(win) then
+        vim.api.nvim_set_current_win(win)
+        local cmd = (axis == "row") and ("vertical resize " .. target2[i]) or ("resize " .. target2[i])
+        vim.cmd(cmd)
+      end
     end
   else
-    if index == 1 then
-      vim.cmd("resize +" .. amount)
-    else
-      vim.cmd("resize +" .. amount)
+    -- children[1] を縮小、children[2] を拡大
+    local new_total1 = total1 - amount
+    local new_total2 = total2 + amount
+    if new_total1 < 1 then
+      new_total1 = 1
+      new_total2 = total1 + total2 - 1
+    end
+
+    -- children[1] をリサイズ
+    local target1 = {}
+    local t1 = 0
+    for i, size in ipairs(sizes1) do
+      local target = math.floor(size * new_total1 / total1)
+      table.insert(target1, target)
+      t1 = t1 + target
+    end
+    target1[#target1] = target1[#target1] + (new_total1 - t1)
+
+    for i, win in ipairs(leaves1) do
+      if vim.api.nvim_win_is_valid(win) then
+        vim.api.nvim_set_current_win(win)
+        local cmd = (axis == "row") and ("vertical resize " .. target1[i]) or ("resize " .. target1[i])
+        vim.cmd(cmd)
+      end
+    end
+
+    -- children[2] をリサイズ
+    local target2 = {}
+    local t2 = 0
+    for i, size in ipairs(sizes2) do
+      local target = math.floor(size * new_total2 / total2)
+      table.insert(target2, target)
+      t2 = t2 + target
+    end
+    target2[#target2] = target2[#target2] + (new_total2 - t2)
+
+    for i, win in ipairs(leaves2) do
+      if vim.api.nvim_win_is_valid(win) then
+        vim.api.nvim_set_current_win(win)
+        local cmd = (axis == "row") and ("vertical resize " .. target2[i]) or ("resize " .. target2[i])
+        vim.cmd(cmd)
+      end
     end
   end
+
   if vim.api.nvim_win_is_valid(cur) then
     vim.api.nvim_set_current_win(cur)
   end
@@ -681,7 +764,6 @@ local function split_selected()
     return
   end
 
-  local cur = vim.api.nvim_get_current_win()
   vim.api.nvim_set_current_win(target)
   if state.preselect == "v" then
     vim.cmd("vnew")
@@ -689,10 +771,7 @@ local function split_selected()
     vim.cmd("new")
   end
   state.preselect = nil
-  state.selected_path = path_of_winid(vim.fn.winlayout(), vim.api.nvim_get_current_win())
-  if vim.api.nvim_win_is_valid(cur) then
-    -- Keep the newly created window focused, matching the HTML/tmux prototype.
-  end
+  state.selected_path = path_of_winid(normalized_layout(), vim.api.nvim_get_current_win())
   draw()
 end
 
@@ -764,32 +843,9 @@ local mode_maps = {
   },
   { "o", select_sibling },
   { ".", select_focus },
-  {
-    "H",
-    function()
-      swap_selected_dir("h")
-    end,
-  },
-  {
-    "J",
-    function()
-      swap_selected_dir("j")
-    end,
-  },
-  {
-    "K",
-    function()
-      swap_selected_dir("k")
-    end,
-  },
-  {
-    "L",
-    function()
-      swap_selected_dir("l")
-    end,
-  },
   { "f", flip_selected },
   { "r", rotate_selected },
+  { "t", toggle_selected },
   {
     "[",
     function()
@@ -845,7 +901,7 @@ end
 local function enter()
   state.active = true
   state.preselect = nil
-  state.selected_path = path_of_winid(vim.fn.winlayout(), vim.api.nvim_get_current_win())
+  state.selected_path = path_of_winid(normalized_layout(), vim.api.nvim_get_current_win())
   set_mode_maps(0)
   draw()
 end
