@@ -733,25 +733,35 @@ local function rotate_selected()
     return
   end
 
-  -- 元のsizeと全体サイズから比率を計算
-  local ratio = nil
-  if pane_n.size and axis == "row" then
-    -- row: sizeは幅
-    ratio = pane_n.size / node_rect_n.width
-  elseif pane_n.size and axis == "col" then
-    -- col: sizeは高さ
-    ratio = pane_n.size / node_rect_n.height
-  end
+  -- 縦横が同じサイズかどうかをチェック
+  local is_square = node_rect_n.width == node_rect_n.height
 
   -- 新しい分割方向で同じ比率になるようなsizeを計算
   local new_size = nil
-  if ratio then
-    if new_axis == "row" then
-      -- row: 幅としてsizeを計算
-      new_size = math.floor(node_rect_n.width * ratio + 0.5)
+  if pane_n.size then
+    if is_square then
+      -- 縦横が同じサイズなら、そのままsizeを流用
+      new_size = pane_n.size
     else
-      -- col: 高さとしてsizeを計算
-      new_size = math.floor(node_rect_n.height * ratio + 0.5)
+      -- 縦横が違うサイズなら、「サイズの比率」として反映
+      local ratio = nil
+      if axis == "row" then
+        -- row: sizeは幅
+        ratio = pane_n.size / node_rect_n.width
+      else
+        -- col: sizeは高さ
+        ratio = pane_n.size / node_rect_n.height
+      end
+
+      if ratio then
+        if new_axis == "row" then
+          -- row: 幅としてsizeを計算
+          new_size = math.floor(node_rect_n.width * ratio + 0.5)
+        else
+          -- col: 高さとしてsizeを計算
+          new_size = math.floor(node_rect_n.height * ratio + 0.5)
+        end
+      end
     end
   end
 
