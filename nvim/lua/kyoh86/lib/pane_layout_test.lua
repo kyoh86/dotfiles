@@ -118,7 +118,82 @@ local function test_complex()
   end
 end
 
+-- 同方向の分割をテスト（ユーザーの例）
+local function test_same_direction()
+  print("\n=== Test 4: Same direction row(row(11,10), 1) ===")
+  vim.cmd("only")
+
+  -- ユーザーの例を直接適用
+  local layout = {
+    first = {
+      first = {kind = "pane", buffer = vim.fn.bufadd("test11.txt")},
+      kind = "row",
+      second = {kind = "pane", buffer = vim.fn.bufadd("test10.txt")},
+      size = 97
+    },
+    kind = "row",
+    second = {kind = "pane", buffer = vim.fn.bufadd("test1.txt")},
+    size = 195
+  }
+
+  -- バッファをロード
+  vim.fn.bufload(layout.first.first.buffer)
+  vim.fn.bufload(layout.first.second.buffer)
+  vim.fn.bufload(layout.second.buffer)
+
+  print("Original: " .. vim.fn.json_encode(layout))
+
+  pane_layout.reset_and_apply(layout)
+
+  local layout2 = pane_layout.get()
+  print("Restored: " .. vim.fn.json_encode(layout2))
+
+  if vim.fn.json_encode(layout) == vim.fn.json_encode(layout2) then
+    print("✓ PASSED")
+  else
+    print("✗ FAILED")
+    print("Expected size: first.first=" .. layout.first.size .. ", first=" .. layout.size)
+    print("Got size: first.first=" .. (layout2.first and layout2.first.size or "nil") .. ", first=" .. (layout2.size or "nil"))
+  end
+end
+
+-- 手動で同方向の分割を作るテスト
+local function test_same_direction_manual()
+  print("\n=== Test 5: Manual same direction row(row(1,2), 3) ===")
+  vim.cmd("only")
+
+  -- row(row(1,2), 3) を作成
+  vim.cmd("vsplit")  -- 左右に分割（1と2）
+  vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[1])  -- 左に移動
+  vim.cmd("vsplit")  -- 左を左右に分割（1と2）
+
+  local wins = vim.api.nvim_list_wins()
+  vim.api.nvim_win_set_buf(wins[1], vim.fn.bufadd("test1.txt"))
+  vim.api.nvim_win_set_buf(wins[2], vim.fn.bufadd("test2.txt"))
+  vim.api.nvim_win_set_buf(wins[3], vim.fn.bufadd("test3.txt"))
+  for _, win in ipairs(wins) do
+    vim.fn.bufload(vim.api.nvim_win_get_buf(win))
+  end
+
+  local layout1 = pane_layout.get()
+  print("Original: " .. vim.fn.json_encode(layout1))
+
+  vim.cmd("only")
+  pane_layout.reset_and_apply(layout1)
+
+  local layout2 = pane_layout.get()
+  print("Restored: " .. vim.fn.json_encode(layout2))
+
+  if vim.fn.json_encode(layout1) == vim.fn.json_encode(layout2) then
+    print("✓ PASSED")
+  else
+    print("✗ FAILED")
+  end
+end
+
 -- テストを実行
 test_simple()
 test_nested()
 test_complex()
+test_same_direction()
+test_same_direction_manual()

@@ -109,6 +109,16 @@ func run() error {
 			return fmt.Errorf("growChild failed: %w", err)
 		}
 
+	case "toggle":
+		if err := toggleAxis(root, state); err != nil {
+			return fmt.Errorf("toggleAxis failed: %w", err)
+		}
+
+	case "rotate":
+		if err := rotateSelected(root, state); err != nil {
+			return fmt.Errorf("rotateSelected failed: %w", err)
+		}
+
 	case "paint":
 		// Just paint the current state
 		return nil

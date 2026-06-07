@@ -73,33 +73,39 @@ func nodeRect(node Node) (*Rect, error) {
 func paint(root Node, state *State) error {
 	selected := nodeAt(root, state.SelectedPath)
 	selectedLeaves := leaves(selected)
-	focus, err := currentPane()
-	if err != nil {
-		return err
-	}
 
 	if err := clearStyles(); err != nil {
 		return err
 	}
 
-	// Draw selection background
-	for _, l := range selectedLeaves {
-		if _, err = tmux("set-option", "-pt", l.Pane, "window-style", "bg="+SelectBG); err != nil {
-			return err
+	// 選択されたノードが split の場合、children[0] と children[1] の leaves に異なる色を付ける
+	// leaf の場合は独自の色を付ける
+	if selected.IsLeaf() {
+		for _, l := range selectedLeaves {
+			if _, err := tmux("set-option", "-pt", l.Pane, "window-style", "bg="+LeafSelectBG); err != nil {
+				return err
+			}
 		}
-	}
+	} else if selected.IsSplit() {
+		split := selected.AsSplit()
 
-	// Highlight focused pane
-	focusedInSelection := false
-	for _, l := range selectedLeaves {
-		if l.Pane == focus {
-			focusedInSelection = true
-			break
+		var firstChildLeaves, secondChildLeaves []*Leaf
+		if len(split.Children) >= 1 {
+			firstChildLeaves = leaves(split.Children[0])
 		}
-	}
-	if focusedInSelection {
-		if _, err = tmux("set-option", "-pt", focus, "window-style", "bg="+FocusBG); err != nil {
-			return err
+		if len(split.Children) >= 2 {
+			secondChildLeaves = leaves(split.Children[1])
+		}
+
+		for _, l := range firstChildLeaves {
+			if _, err := tmux("set-option", "-pt", l.Pane, "window-style", "bg="+SelectBG); err != nil {
+				return err
+			}
+		}
+		for _, l := range secondChildLeaves {
+			if _, err := tmux("set-option", "-pt", l.Pane, "window-style", "bg="+SecondChildBG); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -145,7 +151,7 @@ func paint(root Node, state *State) error {
 		}
 		msg += fmt.Sprintf("  preselect=%s  Enter to split %s", axisName, splitDesc)
 	}
-	_, err = tmux("display-message", msg)
+	_, err := tmux("display-message", msg)
 	return err
 }
 
