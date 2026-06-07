@@ -532,86 +532,45 @@ local function swap_win_contents(a, b)
   pcall(vim.fn.win_execute, b, "normal! " .. atop .. "zt")
 end
 
--- get_target_layout: 操作後のあるべき姿を構築する
-local function get_target_layout(node)
+-- winlayout形式をpane_layout形式に変換する
+local function convert_to_pane_layout(node)
   if is_leaf(node) then
-    return { winid = leaf_winid(node), buffer = vim.api.nvim_win_get_buf(leaf_winid(node)) }
+    local winid = leaf_winid(node)
+    local bufnr = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) or nil
+    return {
+      kind = "pane",
+      buffer = bufnr,
+    }
   end
 
   local axis = axis_of(node)
   local childs = children(node)
 
-  local result = {
-    axis = axis,
-    children = {}
-  }
-
-  for _, child in ipairs(childs) do
-    table.insert(result.children, get_target_layout(child))
-  end
-
-  return result
-end
-
--- apply_target_layout: あるべき姿通りにウィンドウを再配置
-local function apply_target_layout(target, parent_win, parent_axis)
-  if target.winid then
-    -- leaf の場合
-    if not vim.api.nvim_win_is_valid(target.winid) then
-      -- ウィンドウが無効な場合、新しく作成
-      local new_win = vim.api.nvim_win_get_parent(parent_win)
-      vim.api.nvim_set_current_win(new_win)
-      vim.cmd("split")
-      target.winid = vim.api.nvim_get_current_win()
+  -- firstノードのサイズを計算
+  local first_rect = node_rect(childs[1])
+  local second_rect = node_rect(childs[2])
+  local size = nil
+  if first_rect and second_rect then
+    if axis == "row" then
+      size = first_rect.width
+    else
+      size = first_rect.height
     end
-    return target.winid
   end
 
-  -- split の場合
-  local axis = target.axis
-  local childs = target.children
-
-  if #childs == 0 then
-    return parent_win
-  end
-
-  -- 最初の child を配置
-  local first_win = apply_target_layout(childs[1], parent_win, parent_axis)
-
-  -- 2番目以降の child を配置
-  for i = 2, #childs do
-    local next_win = apply_target_layout(childs[i], first_win, axis)
-    first_win = next_win
-  end
-
-  return first_win
+  return {
+    kind = axis,
+    first = convert_to_pane_layout(childs[1]),
+    second = convert_to_pane_layout(childs[2]),
+    size = size,
+  }
 end
 
 -- rebuild_layout: 操作後のあるべき姿に基づいてウィンドウを再構築
-local function rebuild_layout(target_layout)
-  -- 全てのウィンドウを取得
-  local all_wins = vim.api.nvim_list_wins()
-  if #all_wins == 0 then
-    return
-  end
-
-  -- 最初のウィンドウ（list_wins の最初）を残して、他を閉じる
-  local first_win = all_wins[1]
-  if not vim.api.nvim_win_is_valid(first_win) then
-    return
-  end
-
-  local wins_to_close = {}
-  for i = 2, #all_wins do
-    table.insert(wins_to_close, all_wins[i])
-  end
-
-  for _, win in ipairs(wins_to_close) do
-    vim.api.nvim_win_close(win, true)
-  end
-
-  -- target_layout に基づいて再構築
-  apply_target_layout(target_layout, first_win, nil)
+local function rebuild_layout(node)
+  local pane_layout = require("kyoh86.lib.pane_layout")
+  local layout = convert_to_pane_layout(node)
+  pane_layout.reset_and_apply(layout)
 end
 
 -- apply_layout: ツリー構造に基づいてウィンドウを再配置
@@ -668,42 +627,33 @@ local function flip_selected()
   local axis = axis_of(n)
   local swapped_node = { axis, { original_childs[2], original_childs[1] } }
 
-  -- 「あるべき姿」を構築
-  local target_layout = get_target_layout(swapped_node)
-
   -- ウィンドウを再構築
-  rebuild_layout(target_layout)
+  rebuild_layout(swapped_node)
 
   draw()
 end
 
 local function rotate_selected()
-  -- Best-effort structural rotate for simple selected split:
-  -- move child[2]'s first leaf around child[1]'s first leaf with the opposite split direction.
-  -- For complex subtrees, this is intentionally conservative.
+  -- Rotate split direction: row <-> col
   local n = selected_node()
   if not n or is_leaf(n) then
     draw()
     return
   end
 
-  local a = first_leaf(children(n)[1])
-  local b = first_leaf(children(n)[2])
-  if not (vim.api.nvim_win_is_valid(a) and vim.api.nvim_win_is_valid(b)) then
-    draw()
-    return
-  end
-
   local axis = axis_of(n)
-  local ok = pcall(function()
-    -- win_splitmove moves source window next to target.
-    -- If current node is side-by-side, create a stacked relation; if stacked, create side-by-side.
-    vim.fn.win_splitmove(b, a, { vertical = axis == "col", rightbelow = true })
-  end)
-  if not ok then
-    notify("rotate failed for this layout", vim.log.levels.WARN)
-  end
-  state.selected_path = path_of_winid(normalized_layout(), a)
+  local childs = children(n)
+
+  -- axis を反転した新しいノードを作る
+  local new_axis = axis == "row" and "col" or "row"
+  local rotated_node = { new_axis, childs }
+
+  -- ウィンドウを再構築
+  rebuild_layout(rotated_node)
+
+  -- 選択パスを更新（ルートから現在のウィンドウへのパスを再取得して親を選択）
+  local cur = vim.api.nvim_get_current_win()
+  state.selected_path = path_of_winid(normalized_layout(), cur)
   select_parent()
 end
 
@@ -716,21 +666,19 @@ local function toggle_selected()
   end
 
   local axis = axis_of(n)
-  local a = first_leaf(children(n)[1])
-  local b = first_leaf(children(n)[2])
-  if not (vim.api.nvim_win_is_valid(a) and vim.api.nvim_win_is_valid(b)) then
-    draw()
-    return
-  end
+  local childs = children(n)
 
-  -- To toggle direction in Neovim, we use win_splitmove with opposite orientation
-  local ok = pcall(function()
-    -- Create new split with opposite direction
-    vim.fn.win_splitmove(b, a, { vertical = axis == "row", rightbelow = true })
-  end)
-  if not ok then
-    notify("toggle failed for this layout", vim.log.levels.WARN)
-  end
+  -- axis を反転した新しいノードを作る
+  local new_axis = axis == "row" and "col" or "row"
+  local toggled_node = { new_axis, childs }
+
+  -- ウィンドウを再構築
+  rebuild_layout(toggled_node)
+
+  -- 選択パスを更新（ルートから現在のウィンドウへのパスを再取得）
+  local cur = vim.api.nvim_get_current_win()
+  state.selected_path = path_of_winid(normalized_layout(), cur)
+
   draw()
 end
 
