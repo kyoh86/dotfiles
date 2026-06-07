@@ -36,7 +36,7 @@ local spec = {
     "previm/previm", -- previous some file-types
     config = function()
       vim.g.previm_enable_realtime = true
-      vim.g.previm_code_language_show = true
+      vim.g.previm_code_language_show = 2 -- ファイル名が指定されている場合のみコードブロックの言語名を（ファイル名とともに）表示する
       vim.g.previm_disable_default_css = true
       vim.g.previm_custom_css_path = vim.fn.stdpath("config") .. "/css/github-markdown.css"
       local wsl_distro = os.getenv("WSL_DISTRO_NAME")
