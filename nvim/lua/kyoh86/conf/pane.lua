@@ -727,40 +727,55 @@ local function rotate_selected()
   local new_axis = axis == "row" and "col" or "row"
 
   -- 現在の分割比率を計算して、新しい分割方向に反映
+  local first_child_rect = node_rect(childs[1])
+  local second_child_rect = node_rect(childs[2])
   local node_rect_n = node_rect(n)
-  if not node_rect_n then
+  if not first_child_rect or not second_child_rect or not node_rect_n then
     draw()
     return
   end
 
-  -- 縦横が同じサイズかどうかをチェック
-  local is_square = node_rect_n.width == node_rect_n.height
+  -- 現在の分割サイズを取得
+  local current_first_size
+  local current_total_size
+  if axis == "row" then
+    -- row: 幅で分割
+    current_first_size = first_child_rect.width
+    current_total_size = first_child_rect.width + second_child_rect.width
+  else
+    -- col: 高さで分割
+    current_first_size = first_child_rect.height
+    current_total_size = first_child_rect.height + second_child_rect.height
+  end
+
+  -- 縦横が同じサイズかどうかをチェック（ノード自体のサイズ）
+  local is_square = current_total_size == (axis == "row" and node_rect_n.height or node_rect_n.width)
 
   -- 新しい分割方向で同じ比率になるようなsizeを計算
   local new_size = nil
-  if pane_n.size then
+  if current_first_size and current_total_size then
     if is_square then
       -- 縦横が同じサイズなら、そのままsizeを流用
-      new_size = pane_n.size
+      new_size = current_first_size
     else
       -- 縦横が違うサイズなら、「サイズの比率」として反映
-      local ratio = nil
-      if axis == "row" then
-        -- row: sizeは幅
-        ratio = pane_n.size / node_rect_n.width
-      else
-        -- col: sizeは高さ
-        ratio = pane_n.size / node_rect_n.height
-      end
+      local ratio = current_first_size / current_total_size
+
+      -- デバッグ情報
+      notify(string.format("rotate: %s -> %s, first=%d, total=%d, ratio=%.3f",
+        axis, new_axis, current_first_size or 0, current_total_size or 0, ratio or 0), vim.log.levels.INFO)
 
       if ratio then
         if new_axis == "row" then
           -- row: 幅としてsizeを計算
-          new_size = math.floor(node_rect_n.width * ratio + 0.5)
+          new_size = math.floor(current_total_size * ratio + 0.5)
         else
           -- col: 高さとしてsizeを計算
-          new_size = math.floor(node_rect_n.height * ratio + 0.5)
+          new_size = math.floor(current_total_size * ratio + 0.5)
         end
+
+        notify(string.format("rotate: new_size=%d (from total=%d * ratio=%.3f)",
+          new_size or 0, current_total_size or 0, ratio or 0), vim.log.levels.INFO)
       end
     end
   end
