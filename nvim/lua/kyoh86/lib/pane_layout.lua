@@ -16,6 +16,38 @@ local M = {}
 --   size = number,      -- firstのサイズ（列数または行数、省略時は均等分割）
 -- }
 
+-- 同方向分割をフラットなリストに変換
+-- 戻り値: {{node=node, size=size}, ...}
+-- 例: row(row(A,B),C) → {{node=A, size=A.first_size}, {node=B, size=A.second_size}, {node=C, size=node.second_size}}
+local function flatten_same_direction(node, kind)
+  local result = {}
+
+  local function flatten(n)
+    if n.kind == kind then
+      -- 同方向分割の場合、再帰的に展開
+      if n.first and n.first.kind == kind then
+        -- firstも同方向分割の場合、再帰的に展開
+        flatten(n.first)
+      else
+        -- firstが異方向分割またはリーフの場合
+        table.insert(result, { node = n.first, size = n.first_size })
+      end
+      -- secondのサイズは、n.second_size
+      if n.second.kind == kind then
+        flatten(n.second)
+      else
+        table.insert(result, { node = n.second, size = n.second_size })
+      end
+    else
+      -- 異方向分割またはリーフの場合（通常はここには来ない）
+      table.insert(result, { node = n, size = nil })
+    end
+  end
+
+  flatten(node)
+  return result
+end
+
 -- ノードを構築する
 -- 戻り値: {node, win} のペア
 function M.build_node(node, parent_win)
@@ -27,6 +59,61 @@ function M.build_node(node, parent_win)
     return { node = node, win = parent_win }
   end
 
+  -- 同方向の分割かどうかをチェック
+  local same_direction = false
+  if node.first and node.first.kind and node.first.kind ~= "pane" then
+    same_direction = (node.kind == node.first.kind)
+  end
+
+  -- 同方向分割の場合、フラットなリストとして扱う
+  if same_direction then
+    local flat = flatten_same_direction(node, node.kind)
+
+    -- 左から右へ順番にウィンドウを作成
+    local wins = {}
+    wins[1] = parent_win
+
+    for i = 2, #flat do
+      vim.api.nvim_set_current_win(wins[i - 1])
+      if node.kind == "col" then
+        vim.cmd("belowright split")
+      else
+        vim.cmd("belowright vsplit")
+      end
+      wins[i] = vim.api.nvim_get_current_win()
+    end
+
+    -- 左から右へ順番にノードを構築
+    local results = {}
+    for i, item in ipairs(flat) do
+      if item.node.kind == "pane" then
+        -- 葉: バッファを設定
+        if item.node.buffer then
+          vim.api.nvim_win_set_buf(wins[i], item.node.buffer)
+        end
+        results[i] = { node = item.node, win = wins[i] }
+      else
+        -- 異方向分割: 再帰的に構築
+        results[i] = M.build_node(item.node, wins[i])
+      end
+    end
+
+    -- 左から右へ順番にサイズを設定
+    for i, item in ipairs(flat) do
+      if item.size then
+        vim.api.nvim_set_current_win(wins[i])
+        if node.kind == "col" then
+          vim.cmd("resize " .. item.size)
+        else
+          vim.cmd("vertical resize " .. item.size)
+        end
+      end
+    end
+
+    return { node = node, win = parent_win, children = results }
+  end
+
+  -- 異方向分割の場合、既存のロジックを使用
   -- row/col: parent_win を分割して first_win と second_win を作成
   vim.api.nvim_set_current_win(parent_win)
   if node.kind == "col" then
@@ -37,20 +124,6 @@ function M.build_node(node, parent_win)
   local second_win = vim.api.nvim_get_current_win()
   local first_win = parent_win
 
-  -- 内側ノードのサイズを保存（後で再設定するため）
-  local inner_size = nil
-  local inner_kind = nil
-  if node.first and node.first.kind and node.first.kind ~= "pane" and node.first.size then
-    inner_size = node.first.size
-    inner_kind = node.first.kind
-  end
-
-  -- 同方向の分割かどうかをチェック
-  local same_direction = false
-  if node.first and node.first.kind and node.first.kind ~= "pane" then
-    same_direction = (node.kind == node.first.kind)
-  end
-
   -- サイズを固定するオプションを設定（子ノード構築前にサイズを固定）
   local wo = vim.api.nvim_get_option_value("winfixheight", { win = first_win })
   local wo_v = vim.api.nvim_get_option_value("winfixwidth", { win = first_win })
@@ -60,8 +133,8 @@ function M.build_node(node, parent_win)
     vim.api.nvim_set_option_value("winfixwidth", true, { win = first_win })
   end
 
-  -- 子ノード構築前にサイズを設定（同方向の場合はスキップ）
-  if node.size and not same_direction then
+  -- 子ノード構築前にサイズを設定
+  if node.size then
     vim.api.nvim_set_current_win(first_win)
     if node.kind == "col" then
       vim.cmd("resize " .. node.size)
@@ -75,29 +148,6 @@ function M.build_node(node, parent_win)
 
   -- second を構築
   local second_result = M.build_node(node.second, second_win)
-
-  -- 内側ノード構築後、内側ノードのサイズを再設定（同方向の場合のみ）
-  if same_direction and inner_size and first_result and second_result then
-    local inner_first_win = first_result.win
-    local inner_second_win = second_result.win
-
-    -- 同方向分割の場合、サイズ設定をスキップしてデフォルトに任せる
-    -- 異方向分割の場合は正しくサイズ設定ができるが、同方向分割の場合は
-    -- サイズ設定が複雑で正確な再現が難しいため
-    --
-    -- 将来的には、同方向分割をマージして単一のノードとして扱うなどの
-    -- 解決策が必要だが、現時点ではデフォルトのサイズ設定に任せる
-  end
-
-  -- 外側ノードのサイズを再設定（同方向の場合はスキップ - すでに内側構築後に設定済み）
-  if node.size and not same_direction then
-    vim.api.nvim_set_current_win(first_win)
-    if node.kind == "col" then
-      vim.cmd("resize " .. node.size)
-    else
-      vim.cmd("vertical resize " .. node.size)
-    end
-  end
 
   -- サイズ固定オプションを元に戻す
   vim.api.nvim_set_option_value("winfixheight", wo, { win = first_win })
@@ -268,15 +318,21 @@ local function convert_node(node)
   local axis = node[1]
   local children = node[2]
 
-  -- firstノードのサイズを計算
+  -- firstノードとsecondノードのサイズを計算
   local first_rect = node_rect(children[1])
   local second_rect = node_rect(children[2])
   local size = nil
+  local first_size = nil
+  local second_size = nil
   if first_rect and second_rect then
     if axis == "row" then
       size = first_rect.width
+      first_size = first_rect.width
+      second_size = second_rect.width
     else
       size = first_rect.height
+      first_size = first_rect.height
+      second_size = second_rect.height
     end
   end
 
@@ -285,6 +341,8 @@ local function convert_node(node)
     first = convert_node(children[1]),
     second = convert_node(children[2]),
     size = size,
+    first_size = first_size,
+    second_size = second_size,
   }
 end
 
