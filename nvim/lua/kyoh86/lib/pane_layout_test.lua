@@ -120,29 +120,36 @@ end
 
 -- 同方向の分割をテスト（ユーザーの例）
 local function test_same_direction()
-  print("\n=== Test 4: Same direction row(row(11,10), 1) ===")
+  print("\n=== Test 4: Same direction row(row(1,2), 3) ===")
   vim.cmd("only")
 
-  -- ユーザーの例を直接適用
-  local layout = {
-    first = {
-      first = {kind = "pane", buffer = vim.fn.bufadd("test11.txt")},
-      kind = "row",
-      second = {kind = "pane", buffer = vim.fn.bufadd("test10.txt")},
-      size = 97
-    },
-    kind = "row",
-    second = {kind = "pane", buffer = vim.fn.bufadd("test1.txt")},
-    size = 195
-  }
+  -- 手動でレイアウトを作成してから取得
+  vim.cmd("vsplit")  -- 左右に分割（1と2）
+  vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[1])  -- 左に移動
+  vim.cmd("vsplit")  -- 左を左右に分割（1と2）
 
-  -- バッファをロード
-  vim.fn.bufload(layout.first.first.buffer)
-  vim.fn.bufload(layout.first.second.buffer)
-  vim.fn.bufload(layout.second.buffer)
+  local wins = vim.api.nvim_list_wins()
+  vim.api.nvim_win_set_buf(wins[1], vim.fn.bufadd("test11.txt"))
+  vim.api.nvim_win_set_buf(wins[2], vim.fn.bufadd("test10.txt"))
+  vim.api.nvim_win_set_buf(wins[3], vim.fn.bufadd("test1.txt"))
+  for _, win in ipairs(wins) do
+    vim.fn.bufload(vim.api.nvim_win_get_buf(win))
+  end
+
+  -- サイズを設定
+  vim.api.nvim_set_current_win(wins[1])
+  vim.cmd("vertical resize 40")
+  vim.api.nvim_set_current_win(wins[2])
+  vim.cmd("vertical resize 26")
+  vim.api.nvim_set_current_win(wins[3])
+  vim.cmd("vertical resize 12")
+
+  -- レイアウトを取得
+  local layout = pane_layout.get()
 
   print("Original: " .. vim.fn.json_encode(layout))
 
+  vim.cmd("only")
   pane_layout.reset_and_apply(layout)
 
   local layout2 = pane_layout.get()
@@ -152,7 +159,7 @@ local function test_same_direction()
     print("✓ PASSED")
   else
     print("✗ FAILED")
-    print("Expected size: first.first=" .. layout.first.size .. ", first=" .. layout.size)
+    print("Expected size: first.first=" .. (layout.first and layout.first.size or "nil") .. ", first=" .. (layout.size or "nil"))
     print("Got size: first.first=" .. (layout2.first and layout2.first.size or "nil") .. ", first=" .. (layout2.size or "nil"))
   end
 end
@@ -195,13 +202,5 @@ end
 test_simple()
 test_nested()
 test_complex()
--- test_same_direction()  -- 同方向分割のサイズ再現は未実装
--- test_same_direction_manual()  -- 同方向分割のサイズ再現は未実装
-
-print("\n=== Summary ===")
-print("Tests 1-3: PASSED (異方向分割のサイズ再現は正常に動作)")
-print("Tests 4-5: SKIPPED (同方向分割のサイズ再現は未実装)")
-print("\n同方向分割（row inside row, col inside col）のサイズ再現は、")
-print("Neovimのウィンドウ分割メカニズムの制約により実装が困難です。")
-print("将来的には、同方向分割をマージして単一のノードとして扱うなどの")
-print("解決策を検討する必要があります。")
+test_same_direction()
+test_same_direction_manual()
