@@ -17,35 +17,46 @@ local M = {}
 -- }
 
 -- 同方向分割をフラットなリストに変換
--- 戻り値: {{node=node, size=size}, ...}
--- 例: row(row(A,B),C) → {{node=A, size=A.first_size}, {node=B, size=A.second_size}, {node=C, size=node.second_size}}
-local function flatten_same_direction(node, kind)
-  local result = {}
+-- 戻り値: {{node=node, win=win, win_size=size}, ...}
+-- 各ウィンドウに設定するサイズ（win_size）を計算
+local function flatten_same_direction(node, kind, parent_win)
+  local items = {}
 
-  local function flatten(n)
+  local function flatten(n, win)
     if n.kind == kind then
-      -- 同方向分割の場合、再帰的に展開
+      -- firstを展開
       if n.first and n.first.kind == kind then
-        -- firstも同方向分割の場合、再帰的に展開
-        flatten(n.first)
+        -- firstも同方向分割の場合、再帰的に展開（同じウィンドウ）
+        flatten(n.first, win)
       else
         -- firstが異方向分割またはリーフの場合
-        table.insert(result, { node = n.first, size = n.first_size })
+        -- ウィンドウサイズは、n.first_size
+        table.insert(items, { node = n.first, win = win, win_size = n.first_size })
       end
-      -- secondのサイズは、n.second_size
+
+      -- secondを展開（新しいウィンドウを作成する必要があるため、winはnil）
       if n.second.kind == kind then
-        flatten(n.second)
+        flatten(n.second, nil)
       else
-        table.insert(result, { node = n.second, size = n.second_size })
+        table.insert(items, { node = n.second, win = nil, win_size = n.second_size })
       end
     else
-      -- 異方向分割またはリーフの場合（通常はここには来ない）
-      table.insert(result, { node = n, size = nil })
+      -- 異方向分割またはリーフの場合
+      table.insert(items, { node = n, win = win, win_size = nil })
     end
   end
 
-  flatten(node)
-  return result
+  flatten(node, parent_win)
+
+  -- 同方向分割ノードの場合、そのサイズを計算
+  for i, item in ipairs(items) do
+    if item.node.kind == kind then
+      -- 同方向分割ノードの場合、そのfirst_sizeがウィンドウサイズ
+      item.win_size = item.node.first_size
+    end
+  end
+
+  return items
 end
 
 -- ノードを構築する
@@ -67,13 +78,13 @@ function M.build_node(node, parent_win)
 
   -- 同方向分割の場合、フラットなリストとして扱う
   if same_direction then
-    local flat = flatten_same_direction(node, node.kind)
+    local items = flatten_same_direction(node, node.kind, parent_win)
 
     -- 左から右へ順番にウィンドウを作成
     local wins = {}
     wins[1] = parent_win
 
-    for i = 2, #flat do
+    for i = 2, #items do
       vim.api.nvim_set_current_win(wins[i - 1])
       if node.kind == "col" then
         vim.cmd("belowright split")
@@ -85,28 +96,44 @@ function M.build_node(node, parent_win)
 
     -- 左から右へ順番にノードを構築
     local results = {}
-    for i, item in ipairs(flat) do
+    for i, item in ipairs(items) do
+      local win = item.win or wins[i]
       if item.node.kind == "pane" then
         -- 葉: バッファを設定
         if item.node.buffer then
-          vim.api.nvim_win_set_buf(wins[i], item.node.buffer)
+          vim.api.nvim_win_set_buf(win, item.node.buffer)
         end
-        results[i] = { node = item.node, win = wins[i] }
+        results[i] = { node = item.node, win = win }
       else
         -- 異方向分割: 再帰的に構築
-        results[i] = M.build_node(item.node, wins[i])
+        results[i] = M.build_node(item.node, win)
       end
     end
 
-    -- 左から右へ順番にサイズを設定
-    for i, item in ipairs(flat) do
-      if item.size then
-        vim.api.nvim_set_current_win(wins[i])
+    -- 左から右へ順番にサイズを設定（最後のウィンドウ以外）
+    -- 各ウィンドウに直接サイズを設定し、サイズを固定
+    local winfix_states = {}
+    for i = 1, #items - 1 do
+      local item = items[i]
+      local win = item.win or wins[i]
+      if item.win_size then
+        vim.api.nvim_set_current_win(win)
         if node.kind == "col" then
-          vim.cmd("resize " .. item.size)
+          vim.api.nvim_set_option_value("winfixheight", true, { win = win })
+          vim.cmd("resize " .. item.win_size)
         else
-          vim.cmd("vertical resize " .. item.size)
+          vim.api.nvim_set_option_value("winfixwidth", true, { win = win })
+          vim.cmd("vertical resize " .. item.win_size)
         end
+        winfix_states[win] = true
+      end
+    end
+
+    -- サイズ固定オプションを元に戻す
+    for win, _ in pairs(winfix_states) do
+      if vim.api.nvim_win_is_valid(win) then
+        vim.api.nvim_set_option_value("winfixheight", false, { win = win })
+        vim.api.nvim_set_option_value("winfixwidth", false, { win = win })
       end
     end
 
