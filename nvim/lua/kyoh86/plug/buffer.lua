@@ -9,7 +9,7 @@ local spec = {
     "kyoh86/bdelete-buffers.nvim",
     keys = {
       {
-        "<C-q>",
+        "<leader>q",
         function()
           require("bdelete").menu()
         end,

@@ -16,7 +16,7 @@ local function ls_for_nvim(client)
   if folder == nil then
     return false
   end
-  if vim.uv.fs_realpath(folder.name) ~= vim.uv.fs_realpath(vim.env.DOTFILES .. "/nvim") then
+  if vim.uv.fs_realpath(folder.name) ~= vim.uv.fs_realpath(vim.fn.stdpath("config")) then
     return false
   end
   return true

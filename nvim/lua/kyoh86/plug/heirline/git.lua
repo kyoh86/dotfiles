@@ -72,7 +72,7 @@ group:hook("User", {
   callback = require("kyoh86.lib.func").vind_all(notify_update),
 })
 
-group:hook({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave", "ModeChanged" }, {
+group:hook({ "FileChangedShellPost", "FileWritePost", "BufWritePost", "TermLeave" }, {
   callback = notify_update,
 })
 
@@ -150,6 +150,7 @@ local function get_git_stat(path)
     if string.sub(completed.stderr, 1, string.len(ERROR_NOT_GIT_WORKTREE)) == ERROR_NOT_GIT_WORKTREE then
       return info
     end
+
     local msg = "failed to call git-status (code: " .. completed.code .. ") " .. completed.stderr
     vim.print(msg)
     return info
@@ -242,7 +243,7 @@ local status = {
       StatUntracked,
       Padding,
 
-      hl = { fg = "yellow", bg = "background", bold = true },
+      hl = { fg = "yellow", bg = "black", bold = true },
       condition = function()
         return stat.dirty
       end,

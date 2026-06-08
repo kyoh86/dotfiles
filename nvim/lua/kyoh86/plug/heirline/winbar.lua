@@ -2,6 +2,7 @@
 local conditions = require("heirline.conditions")
 local palette = require("kyoh86.plug.heirline.palette")
 local File = require("kyoh86.plug.heirline.file")
+local Mode = require("kyoh86.plug.heirline.mode")
 local Bufnr = require("kyoh86.plug.heirline.bufnr")
 local Ruler = require("kyoh86.plug.heirline.ruler")
 local Diagnostics = require("kyoh86.plug.heirline.diagnostics")
@@ -12,13 +13,19 @@ return {
   end,
   {
     {
+      Mode,
+      hl = function(self)
+        return { fg = "brightwhite", bg = self.mode_colors.deep }
+      end,
+    },
+    {
       {
         File,
         Bufnr,
         Ruler,
         hl = function(self)
           if conditions.is_active() then
-            return { fg = "foreground", bg = self.mode_colors.deep }
+            return { fg = "brightwhite", bg = self.mode_colors.deep }
           else
             return { fg = "gradation2", bg = "gradation4" }
           end
@@ -45,7 +52,7 @@ return {
 
     hl = function(self)
       if conditions.is_active() then
-        return { fg = "background", bg = self.mode_colors.bright }
+        return { fg = "brightwhite", bg = self.mode_colors.bright }
       else
         return { fg = "gradation4", bg = "gradation2" }
       end

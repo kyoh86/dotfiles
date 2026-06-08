@@ -36,8 +36,9 @@ local spec = {
   {
     "thinca/vim-themis",
     config = function()
+      local envar = require("kyoh86.lib.envar")
       local path = kyoh86.lazydir("vim-themis") -- lazydir is defined in preload.lua
-      vim.env.PATH = vim.env.PATH .. ":" .. path .. "/bin"
+      envar.PATH = envar.PATH .. ":" .. path .. "/bin"
     end,
   },
 }
