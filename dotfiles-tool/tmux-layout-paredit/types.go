@@ -59,7 +59,7 @@ type State struct {
 }
 
 const (
-	SelectBG      = "#c2c2f2" // 1番目の子の色 (rgba(194, 194, 242))
-	SecondChildBG = "#dadaf7" // 2番目の子の色 (ベース色 + 半透明白色40%)
+	SelectBG      = "#616179" // 1番目の子の色 (#c2c2f2 を黒背景に50%合成)
+	SecondChildBG = "#6d6d7c" // 2番目の子の色 (#dadaf7 を黒背景に50%合成)
 	Step          = 5
 )
