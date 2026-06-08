@@ -1,10 +1,10 @@
--- pane_layout_test.lua
--- pane_layout のテストスクリプト
+-- pane_test.lua
+-- pane のテストスクリプト
 
 -- ランタイムパスを追加
 vim.cmd("set rtp+=/home/kyoh86/Projects/github.com/kyoh86/dotfiles/.worktree/tmux/nvim")
 
-local pane_layout = require("kyoh86.lib.pane_layout")
+local pane = require("kyoh86.lib.pane")
 
 -- 単純なレイアウトでテスト
 local function test_simple()
@@ -19,12 +19,12 @@ local function test_simple()
   vim.fn.bufload(vim.api.nvim_win_get_buf(wins[1]))
   vim.fn.bufload(vim.api.nvim_win_get_buf(wins[2]))
 
-  local layout1 = pane_layout.get()
+  local layout1 = pane.get()
   print("Original: " .. vim.fn.json_encode(layout1))
 
-  pane_layout.reset_and_apply(layout1)
+  pane.reset_and_apply(layout1)
 
-  local layout2 = pane_layout.get()
+  local layout2 = pane.get()
   print("Restored: " .. vim.fn.json_encode(layout2))
 
   if vim.fn.json_encode(layout1) == vim.fn.json_encode(layout2) then
@@ -52,12 +52,12 @@ local function test_nested()
     vim.fn.bufload(vim.api.nvim_win_get_buf(win))
   end
 
-  local layout1 = pane_layout.get()
+  local layout1 = pane.get()
   print("Original: " .. vim.fn.json_encode(layout1))
 
-  pane_layout.reset_and_apply(layout1)
+  pane.reset_and_apply(layout1)
 
-  local layout2 = pane_layout.get()
+  local layout2 = pane.get()
   print("Restored: " .. vim.fn.json_encode(layout2))
 
   if vim.fn.json_encode(layout1) == vim.fn.json_encode(layout2) then
@@ -100,12 +100,12 @@ local function test_complex()
     end
   end
 
-  local layout1 = pane_layout.get()
+  local layout1 = pane.get()
   print("Original: " .. vim.fn.json_encode(layout1))
 
-  pane_layout.reset_and_apply(layout1)
+  pane.reset_and_apply(layout1)
 
-  local layout2 = pane_layout.get()
+  local layout2 = pane.get()
   print("Restored: " .. vim.fn.json_encode(layout2))
 
   if vim.fn.json_encode(layout1) == vim.fn.json_encode(layout2) then
@@ -142,13 +142,13 @@ local function test_same_direction()
   vim.cmd("vertical resize 12")
 
   -- レイアウトを取得
-  local layout = pane_layout.get()
+  local layout = pane.get()
 
   print("Original: " .. vim.fn.json_encode(layout))
 
-  pane_layout.reset_and_apply(layout)
+  pane.reset_and_apply(layout)
 
-  local layout2 = pane_layout.get()
+  local layout2 = pane.get()
   print("Restored: " .. vim.fn.json_encode(layout2))
 
   if vim.fn.json_encode(layout) == vim.fn.json_encode(layout2) then
@@ -178,12 +178,12 @@ local function test_same_direction_manual()
     vim.fn.bufload(vim.api.nvim_win_get_buf(win))
   end
 
-  local layout1 = pane_layout.get()
+  local layout1 = pane.get()
   print("Original: " .. vim.fn.json_encode(layout1))
 
-  pane_layout.reset_and_apply(layout1)
+  pane.reset_and_apply(layout1)
 
-  local layout2 = pane_layout.get()
+  local layout2 = pane.get()
   print("Restored: " .. vim.fn.json_encode(layout2))
 
   if vim.fn.json_encode(layout1) == vim.fn.json_encode(layout2) then
@@ -217,14 +217,14 @@ local function test_cmd_layout()
   end
 
   -- レイアウトを取得（dump）
-  local layout1 = pane_layout.get()
+  local layout1 = pane.get()
   print("Original: " .. vim.fn.json_encode(layout1))
 
   -- リセットしてロード
-  pane_layout.reset_and_apply(layout1)
+  pane.reset_and_apply(layout1)
 
   -- レイアウトを再取得（dump）
-  local layout2 = pane_layout.get()
+  local layout2 = pane.get()
   print("Restored: " .. vim.fn.json_encode(layout2))
 
   -- 比較
