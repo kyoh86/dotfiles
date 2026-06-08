@@ -19,13 +19,8 @@ function M.close_floats(state)
 end
 
 function M.ensure_highlights()
-  vim.api.nvim_set_hl(0, "LayoutPareditSelection", { bg = "NONE" })
-  vim.api.nvim_set_hl(0, "LayoutPareditBorder", { fg = "#ff8bd1", bg = "NONE" })
-  vim.api.nvim_set_hl(0, "LayoutPareditTitle", { fg = "#101217", bg = "#ff8bd1", bold = true })
-  vim.api.nvim_set_hl(0, "LayoutPareditFirstBorder", { fg = "#c2c2f2", bg = "NONE" })
-  vim.api.nvim_set_hl(0, "LayoutPareditFirstTitle", { fg = "#101217", bg = "#c2c2f2", bold = true })
-  vim.api.nvim_set_hl(0, "LayoutPareditSecondBorder", { fg = "#dadaf7", bg = "NONE" })
-  vim.api.nvim_set_hl(0, "LayoutPareditSecondTitle", { fg = "#101217", bg = "#dadaf7", bold = true })
+  vim.api.nvim_set_hl(0, "LayoutPareditFirstFill", { bg = "#c2c2f2" })
+  vim.api.nvim_set_hl(0, "LayoutPareditSecondFill", { bg = "#dadaf7" })
 end
 
 ---@param a? kyoh86.poc.pane.Rect
@@ -77,13 +72,26 @@ function M.node_rect(node)
   return rect
 end
 
-local function open_line(state, row, col, width, height, lines, hl, zindex)
-  if width <= 0 or height <= 0 then
+local function open_fill(state, rect, hl)
+  if not rect then
     return nil
   end
+  local row = math.max(0, rect.row)
+  local col = math.max(0, rect.col)
+  local width = math.max(1, rect.width)
+  local height = math.max(1, rect.height)
+
   local buf = vim.api.nvim_create_buf(false, true)
   vim.bo[buf].bufhidden = "wipe"
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.api.nvim_buf_set_lines(
+    buf,
+    0,
+    -1,
+    false,
+    vim.tbl_map(function()
+      return string.rep(" ", width)
+    end, vim.fn.range(1, height))
+  )
   vim.bo[buf].modifiable = false
 
   local win = vim.api.nvim_open_win(buf, false, {
@@ -94,89 +102,36 @@ local function open_line(state, row, col, width, height, lines, hl, zindex)
     height = height,
     style = "minimal",
     focusable = false,
-    zindex = zindex or 200,
+    zindex = 190,
     noautocmd = true,
   })
-  vim.wo[win].winhighlight = hl
-  vim.wo[win].winblend = 0
+  vim.wo[win].winhighlight = "Normal:" .. hl
+  vim.wo[win].winblend = 25
   table.insert(state.floats, win)
   return win
 end
 
-local function truncate_width(text, width)
-  if width <= 0 then
-    return ""
-  end
-  local out = vim.fn.strcharpart(text, 0, width)
-  local display = vim.fn.strdisplaywidth(out)
-  if display < width then
-    out = out .. string.rep(" ", width - display)
-  end
-  return out
-end
-
 ---@param state { floats: integer[] }
----@param config { winhighlight: string }
----@param rect? kyoh86.poc.pane.Rect
----@param title? string
----@param hl? string
-function M.open_frame(state, config, rect, title, hl)
-  if not rect then
-    return nil
-  end
-
-  local row = math.max(0, rect.row)
-  local col = math.max(0, rect.col)
-  local width = math.max(2, rect.width)
-  local height = math.max(2, rect.height)
-  local right = col + width - 1
-  local bottom = row + height - 1
-
-  local border_hl = hl or config.winhighlight
-  local top_text = "╭" .. string.rep("─", math.max(0, width - 2)) .. "╮"
-  if title and title ~= "" and width > 6 then
-    local label = truncate_width(title, width - 4)
-    top_text = "╭" .. label .. string.rep("─", math.max(0, width - 2 - vim.fn.strdisplaywidth(label))) .. "╮"
-  end
-  local bottom_text = "╰" .. string.rep("─", math.max(0, width - 2)) .. "╯"
-
-  open_line(state, row, col, width, 1, { top_text }, border_hl, 210)
-  open_line(state, bottom, col, width, 1, { bottom_text }, border_hl, 210)
-
-  if height > 2 then
-    local side_lines = {}
-    for _ = 1, height - 2 do
-      table.insert(side_lines, "│")
-    end
-    open_line(state, row + 1, col, 1, height - 2, side_lines, border_hl, 210)
-    open_line(state, row + 1, right, 1, height - 2, side_lines, border_hl, 210)
-  end
-end
-
----@param state { floats: integer[] }
----@param config { winhighlight: string }
 ---@param node kyoh86.lib.pane.window.LiveNode
----@param title_prefix string
 ---@param hl string
-local function open_node_frames(state, config, node, title_prefix, hl)
+local function open_node_fills(state, node, hl)
   for _, item in ipairs(tree.all_nodes(node)) do
     if tree.is_leaf(item.node) then
-      M.open_frame(state, config, M.node_rect(item.node), " " .. title_prefix .. " " .. tree.compact(item.node) .. " ", hl)
+      open_fill(state, M.node_rect(item.node), hl)
     end
   end
 end
 
 ---@param state { floats: integer[] }
----@param config { winhighlight: string }
 ---@param node kyoh86.lib.pane.window.LiveNode
-function M.open_selection(state, config, node)
+function M.open_selection(state, node)
   if tree.is_leaf(node) then
-    open_node_frames(state, config, node, "FIRST", "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditFirstBorder,FloatTitle:LayoutPareditFirstTitle")
+    open_node_fills(state, node, "LayoutPareditFirstFill")
     return
   end
 
-  open_node_frames(state, config, node.first, "FIRST", "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditFirstBorder,FloatTitle:LayoutPareditFirstTitle")
-  open_node_frames(state, config, node.second, "SECOND", "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditSecondBorder,FloatTitle:LayoutPareditSecondTitle")
+  open_node_fills(state, node.first, "LayoutPareditFirstFill")
+  open_node_fills(state, node.second, "LayoutPareditSecondFill")
 end
 
 return M
