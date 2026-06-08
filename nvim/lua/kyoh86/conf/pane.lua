@@ -561,7 +561,7 @@ end
 local function rebuild_layout(node)
   local pane_layout = require("kyoh86.lib.pane_layout")
   local layout = convert_to_pane_layout(node)
-  pane_layout.reset_and_apply(layout)
+  pane_layout.reset_and_apply({ layout = layout, cur = "" })
 end
 
 -- replace_node_at_path: パスに従ってノードを置換する（winlayout形式）
@@ -726,7 +726,7 @@ local function rotate_selected()
 
   -- ウィンドウを再構築
   local pane_layout = require("kyoh86.lib.pane_layout")
-  pane_layout.reset_and_apply(new_layout)
+  pane_layout.reset_and_apply({ layout = new_layout, cur = "" })
 
   -- 選択パスを更新（ルートから現在のウィンドウへのパスを再取得して親を選択）
   local cur = vim.api.nvim_get_current_win()
