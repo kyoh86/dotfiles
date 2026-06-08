@@ -30,17 +30,17 @@ local M = {}
 ---@field first Node 左/上の子
 ---@field second Node 右/下の子
 
----@class builtStructure
+---@class Panes
 ---@field node Node
 ---@field win number
----@field first? builtStructure
----@field second? builtStructure
+---@field first? Panes
+---@field second? Panes
 
 ---ウィンドウ構造を構築する（サイズ設定はしない）
 ---@param node Node
 ---@param win number
----@return builtStructure
-local function build_structure(node, win)
+---@return Panes
+local function build_panes(node, win)
   if node.kind == "pane" then
     -- 葉: parent_win にバッファを設定
     if node.buffer then
@@ -57,65 +57,102 @@ local function build_structure(node, win)
     local new_win = vim.api.nvim_get_current_win()
 
     -- first を構築
-    local first_result = build_structure(node.first, win)
+    local first_result = build_panes(node.first, win)
 
     -- second を構築
-    local second_result = build_structure(node.second, new_win)
+    local second_result = build_panes(node.second, new_win)
 
     return { node = node, win = win, first = first_result, second = second_result }
   end
 end
 
----ボトムアップでサイズを適用（葉→ルート）
----@param structure builtStructure
-local function apply_sizes_bottomup(structure)
-  if not structure or not structure.node then
+---@class PaneProp
+---@field winfixheight number
+---@field winfixwidth number
+
+---すべてのペインのサイズを再帰的に設定（winfix設定なし）
+---@param panes Panes
+local function apply_resize_only(panes)
+  if not panes or not panes.node then
     return
   end
 
-  local node = structure.node
+  if panes.node.kind == "pane" then
+    -- ペインのサイズを設定（winfix設定はしない）
+    vim.api.nvim_set_current_win(panes.win)
+    vim.cmd("resize " .. panes.node.height)
+    vim.cmd("vertical resize " .. panes.node.width)
+  else
+    -- row/colノード: 子を処理
+    if panes.first then
+      apply_resize_only(panes.first)
+    end
+    if panes.second then
+      apply_resize_only(panes.second)
+    end
+  end
+end
 
-  if node.kind == "pane" then
-    -- ペインのサイズを設定
-    vim.api.nvim_set_current_win(structure.win)
-    vim.cmd("resize " .. node.height)
-    vim.cmd("vertical resize " .. node.width)
-    vim.api.nvim_set_option_value("winfixheight", true, { win = structure.win })
-    vim.api.nvim_set_option_value("winfixwidth", true, { win = structure.win })
-    return
+---すべてのペインのwinfix設定を保存して有効化
+---@param panes Panes
+---@param props { [number]: PaneProp }
+---@return { [number]: PaneProp }
+local function save_and_set_winfix(panes, props)
+  if not panes or not panes.node then
+    return props
   end
 
-  -- 子ノードのサイズを先に適用（ボトムアップ）
-  if structure.first then
-    apply_sizes_bottomup(structure.first)
+  if panes.node.kind == "pane" then
+    local p = props[panes.win] or {}
+    p.winfixheight = vim.api.nvim_get_option_value("winfixheight", { win = panes.win })
+    p.winfixwidth = vim.api.nvim_get_option_value("winfixwidth", { win = panes.win })
+    props[panes.win] = p
+
+    vim.api.nvim_set_option_value("winfixheight", true, { win = panes.win })
+    vim.api.nvim_set_option_value("winfixwidth", true, { win = panes.win })
+  else
+    if panes.first then
+      props = save_and_set_winfix(panes.first, props)
+    end
+    if panes.second then
+      props = save_and_set_winfix(panes.second, props)
+    end
   end
-  if structure.second then
-    apply_sizes_bottomup(structure.second)
+
+  return props
+end
+
+---Windowの設定値をもとに戻す
+---@param props { [number]: PaneProp } WinIDごとの設定値
+local function reset_props(props)
+  for win, p in pairs(props) do
+    vim.api.nvim_set_option_value("winfixheight", p.winfixheight, { win = win })
+    vim.api.nvim_set_option_value("winfixwidth", p.winfixwidth, { win = win })
   end
 end
 
 -- レイアウトを適用
 -- layout: レイアウトツリー
 -- parent_win: 親ウィンドウ（通常は省略）
-function M.apply(layout, parent_win)
-  parent_win = parent_win or vim.api.nvim_get_current_win()
-  local structure = build_structure(layout, parent_win)
-  apply_sizes_bottomup(structure)
+function M.apply(layout)
+  local win = vim.api.nvim_get_current_win()
+  local panes = build_panes(layout, win)
+
+  -- パス1: すべてのresizeを先に行う（winfix設定なし）
+  apply_resize_only(panes)
+
+  -- パス2: winfix設定を保存して有効化
+  local props = {}
+  props = save_and_set_winfix(panes, props)
+
+  reset_props(props)
 end
 
 -- すべてのウィンドウを閉じて、レイアウトを適用
 -- layout: レイアウトツリー
 function M.reset_and_apply(layout)
-  -- 最初のウィンドウ以外を閉じる
-  local first_win = vim.api.nvim_list_wins()[1]
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if win ~= first_win then
-      vim.api.nvim_win_close(win, true)
-    end
-  end
-
-  -- レイアウトを適用
-  M.apply(layout, first_win)
+  vim.cmd("only") -- リセット
+  M.apply(layout) -- レイアウトを適用
 end
 
 -- vim.fn.winlayout() の結果をバイナリツリーに正規化
