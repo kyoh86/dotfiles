@@ -1,15 +1,15 @@
----@class kyoh86.lib.pane_layout.apply.Windows
----@field node kyoh86.lib.pane_layout.Node
+---@class kyoh86.lib.pane.apply.Windows
+---@field node kyoh86.lib.pane.Node
 ---@field win number
----@field first? kyoh86.lib.pane_layout.apply.Windows
----@field second? kyoh86.lib.pane_layout.apply.Windows
+---@field first? kyoh86.lib.pane.apply.Windows
+---@field second? kyoh86.lib.pane.apply.Windows
 
 local M = {}
 
 ---ウィンドウ構造を構築する（サイズ設定はしない）
----@param node kyoh86.lib.pane_layout.Node
+---@param node kyoh86.lib.pane.Node
 ---@param win number
----@return kyoh86.lib.pane_layout.apply.Windows
+---@return kyoh86.lib.pane.apply.Windows
 local function create_windows(node, win)
   if node.kind == "pane" then
     -- 葉: parent_win にバッファを設定
@@ -37,7 +37,7 @@ local function create_windows(node, win)
 end
 
 ---すべてのペインのサイズを再帰的に設定
----@param panes kyoh86.lib.pane_layout.apply.Windows
+---@param panes kyoh86.lib.pane.apply.Windows
 local function apply_size(panes)
   if not panes or not panes.node then
     return
@@ -59,7 +59,7 @@ local function apply_size(panes)
   end
 end
 
----@param node kyoh86.lib.pane_layout.Node
+---@param node kyoh86.lib.pane.Node
 ---@param win number
 function M.apply(node, win)
   local panes = create_windows(node, win)

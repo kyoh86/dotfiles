@@ -1,11 +1,11 @@
 local M = {}
 
-local pathlib = require("kyoh86.lib.pane_layout.path")
----@alias kyoh86.lib.pane_layout.window.Layout vim.fn.winlayout.leaf | vim.fn.winlayout.branch
+local pathlib = require("kyoh86.lib.pane.path")
+---@alias kyoh86.lib.pane.window.Layout vim.fn.winlayout.leaf | vim.fn.winlayout.branch
 
 ---vim.fn.winlayout() の結果をバイナリツリーに正規化
----@param layout kyoh86.lib.pane_layout.window.Layout
----@return kyoh86.lib.pane_layout.window.Layout
+---@param layout kyoh86.lib.pane.window.Layout
+---@return kyoh86.lib.pane.window.Layout
 local function normalize_to_binary(layout)
   if layout[1] == "leaf" then
     return layout
@@ -34,7 +34,7 @@ local function normalize_to_binary(layout)
       axis,
       {
         result,
-        normalize_to_binary(children[i] --[[@as kyoh86.lib.pane_layout.window.Layout]]),
+        normalize_to_binary(children[i] --[[@as kyoh86.lib.pane.window.Layout]]),
       },
     }
   end
@@ -43,15 +43,15 @@ end
 
 ---現在のタブのWindowLayoutをバイナリツリーに正規化して取得する
 ---NOTE:「現在のタブ」が存在しないことはないため、emptyを否定できる
----@return kyoh86.lib.pane_layout.window.Layout
+---@return kyoh86.lib.pane.window.Layout
 function M.get_layout()
-  return normalize_to_binary(vim.fn.winlayout() --[[@as kyoh86.lib.pane_layout.window.Layout]])
+  return normalize_to_binary(vim.fn.winlayout() --[[@as kyoh86.lib.pane.window.Layout]])
 end
 
----@param layout kyoh86.lib.pane_layout.window.Layout
+---@param layout kyoh86.lib.pane.window.Layout
 ---@param win integer
----@param path kyoh86.lib.pane_layout.Path
----@return kyoh86.lib.pane_layout.Path
+---@param path kyoh86.lib.pane.Path
+---@return kyoh86.lib.pane.Path
 local function get_path(layout, win, path)
   if layout[1] == "leaf" then
     if layout[2] == win then
@@ -85,15 +85,15 @@ local function get_path(layout, win, path)
   return {}
 end
 
----@param layout kyoh86.lib.pane_layout.window.Layout
+---@param layout kyoh86.lib.pane.window.Layout
 ---@param win integer
----@return kyoh86.lib.pane_layout.Path
+---@return kyoh86.lib.pane.Path
 function M.get_path(layout, win)
   return get_path(layout, win, {})
 end
 
----@param layout kyoh86.lib.pane_layout.window.Layout
----@param path kyoh86.lib.pane_layout.Path
+---@param layout kyoh86.lib.pane.window.Layout
+---@param path kyoh86.lib.pane.Path
 ---@return integer
 function M.at(layout, path)
   if layout[1] == "leaf" then

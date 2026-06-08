@@ -1,4 +1,4 @@
--- pane_layout.lua
+-- pane.lua
 -- ペインレイアウトをツリー構造から構築するライブラリ
 
 local M = {}
@@ -17,31 +17,32 @@ local M = {}
 --   second = Node,      -- 右/下の子
 -- }
 
----@class kyoh86.lib.pane_layout.Layout
----@field root kyoh86.lib.pane_layout.Node
----@field cur kyoh86.lib.pane_layout.Path
+---@class kyoh86.lib.pane.Layout
+---@field root kyoh86.lib.pane.Node
+---@field cur kyoh86.lib.pane.Path
 
----@alias kyoh86.lib.pane_layout.Node kyoh86.lib.pane_layout.LeafNode|kyoh86.lib.pane_layout.SplitNode
+---@alias kyoh86.lib.pane.Node kyoh86.lib.pane.LeafNode|kyoh86.lib.pane.SplitNode
 
----@class kyoh86.lib.pane_layout.LeafNode
+---@class kyoh86.lib.pane.LeafNode
 ---@field kind "pane" リーフ（ペイン）
 ---@field buffer number bufnr (省略時は空バッファ)
 ---@field width number paneの幅
 ---@field height number paneの高さ
 
----@class kyoh86.lib.pane_layout.SplitNode
+---@class kyoh86.lib.pane.SplitNode
 ---@field kind "row"|"col" 分割方向 (row=左右, col=上下)
----@field first kyoh86.lib.pane_layout.Node 左/上の子
----@field second kyoh86.lib.pane_layout.Node 右/下の子
+---@field first kyoh86.lib.pane.Node 左/上の子
+---@field second kyoh86.lib.pane.Node 右/下の子
 
 ---レイアウトを適用
----@param layout kyoh86.lib.pane_layout.Layout
+---@param layout kyoh86.lib.pane.Layout
 function M.apply(layout)
+  vim.cmd("only") -- リセット
   local win = vim.api.nvim_get_current_win()
 
-  require("kyoh86.lib.pane_layout.apply").apply(layout.root, win)
+  require("kyoh86.lib.pane.apply").apply(layout.root, win)
 
-  local window = require("kyoh86.lib.pane_layout.window")
+  local window = require("kyoh86.lib.pane.window")
   local old_layout = window.get_layout()
   local new_win = window.at(old_layout, layout.cur)
   if new_win > 0 then
@@ -49,16 +50,9 @@ function M.apply(layout)
   end
 end
 
--- すべてのウィンドウを閉じて、レイアウトを適用
--- layout: レイアウトツリー
-function M.reset_and_apply(layout)
-  vim.cmd("only") -- リセット
-  M.apply(layout) -- レイアウトを適用
-end
-
 -- Neovimのwinlayout形式をレイアウトツリーに変換
----@param layout kyoh86.lib.pane_layout.window.Layout
----@return kyoh86.lib.pane_layout.Node
+---@param layout kyoh86.lib.pane.window.Layout
+---@return kyoh86.lib.pane.Node
 local function convert_node(layout)
   if layout[1] == "leaf" then
     local winid = layout[2] --[[@as integer]]
@@ -83,9 +77,9 @@ local function convert_node(layout)
 end
 
 --- 現在のレイアウトを取得
---- @return kyoh86.lib.pane_layout.Layout レイアウトツリー
+--- @return kyoh86.lib.pane.Layout レイアウトツリー
 function M.get()
-  local window = require("kyoh86.lib.pane_layout.window")
+  local window = require("kyoh86.lib.pane.window")
   local layout = window.get_layout()
   return { cur = window.get_path(layout, vim.api.nvim_get_current_win()), root = convert_node(layout) }
 end
