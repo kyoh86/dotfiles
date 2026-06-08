@@ -17,6 +17,10 @@ local M = {}
 --   second = Node,      -- 右/下の子
 -- }
 
+---@class State
+---@field layout Node
+---@field cur string
+
 ---@alias Node Leaf|Split
 
 ---@class Leaf
@@ -68,7 +72,7 @@ end
 
 ---すべてのペインのサイズを再帰的に設定
 ---@param panes Panes
-local function apply_resize_only(panes)
+local function apply_size(panes)
   if not panes or not panes.node then
     return
   end
@@ -81,41 +85,25 @@ local function apply_resize_only(panes)
   else
     -- row/colノード: 子を処理
     if panes.first then
-      apply_resize_only(panes.first)
+      apply_size(panes.first)
     end
     if panes.second then
-      apply_resize_only(panes.second)
+      apply_size(panes.second)
     end
   end
 end
 
--- レイアウトを適用
--- layout: レイアウトツリー
--- parent_win: 親ウィンドウ（通常は省略）
-function M.apply(layout)
-  local win = vim.api.nvim_get_current_win()
-  local panes = build_panes(layout, win)
-  apply_resize_only(panes)
-end
-
--- すべてのウィンドウを閉じて、レイアウトを適用
--- layout: レイアウトツリー
-function M.reset_and_apply(layout)
-  vim.cmd("only") -- リセット
-  M.apply(layout) -- レイアウトを適用
-end
-
--- vim.fn.winlayout() の結果をバイナリツリーに正規化
-local function normalize_to_binary(node)
-  if node[1] == "leaf" then
-    return node
+---vim.fn.winlayout() の結果をバイナリツリーに正規化
+local function normalize_to_binary(layout)
+  if layout[1] == "leaf" then
+    return layout
   end
 
-  local axis = node[1] -- "row" or "col"
-  local children = node[2]
+  local axis = layout[1] -- "row" or "col"
+  local children = layout[2]
 
   if #children == 0 then
-    return node
+    return layout
   end
   if #children == 1 then
     return normalize_to_binary(children[1])
@@ -133,6 +121,48 @@ local function normalize_to_binary(node)
     result = { axis, { result, normalize_to_binary(children[i]) } }
   end
   return result
+end
+
+---@return integer
+local function win_at(normalized, pos)
+  if normalized[1] == "leaf" then
+    return normalized[2] --[[@as integer]]
+  end
+  if pos == "" then
+    return -1
+  end
+
+  local children = normalized[2]
+  local next = string.sub(pos, 1, 2)
+  if next == "/1" then
+    return win_at(children[1], string.sub(pos, 3))
+  end
+  if next == "/2" then
+    return win_at(children[2], string.sub(pos, 3))
+  end
+  return -1
+end
+
+---レイアウトを適用
+---@param state State
+function M.apply(state)
+  local win = vim.api.nvim_get_current_win()
+  local panes = build_panes(state.layout, win)
+  apply_size(panes)
+  local layout = vim.fn.winlayout()
+  local normalized = normalize_to_binary(layout)
+
+  local new_win = win_at(normalized, state.cur)
+  if new_win > 0 then
+    vim.api.nvim_set_current_win(new_win)
+  end
+end
+
+-- すべてのウィンドウを閉じて、レイアウトを適用
+-- layout: レイアウトツリー
+function M.reset_and_apply(layout)
+  vim.cmd("only") -- リセット
+  M.apply(layout) -- レイアウトを適用
 end
 
 -- Neovimのwinlayout形式をユーザー形式に変換
@@ -159,12 +189,46 @@ local function convert_node(node)
   }
 end
 
--- 現在のレイアウトを取得
--- 戻り値: レイアウトツリー
+---@return string
+local function win_address(normalized, win, address)
+  if normalized[1] == "leaf" then
+    if normalized[2] == win then
+      return address
+    else
+      return ""
+    end
+  end
+  local children = normalized[2]
+  if #children == 0 then
+    if normalized[2] == win then
+      return address
+    else
+      return ""
+    end
+  end
+  if #children == 1 then
+    return win_address(children[1], win, address .. "/1")
+  end
+  if #children == 2 then
+    local first = win_address(children[1], win, address .. "/1")
+    if first ~= "" then
+      return first
+    end
+    local second = win_address(children[2], win, address .. "/2")
+    if second ~= "" then
+      return second
+    end
+    return ""
+  end
+  return ""
+end
+
+--- 現在のレイアウトを取得
+--- @return State レイアウトツリー
 function M.get()
   local layout = vim.fn.winlayout()
   local normalized = normalize_to_binary(layout)
-  return convert_node(normalized)
+  return { cur = win_address(normalized, vim.api.nvim_get_current_win(), ""), layout = convert_node(normalized) }
 end
 
 -- 現在のレイアウトをJSONとして現在のバッファに出力（内容は全て置換）
