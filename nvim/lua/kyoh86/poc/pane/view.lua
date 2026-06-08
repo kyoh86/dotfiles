@@ -22,6 +22,10 @@ function M.ensure_highlights()
   vim.api.nvim_set_hl(0, "LayoutPareditSelection", { bg = "NONE" })
   vim.api.nvim_set_hl(0, "LayoutPareditBorder", { fg = "#ff8bd1", bg = "NONE" })
   vim.api.nvim_set_hl(0, "LayoutPareditTitle", { fg = "#101217", bg = "#ff8bd1", bold = true })
+  vim.api.nvim_set_hl(0, "LayoutPareditFirstBorder", { fg = "#c2c2f2", bg = "NONE" })
+  vim.api.nvim_set_hl(0, "LayoutPareditFirstTitle", { fg = "#101217", bg = "#c2c2f2", bold = true })
+  vim.api.nvim_set_hl(0, "LayoutPareditSecondBorder", { fg = "#dadaf7", bg = "NONE" })
+  vim.api.nvim_set_hl(0, "LayoutPareditSecondTitle", { fg = "#101217", bg = "#dadaf7", bold = true })
 end
 
 ---@param a? kyoh86.poc.pane.Rect
@@ -147,6 +151,32 @@ function M.open_frame(state, config, rect, title, hl)
     open_line(state, row + 1, col, 1, height - 2, side_lines, border_hl, 210)
     open_line(state, row + 1, right, 1, height - 2, side_lines, border_hl, 210)
   end
+end
+
+---@param state { floats: integer[] }
+---@param config { winhighlight: string }
+---@param node kyoh86.lib.pane.window.LiveNode
+---@param title_prefix string
+---@param hl string
+local function open_node_frames(state, config, node, title_prefix, hl)
+  for _, item in ipairs(tree.all_nodes(node)) do
+    if tree.is_leaf(item.node) then
+      M.open_frame(state, config, M.node_rect(item.node), " " .. title_prefix .. " " .. tree.compact(item.node) .. " ", hl)
+    end
+  end
+end
+
+---@param state { floats: integer[] }
+---@param config { winhighlight: string }
+---@param node kyoh86.lib.pane.window.LiveNode
+function M.open_selection(state, config, node)
+  if tree.is_leaf(node) then
+    open_node_frames(state, config, node, "FIRST", "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditFirstBorder,FloatTitle:LayoutPareditFirstTitle")
+    return
+  end
+
+  open_node_frames(state, config, node.first, "FIRST", "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditFirstBorder,FloatTitle:LayoutPareditFirstTitle")
+  open_node_frames(state, config, node.second, "SECOND", "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditSecondBorder,FloatTitle:LayoutPareditSecondTitle")
 end
 
 return M

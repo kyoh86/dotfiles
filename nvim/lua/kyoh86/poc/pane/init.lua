@@ -76,8 +76,7 @@ local function draw()
 
   local layout = libwindow.get_tree()
   local node = tree.node_at(layout, state.selected_path)
-  local rect = view.node_rect(node)
-  view.open_frame(state, config, rect, " SELECTED " .. selected_text() .. " ", config.winhighlight)
+  view.open_selection(state, config, node)
 
   vim.api.nvim_echo({ { "layout-paredit: " .. selected_text(), "ModeMsg" } }, false, {})
   state.drawing = false
