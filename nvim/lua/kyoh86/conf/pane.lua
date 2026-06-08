@@ -1,3 +1,5 @@
+local libpath = require("kyoh86.lib.pane.path")
+local libwindow = require("kyoh86.lib.pane.window")
 -- layout_paredit.nvim prototype
 --
 -- Usage:
@@ -51,21 +53,8 @@ local function notify(msg, level)
   vim.notify(msg, level or vim.log.levels.INFO, { title = "layout-paredit" })
 end
 
-local function path_parent(path)
-  local out = vim.deepcopy(path)
-  table.remove(out)
-  return out
-end
-
-local function path_sibling(path)
-  if #path == 0 then
-    return path
-  end
-  local out = vim.deepcopy(path)
-  out[#out] = out[#out] == 1 and 2 or 1
-  return out
-end
-
+---@param layout kyoh86.lib.pane.window.Layout
+---@return vim.fn.winlayout.leaf|vim.fn.winlayout.branch
 local function node_at(layout, path)
   local node = layout
   for _, index in ipairs(path) do
@@ -77,33 +66,43 @@ local function node_at(layout, path)
   return node
 end
 
-local function node_type(node)
-  return node and node[1]
+---@param layout kyoh86.lib.pane.window.Layout
+---@return string kind
+local function node_kind(layout)
+  return layout and layout[1]
 end
 
-local function is_leaf(node)
-  return node_type(node) == "leaf"
+---@param layout kyoh86.lib.pane.window.Layout
+---@return boolean
+local function is_leaf(layout)
+  return node_kind(layout) == "leaf"
 end
 
-local function children(node)
-  return node[2]
+---@param layout vim.fn.winlayout.branch
+---@return kyoh86.lib.pane.window.Layout[]
+local function children_of(layout)
+  return layout[2]
 end
 
-local function axis_of(node)
+---@param layout vim.fn.winlayout.branch
+---@return "row"|"col"
+local function axis_of(layout)
   -- winlayout() returns "row" for side-by-side and "col" for stacked.
-  return node[1]
+  return layout[1]
 end
 
-local function leaf_winid(node)
-  return node[2]
+---@param layout vim.fn.winlayout.leaf
+---@return integer
+local function win_of(layout)
+  return layout[2]
 end
 
 local function leaves(node, out)
   out = out or {}
   if is_leaf(node) then
-    table.insert(out, leaf_winid(node))
+    table.insert(out, win_of(node))
   else
-    for _, child in ipairs(children(node)) do
+    for _, child in ipairs(children_of(node)) do
       leaves(child, out)
     end
   end
@@ -115,7 +114,7 @@ local function all_nodes(node, path, out)
   out = out or {}
   table.insert(out, { node = node, path = vim.deepcopy(path) })
   if not is_leaf(node) then
-    for i, child in ipairs(children(node)) do
+    for i, child in ipairs(children_of(node)) do
       local p = vim.deepcopy(path)
       table.insert(p, i)
       all_nodes(child, p, out)
@@ -126,11 +125,11 @@ end
 
 local function compact(node)
   if is_leaf(node) then
-    return tostring(leaf_winid(node))
+    return tostring(win_of(node))
   end
   local op = axis_of(node) == "row" and "|" or "/"
   local parts = {}
-  for _, child in ipairs(children(node)) do
+  for _, child in ipairs(children_of(node)) do
     table.insert(parts, compact(child))
   end
   return "(" .. table.concat(parts, op) .. ")"
@@ -138,51 +137,14 @@ end
 
 local function first_leaf(node)
   if is_leaf(node) then
-    return leaf_winid(node)
+    return win_of(node)
   end
-  return first_leaf(children(node)[1])
-end
-
-local function normalizeToBinary(node)
-  if is_leaf(node) then
-    return node
-  end
-
-  local axis = axis_of(node)
-  local childs = children(node)
-
-  -- 子ノードを再帰的に正規化
-  local normalizedChildren = {}
-  for i, child in ipairs(childs) do
-    normalizedChildren[i] = normalizeToBinary(child)
-  end
-
-  -- 子が0個または1個の場合
-  if #normalizedChildren == 0 then
-    return node
-  end
-  if #normalizedChildren == 1 then
-    return normalizedChildren[1]
-  end
-  if #normalizedChildren == 2 then
-    return { axis, normalizedChildren }
-  end
-
-  -- Left-associative folding: [A, B, C, D] -> [[[A, B], C], D]
-  local result = normalizedChildren[1]
-  for i = 2, #normalizedChildren do
-    result = { axis, { result, normalizedChildren[i] } }
-  end
-  return result
-end
-
-local function normalized_layout()
-  return normalizeToBinary(vim.fn.winlayout())
+  return first_leaf(children_of(node)[1])
 end
 
 local function path_of_winid(layout, winid)
   for _, item in ipairs(all_nodes(layout)) do
-    if is_leaf(item.node) and leaf_winid(item.node) == winid then
+    if is_leaf(item.node) and win_of(item.node) == winid then
       return item.path
     end
   end
@@ -231,15 +193,8 @@ local function node_rect(node)
   return rect
 end
 
-local function center_rect(rect)
-  return {
-    row = rect.row + rect.height / 2,
-    col = rect.col + rect.width / 2,
-  }
-end
-
 local function selected_node()
-  return node_at(normalized_layout(), state.selected_path)
+  return node_at(libwindow.get_layout(), state.selected_path)
 end
 
 local function selected_text()
@@ -346,7 +301,7 @@ local function draw()
   ensure_highlights()
   close_floats()
 
-  local layout = normalized_layout()
+  local layout = libwindow.get_layout()
   local node = node_at(layout, state.selected_path)
   local rect = node_rect(node)
   open_frame(rect, " SELECTED " .. selected_text() .. " ", config.winhighlight)
@@ -397,68 +352,18 @@ local function schedule_draw()
   end)
 end
 
-local function focus_neighbor(dir)
-  local cur = vim.api.nvim_get_current_win()
-  local cur_rect = win_rect(cur)
-  if not cur_rect then
-    return
-  end
-  local cur_center = center_rect(cur_rect)
-
-  local layout = normalized_layout()
-  local candidates = {}
-
-  for _, item in ipairs(all_nodes(layout)) do
-    if is_leaf(item.node) then
-      local winid = leaf_winid(item.node)
-      if winid ~= cur then
-        local rect = win_rect(winid)
-        if rect then
-          local nc = center_rect(rect)
-          local dx = nc.col - cur_center.col
-          local dy = nc.row - cur_center.row
-          local ok = false
-          if dir == "h" then
-            ok = dx < 0 and math.abs(dy) < rect.height / 2
-          elseif dir == "l" then
-            ok = dx > 0 and math.abs(dy) < rect.height / 2
-          elseif dir == "k" then
-            ok = dy < 0 and math.abs(dx) < rect.width / 2
-          elseif dir == "j" then
-            ok = dy > 0 and math.abs(dx) < rect.width / 2
-          end
-          if ok then
-            local primary = (dir == "h" or dir == "l") and math.abs(dx) or math.abs(dy)
-            local secondary = (dir == "h" or dir == "l") and math.abs(dy) or math.abs(dx)
-            table.insert(candidates, { winid = winid, score = primary * 10 + secondary })
-          end
-        end
-      end
-    end
-  end
-
-  if #candidates > 0 then
-    table.sort(candidates, function(a, b)
-      return a.score < b.score
-    end)
-    vim.api.nvim_set_current_win(candidates[1].winid)
-    state.selected_path = path_of_winid(normalized_layout(), candidates[1].winid)
-  end
-  draw()
-end
-
 local function select_parent()
   if #state.selected_path > 0 then
-    state.selected_path = path_parent(state.selected_path)
+    state.selected_path = libpath.parent(state.selected_path)
   end
   draw()
 end
 
 local function select_child(index)
   local n = selected_node()
-  if n and not is_leaf(n) and children(n)[index] then
+  if n and not is_leaf(n) and children_of(n)[index] then
     table.insert(state.selected_path, index)
-    local winid = first_leaf(node_at(normalized_layout(), state.selected_path))
+    local winid = first_leaf(node_at(libwindow.get_layout(), state.selected_path))
     if vim.api.nvim_win_is_valid(winid) then
       vim.api.nvim_set_current_win(winid)
     end
@@ -468,7 +373,7 @@ end
 
 local function select_sibling()
   if #state.selected_path > 0 then
-    state.selected_path = path_sibling(state.selected_path)
+    state.selected_path = libpath.sibling(state.selected_path)
     local winid = first_leaf(selected_node())
     if vim.api.nvim_win_is_valid(winid) then
       vim.api.nvim_set_current_win(winid)
@@ -478,14 +383,14 @@ local function select_sibling()
 end
 
 local function select_focus()
-  state.selected_path = path_of_winid(normalized_layout(), vim.api.nvim_get_current_win())
+  state.selected_path = path_of_winid(libwindow.get_layout(), vim.api.nvim_get_current_win())
   draw()
 end
 
 -- winlayout形式をlipane形式に変換する
 local function convert_to_libpane(node)
   if is_leaf(node) then
-    local winid = leaf_winid(node)
+    local winid = win_of(node)
     local bufnr = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) or nil
     local width = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_width(winid) or nil
     local height = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_height(winid) or nil
@@ -498,25 +403,13 @@ local function convert_to_libpane(node)
   end
 
   local axis = axis_of(node)
-  local childs = children(node)
+  local childs = children_of(node)
 
   return {
     kind = axis,
     first = convert_to_libpane(childs[1]),
     second = convert_to_libpane(childs[2]),
   }
-end
-
--- selected_pathをlibpaneのcur形式に変換
-local function path_to_cur(path)
-  if #path == 0 then
-    return ""
-  end
-  local parts = {}
-  for _, index in ipairs(path) do
-    table.insert(parts, "/" .. index)
-  end
-  return table.concat(parts, "")
 end
 
 -- rebuild_layout: 操作後のあるべき姿に基づいてウィンドウを再構築
@@ -544,7 +437,7 @@ local function replace_node_at_path(layout, path, new_node)
   end
 
   local axis = axis_of(layout)
-  local childs = children(layout)
+  local childs = children_of(layout)
 
   local new_childs = {}
   for i, child in ipairs(childs) do
@@ -600,10 +493,10 @@ local function flip_selected()
   end
 
   -- 全体のレイアウトを取得
-  local layout = normalized_layout()
+  local layout = libwindow.get_layout()
 
   -- 元の children を保存
-  local original_childs = children(n)
+  local original_childs = children_of(n)
 
   -- children を swap した「新しいノード」を作る
   local axis = axis_of(n)
@@ -617,7 +510,7 @@ local function flip_selected()
   local cur_path = path_of_winid(layout, cur_win)
 
   -- ウィンドウを再構築（フォーカスを復元）
-  rebuild_layout(new_layout, path_to_cur(cur_path))
+  rebuild_layout(new_layout, cur_path)
 
   draw()
 end
@@ -631,7 +524,7 @@ local function rotate_selected()
   end
 
   -- 全体のレイアウトを取得（libpane形式）
-  local layout = convert_to_libpane(normalized_layout())
+  local layout = convert_to_libpane(libwindow.get_layout())
 
   -- 選択されたノードをlibpane形式で取得
   local pane_n = convert_to_libpane(n)
@@ -653,14 +546,14 @@ local function rotate_selected()
 
   -- 現在のウィンドウのパスを取得（winlayout形式）
   local cur_win = vim.api.nvim_get_current_win()
-  local cur_path = path_of_winid(normalized_layout(), cur_win)
+  local cur_path = path_of_winid(libwindow.get_layout(), cur_win)
 
   -- ウィンドウを再構築（フォーカスを復元）
   local libpane = require("kyoh86.lib.pane")
-  libpane.apply({ root = new_layout, cur = path_to_cur(cur_path) })
+  libpane.apply({ root = new_layout, cur = cur_path })
 
   -- 選択パスを更新
-  state.selected_path = path_of_winid(normalized_layout(), vim.api.nvim_get_current_win())
+  state.selected_path = path_of_winid(libwindow.get_layout(), vim.api.nvim_get_current_win())
   select_parent()
 end
 
@@ -673,10 +566,10 @@ local function toggle_selected()
   end
 
   -- 全体のレイアウトを取得
-  local layout = normalized_layout()
+  local layout = libwindow.get_layout()
 
   local axis = axis_of(n)
-  local childs = children(n)
+  local childs = children_of(n)
 
   -- axis を反転した新しいノードを作る
   local new_axis = axis == "row" and "col" or "row"
@@ -690,7 +583,7 @@ local function toggle_selected()
   local cur_path = path_of_winid(layout, cur_win)
 
   -- ウィンドウを再構築（フォーカスを復元）
-  rebuild_layout(new_layout, path_to_cur(cur_path))
+  rebuild_layout(new_layout, cur_path)
 
   draw()
 end
@@ -703,7 +596,7 @@ local function grow_child(index)
   end
 
   local axis = axis_of(n)
-  local childs = children(n)
+  local childs = children_of(n)
   local amount = config.resize_step
 
   -- 各 children の leaves を取得
@@ -856,7 +749,7 @@ local function split_selected()
     return
   end
 
-  local target = leaf_winid(node)
+  local target = win_of(node)
   if not vim.api.nvim_win_is_valid(target) then
     return
   end
@@ -868,7 +761,7 @@ local function split_selected()
     vim.cmd("new")
   end
   state.preselect = nil
-  state.selected_path = path_of_winid(normalized_layout(), vim.api.nvim_get_current_win())
+  state.selected_path = path_of_winid(libwindow.get_layout(), vim.api.nvim_get_current_win())
   draw()
 end
 
@@ -901,30 +794,6 @@ local function cancel_or_leave()
 end
 
 local mode_maps = {
-  {
-    "h",
-    function()
-      focus_neighbor("h")
-    end,
-  },
-  {
-    "j",
-    function()
-      focus_neighbor("j")
-    end,
-  },
-  {
-    "k",
-    function()
-      focus_neighbor("k")
-    end,
-  },
-  {
-    "l",
-    function()
-      focus_neighbor("l")
-    end,
-  },
   { "u", select_parent },
   {
     "1",
@@ -998,7 +867,7 @@ end
 local function enter()
   state.active = true
   state.preselect = nil
-  state.selected_path = path_of_winid(normalized_layout(), vim.api.nvim_get_current_win())
+  state.selected_path = path_of_winid(libwindow.get_layout(), vim.api.nvim_get_current_win())
   set_mode_maps(0)
   draw()
 end
