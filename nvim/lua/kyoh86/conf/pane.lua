@@ -482,8 +482,8 @@ local function select_focus()
   draw()
 end
 
--- winlayout形式をpane_layout形式に変換する
-local function convert_to_pane_layout(node)
+-- winlayout形式をlipane形式に変換する
+local function convert_to_libpane(node)
   if is_leaf(node) then
     local winid = leaf_winid(node)
     local bufnr = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) or nil
@@ -502,12 +502,12 @@ local function convert_to_pane_layout(node)
 
   return {
     kind = axis,
-    first = convert_to_pane_layout(childs[1]),
-    second = convert_to_pane_layout(childs[2]),
+    first = convert_to_libpane(childs[1]),
+    second = convert_to_libpane(childs[2]),
   }
 end
 
--- selected_pathをpane_layoutのcur形式に変換
+-- selected_pathをlibpaneのcur形式に変換
 local function path_to_cur(path)
   if #path == 0 then
     return ""
@@ -521,10 +521,10 @@ end
 
 -- rebuild_layout: 操作後のあるべき姿に基づいてウィンドウを再構築
 local function rebuild_layout(node, cur_path)
-  local pane_layout = require("kyoh86.lib.pane_layout")
-  local layout = convert_to_pane_layout(node)
+  local libpane = require("kyoh86.lib.pane")
+  local layout = convert_to_libpane(node)
   local cur = cur_path or ""
-  pane_layout.reset_and_apply({ layout = layout, cur = cur })
+  libpane.apply({ root = layout, cur = cur })
 end
 
 -- replace_node_at_path: パスに従ってノードを置換する（winlayout形式）
@@ -558,8 +558,8 @@ local function replace_node_at_path(layout, path, new_node)
   return { axis, new_childs }
 end
 
--- replace_node_at_path_pane_layout: パスに従ってノードを置換する（pane_layout形式）
-local function replace_node_at_path_pane_layout(layout, path, new_node)
+-- replace_node_at_path_libpane: パスに従ってノードを置換する（libpane形式）
+local function replace_node_at_path_libpane(layout, path, new_node)
   if #path == 0 then
     return new_node
   end
@@ -578,14 +578,14 @@ local function replace_node_at_path_pane_layout(layout, path, new_node)
   if index == 1 then
     new_layout = {
       kind = layout.kind,
-      first = replace_node_at_path_pane_layout(layout.first, rest_path, new_node),
+      first = replace_node_at_path_libpane(layout.first, rest_path, new_node),
       second = layout.second,
     }
   else
     new_layout = {
       kind = layout.kind,
       first = layout.first,
-      second = replace_node_at_path_pane_layout(layout.second, rest_path, new_node),
+      second = replace_node_at_path_libpane(layout.second, rest_path, new_node),
     }
   end
 
@@ -630,18 +630,18 @@ local function rotate_selected()
     return
   end
 
-  -- 全体のレイアウトを取得（pane_layout形式）
-  local layout = convert_to_pane_layout(normalized_layout())
+  -- 全体のレイアウトを取得（libpane形式）
+  local layout = convert_to_libpane(normalized_layout())
 
-  -- 選択されたノードをpane_layout形式で取得
-  local pane_n = convert_to_pane_layout(n)
+  -- 選択されたノードをlibpane形式で取得
+  local pane_n = convert_to_libpane(n)
 
   local axis = axis_of(n)
 
   -- axis を反転した新しいノードを作る
   local new_axis = axis == "row" and "col" or "row"
 
-  -- 新しいノードを作る（pane_layout形式）
+  -- 新しいノードを作る（libpane形式）
   local rotated_node = {
     kind = new_axis,
     first = pane_n.first,
@@ -649,15 +649,15 @@ local function rotate_selected()
   }
 
   -- 全体のレイアウトの該当位置に新しいノードを埋め込む
-  local new_layout = replace_node_at_path_pane_layout(layout, state.selected_path, rotated_node)
+  local new_layout = replace_node_at_path_libpane(layout, state.selected_path, rotated_node)
 
   -- 現在のウィンドウのパスを取得（winlayout形式）
   local cur_win = vim.api.nvim_get_current_win()
   local cur_path = path_of_winid(normalized_layout(), cur_win)
 
   -- ウィンドウを再構築（フォーカスを復元）
-  local pane_layout = require("kyoh86.lib.pane_layout")
-  pane_layout.reset_and_apply({ layout = new_layout, cur = path_to_cur(cur_path) })
+  local libpane = require("kyoh86.lib.pane")
+  libpane.apply({ root = new_layout, cur = path_to_cur(cur_path) })
 
   -- 選択パスを更新
   state.selected_path = path_of_winid(normalized_layout(), vim.api.nvim_get_current_win())
