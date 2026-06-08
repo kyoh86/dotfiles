@@ -105,6 +105,75 @@ function M.to_libpane(node)
   }
 end
 
+---@param node kyoh86.lib.pane.window.LiveNode
+---@param axis "row"|"col"
+---@return integer
+function M.total_size(node, axis)
+  local total = 0
+  for _, item in ipairs(M.all_nodes(node)) do
+    if M.is_leaf(item.node) then
+      local size = axis == "row" and item.node.width or item.node.height
+      total = total + (size or 0)
+    end
+  end
+  return total
+end
+
+---@param node kyoh86.lib.pane.window.LiveNode
+---@param axis "row"|"col"
+---@param targets integer[]
+---@param index { value: integer }
+---@return kyoh86.lib.pane.window.LiveNode
+local function apply_leaf_sizes(node, axis, targets, index)
+  if M.is_leaf(node) then
+    local size = targets[index.value] or 1
+    index.value = index.value + 1
+    return {
+      kind = "pane",
+      win = node.win,
+      buffer = node.buffer,
+      width = axis == "row" and size or node.width,
+      height = axis == "col" and size or node.height,
+    }
+  end
+  return {
+    kind = node.kind,
+    first = apply_leaf_sizes(node.first, axis, targets, index),
+    second = apply_leaf_sizes(node.second, axis, targets, index),
+  }
+end
+
+---@param node kyoh86.lib.pane.window.LiveNode
+---@param axis "row"|"col"
+---@param total integer
+---@return kyoh86.lib.pane.window.LiveNode
+function M.resize_total(node, axis, total)
+  local leaves = {}
+  local current_total = 0
+  for _, item in ipairs(M.all_nodes(node)) do
+    if M.is_leaf(item.node) then
+      local size = axis == "row" and item.node.width or item.node.height
+      size = size or 0
+      table.insert(leaves, size)
+      current_total = current_total + size
+    end
+  end
+  if #leaves == 0 or current_total == 0 then
+    return node
+  end
+
+  local targets = {}
+  local assigned = 0
+  for _, size in ipairs(leaves) do
+    local target = math.floor(size * total / current_total)
+    table.insert(targets, target)
+    assigned = assigned + target
+  end
+  targets[#targets] = targets[#targets] + (total - assigned)
+
+  return apply_leaf_sizes(node, axis, targets, { value = 1 })
+end
+
 ---@param layout kyoh86.lib.pane.window.LiveNode
 ---@param path kyoh86.lib.pane.Path
 ---@param new_node kyoh86.lib.pane.window.LiveNode
