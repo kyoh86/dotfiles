@@ -50,29 +50,23 @@ function M.apply(layout)
   end
 end
 
--- Neovimのwinlayout形式をレイアウトツリーに変換
----@param layout kyoh86.lib.pane.window.Layout
+-- LiveNodeを保存・apply用のレイアウトツリーに変換
+---@param layout kyoh86.lib.pane.window.LiveNode
 ---@return kyoh86.lib.pane.Node
 local function convert_node(layout)
-  if layout[1] == "leaf" then
-    local winid = layout[2] --[[@as integer]]
-    local bufnr = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) or nil
+  if layout.kind == "pane" then
     return {
       kind = "pane",
-      buffer = bufnr,
-      width = vim.api.nvim_win_get_width(winid),
-      height = vim.api.nvim_win_get_height(winid),
+      buffer = layout.buffer,
+      width = layout.width,
+      height = layout.height,
     }
   end
 
-  -- axis: "row" (左右) or "col" (上下)
-  local axis = layout[1]
-  local children = layout[2]
-
   return {
-    kind = axis,
-    first = convert_node(children[1]),
-    second = convert_node(children[2]),
+    kind = layout.kind,
+    first = convert_node(layout.first),
+    second = convert_node(layout.second),
   }
 end
 
@@ -81,7 +75,8 @@ end
 function M.get()
   local window = require("kyoh86.lib.pane.window")
   local layout = window.get_layout()
-  return { cur = window.get_path(layout, vim.api.nvim_get_current_win()), root = convert_node(layout) }
+  local tree = window.get_tree(layout)
+  return { cur = window.get_path(layout, vim.api.nvim_get_current_win()), root = convert_node(tree) }
 end
 
 -- 現在のレイアウトをJSONとして現在のバッファに出力（内容は全て置換）
