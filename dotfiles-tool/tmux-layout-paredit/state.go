@@ -34,11 +34,11 @@ func loadState() (*State, error) {
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return &State{SelectedPath: []int{}, Preselect: nil, Popups: []string{}}, nil
+		return &State{SelectedPath: []int{}}, nil
 	}
 	var state State
 	if err := json.Unmarshal(data, &state); err != nil {
-		return &State{SelectedPath: []int{}, Preselect: nil, Popups: []string{}}, nil
+		return &State{SelectedPath: []int{}}, nil
 	}
 	return &state, nil
 }
