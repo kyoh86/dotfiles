@@ -9,7 +9,7 @@ local pane_layout = require("kyoh86.lib.pane_layout")
 -- 単純なレイアウトでテスト
 local function test_simple()
   print("=== Test 1: Simple row ===")
-  vim.cmd("only")  -- 全てのウィンドウを閉じて1つにする
+  vim.cmd("only") -- 全てのウィンドウを閉じて1つにする
 
   -- row(pane1, pane2) を作成
   vim.cmd("vsplit")
@@ -22,7 +22,6 @@ local function test_simple()
   local layout1 = pane_layout.get()
   print("Original: " .. vim.fn.json_encode(layout1))
 
-  vim.cmd("only")  -- リセット
   pane_layout.reset_and_apply(layout1)
 
   local layout2 = pane_layout.get()
@@ -41,9 +40,9 @@ local function test_nested()
   vim.cmd("only")
 
   -- row(col(1,2), 3) を作成
-  vim.cmd("vsplit")  -- 左右に分割
-  vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[1])  -- 左に移動
-  vim.cmd("split")   -- 左を上下に分割
+  vim.cmd("vsplit") -- 左右に分割
+  vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[1]) -- 左に移動
+  vim.cmd("split") -- 左を上下に分割
 
   local wins = vim.api.nvim_list_wins()
   vim.api.nvim_win_set_buf(wins[1], vim.fn.bufadd("test1.txt"))
@@ -56,7 +55,6 @@ local function test_nested()
   local layout1 = pane_layout.get()
   print("Original: " .. vim.fn.json_encode(layout1))
 
-  vim.cmd("only")
   pane_layout.reset_and_apply(layout1)
 
   local layout2 = pane_layout.get()
@@ -78,7 +76,7 @@ local function test_complex()
   -- col(row(col(row(7,6), col(10,8)), 4), 9), 1
   -- 簡易版: col(col(row(7,6), col(10,8)), 1)
 
-  vim.cmd("split")  -- 上下に分割（1と2）
+  vim.cmd("split") -- 上下に分割（1と2）
   vim.cmd("vsplit") -- 上を左右に分割
 
   local wins = vim.api.nvim_list_wins()
@@ -93,7 +91,7 @@ local function test_complex()
 
   -- バッファを設定
   wins = vim.api.nvim_list_wins()
-  local buf_names = {"test1.txt", "test2.txt", "test3.txt", "test4.txt", "test5.txt"}
+  local buf_names = { "test1.txt", "test2.txt", "test3.txt", "test4.txt", "test5.txt" }
   for i, win in ipairs(wins) do
     if buf_names[i] then
       local buf = vim.fn.bufadd(buf_names[i])
@@ -105,7 +103,6 @@ local function test_complex()
   local layout1 = pane_layout.get()
   print("Original: " .. vim.fn.json_encode(layout1))
 
-  vim.cmd("only")
   pane_layout.reset_and_apply(layout1)
 
   local layout2 = pane_layout.get()
@@ -124,9 +121,9 @@ local function test_same_direction()
   vim.cmd("only")
 
   -- 手動でレイアウトを作成してから取得
-  vim.cmd("vsplit")  -- 左右に分割（1と2）
-  vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[1])  -- 左に移動
-  vim.cmd("vsplit")  -- 左を左右に分割（1と2）
+  vim.cmd("vsplit") -- 左右に分割（1と2）
+  vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[1]) -- 左に移動
+  vim.cmd("vsplit") -- 左を左右に分割（1と2）
 
   local wins = vim.api.nvim_list_wins()
   vim.api.nvim_win_set_buf(wins[1], vim.fn.bufadd("test11.txt"))
@@ -149,7 +146,6 @@ local function test_same_direction()
 
   print("Original: " .. vim.fn.json_encode(layout))
 
-  vim.cmd("only")
   pane_layout.reset_and_apply(layout)
 
   local layout2 = pane_layout.get()
@@ -159,8 +155,8 @@ local function test_same_direction()
     print("✓ PASSED")
   else
     print("✗ FAILED")
-    print("Expected size: first.first=" .. (layout.first and layout.first.size or "nil") .. ", first=" .. (layout.size or "nil"))
-    print("Got size: first.first=" .. (layout2.first and layout2.first.size or "nil") .. ", first=" .. (layout2.size or "nil"))
+    print("Expected width: first.first=" .. (layout.first and layout.first.width or "nil") .. ", first=" .. (layout.width or "nil"))
+    print("Got width: first.first=" .. (layout2.first and layout2.first.width or "nil") .. ", first=" .. (layout2.width or "nil"))
   end
 end
 
@@ -170,9 +166,9 @@ local function test_same_direction_manual()
   vim.cmd("only")
 
   -- row(row(1,2), 3) を作成
-  vim.cmd("vsplit")  -- 左右に分割（1と2）
-  vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[1])  -- 左に移動
-  vim.cmd("vsplit")  -- 左を左右に分割（1と2）
+  vim.cmd("vsplit") -- 左右に分割（1と2）
+  vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[1]) -- 左に移動
+  vim.cmd("vsplit") -- 左を左右に分割（1と2）
 
   local wins = vim.api.nvim_list_wins()
   vim.api.nvim_win_set_buf(wins[1], vim.fn.bufadd("test1.txt"))
@@ -185,7 +181,6 @@ local function test_same_direction_manual()
   local layout1 = pane_layout.get()
   print("Original: " .. vim.fn.json_encode(layout1))
 
-  vim.cmd("only")
   pane_layout.reset_and_apply(layout1)
 
   local layout2 = pane_layout.get()
@@ -226,7 +221,6 @@ local function test_cmd_layout()
   print("Original: " .. vim.fn.json_encode(layout1))
 
   -- リセットしてロード
-  vim.cmd("only")
   pane_layout.reset_and_apply(layout1)
 
   -- レイアウトを再取得（dump）
