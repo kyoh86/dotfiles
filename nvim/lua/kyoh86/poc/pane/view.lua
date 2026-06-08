@@ -22,8 +22,6 @@ function M.ensure_highlights()
   vim.api.nvim_set_hl(0, "LayoutPareditSelection", { bg = "NONE" })
   vim.api.nvim_set_hl(0, "LayoutPareditBorder", { fg = "#ff8bd1", bg = "NONE" })
   vim.api.nvim_set_hl(0, "LayoutPareditTitle", { fg = "#101217", bg = "#ff8bd1", bold = true })
-  vim.api.nvim_set_hl(0, "LayoutPareditPreselectBorder", { fg = "#7ee787", bg = "NONE" })
-  vim.api.nvim_set_hl(0, "LayoutPareditPreselectTitle", { fg = "#101217", bg = "#7ee787", bold = true })
 end
 
 ---@param a? kyoh86.poc.pane.Rect

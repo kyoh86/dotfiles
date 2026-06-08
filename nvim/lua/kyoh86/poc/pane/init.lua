@@ -18,10 +18,9 @@ local view = require("kyoh86.poc.pane.view")
 --   f           flip selected subtree children
 --   r           rotate selected subtree axis
 --   [ / ]       grow child[1] / child[2]
---   v           preselect vertical split
---   s           preselect horizontal split
---   <CR>        split selected/focused leaf when preselected
---   <Esc>       cancel preselection, or leave mode when no preselection
+--   v           split selected/focused leaf vertically
+--   s           split selected/focused leaf horizontally
+--   <Esc>       leave mode
 --   q / <C-c>   leave mode
 --
 -- Notes:
@@ -35,7 +34,6 @@ local view = require("kyoh86.poc.pane.view")
 local state = {
   active = false,
   selected_path = {},
-  preselect = nil, -- "v" | "s" | nil
   floats = {},
   keymaps = {},
   drawing = false,
@@ -81,40 +79,7 @@ local function draw()
   local rect = view.node_rect(node)
   view.open_frame(state, config, rect, " SELECTED " .. selected_text() .. " ", config.winhighlight)
 
-  if state.preselect then
-    local pre_title = state.preselect == "v" and " PRESELECT vertical split " or " PRESELECT horizontal split "
-    view.open_frame(state, config, rect, pre_title, "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditPreselectBorder,FloatTitle:LayoutPareditPreselectTitle")
-
-    -- Draw ghost frame for split preview
-    local ghost_rect = {}
-    if rect then
-      if state.preselect == "v" then
-        -- Vertical split: new window on the right
-        local new_width = math.floor(rect.width / 2)
-        ghost_rect = {
-          row = rect.row,
-          col = rect.col + rect.width - new_width,
-          width = new_width,
-          height = rect.height,
-        }
-      else
-        -- Horizontal split: new window below
-        local new_height = math.floor(rect.height / 2)
-        ghost_rect = {
-          row = rect.row + rect.height - new_height,
-          col = rect.col,
-          width = rect.width,
-          height = new_height,
-        }
-      end
-    end
-
-    if ghost_rect.width and ghost_rect.width > 1 and ghost_rect.height > 1 then
-      view.open_frame(state, config, ghost_rect, " NEW WINDOW ", "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditPreselectBorder,FloatTitle:LayoutPareditPreselectTitle")
-    end
-  end
-
-  vim.api.nvim_echo({ { "layout-paredit: " .. selected_text() .. (state.preselect and (" preselect=" .. state.preselect .. ", Enter to split") or ""), "ModeMsg" } }, false, {})
+  vim.api.nvim_echo({ { "layout-paredit: " .. selected_text(), "ModeMsg" } }, false, {})
   state.drawing = false
 end
 
@@ -149,19 +114,9 @@ end
 
 local function leave()
   state.active = false
-  state.preselect = nil
   clear_mode_maps()
   view.close_floats(state)
   vim.api.nvim_echo({ { "layout-paredit: leave", "ModeMsg" } }, false, {})
-end
-
-local function cancel_or_leave()
-  if state.preselect then
-    state.preselect = nil
-    draw()
-  else
-    leave()
-  end
 end
 
 local mode_maps = {
@@ -198,19 +153,16 @@ local mode_maps = {
   {
     "v",
     function()
-      state.preselect = "v"
-      draw()
+      actions.split_selected("v")
     end,
   },
   {
     "s",
     function()
-      state.preselect = "s"
-      draw()
+      actions.split_selected("s")
     end,
   },
-  { "<CR>", actions.split_selected },
-  { "<Esc>", cancel_or_leave },
+  { "<Esc>", leave },
   { "q", leave },
   { "<C-c>", leave },
 }
@@ -237,7 +189,6 @@ end
 
 local function enter()
   state.active = true
-  state.preselect = nil
   state.selected_path = tree.path_of_win(libwindow.get_tree(), vim.api.nvim_get_current_win())
   set_mode_maps(0)
   draw()
