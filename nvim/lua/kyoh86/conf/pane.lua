@@ -53,48 +53,48 @@ local function notify(msg, level)
   vim.notify(msg, level or vim.log.levels.INFO, { title = "layout-paredit" })
 end
 
----@param layout kyoh86.lib.pane.window.Layout
----@return vim.fn.winlayout.leaf|vim.fn.winlayout.branch
-local function node_at(layout, path)
-  local node = layout
+---@param root kyoh86.lib.pane.window.LiveNode
+---@param path kyoh86.lib.pane.Path
+---@return kyoh86.lib.pane.window.LiveNode
+local function node_at(root, path)
+  local node = root
   for _, index in ipairs(path) do
-    if node[1] == "leaf" then
+    if node.kind == "pane" then
       return node
     end
-    node = node[2][index]
+    node = index == 1 and node.first or node.second
   end
   return node
 end
 
----@param layout kyoh86.lib.pane.window.Layout
+---@param node kyoh86.lib.pane.window.LiveNode
 ---@return string kind
-local function node_kind(layout)
-  return layout and layout[1]
+local function node_kind(node)
+  return node and node.kind
 end
 
----@param layout kyoh86.lib.pane.window.Layout
+---@param node kyoh86.lib.pane.window.LiveNode
 ---@return boolean
-local function is_leaf(layout)
-  return node_kind(layout) == "leaf"
+local function is_leaf(node)
+  return node_kind(node) == "pane"
 end
 
----@param layout vim.fn.winlayout.branch
----@return kyoh86.lib.pane.window.Layout[]
-local function children_of(layout)
-  return layout[2]
+---@param node kyoh86.lib.pane.window.LiveSplitNode
+---@return kyoh86.lib.pane.window.LiveNode[]
+local function children_of(node)
+  return { node.first, node.second }
 end
 
----@param layout vim.fn.winlayout.branch
+---@param node kyoh86.lib.pane.window.LiveSplitNode
 ---@return "row"|"col"
-local function axis_of(layout)
-  -- winlayout() returns "row" for side-by-side and "col" for stacked.
-  return layout[1]
+local function axis_of(node)
+  return node.kind
 end
 
----@param layout vim.fn.winlayout.leaf
+---@param node kyoh86.lib.pane.window.LiveLeafNode
 ---@return integer
-local function win_of(layout)
-  return layout[2]
+local function win_of(node)
+  return node.winid
 end
 
 local function leaves(node, out)
@@ -194,7 +194,7 @@ local function node_rect(node)
 end
 
 local function selected_node()
-  return node_at(libwindow.get_layout(), state.selected_path)
+  return node_at(libwindow.get_tree(), state.selected_path)
 end
 
 local function selected_text()
@@ -301,7 +301,7 @@ local function draw()
   ensure_highlights()
   close_floats()
 
-  local layout = libwindow.get_layout()
+  local layout = libwindow.get_tree()
   local node = node_at(layout, state.selected_path)
   local rect = node_rect(node)
   open_frame(rect, " SELECTED " .. selected_text() .. " ", config.winhighlight)
@@ -363,7 +363,7 @@ local function select_child(index)
   local n = selected_node()
   if n and not is_leaf(n) and children_of(n)[index] then
     table.insert(state.selected_path, index)
-    local winid = first_leaf(node_at(libwindow.get_layout(), state.selected_path))
+    local winid = first_leaf(node_at(libwindow.get_tree(), state.selected_path))
     if vim.api.nvim_win_is_valid(winid) then
       vim.api.nvim_set_current_win(winid)
     end
@@ -383,32 +383,27 @@ local function select_sibling()
 end
 
 local function select_focus()
-  state.selected_path = path_of_winid(libwindow.get_layout(), vim.api.nvim_get_current_win())
+  state.selected_path = path_of_winid(libwindow.get_tree(), vim.api.nvim_get_current_win())
   draw()
 end
 
--- winlayout形式をlipane形式に変換する
+-- LiveNodeからapply用のlibpane形式に変換する
 local function convert_to_libpane(node)
   if is_leaf(node) then
-    local winid = win_of(node)
-    local bufnr = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) or nil
-    local width = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_width(winid) or nil
-    local height = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_height(winid) or nil
     return {
       kind = "pane",
-      buffer = bufnr,
-      width = width,
-      height = height,
+      buffer = node.buffer,
+      width = node.width,
+      height = node.height,
     }
   end
 
   local axis = axis_of(node)
-  local childs = children_of(node)
 
   return {
     kind = axis,
-    first = convert_to_libpane(childs[1]),
-    second = convert_to_libpane(childs[2]),
+    first = convert_to_libpane(node.first),
+    second = convert_to_libpane(node.second),
   }
 end
 
@@ -416,11 +411,11 @@ end
 local function rebuild_layout(node, cur_path)
   local libpane = require("kyoh86.lib.pane")
   local layout = convert_to_libpane(node)
-  local cur = cur_path or ""
+  local cur = cur_path or {}
   libpane.apply({ root = layout, cur = cur })
 end
 
--- replace_node_at_path: パスに従ってノードを置換する（winlayout形式）
+-- replace_node_at_path: パスに従ってノードを置換する（LiveNode形式）
 local function replace_node_at_path(layout, path, new_node)
   if #path == 0 then
     return new_node
@@ -436,49 +431,18 @@ local function replace_node_at_path(layout, path, new_node)
     table.insert(rest_path, path[i])
   end
 
-  local axis = axis_of(layout)
-  local childs = children_of(layout)
-
-  local new_childs = {}
-  for i, child in ipairs(childs) do
-    if i == index then
-      table.insert(new_childs, replace_node_at_path(child, rest_path, new_node))
-    else
-      table.insert(new_childs, child)
-    end
-  end
-
-  return { axis, new_childs }
-end
-
--- replace_node_at_path_libpane: パスに従ってノードを置換する（libpane形式）
-local function replace_node_at_path_libpane(layout, path, new_node)
-  if #path == 0 then
-    return new_node
-  end
-
-  if layout.kind == "pane" then
-    return layout
-  end
-
-  local index = path[1]
-  local rest_path = {}
-  for i = 2, #path do
-    table.insert(rest_path, path[i])
-  end
-
   local new_layout
   if index == 1 then
     new_layout = {
       kind = layout.kind,
-      first = replace_node_at_path_libpane(layout.first, rest_path, new_node),
+      first = replace_node_at_path(layout.first, rest_path, new_node),
       second = layout.second,
     }
   else
     new_layout = {
       kind = layout.kind,
       first = layout.first,
-      second = replace_node_at_path_libpane(layout.second, rest_path, new_node),
+      second = replace_node_at_path(layout.second, rest_path, new_node),
     }
   end
 
@@ -493,14 +457,11 @@ local function flip_selected()
   end
 
   -- 全体のレイアウトを取得
-  local layout = libwindow.get_layout()
-
-  -- 元の children を保存
-  local original_childs = children_of(n)
+  local layout = libwindow.get_tree()
 
   -- children を swap した「新しいノード」を作る
   local axis = axis_of(n)
-  local swapped_node = { axis, { original_childs[2], original_childs[1] } }
+  local swapped_node = { kind = axis, first = n.second, second = n.first }
 
   -- 全体のレイアウトの該当位置に新しいノードを埋め込む
   local new_layout = replace_node_at_path(layout, state.selected_path, swapped_node)
@@ -523,37 +484,32 @@ local function rotate_selected()
     return
   end
 
-  -- 全体のレイアウトを取得（libpane形式）
-  local layout = convert_to_libpane(libwindow.get_layout())
-
-  -- 選択されたノードをlibpane形式で取得
-  local pane_n = convert_to_libpane(n)
+  -- 全体のレイアウトを取得
+  local layout = libwindow.get_tree()
 
   local axis = axis_of(n)
 
   -- axis を反転した新しいノードを作る
   local new_axis = axis == "row" and "col" or "row"
 
-  -- 新しいノードを作る（libpane形式）
   local rotated_node = {
     kind = new_axis,
-    first = pane_n.first,
-    second = pane_n.second,
+    first = n.first,
+    second = n.second,
   }
 
   -- 全体のレイアウトの該当位置に新しいノードを埋め込む
-  local new_layout = replace_node_at_path_libpane(layout, state.selected_path, rotated_node)
+  local new_layout = replace_node_at_path(layout, state.selected_path, rotated_node)
 
-  -- 現在のウィンドウのパスを取得（winlayout形式）
+  -- 現在のウィンドウのパスを取得
   local cur_win = vim.api.nvim_get_current_win()
-  local cur_path = path_of_winid(libwindow.get_layout(), cur_win)
+  local cur_path = path_of_winid(layout, cur_win)
 
   -- ウィンドウを再構築（フォーカスを復元）
-  local libpane = require("kyoh86.lib.pane")
-  libpane.apply({ root = new_layout, cur = cur_path })
+  rebuild_layout(new_layout, cur_path)
 
   -- 選択パスを更新
-  state.selected_path = path_of_winid(libwindow.get_layout(), vim.api.nvim_get_current_win())
+  state.selected_path = path_of_winid(libwindow.get_tree(), vim.api.nvim_get_current_win())
   select_parent()
 end
 
@@ -566,14 +522,12 @@ local function toggle_selected()
   end
 
   -- 全体のレイアウトを取得
-  local layout = libwindow.get_layout()
+  local layout = libwindow.get_tree()
 
   local axis = axis_of(n)
-  local childs = children_of(n)
-
   -- axis を反転した新しいノードを作る
   local new_axis = axis == "row" and "col" or "row"
-  local toggled_node = { new_axis, childs }
+  local toggled_node = { kind = new_axis, first = n.first, second = n.second }
 
   -- 全体のレイアウトの該当位置に新しいノードを埋め込む
   local new_layout = replace_node_at_path(layout, state.selected_path, toggled_node)
@@ -761,7 +715,7 @@ local function split_selected()
     vim.cmd("new")
   end
   state.preselect = nil
-  state.selected_path = path_of_winid(libwindow.get_layout(), vim.api.nvim_get_current_win())
+  state.selected_path = path_of_winid(libwindow.get_tree(), vim.api.nvim_get_current_win())
   draw()
 end
 
@@ -867,7 +821,7 @@ end
 local function enter()
   state.active = true
   state.preselect = nil
-  state.selected_path = path_of_winid(libwindow.get_layout(), vim.api.nvim_get_current_win())
+  state.selected_path = path_of_winid(libwindow.get_tree(), vim.api.nvim_get_current_win())
   set_mode_maps(0)
   draw()
 end
