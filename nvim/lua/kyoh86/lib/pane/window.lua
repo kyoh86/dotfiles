@@ -4,6 +4,20 @@ local pathlib = require("kyoh86.lib.pane.path")
 
 ---@alias kyoh86.lib.pane.window.Layout vim.fn.winlayout.leaf | vim.fn.winlayout.branch
 
+---@class kyoh86.lib.pane.window.LiveLeafNode
+---@field kind "pane"
+---@field winid integer
+---@field buffer integer?
+---@field width integer?
+---@field height integer?
+
+---@class kyoh86.lib.pane.window.LiveSplitNode
+---@field kind "row"|"col"
+---@field first kyoh86.lib.pane.window.LiveNode
+---@field second kyoh86.lib.pane.window.LiveNode
+
+---@alias kyoh86.lib.pane.window.LiveNode kyoh86.lib.pane.window.LiveLeafNode|kyoh86.lib.pane.window.LiveSplitNode
+
 local function layout_type(layout)
   return layout and layout[1]
 end
@@ -66,6 +80,36 @@ end
 function M.get_layout()
   ---NOTE:「現在のタブ」が存在しないことはないため、emptyを否定できる
   return normalize_to_binary(vim.fn.winlayout() --[[@as kyoh86.lib.pane.window.Layout]])
+end
+
+---@param layout kyoh86.lib.pane.window.Layout
+---@return kyoh86.lib.pane.window.LiveNode
+local function to_tree(layout)
+  if is_leaf(layout) then
+    local winid = win_of(layout)
+    local valid = vim.api.nvim_win_is_valid(winid)
+    return {
+      kind = "pane",
+      winid = winid,
+      buffer = valid and vim.api.nvim_win_get_buf(winid) or nil,
+      width = valid and vim.api.nvim_win_get_width(winid) or nil,
+      height = valid and vim.api.nvim_win_get_height(winid) or nil,
+    }
+  end
+
+  local children = children_of(layout)
+  return {
+    kind = axis_of(layout),
+    first = to_tree(children[1]),
+    second = to_tree(children[2]),
+  }
+end
+
+---現在のタブのWindowLayoutをlib.paneに近いLiveNodeに変換して取得する
+---@param layout? kyoh86.lib.pane.window.Layout
+---@return kyoh86.lib.pane.window.LiveNode
+function M.get_tree(layout)
+  return to_tree(layout or M.get_layout())
 end
 
 ---@param layout kyoh86.lib.pane.window.Layout
