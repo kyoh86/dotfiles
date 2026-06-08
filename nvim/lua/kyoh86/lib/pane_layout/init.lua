@@ -17,25 +17,25 @@ local M = {}
 --   second = Node,      -- 右/下の子
 -- }
 
----@class Layout
----@field root Node
+---@class kyoh86.lib.pane_layout.Layout
+---@field root kyoh86.lib.pane_layout.Node
 ---@field cur kyoh86.lib.pane_layout.Path
 
----@alias Node Leaf|Split
+---@alias kyoh86.lib.pane_layout.Node kyoh86.lib.pane_layout.LeafNode|kyoh86.lib.pane_layout.SplitNode
 
----@class Leaf
+---@class kyoh86.lib.pane_layout.LeafNode
 ---@field kind "pane" リーフ（ペイン）
 ---@field buffer number bufnr (省略時は空バッファ)
 ---@field width number paneの幅
 ---@field height number paneの高さ
 
----@class Split
+---@class kyoh86.lib.pane_layout.SplitNode
 ---@field kind "row"|"col" 分割方向 (row=左右, col=上下)
----@field first Node 左/上の子
----@field second Node 右/下の子
+---@field first kyoh86.lib.pane_layout.Node 左/上の子
+---@field second kyoh86.lib.pane_layout.Node 右/下の子
 
 ---レイアウトを適用
----@param layout Layout
+---@param layout kyoh86.lib.pane_layout.Layout
 function M.apply(layout)
   local win = vim.api.nvim_get_current_win()
 
@@ -56,10 +56,12 @@ function M.reset_and_apply(layout)
   M.apply(layout) -- レイアウトを適用
 end
 
--- Neovimのwinlayout形式をユーザー形式に変換
-local function convert_node(node)
-  if node[1] == "leaf" then
-    local winid = node[2]
+-- Neovimのwinlayout形式をレイアウトツリーに変換
+---@param layout kyoh86.lib.pane_layout.window.Layout
+---@return kyoh86.lib.pane_layout.Node
+local function convert_node(layout)
+  if layout[1] == "leaf" then
+    local winid = layout[2] --[[@as integer]]
     local bufnr = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) or nil
     return {
       kind = "pane",
@@ -70,8 +72,8 @@ local function convert_node(node)
   end
 
   -- axis: "row" (左右) or "col" (上下)
-  local axis = node[1]
-  local children = node[2]
+  local axis = layout[1]
+  local children = layout[2]
 
   return {
     kind = axis,
@@ -81,7 +83,7 @@ local function convert_node(node)
 end
 
 --- 現在のレイアウトを取得
---- @return Layout レイアウトツリー
+--- @return kyoh86.lib.pane_layout.Layout レイアウトツリー
 function M.get()
   local window = require("kyoh86.lib.pane_layout.window")
   local layout = window.get_layout()

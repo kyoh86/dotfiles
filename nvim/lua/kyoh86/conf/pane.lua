@@ -51,19 +51,8 @@ local function notify(msg, level)
   vim.notify(msg, level or vim.log.levels.INFO, { title = "layout-paredit" })
 end
 
-local function deepcopy(t)
-  if type(t) ~= "table" then
-    return t
-  end
-  local out = {}
-  for k, v in pairs(t) do
-    out[k] = deepcopy(v)
-  end
-  return out
-end
-
 local function path_parent(path)
-  local out = deepcopy(path)
+  local out = vim.deepcopy(path)
   table.remove(out)
   return out
 end
@@ -72,7 +61,7 @@ local function path_sibling(path)
   if #path == 0 then
     return path
   end
-  local out = deepcopy(path)
+  local out = vim.deepcopy(path)
   out[#out] = out[#out] == 1 and 2 or 1
   return out
 end
@@ -124,10 +113,10 @@ end
 local function all_nodes(node, path, out)
   path = path or {}
   out = out or {}
-  table.insert(out, { node = node, path = deepcopy(path) })
+  table.insert(out, { node = node, path = vim.deepcopy(path) })
   if not is_leaf(node) then
     for i, child in ipairs(children(node)) do
-      local p = deepcopy(path)
+      local p = vim.deepcopy(path)
       table.insert(p, i)
       all_nodes(child, p, out)
     end
@@ -493,45 +482,6 @@ local function select_focus()
   draw()
 end
 
-local function sort_wins_by_geometry(wins)
-  table.sort(wins, function(a, b)
-    local ar = win_rect(a)
-    local br = win_rect(b)
-    if not ar or not br then
-      return a < b
-    end
-    if math.abs(ar.row - br.row) > 0 then
-      return ar.row < br.row
-    end
-    return ar.col < br.col
-  end)
-  return wins
-end
-
-local function swap_win_contents(a, b)
-  if a == b then
-    return
-  end
-  if not vim.api.nvim_win_is_valid(a) or not vim.api.nvim_win_is_valid(b) then
-    return
-  end
-
-  local abuf = vim.api.nvim_win_get_buf(a)
-  local bbuf = vim.api.nvim_win_get_buf(b)
-  local acur = vim.api.nvim_win_get_cursor(a)
-  local bcur = vim.api.nvim_win_get_cursor(b)
-  local atop = vim.fn.getwininfo(a)[1].topline
-  local btop = vim.fn.getwininfo(b)[1].topline
-
-  vim.api.nvim_win_set_buf(a, bbuf)
-  vim.api.nvim_win_set_buf(b, abuf)
-
-  pcall(vim.api.nvim_win_set_cursor, a, bcur)
-  pcall(vim.api.nvim_win_set_cursor, b, acur)
-  pcall(vim.fn.win_execute, a, "normal! " .. btop .. "zt")
-  pcall(vim.fn.win_execute, b, "normal! " .. atop .. "zt")
-end
-
 -- winlayout形式をpane_layout形式に変換する
 local function convert_to_pane_layout(node)
   if is_leaf(node) then
@@ -640,46 +590,6 @@ local function replace_node_at_path_pane_layout(layout, path, new_node)
   end
 
   return new_layout
-end
-
--- apply_layout: ツリー構造に基づいてウィンドウを再配置
-local function apply_layout(node)
-  if not node then
-    return
-  end
-
-  if is_leaf(node) then
-    return
-  end
-
-  local axis = axis_of(node)
-  local childs = children(node)
-
-  -- 各 child を再帰的に配置
-  local prev_win = nil
-  for i, child in ipairs(childs) do
-    -- まず child の内部を配置
-    apply_layout(child)
-
-    -- child の最初の leaf を取得
-    local first_leaf_ref = first_leaf(child)
-    if not vim.api.nvim_win_is_valid(first_leaf_ref) then
-      goto continue
-    end
-
-    if i == 1 then
-      -- 最初の child は何もしない（基準位置）
-      prev_win = first_leaf_ref
-    else
-      -- 2番目以降の child は、前の child の隣に配置
-      if prev_win and vim.api.nvim_win_is_valid(prev_win) then
-        pcall(vim.fn.win_splitmove, first_leaf_ref, prev_win, { vertical = axis == "col", rightbelow = true })
-      end
-      prev_win = first_leaf_ref
-    end
-
-    ::continue::
-  end
 end
 
 local function flip_selected()
@@ -848,7 +758,7 @@ local function grow_child(index)
     -- children[1] をリサイズ
     local target1 = {}
     local t1 = 0
-    for i, size in ipairs(sizes1) do
+    for _, size in ipairs(sizes1) do
       local target = math.floor(size * new_total1 / total1)
       table.insert(target1, target)
       t1 = t1 + target
@@ -866,7 +776,7 @@ local function grow_child(index)
     -- children[2] をリサイズ
     local target2 = {}
     local t2 = 0
-    for i, size in ipairs(sizes2) do
+    for _, size in ipairs(sizes2) do
       local target = math.floor(size * new_total2 / total2)
       table.insert(target2, target)
       t2 = t2 + target
@@ -892,7 +802,7 @@ local function grow_child(index)
     -- children[1] をリサイズ
     local target1 = {}
     local t1 = 0
-    for i, size in ipairs(sizes1) do
+    for _, size in ipairs(sizes1) do
       local target = math.floor(size * new_total1 / total1)
       table.insert(target1, target)
       t1 = t1 + target
@@ -910,7 +820,7 @@ local function grow_child(index)
     -- children[2] をリサイズ
     local target2 = {}
     local t2 = 0
-    for i, size in ipairs(sizes2) do
+    for _, size in ipairs(sizes2) do
       local target = math.floor(size * new_total2 / total2)
       table.insert(target2, target)
       t2 = t2 + target
