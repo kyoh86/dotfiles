@@ -87,7 +87,7 @@ end
 function M.get()
   local window = require("kyoh86.lib.pane_layout.window")
   local layout = window.get_layout()
-  return { cur = window.get_path(layout, vim.api.nvim_get_current_win(), ""), root = convert_node(layout) }
+  return { cur = window.get_path(layout, vim.api.nvim_get_current_win()), root = convert_node(layout) }
 end
 
 -- 現在のレイアウトをJSONとして現在のバッファに出力（内容は全て置換）

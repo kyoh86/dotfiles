@@ -34,9 +34,22 @@ end
 
 ---@param path kyoh86.lib.pane_layout.Path
 ---@param next kyoh86.lib.pane_layout.PathSegment
+---@return kyoh86.lib.pane_layout.Path
 function M.child(path, next)
   local child = vim.deepcopy(path)
-  return table.insert(child, next)
+  table.insert(child, next)
+  return child
+end
+
+---@param path kyoh86.lib.pane_layout.Path
+---@return kyoh86.lib.pane_layout.PathSegment|nil, kyoh86.lib.pane_layout.Path
+function M.digg(path)
+  if #path == 0 then
+    return nil, {}
+  end
+  local digg = vim.deepcopy(path)
+  table.remove(digg, 1)
+  return path[1], digg
 end
 
 ---@param path kyoh86.lib.pane_layout.Path
