@@ -66,11 +66,7 @@ local function build_panes(node, win)
   end
 end
 
----@class PaneProp
----@field winfixheight number
----@field winfixwidth number
-
----すべてのペインのサイズを再帰的に設定（winfix設定なし）
+---すべてのペインのサイズを再帰的に設定
 ---@param panes Panes
 local function apply_resize_only(panes)
   if not panes or not panes.node then
@@ -78,7 +74,7 @@ local function apply_resize_only(panes)
   end
 
   if panes.node.kind == "pane" then
-    -- ペインのサイズを設定（winfix設定はしない）
+    -- ペインのサイズを設定
     vim.api.nvim_set_current_win(panes.win)
     vim.cmd("resize " .. panes.node.height)
     vim.cmd("vertical resize " .. panes.node.width)
@@ -93,59 +89,13 @@ local function apply_resize_only(panes)
   end
 end
 
----すべてのペインのwinfix設定を保存して有効化
----@param panes Panes
----@param props { [number]: PaneProp }
----@return { [number]: PaneProp }
-local function save_and_set_winfix(panes, props)
-  if not panes or not panes.node then
-    return props
-  end
-
-  if panes.node.kind == "pane" then
-    local p = props[panes.win] or {}
-    p.winfixheight = vim.api.nvim_get_option_value("winfixheight", { win = panes.win })
-    p.winfixwidth = vim.api.nvim_get_option_value("winfixwidth", { win = panes.win })
-    props[panes.win] = p
-
-    vim.api.nvim_set_option_value("winfixheight", true, { win = panes.win })
-    vim.api.nvim_set_option_value("winfixwidth", true, { win = panes.win })
-  else
-    if panes.first then
-      props = save_and_set_winfix(panes.first, props)
-    end
-    if panes.second then
-      props = save_and_set_winfix(panes.second, props)
-    end
-  end
-
-  return props
-end
-
----Windowの設定値をもとに戻す
----@param props { [number]: PaneProp } WinIDごとの設定値
-local function reset_props(props)
-  for win, p in pairs(props) do
-    vim.api.nvim_set_option_value("winfixheight", p.winfixheight, { win = win })
-    vim.api.nvim_set_option_value("winfixwidth", p.winfixwidth, { win = win })
-  end
-end
-
 -- レイアウトを適用
 -- layout: レイアウトツリー
 -- parent_win: 親ウィンドウ（通常は省略）
 function M.apply(layout)
   local win = vim.api.nvim_get_current_win()
   local panes = build_panes(layout, win)
-
-  -- パス1: すべてのresizeを先に行う（winfix設定なし）
   apply_resize_only(panes)
-
-  -- パス2: winfix設定を保存して有効化
-  local props = {}
-  props = save_and_set_winfix(panes, props)
-
-  reset_props(props)
 end
 
 -- すべてのウィンドウを閉じて、レイアウトを適用
