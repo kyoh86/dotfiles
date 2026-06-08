@@ -1,5 +1,6 @@
 local M = {}
 
+local pathlib = require("kyoh86.lib.pane_layout.path")
 ---@alias kyoh86.lib.pane_layout.window.Layout vim.fn.winlayout.leaf | vim.fn.winlayout.branch
 
 ---vim.fn.winlayout() の結果をバイナリツリーに正規化
@@ -49,13 +50,14 @@ end
 
 ---@param layout kyoh86.lib.pane_layout.window.Layout
 ---@param win integer
----@return string
-function M.get_path(layout, win, path)
+---@param path kyoh86.lib.pane_layout.Path
+---@return kyoh86.lib.pane_layout.Path
+local function get_path(layout, win, path)
   if layout[1] == "leaf" then
     if layout[2] == win then
       return path
     else
-      return ""
+      return {}
     end
   end
   local children = layout[2]
@@ -63,43 +65,51 @@ function M.get_path(layout, win, path)
     if layout[2] == win then
       return path
     else
-      return ""
+      return {}
     end
   end
   if #children == 1 then
-    return M.get_path(children[1], win, path .. "/1")
+    return get_path(children[1], win, pathlib.child(path, 1))
   end
   if #children == 2 then
-    local first = M.get_path(children[1], win, path .. "/1")
-    if first ~= "" then
+    local first = get_path(children[1], win, pathlib.child(path, 1))
+    if #first > 0 then
       return first
     end
-    local second = M.get_path(children[2], win, path .. "/2")
-    if second ~= "" then
+    local second = get_path(children[2], win, pathlib.child(path, 2))
+    if #second > 0 then
       return second
     end
-    return ""
+    return {}
   end
-  return ""
+  return {}
 end
 
 ---@param layout kyoh86.lib.pane_layout.window.Layout
+---@param win integer
+---@return kyoh86.lib.pane_layout.Path
+function M.get_path(layout, win)
+  return get_path(layout, win, {})
+end
+
+---@param layout kyoh86.lib.pane_layout.window.Layout
+---@param path kyoh86.lib.pane_layout.Path
 ---@return integer
-function M.at(layout, pos)
+function M.at(layout, path)
   if layout[1] == "leaf" then
     return layout[2] --[[@as integer]]
   end
-  if pos == "" then
+  if #path == 0 then
     return -1
   end
 
   local children = layout[2]
-  local next = string.sub(pos, 1, 2)
-  if next == "/1" then
-    return M.at(children[1], string.sub(pos, 3))
+  local root, next = pathlib.digg(path)
+  if root == 1 then
+    return M.at(children[1], next)
   end
-  if next == "/2" then
-    return M.at(children[2], string.sub(pos, 3))
+  if root == 2 then
+    return M.at(children[2], next)
   end
   return -1
 end
