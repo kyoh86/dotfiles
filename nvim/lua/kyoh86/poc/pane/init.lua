@@ -42,9 +42,6 @@ local state = {
 
 local config = {
   enter_key = "<C-w><C-w>",
-  border = "rounded",
-  title = " SELECTED ",
-  winhighlight = "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditBorder,FloatTitle:LayoutPareditTitle",
   resize_step = 5,
 }
 
@@ -76,7 +73,7 @@ local function draw()
 
   local layout = libwindow.get_tree()
   local node = tree.node_at(layout, state.selected_path)
-  view.open_selection(state, config, node)
+  view.open_selection(state, node)
 
   vim.api.nvim_echo({ { "layout-paredit: " .. selected_text(), "ModeMsg" } }, false, {})
   state.drawing = false
