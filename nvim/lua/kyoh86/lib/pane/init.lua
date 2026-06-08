@@ -115,7 +115,7 @@ function M.load()
     return
   end
 
-  M.reset_and_apply(layout)
+  M.apply(layout)
 end
 
 return M

@@ -1,18 +1,38 @@
 local M = {}
 
 local pathlib = require("kyoh86.lib.pane.path")
+
 ---@alias kyoh86.lib.pane.window.Layout vim.fn.winlayout.leaf | vim.fn.winlayout.branch
+
+local function layout_type(layout)
+  return layout and layout[1]
+end
+
+local function is_leaf(layout)
+  return layout_type(layout) == "leaf"
+end
+
+local function children_of(layout)
+  return layout[2]
+end
+
+local function axis_of(layout)
+  return layout[1]
+end
+
+local function win_of(layout)
+  return layout[2]
+end
 
 ---vim.fn.winlayout() の結果をバイナリツリーに正規化
 ---@param layout kyoh86.lib.pane.window.Layout
 ---@return kyoh86.lib.pane.window.Layout
 local function normalize_to_binary(layout)
-  if layout[1] == "leaf" then
+  if is_leaf(layout) then
     return layout
   end
 
-  local axis = layout[1] -- "row" or "col"
-  local children = layout[2]
+  local children = children_of(layout)
 
   if #children == 0 then
     return layout
@@ -21,7 +41,7 @@ local function normalize_to_binary(layout)
     return normalize_to_binary(children[1])
   end
   if #children == 2 then
-    return { axis, {
+    return { axis_of(layout), {
       normalize_to_binary(children[1]),
       normalize_to_binary(children[2]),
     } }
@@ -31,7 +51,7 @@ local function normalize_to_binary(layout)
   local result = normalize_to_binary(children[1])
   for i = 2, #children do
     result = {
-      axis,
+      axis_of(layout),
       {
         result,
         normalize_to_binary(children[i] --[[@as kyoh86.lib.pane.window.Layout]]),
@@ -42,9 +62,9 @@ local function normalize_to_binary(layout)
 end
 
 ---現在のタブのWindowLayoutをバイナリツリーに正規化して取得する
----NOTE:「現在のタブ」が存在しないことはないため、emptyを否定できる
 ---@return kyoh86.lib.pane.window.Layout
 function M.get_layout()
+  ---NOTE:「現在のタブ」が存在しないことはないため、emptyを否定できる
   return normalize_to_binary(vim.fn.winlayout() --[[@as kyoh86.lib.pane.window.Layout]])
 end
 
@@ -53,16 +73,16 @@ end
 ---@param path kyoh86.lib.pane.Path
 ---@return kyoh86.lib.pane.Path
 local function get_path(layout, win, path)
-  if layout[1] == "leaf" then
-    if layout[2] == win then
+  if is_leaf(layout) then
+    if win_of(layout) == win then
       return path
     else
       return {}
     end
   end
-  local children = layout[2]
+  local children = children_of(layout)
   if #children == 0 then
-    if layout[2] == win then
+    if win_of(layout) == win then
       return path
     else
       return {}
