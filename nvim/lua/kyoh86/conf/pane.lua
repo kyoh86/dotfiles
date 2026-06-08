@@ -557,11 +557,24 @@ local function convert_to_pane_layout(node)
   }
 end
 
+-- selected_pathをpane_layoutのcur形式に変換
+local function path_to_cur(path)
+  if #path == 0 then
+    return ""
+  end
+  local parts = {}
+  for _, index in ipairs(path) do
+    table.insert(parts, "/" .. index)
+  end
+  return table.concat(parts, "")
+end
+
 -- rebuild_layout: 操作後のあるべき姿に基づいてウィンドウを再構築
-local function rebuild_layout(node)
+local function rebuild_layout(node, cur_path)
   local pane_layout = require("kyoh86.lib.pane_layout")
   local layout = convert_to_pane_layout(node)
-  pane_layout.reset_and_apply({ layout = layout, cur = "" })
+  local cur = cur_path or ""
+  pane_layout.reset_and_apply({ layout = layout, cur = cur })
 end
 
 -- replace_node_at_path: パスに従ってノードを置換する（winlayout形式）
@@ -689,8 +702,12 @@ local function flip_selected()
   -- 全体のレイアウトの該当位置に新しいノードを埋め込む
   local new_layout = replace_node_at_path(layout, state.selected_path, swapped_node)
 
-  -- ウィンドウを再構築
-  rebuild_layout(new_layout)
+  -- 現在のウィンドウのパスを取得
+  local cur_win = vim.api.nvim_get_current_win()
+  local cur_path = path_of_winid(layout, cur_win)
+
+  -- ウィンドウを再構築（フォーカスを復元）
+  rebuild_layout(new_layout, path_to_cur(cur_path))
 
   draw()
 end
@@ -724,13 +741,16 @@ local function rotate_selected()
   -- 全体のレイアウトの該当位置に新しいノードを埋め込む
   local new_layout = replace_node_at_path_pane_layout(layout, state.selected_path, rotated_node)
 
-  -- ウィンドウを再構築
-  local pane_layout = require("kyoh86.lib.pane_layout")
-  pane_layout.reset_and_apply({ layout = new_layout, cur = "" })
+  -- 現在のウィンドウのパスを取得（winlayout形式）
+  local cur_win = vim.api.nvim_get_current_win()
+  local cur_path = path_of_winid(normalized_layout(), cur_win)
 
-  -- 選択パスを更新（ルートから現在のウィンドウへのパスを再取得して親を選択）
-  local cur = vim.api.nvim_get_current_win()
-  state.selected_path = path_of_winid(normalized_layout(), cur)
+  -- ウィンドウを再構築（フォーカスを復元）
+  local pane_layout = require("kyoh86.lib.pane_layout")
+  pane_layout.reset_and_apply({ layout = new_layout, cur = path_to_cur(cur_path) })
+
+  -- 選択パスを更新
+  state.selected_path = path_of_winid(normalized_layout(), vim.api.nvim_get_current_win())
   select_parent()
 end
 
@@ -755,12 +775,12 @@ local function toggle_selected()
   -- 全体のレイアウトの該当位置に新しいノードを埋め込む
   local new_layout = replace_node_at_path(layout, state.selected_path, toggled_node)
 
-  -- ウィンドウを再構築
-  rebuild_layout(new_layout)
+  -- 現在のウィンドウのパスを取得
+  local cur_win = vim.api.nvim_get_current_win()
+  local cur_path = path_of_winid(layout, cur_win)
 
-  -- 選択パスを更新（ルートから現在のウィンドウへのパスを再取得）
-  local cur = vim.api.nvim_get_current_win()
-  state.selected_path = path_of_winid(normalized_layout(), cur)
+  -- ウィンドウを再構築（フォーカスを復元）
+  rebuild_layout(new_layout, path_to_cur(cur_path))
 
   draw()
 end
