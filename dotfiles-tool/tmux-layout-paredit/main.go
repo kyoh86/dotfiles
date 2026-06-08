@@ -22,75 +22,40 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("loadState failed: %w", err)
 	}
+	actions := NewActions(root, state)
 
 	switch cmd {
 	case "enter":
-		pane, err := currentPane()
-		if err != nil {
-			return fmt.Errorf("currentPane failed: %w", err)
+		if err := actions.Enter(); err != nil {
+			return fmt.Errorf("enter failed: %w", err)
 		}
-		state.SelectedPath = pathOfPane(root, pane)
-		state.Preselect = nil
 
 	case "select-focus":
-		pane, err := currentPane()
-		if err != nil {
-			return fmt.Errorf("currentPane failed: %w", err)
+		if err := actions.SelectFocus(); err != nil {
+			return fmt.Errorf("selectFocus failed: %w", err)
 		}
-		state.SelectedPath = pathOfPane(root, pane)
 
 	case "parent":
-		if len(state.SelectedPath) > 0 {
-			state.SelectedPath = parentPath(state.SelectedPath)
-		}
+		actions.SelectParent()
 
 	case "child0":
-		n := nodeAt(root, state.SelectedPath)
-		if n.IsSplit() {
-			newPath := append([]int{}, state.SelectedPath...)
-			newPath = append(newPath, 0)
-			state.SelectedPath = newPath
-		}
+		actions.SelectChild(0)
 
 	case "child1":
-		n := nodeAt(root, state.SelectedPath)
-		if n.IsSplit() {
-			newPath := append([]int{}, state.SelectedPath...)
-			newPath = append(newPath, 1)
-			state.SelectedPath = newPath
-		}
+		actions.SelectChild(1)
 
 	case "sibling":
-		state.SelectedPath = siblingPath(state.SelectedPath)
+		actions.SelectSibling()
 
-	case "pre-v":
-		selected := nodeAt(root, state.SelectedPath)
-		if selected.IsSplit() {
-			tmuxIgnoreError("display-message", "preselect: only available on single pane (use u/1/2 to select a leaf)")
-			saveState(state)
-			paint(root, state)
-			return nil
+	case "split-v":
+		if err := actions.Split(AxisRow); err != nil {
+			return fmt.Errorf("split failed: %w", err)
 		}
-		axis := AxisRow
-		state.Preselect = &axis
+		return nil
 
-	case "pre-s":
-		selected := nodeAt(root, state.SelectedPath)
-		if selected.IsSplit() {
-			tmuxIgnoreError("display-message", "preselect: only available on single pane (use u/1/2 to select a leaf)")
-			saveState(state)
-			paint(root, state)
-			return nil
-		}
-		axis := AxisCol
-		state.Preselect = &axis
-
-	case "cancel":
-		state.Preselect = nil
-
-	case "split":
-		if err := splitSelected(root, state); err != nil {
-			return fmt.Errorf("splitSelected failed: %w", err)
+	case "split-s":
+		if err := actions.Split(AxisCol); err != nil {
+			return fmt.Errorf("split failed: %w", err)
 		}
 		return nil
 
@@ -100,12 +65,12 @@ func run() error {
 		}
 
 	case "grow0":
-		if err := growChild(root, state, 0); err != nil {
+		if err := actions.GrowChild(0); err != nil {
 			return fmt.Errorf("growChild failed: %w", err)
 		}
 
 	case "grow1":
-		if err := growChild(root, state, 1); err != nil {
+		if err := actions.GrowChild(1); err != nil {
 			return fmt.Errorf("growChild failed: %w", err)
 		}
 
@@ -125,7 +90,6 @@ func run() error {
 
 	case "clear":
 		clearStyles()
-		state.Preselect = nil
 		state.SelectedPath = []int{}
 		saveState(state)
 		return nil
