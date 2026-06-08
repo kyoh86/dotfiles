@@ -247,4 +247,4 @@ test_nested()
 test_complex()
 test_same_direction()
 test_same_direction_manual()
--- test_cmd_layout()  -- TODO: Enable after fixing deeply nested same-direction splits
+test_cmd_layout()
