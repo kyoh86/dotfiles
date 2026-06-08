@@ -7,213 +7,90 @@ local M = {}
 -- {
 --   kind = "pane",      -- リーフ（ペイン）
 --   buffer = number,    -- bufnr (省略時は空バッファ)
+--   width = number,     -- paneの幅
+--   height = number,    -- paneの高さ
 -- }
 -- または
 -- {
 --   kind = "row" | "col",  -- 分割方向 (row=左右, col=上下)
 --   first = Node,       -- 左/上の子
 --   second = Node,      -- 右/下の子
---   size = number,      -- firstのサイズ（列数または行数、省略時は均等分割）
 -- }
 
--- 同方向分割をフラットなリストに変換
--- 戻り値: {{node=node, win=win, win_size=size}, ...}
--- 各ウィンドウに設定するサイズ（win_size）を計算
-local function flatten_same_direction(node, kind, parent_win)
-  local items = {}
+---@alias Node Leaf|Split
 
-  local function flatten(n, win)
-    if n.kind == kind then
-      -- firstを展開
-      if n.first and n.first.kind == kind then
-        -- firstも同方向分割の場合、再帰的に展開（同じウィンドウ）
-        flatten(n.first, win)
-      else
-        -- firstが異方向分割またはリーフの場合
-        -- ウィンドウサイズは、n.first_size
-        table.insert(items, { node = n.first, win = win, win_size = n.first_size })
-      end
+---@class Leaf
+---@field kind "pane" リーフ（ペイン）
+---@field buffer number bufnr (省略時は空バッファ)
+---@field width number paneの幅
+---@field height number paneの高さ
 
-      -- secondを展開（新しいウィンドウを作成する必要があるため、winはnil）
-      if n.second.kind == kind then
-        flatten(n.second, nil)
-      else
-        table.insert(items, { node = n.second, win = nil, win_size = n.second_size })
-      end
-    else
-      -- 異方向分割またはリーフの場合
-      table.insert(items, { node = n, win = win, win_size = nil })
-    end
-  end
+---@class Split
+---@field kind "row"|"col" 分割方向 (row=左右, col=上下)
+---@field first Node 左/上の子
+---@field second Node 右/下の子
 
-  flatten(node, parent_win)
+---@class builtStructure
+---@field node Node
+---@field win number
+---@field first? builtStructure
+---@field second? builtStructure
 
-  -- 同方向分割ノードの場合、そのサイズを計算
-  for i, item in ipairs(items) do
-    if item.node.kind == kind then
-      -- 同方向分割ノードの場合、そのfirst_sizeがウィンドウサイズ
-      item.win_size = item.node.first_size
-    end
-  end
-
-  return items
-end
-
--- ノードを構築する
--- 戻り値: {node, win} のペア
-function M.build_node(node, parent_win)
+---ウィンドウ構造を構築する（サイズ設定はしない）
+---@param node Node
+---@param win number
+---@return builtStructure
+local function build_structure(node, win)
   if node.kind == "pane" then
     -- 葉: parent_win にバッファを設定
     if node.buffer then
-      vim.api.nvim_win_set_buf(parent_win, node.buffer)
+      vim.api.nvim_win_set_buf(win, node.buffer)
     end
-    return { node = node, win = parent_win }
-  end
-
-  -- 同方向の分割かどうかをチェック
-  local same_direction = false
-  if node.first and node.first.kind and node.first.kind ~= "pane" then
-    same_direction = (node.kind == node.first.kind)
-  end
-
-  -- 同方向分割の場合、フラットなリストとして扱う
-  if same_direction then
-    local items = flatten_same_direction(node, node.kind, parent_win)
-
-    -- 左から右へ順番にウィンドウを作成
-    local wins = {}
-    wins[1] = parent_win
-
-    for i = 2, #items do
-      vim.api.nvim_set_current_win(wins[i - 1])
-      if node.kind == "col" then
-        vim.cmd("belowright split")
-      else
-        vim.cmd("belowright vsplit")
-      end
-      wins[i] = vim.api.nvim_get_current_win()
-    end
-
-    -- 左から右へ順番にノードを構築
-    local results = {}
-    for i, item in ipairs(items) do
-      local win = item.win or wins[i]
-      if item.node.kind == "pane" then
-        -- 葉: バッファを設定
-        if item.node.buffer then
-          vim.api.nvim_win_set_buf(win, item.node.buffer)
-        end
-        results[i] = { node = item.node, win = win }
-      else
-        -- 異方向分割: 再帰的に構築
-        results[i] = M.build_node(item.node, win)
-      end
-    end
-
-    -- 左から右へ順番にサイズを設定（最後のウィンドウ以外）
-    -- 各ウィンドウに直接サイズを設定し、サイズを固定
-    local winfix_states = {}
-    for i = 1, #items - 1 do
-      local item = items[i]
-      local win = item.win or wins[i]
-      if item.win_size then
-        vim.api.nvim_set_current_win(win)
-        if node.kind == "col" then
-          vim.api.nvim_set_option_value("winfixheight", true, { win = win })
-          vim.cmd("resize " .. item.win_size)
-        else
-          vim.api.nvim_set_option_value("winfixwidth", true, { win = win })
-          vim.cmd("vertical resize " .. item.win_size)
-        end
-        winfix_states[win] = true
-      end
-    end
-
-    -- サイズ固定オプションを元に戻す
-    for win, _ in pairs(winfix_states) do
-      if vim.api.nvim_win_is_valid(win) then
-        vim.api.nvim_set_option_value("winfixheight", false, { win = win })
-        vim.api.nvim_set_option_value("winfixwidth", false, { win = win })
-      end
-    end
-
-    return { node = node, win = parent_win, children = results }
-  end
-
-  -- 異方向分割の場合、既存のロジックを使用
-  -- row/col: parent_win を分割して first_win と second_win を作成
-  vim.api.nvim_set_current_win(parent_win)
-  if node.kind == "col" then
-    vim.cmd("belowright split")
+    return { node = node, win = win }
   else
-    vim.cmd("belowright vsplit")
-  end
-  local second_win = vim.api.nvim_get_current_win()
-  local first_win = parent_win
-
-  -- サイズを固定するオプションを設定（子ノード構築前にサイズを固定）
-  local wo = vim.api.nvim_get_option_value("winfixheight", { win = first_win })
-  local wo_v = vim.api.nvim_get_option_value("winfixwidth", { win = first_win })
-  if node.kind == "col" then
-    vim.api.nvim_set_option_value("winfixheight", true, { win = first_win })
-  else
-    vim.api.nvim_set_option_value("winfixwidth", true, { win = first_win })
-  end
-
-  -- 子ノード構築前にサイズを設定
-  if node.size then
-    vim.api.nvim_set_current_win(first_win)
+    vim.api.nvim_set_current_win(win)
     if node.kind == "col" then
-      vim.cmd("resize " .. node.size)
+      vim.cmd("belowright split")
     else
-      vim.cmd("vertical resize " .. node.size)
+      vim.cmd("belowright vsplit")
     end
+    local new_win = vim.api.nvim_get_current_win()
+
+    -- first を構築
+    local first_result = build_structure(node.first, win)
+
+    -- second を構築
+    local second_result = build_structure(node.second, new_win)
+
+    return { node = node, win = win, first = first_result, second = second_result }
   end
-
-  -- first を構築
-  local first_result = M.build_node(node.first, first_win)
-
-  -- second を構築
-  local second_result = M.build_node(node.second, second_win)
-
-  -- サイズ固定オプションを元に戻す
-  vim.api.nvim_set_option_value("winfixheight", wo, { win = first_win })
-  vim.api.nvim_set_option_value("winfixwidth", wo_v, { win = first_win })
-
-  return { node = node, win = first_win, first = first_result, second = second_result }
 end
 
--- トップダウンでサイズを適用（ルート→葉）
-local function apply_sizes_topdown(node_win_pair)
-  if not node_win_pair or not node_win_pair.node then
+---ボトムアップでサイズを適用（葉→ルート）
+---@param structure builtStructure
+local function apply_sizes_bottomup(structure)
+  if not structure or not structure.node then
     return
   end
 
-  local node = node_win_pair.node
+  local node = structure.node
 
   if node.kind == "pane" then
+    -- ペインのサイズを設定
+    vim.api.nvim_set_current_win(structure.win)
+    vim.cmd("resize " .. node.height)
+    vim.cmd("vertical resize " .. node.width)
+    vim.api.nvim_set_option_value("winfixheight", true, { win = structure.win })
+    vim.api.nvim_set_option_value("winfixwidth", true, { win = structure.win })
     return
   end
 
-  -- 自分のサイズを先に適用
-  if node.size then
-    local win = node_win_pair.win
-    if vim.api.nvim_win_is_valid(win) then
-      vim.api.nvim_set_current_win(win)
-      if node.kind == "col" then
-        vim.cmd("resize " .. node.size)
-      else
-        vim.cmd("vertical resize " .. node.size)
-      end
-    end
+  -- 子ノードのサイズを先に適用（ボトムアップ）
+  if structure.first then
+    apply_sizes_bottomup(structure.first)
   end
-
-  -- 子ノードのサイズを後に適用（トップダウン）
-  if node_win_pair.first then
-    apply_sizes_topdown(node_win_pair.first)
-  end
-  if node_win_pair.second then
-    apply_sizes_topdown(node_win_pair.second)
+  if structure.second then
+    apply_sizes_bottomup(structure.second)
   end
 end
 
@@ -222,7 +99,8 @@ end
 -- parent_win: 親ウィンドウ（通常は省略）
 function M.apply(layout, parent_win)
   parent_win = parent_win or vim.api.nvim_get_current_win()
-  M.build_node(layout, parent_win)
+  local structure = build_structure(layout, parent_win)
+  apply_sizes_bottomup(structure)
 end
 
 -- すべてのウィンドウを閉じて、レイアウトを適用
@@ -246,7 +124,7 @@ local function normalize_to_binary(node)
     return node
   end
 
-  local axis = node[1]  -- "row" or "col"
+  local axis = node[1] -- "row" or "col"
   local children = node[2]
 
   if #children == 0 then
@@ -258,8 +136,8 @@ local function normalize_to_binary(node)
   if #children == 2 then
     return { axis, {
       normalize_to_binary(children[1]),
-      normalize_to_binary(children[2])
-    }}
+      normalize_to_binary(children[2]),
+    } }
   end
 
   -- 3つ以上の場合は左結合で畳み込む
@@ -270,66 +148,6 @@ local function normalize_to_binary(node)
   return result
 end
 
--- ノードのすべての葉（ウィンドウID）を収集
-local function collect_layout_leaves(node)
-  if node[1] == "leaf" then
-    return { node[2] }
-  end
-
-  local result = {}
-  for _, child in ipairs(node[2]) do
-    for _, leaf in ipairs(collect_layout_leaves(child)) do
-      table.insert(result, leaf)
-    end
-  end
-  return result
-end
-
--- ウィンドウの矩形情報を取得
-local function win_rect(winid)
-  if not vim.api.nvim_win_is_valid(winid) then
-    return nil
-  end
-  local pos = vim.api.nvim_win_get_position(winid)
-  local width = vim.api.nvim_win_get_width(winid)
-  local height = vim.api.nvim_win_get_height(winid)
-  return {
-    row = pos[1],
-    col = pos[2],
-    width = width,
-    height = height,
-  }
-end
-
--- 矩形の結合（包含する最小の矩形）
-local function union_rect(a, b)
-  if not a then
-    return b
-  end
-  if not b then
-    return a
-  end
-  local row = math.min(a.row, b.row)
-  local col = math.min(a.col, b.col)
-  local bottom = math.max(a.row + a.height, b.row + b.height)
-  local right = math.max(a.col + a.width, b.col + b.width)
-  return {
-    row = row,
-    col = col,
-    width = right - col,
-    height = bottom - row,
-  }
-end
-
--- ノードが占める矩形を計算
-local function node_rect(node)
-  local rect = nil
-  for _, winid in ipairs(collect_layout_leaves(node)) do
-    rect = union_rect(rect, win_rect(winid))
-  end
-  return rect
-end
-
 -- Neovimのwinlayout形式をユーザー形式に変換
 local function convert_node(node)
   if node[1] == "leaf" then
@@ -338,6 +156,8 @@ local function convert_node(node)
     return {
       kind = "pane",
       buffer = bufnr,
+      width = vim.api.nvim_win_get_width(winid),
+      height = vim.api.nvim_win_get_height(winid),
     }
   end
 
@@ -345,31 +165,10 @@ local function convert_node(node)
   local axis = node[1]
   local children = node[2]
 
-  -- firstノードとsecondノードのサイズを計算
-  local first_rect = node_rect(children[1])
-  local second_rect = node_rect(children[2])
-  local size = nil
-  local first_size = nil
-  local second_size = nil
-  if first_rect and second_rect then
-    if axis == "row" then
-      size = first_rect.width
-      first_size = first_rect.width
-      second_size = second_rect.width
-    else
-      size = first_rect.height
-      first_size = first_rect.height
-      second_size = second_rect.height
-    end
-  end
-
   return {
     kind = axis,
     first = convert_node(children[1]),
     second = convert_node(children[2]),
-    size = size,
-    first_size = first_size,
-    second_size = second_size,
   }
 end
 
