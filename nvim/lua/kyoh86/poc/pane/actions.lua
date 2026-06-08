@@ -174,13 +174,8 @@ function M.new(ctx)
     ctx.draw()
   end
 
-  function actions.split_selected()
-    if not state.preselect then
-      ctx.notify("split ignored: press v or s first", vim.log.levels.WARN)
-      ctx.draw()
-      return
-    end
-
+  ---@param kind "v"|"s"
+  function actions.split_selected(kind)
     local node = selected_node()
     if not tree.is_leaf(node) then
       ctx.notify("split ignored: only leaves (panes) can be split", vim.log.levels.WARN)
@@ -194,12 +189,11 @@ function M.new(ctx)
     end
 
     vim.api.nvim_set_current_win(target)
-    if state.preselect == "v" then
+    if kind == "v" then
       vim.cmd("vnew")
     else
       vim.cmd("new")
     end
-    state.preselect = nil
     state.selected_path = tree.path_of_win(libwindow.get_tree(), vim.api.nvim_get_current_win())
     ctx.draw()
   end
