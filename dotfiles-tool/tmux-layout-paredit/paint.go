@@ -35,7 +35,7 @@ func paint(root Node, state *State) error {
 	// leaf の場合は独自の色を付ける
 	if selected.IsLeaf() {
 		for _, l := range selectedLeaves {
-			if _, err := tmux("set-option", "-pt", l.Pane, "window-style", "bg="+LeafSelectBG); err != nil {
+			if _, err := tmux("set-option", "-pt", l.Pane, "window-style", "bg="+SelectBG); err != nil {
 				return err
 			}
 		}
