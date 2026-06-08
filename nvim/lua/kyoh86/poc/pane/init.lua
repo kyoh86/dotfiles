@@ -274,7 +274,8 @@ local function toggle_selected()
 end
 
 local function grow_child(index)
-  local n = selected_node()
+  local layout = libwindow.get_tree()
+  local n = tree.node_at(layout, state.selected_path)
   if not n or tree.is_leaf(n) then
     draw()
     return
@@ -282,140 +283,39 @@ local function grow_child(index)
 
   local axis = n.kind
   local amount = config.resize_step
-
-  -- 各 children の leaves を取得
-  local leaves1 = tree.leaves(n.first)
-  local leaves2 = tree.leaves(n.second)
-
-  if #leaves1 == 0 or #leaves2 == 0 then
-    return
-  end
-
-  -- children[1] の各 leaf の現在サイズを取得
-  local sizes1 = {}
-  local total1 = 0
-  for _, win in ipairs(leaves1) do
-    if vim.api.nvim_win_is_valid(win) then
-      local size = axis == "row" and vim.api.nvim_win_get_width(win) or vim.api.nvim_win_get_height(win)
-      table.insert(sizes1, size)
-      total1 = total1 + size
-    else
-      table.insert(sizes1, 0)
-    end
-  end
-
-  -- children[2] の各 leaf の現在サイズを取得
-  local sizes2 = {}
-  local total2 = 0
-  for _, win in ipairs(leaves2) do
-    if vim.api.nvim_win_is_valid(win) then
-      local size = axis == "row" and vim.api.nvim_win_get_width(win) or vim.api.nvim_win_get_height(win)
-      table.insert(sizes2, size)
-      total2 = total2 + size
-    else
-      table.insert(sizes2, 0)
-    end
-  end
+  local total1 = tree.total_size(n.first, axis)
+  local total2 = tree.total_size(n.second, axis)
 
   if total1 == 0 or total2 == 0 then
     return
   end
 
-  local cur = vim.api.nvim_get_current_win()
-
+  local new_total1
+  local new_total2
   if index == 1 then
-    -- children[1] を拡大、children[2] を縮小
-    local new_total1 = total1 + amount
-    local new_total2 = total2 - amount
+    new_total1 = total1 + amount
+    new_total2 = total2 - amount
     if new_total2 < 1 then
       new_total2 = 1
       new_total1 = total1 + total2 - 1
     end
-
-    -- children[1] をリサイズ
-    local target1 = {}
-    local t1 = 0
-    for _, size in ipairs(sizes1) do
-      local target = math.floor(size * new_total1 / total1)
-      table.insert(target1, target)
-      t1 = t1 + target
-    end
-    target1[#target1] = target1[#target1] + (new_total1 - t1)
-
-    for i, win in ipairs(leaves1) do
-      if vim.api.nvim_win_is_valid(win) then
-        vim.api.nvim_set_current_win(win)
-        local cmd = (axis == "row") and ("vertical resize " .. target1[i]) or ("resize " .. target1[i])
-        vim.cmd(cmd)
-      end
-    end
-
-    -- children[2] をリサイズ
-    local target2 = {}
-    local t2 = 0
-    for _, size in ipairs(sizes2) do
-      local target = math.floor(size * new_total2 / total2)
-      table.insert(target2, target)
-      t2 = t2 + target
-    end
-    target2[#target2] = target2[#target2] + (new_total2 - t2)
-
-    for i, win in ipairs(leaves2) do
-      if vim.api.nvim_win_is_valid(win) then
-        vim.api.nvim_set_current_win(win)
-        local cmd = (axis == "row") and ("vertical resize " .. target2[i]) or ("resize " .. target2[i])
-        vim.cmd(cmd)
-      end
-    end
   else
-    -- children[1] を縮小、children[2] を拡大
-    local new_total1 = total1 - amount
-    local new_total2 = total2 + amount
+    new_total1 = total1 - amount
+    new_total2 = total2 + amount
     if new_total1 < 1 then
       new_total1 = 1
       new_total2 = total1 + total2 - 1
     end
-
-    -- children[1] をリサイズ
-    local target1 = {}
-    local t1 = 0
-    for _, size in ipairs(sizes1) do
-      local target = math.floor(size * new_total1 / total1)
-      table.insert(target1, target)
-      t1 = t1 + target
-    end
-    target1[#target1] = target1[#target1] + (new_total1 - t1)
-
-    for i, win in ipairs(leaves1) do
-      if vim.api.nvim_win_is_valid(win) then
-        vim.api.nvim_set_current_win(win)
-        local cmd = (axis == "row") and ("vertical resize " .. target1[i]) or ("resize " .. target1[i])
-        vim.cmd(cmd)
-      end
-    end
-
-    -- children[2] をリサイズ
-    local target2 = {}
-    local t2 = 0
-    for _, size in ipairs(sizes2) do
-      local target = math.floor(size * new_total2 / total2)
-      table.insert(target2, target)
-      t2 = t2 + target
-    end
-    target2[#target2] = target2[#target2] + (new_total2 - t2)
-
-    for i, win in ipairs(leaves2) do
-      if vim.api.nvim_win_is_valid(win) then
-        vim.api.nvim_set_current_win(win)
-        local cmd = (axis == "row") and ("vertical resize " .. target2[i]) or ("resize " .. target2[i])
-        vim.cmd(cmd)
-      end
-    end
   end
 
-  if vim.api.nvim_win_is_valid(cur) then
-    vim.api.nvim_set_current_win(cur)
-  end
+  local resized_node = {
+    kind = n.kind,
+    first = tree.resize_total(n.first, axis, new_total1),
+    second = tree.resize_total(n.second, axis, new_total2),
+  }
+  local new_layout = tree.replace_node_at_path(layout, state.selected_path, resized_node)
+  local cur_path = tree.path_of_win(layout, vim.api.nvim_get_current_win())
+  rebuild_layout(new_layout, cur_path)
   draw()
 end
 
