@@ -106,7 +106,7 @@ local function open_fill(state, rect, hl)
     noautocmd = true,
   })
   vim.wo[win].winhighlight = "Normal:" .. hl
-  vim.wo[win].winblend = 25
+  vim.wo[win].winblend = 50
   table.insert(state.floats, win)
   return win
 end
