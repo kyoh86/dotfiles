@@ -5,6 +5,8 @@ import { fromFileUrl } from "@std/path";
 const DEFAULT_PROXY_URL = "http://127.0.0.1:37125";
 const SYSTEMD_SERVICE_NAME = "nvim-proxy.service";
 const LAUNCHD_LABEL = "dev.kyoh86.nvim-proxy";
+const REGISTER_RETRY_LIMIT = 5;
+const REGISTER_BACKOFF_BASE_MS = 200;
 
 export async function main(denops: Denops): Promise<void> {
   denops.dispatcher = {
@@ -37,6 +39,143 @@ export async function main(denops: Denops): Promise<void> {
 
   await vars.e.set(denops, "NVIM_PROXY_URL", DEFAULT_PROXY_URL);
   await vars.e.set(denops, "NVIM_PID", String(pid));
+
+  if (Deno.env.get("TMUX")) {
+    await Promise.all([
+      setTmuxEnv("NVIM_PROXY_URL", DEFAULT_PROXY_URL),
+      setTmuxEnv("NVIM_PID", String(pid)),
+    ]);
+  }
+
+  await startEnvServer(denops, pid);
+}
+
+async function setTmuxEnv(key: string, value: string) {
+  const command = new Deno.Command("tmux", {
+    args: ["set-environment", key, value],
+  });
+  const { code, stdout, stderr } = await command.output();
+  if (code !== 0) {
+    console.log(new TextDecoder().decode(stdout));
+    console.log(new TextDecoder().decode(stderr));
+  }
+}
+
+async function startEnvServer(denops: Denops, pid: number) {
+  const { finished } = Deno.serve({
+    hostname: "127.0.0.1",
+    port: 0,
+    handler: async (req) => {
+      const { pathname } = new URL(req.url);
+      if (pathname === "/health") {
+        return json({ status: "ok" });
+      }
+      if (pathname === "/env") {
+        return await handleEnvRequest(denops, req);
+      }
+      return json({ error: "Not found" }, 404);
+    },
+    onListen: async ({ port }) => {
+      await registerEnvToProxy(denops, { pid, port });
+    },
+  });
+  await finished;
+}
+
+async function handleEnvRequest(denops: Denops, req: Request) {
+  const names = await readEnvNames(req);
+  if (names === undefined) {
+    return json({ error: "Invalid body" }, 400);
+  }
+  const env: Record<string, string> = {};
+  for (const name of names) {
+    const value = await vars.e.get(denops, name, "");
+    if (typeof value === "string" && value.length > 0) {
+      env[name] = value;
+    }
+  }
+  return json({ env });
+}
+
+async function readEnvNames(req: Request) {
+  const url = new URL(req.url);
+  const raw = [
+    ...url.searchParams.getAll("name"),
+    ...url.searchParams.getAll("names").flatMap((value) => value.split(",")),
+  ];
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object" || !("names" in body)) {
+      return undefined;
+    }
+    if (!Array.isArray(body.names)) {
+      return undefined;
+    }
+    raw.push(...body.names);
+  }
+  const names = raw
+    .filter((name): name is string => typeof name === "string")
+    .map((name) => name.trim())
+    .filter(isSafeEnvName);
+  return Array.from(new Set(names));
+}
+
+function isSafeEnvName(name: string) {
+  return /^[A-Za-z_][A-Za-z0-9_]*$/.test(name);
+}
+
+async function registerEnvToProxy(
+  denops: Denops,
+  options: { pid: number; port: number },
+) {
+  for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
+    const ok = await registerEnvOnce(denops, options);
+    if (ok) {
+      return;
+    }
+    if (attempt < REGISTER_RETRY_LIMIT - 1) {
+      await delay(REGISTER_BACKOFF_BASE_MS * 2 ** attempt);
+    }
+  }
+  console.error("Failed to register env server to nvim-proxy.");
+}
+
+async function registerEnvOnce(
+  denops: Denops,
+  options: { pid: number; port: number },
+) {
+  const proxyUrl = await vars.e.get(denops, "NVIM_PROXY_URL", "");
+  if (!proxyUrl) {
+    return false;
+  }
+  const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
+  const payload = {
+    pid: options.pid,
+    proxy_path: "/env",
+    reverse_path: "/env",
+    reverse_port: options.port,
+  };
+  try {
+    const res = await fetch(registerUrl, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function json(payload: unknown, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8" },
+  });
 }
 
 async function ensureProxyServer(denops: Denops) {

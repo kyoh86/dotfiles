@@ -2,6 +2,7 @@
 
 _source_part env
 _source_part nvim
+_source_part nvim_proxy
 
 _source_part zsh_history
 _source_part zsh_prompt
