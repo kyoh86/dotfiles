@@ -53,119 +53,75 @@ local function notify(msg, level)
   vim.notify(msg, level or vim.log.levels.INFO, { title = "layout-paredit" })
 end
 
----@param root kyoh86.lib.pane.window.LiveNode
----@param path kyoh86.lib.pane.Path
----@return kyoh86.lib.pane.window.LiveNode
-local function node_at(root, path)
-  local node = root
-  for _, index in ipairs(path) do
-    if node.kind == "pane" then
-      return node
-    end
-    node = index == 1 and node.first or node.second
-  end
-  return node
-end
-
----@param node kyoh86.lib.pane.window.LiveNode
----@return string kind
-local function node_kind(node)
-  return node and node.kind
-end
-
 ---@param node kyoh86.lib.pane.window.LiveNode
 ---@return boolean
 local function is_leaf(node)
-  return node_kind(node) == "pane"
+  return node and node.kind == "pane"
 end
 
----@param node kyoh86.lib.pane.window.LiveSplitNode
----@return kyoh86.lib.pane.window.LiveNode[]
-local function children_of(node)
-  return { node.first, node.second }
-end
-
----@param node kyoh86.lib.pane.window.LiveSplitNode
----@return "row"|"col"
-local function axis_of(node)
-  return node.kind
-end
-
----@param node kyoh86.lib.pane.window.LiveLeafNode
----@return integer
-local function win_of(node)
-  return node.winid
-end
-
-local function leaves(node, out)
-  out = out or {}
+---@param node kyoh86.lib.pane.window.LiveNode
+---@return integer[] wins
+local function leaves(node)
   if is_leaf(node) then
-    table.insert(out, win_of(node))
+    return { node.win }
   else
-    for _, child in ipairs(children_of(node)) do
-      leaves(child, out)
+    local list = leaves(node.first)
+    for _, leaf in ipairs(leaves(node.second)) do
+      table.insert(list, leaf)
     end
+    return list
   end
-  return out
 end
 
-local function all_nodes(node, path, out)
+---@param node kyoh86.lib.pane.window.LiveNode
+---@param path? kyoh86.lib.pane.Path
+---@return {node: kyoh86.lib.pane.window.LiveNode, path: kyoh86.lib.pane.Path }[]
+local function all_nodes(node, path)
   path = path or {}
-  out = out or {}
-  table.insert(out, { node = node, path = vim.deepcopy(path) })
-  if not is_leaf(node) then
-    for i, child in ipairs(children_of(node)) do
-      local p = vim.deepcopy(path)
-      table.insert(p, i)
-      all_nodes(child, p, out)
+  local out = { { node = node, path = vim.deepcopy(path) } }
+  if is_leaf(node) then
+    return out
+  end
+  for i, child in ipairs({ node.first, node.second }) do
+    local p = vim.deepcopy(path)
+    table.insert(p, i)
+    for _, desc in ipairs(all_nodes(child, p)) do
+      table.insert(out, desc)
     end
   end
   return out
 end
 
-local function compact(node)
+---@param node kyoh86.lib.pane.window.LiveNode
+---@return integer win
+local function first_win(node)
   if is_leaf(node) then
-    return tostring(win_of(node))
+    return node.win
   end
-  local op = axis_of(node) == "row" and "|" or "/"
-  local parts = {}
-  for _, child in ipairs(children_of(node)) do
-    table.insert(parts, compact(child))
-  end
-  return "(" .. table.concat(parts, op) .. ")"
+  return first_win(node.first)
 end
 
-local function first_leaf(node)
-  if is_leaf(node) then
-    return win_of(node)
-  end
-  return first_leaf(children_of(node)[1])
-end
-
-local function path_of_winid(layout, winid)
-  for _, item in ipairs(all_nodes(layout)) do
-    if is_leaf(item.node) and win_of(item.node) == winid then
+---@param node kyoh86.lib.pane.window.LiveNode
+---@param win integer
+---@return kyoh86.lib.pane.Path path
+local function path_of_winid(node, win)
+  for _, item in ipairs(all_nodes(node)) do
+    if is_leaf(item.node) and item.node.win == win then
       return item.path
     end
   end
   return {}
 end
 
-local function win_rect(winid)
-  if not vim.api.nvim_win_is_valid(winid) then
-    return nil
-  end
-  local pos = vim.api.nvim_win_get_position(winid)
-  local width = vim.api.nvim_win_get_width(winid)
-  local height = vim.api.nvim_win_get_height(winid)
-  return {
-    row = pos[1],
-    col = pos[2],
-    width = width,
-    height = height,
-  }
-end
+---@class kyoh86.conf.pane.Rect
+---@field row integer
+---@field col integer
+---@field width integer
+---@field height integer
 
+---@param a? kyoh86.conf.pane.Rect
+---@param b? kyoh86.conf.pane.Rect
+---@return kyoh86.conf.pane.Rect|nil
 local function union_rect(a, b)
   if not a then
     return b
@@ -185,18 +141,65 @@ local function union_rect(a, b)
   }
 end
 
+---@return kyoh86.conf.pane.Rect|nil
+local function win_rect(win)
+  if not vim.api.nvim_win_is_valid(win) then
+    return nil
+  end
+  local pos = vim.api.nvim_win_get_position(win)
+  local width = vim.api.nvim_win_get_width(win)
+  local height = vim.api.nvim_win_get_height(win)
+  return {
+    row = pos[1],
+    col = pos[2],
+    width = width,
+    height = height,
+  }
+end
+
+---@param node kyoh86.lib.pane.window.LiveNode
+---@return kyoh86.conf.pane.Rect|nil
 local function node_rect(node)
   local rect = nil
-  for _, winid in ipairs(leaves(node)) do
-    rect = union_rect(rect, win_rect(winid))
+  for _, win in ipairs(leaves(node)) do
+    rect = union_rect(rect, win_rect(win))
   end
   return rect
 end
 
+---@param root kyoh86.lib.pane.window.LiveNode
+---@param path kyoh86.lib.pane.Path
+---@return kyoh86.lib.pane.window.LiveNode
+local function node_at(root, path)
+  local node = root
+  for _, index in ipairs(path) do
+    if node.kind == "pane" then
+      return node
+    end
+    node = index == 1 and node.first or node.second
+  end
+  return node
+end
+
+---@return kyoh86.lib.pane.window.LiveNode
 local function selected_node()
   return node_at(libwindow.get_tree(), state.selected_path)
 end
 
+---@param node kyoh86.lib.pane.window.LiveNode
+---@return string
+local function compact(node)
+  if is_leaf(node) then
+    return tostring(node.win)
+  end
+  local op = node.kind == "row" and "|" or "/"
+  return "(" .. table.concat({
+    compact(node.first),
+    compact(node.second),
+  }, op) .. ")"
+end
+
+---@return string
 local function selected_text()
   local node = selected_node()
   if not node then
@@ -312,27 +315,29 @@ local function draw()
 
     -- Draw ghost frame for split preview
     local ghost_rect = {}
-    if state.preselect == "v" then
-      -- Vertical split: new window on the right
-      local new_width = math.floor(rect.width / 2)
-      ghost_rect = {
-        row = rect.row,
-        col = rect.col + rect.width - new_width,
-        width = new_width,
-        height = rect.height,
-      }
-    else
-      -- Horizontal split: new window below
-      local new_height = math.floor(rect.height / 2)
-      ghost_rect = {
-        row = rect.row + rect.height - new_height,
-        col = rect.col,
-        width = rect.width,
-        height = new_height,
-      }
+    if rect then
+      if state.preselect == "v" then
+        -- Vertical split: new window on the right
+        local new_width = math.floor(rect.width / 2)
+        ghost_rect = {
+          row = rect.row,
+          col = rect.col + rect.width - new_width,
+          width = new_width,
+          height = rect.height,
+        }
+      else
+        -- Horizontal split: new window below
+        local new_height = math.floor(rect.height / 2)
+        ghost_rect = {
+          row = rect.row + rect.height - new_height,
+          col = rect.col,
+          width = rect.width,
+          height = new_height,
+        }
+      end
     end
 
-    if ghost_rect.width > 1 and ghost_rect.height > 1 then
+    if ghost_rect.width and ghost_rect.width > 1 and ghost_rect.height > 1 then
       open_frame(ghost_rect, " NEW WINDOW ", "Normal:LayoutPareditSelection,FloatBorder:LayoutPareditPreselectBorder,FloatTitle:LayoutPareditPreselectTitle")
     end
   end
@@ -361,11 +366,19 @@ end
 
 local function select_child(index)
   local n = selected_node()
-  if n and not is_leaf(n) and children_of(n)[index] then
-    table.insert(state.selected_path, index)
-    local winid = first_leaf(node_at(libwindow.get_tree(), state.selected_path))
-    if vim.api.nvim_win_is_valid(winid) then
-      vim.api.nvim_set_current_win(winid)
+  if n and not is_leaf(n) then
+    local child
+    if index == 1 then
+      child = n.first
+    elseif index == 2 then
+      child = n.second
+    end
+    if child then
+      table.insert(state.selected_path, index)
+      local win = first_win(node_at(libwindow.get_tree(), state.selected_path))
+      if vim.api.nvim_win_is_valid(win) then
+        vim.api.nvim_set_current_win(win)
+      end
     end
   end
   draw()
@@ -374,9 +387,9 @@ end
 local function select_sibling()
   if #state.selected_path > 0 then
     state.selected_path = libpath.sibling(state.selected_path)
-    local winid = first_leaf(selected_node())
-    if vim.api.nvim_win_is_valid(winid) then
-      vim.api.nvim_set_current_win(winid)
+    local win = first_win(selected_node())
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_set_current_win(win)
     end
   end
   draw()
@@ -398,7 +411,7 @@ local function convert_to_libpane(node)
     }
   end
 
-  local axis = axis_of(node)
+  local axis = node.kind
 
   return {
     kind = axis,
@@ -460,7 +473,7 @@ local function flip_selected()
   local layout = libwindow.get_tree()
 
   -- children を swap した「新しいノード」を作る
-  local axis = axis_of(n)
+  local axis = n.kind
   local swapped_node = { kind = axis, first = n.second, second = n.first }
 
   -- 全体のレイアウトの該当位置に新しいノードを埋め込む
@@ -487,7 +500,7 @@ local function rotate_selected()
   -- 全体のレイアウトを取得
   local layout = libwindow.get_tree()
 
-  local axis = axis_of(n)
+  local axis = n.kind
 
   -- axis を反転した新しいノードを作る
   local new_axis = axis == "row" and "col" or "row"
@@ -524,7 +537,7 @@ local function toggle_selected()
   -- 全体のレイアウトを取得
   local layout = libwindow.get_tree()
 
-  local axis = axis_of(n)
+  local axis = n.kind
   -- axis を反転した新しいノードを作る
   local new_axis = axis == "row" and "col" or "row"
   local toggled_node = { kind = new_axis, first = n.first, second = n.second }
@@ -549,13 +562,12 @@ local function grow_child(index)
     return
   end
 
-  local axis = axis_of(n)
-  local childs = children_of(n)
+  local axis = n.kind
   local amount = config.resize_step
 
   -- 各 children の leaves を取得
-  local leaves1 = leaves(childs[1])
-  local leaves2 = leaves(childs[2])
+  local leaves1 = leaves(n.first)
+  local leaves2 = leaves(n.second)
 
   if #leaves1 == 0 or #leaves2 == 0 then
     return
@@ -703,7 +715,7 @@ local function split_selected()
     return
   end
 
-  local target = win_of(node)
+  local target = node.win
   if not vim.api.nvim_win_is_valid(target) then
     return
   end

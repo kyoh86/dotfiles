@@ -6,7 +6,7 @@ local pathlib = require("kyoh86.lib.pane.path")
 
 ---@class kyoh86.lib.pane.window.LiveLeafNode
 ---@field kind "pane"
----@field winid integer
+---@field win integer
 ---@field buffer integer?
 ---@field width integer?
 ---@field height integer?
@@ -90,7 +90,7 @@ local function to_tree(layout)
     local valid = vim.api.nvim_win_is_valid(winid)
     return {
       kind = "pane",
-      winid = winid,
+      win = winid,
       buffer = valid and vim.api.nvim_win_get_buf(winid) or nil,
       width = valid and vim.api.nvim_win_get_width(winid) or nil,
       height = valid and vim.api.nvim_win_get_height(winid) or nil,
