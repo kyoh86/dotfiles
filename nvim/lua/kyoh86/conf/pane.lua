@@ -537,32 +537,23 @@ local function convert_to_pane_layout(node)
   if is_leaf(node) then
     local winid = leaf_winid(node)
     local bufnr = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) or nil
+    local width = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_width(winid) or nil
+    local height = vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_height(winid) or nil
     return {
       kind = "pane",
       buffer = bufnr,
+      width = width,
+      height = height,
     }
   end
 
   local axis = axis_of(node)
   local childs = children(node)
 
-  -- firstノードのサイズを計算
-  local first_rect = node_rect(childs[1])
-  local second_rect = node_rect(childs[2])
-  local size = nil
-  if first_rect and second_rect then
-    if axis == "row" then
-      size = first_rect.width
-    else
-      size = first_rect.height
-    end
-  end
-
   return {
     kind = axis,
     first = convert_to_pane_layout(childs[1]),
     second = convert_to_pane_layout(childs[2]),
-    size = size,
   }
 end
 
@@ -626,14 +617,12 @@ local function replace_node_at_path_pane_layout(layout, path, new_node)
       kind = layout.kind,
       first = replace_node_at_path_pane_layout(layout.first, rest_path, new_node),
       second = layout.second,
-      size = layout.size,
     }
   else
     new_layout = {
       kind = layout.kind,
       first = layout.first,
       second = replace_node_at_path_pane_layout(layout.second, rest_path, new_node),
-      size = layout.size,
     }
   end
 
@@ -722,52 +711,14 @@ local function rotate_selected()
 
   local axis = axis_of(n)
 
-  -- 現在の分割比率を計算して、新しい分割方向に反映
-  local node_rect_n = node_rect(n)
-  if not node_rect_n then
-    draw()
-    return
-  end
-
   -- axis を反転した新しいノードを作る
-  -- 現在の分割サイズを取得
-  local current_first_size
-  local current_total_size
-  local new_axis
-  if axis == "row" then
-    -- row: 幅で分割
-    current_first_size = pane_n.size
-    current_total_size = node_rect_n.width
-    new_axis = "col"
-  else
-    -- col: 高さで分割
-    current_first_size = pane_n.size
-    current_total_size = node_rect_n.height
-    new_axis = "row"
-  end
-
-  -- 新しい分割方向で同じ比率になるようなsizeを計算
-  local new_size = nil
-  if current_first_size and current_total_size then
-    local ratio = current_first_size / current_total_size
-
-    if ratio then
-      if new_axis == "row" then
-        -- row: 幅としてsizeを計算
-        new_size = math.floor(node_rect_n.width * ratio + 0.5)
-      else
-        -- col: 高さとしてsizeを計算
-        new_size = math.floor(node_rect_n.height * ratio + 0.5)
-      end
-    end
-  end
+  local new_axis = axis == "row" and "col" or "row"
 
   -- 新しいノードを作る（pane_layout形式）
   local rotated_node = {
     kind = new_axis,
     first = pane_n.first,
     second = pane_n.second,
-    size = new_size,
   }
 
   -- 全体のレイアウトの該当位置に新しいノードを埋め込む
