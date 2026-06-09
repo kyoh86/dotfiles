@@ -90,7 +90,12 @@ async function handleProxy(req: Request, pathname: string) {
   if (!target) {
     return json({ error: `Unknown Neovim PID: ${pid}` }, 404);
   }
-  const forwardReq = new Request(buildReverseUrl(target), {
+  // Build reverse URL preserving query parameters
+  const url = new URL(req.url);
+  url.hostname = "127.0.0.1";
+  url.port = String(target.reverse_port);
+  url.pathname = target.reverse_path;
+  const forwardReq = new Request(url.toString(), {
     method: req.method,
     headers: forwardHeaders(req.headers),
     body: req.method === "GET" || req.method === "HEAD" ? null : req.body,

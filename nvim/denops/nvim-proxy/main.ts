@@ -79,6 +79,9 @@ async function startLocalServer(denops: Denops, pid: number) {
       if (pathname === "/setreg") {
         return await handleSetregRequest(denops, req);
       }
+      if (pathname === "/getreg") {
+        return await handleGetregRequest(denops, req);
+      }
       return json({ error: "Not found" }, 404);
     },
     onListen: async ({ port }) => {
@@ -133,6 +136,16 @@ async function handleSetregRequest(denops: Denops, req: Request) {
   return json({ ok: true });
 }
 
+async function handleGetregRequest(denops: Denops, req: Request) {
+  const url = new URL(req.url);
+  const register = url.searchParams.get("register");
+  if (!register || !isSafeRegisterName(register)) {
+    return json({ error: "Invalid register" }, 400);
+  }
+  const value = await denops.call("getreg", register) as string;
+  return json({ value });
+}
+
 function readStringField(body: object, key: string) {
   if (!(key in body)) {
     return undefined;
@@ -173,7 +186,7 @@ function isSafeUserEvent(name: string) {
 }
 
 function isSafeRegisterName(name: string) {
-  return /^["*+0-9A-Za-z._:%#/-]$/.test(name);
+  return /^["*+0-9A-Za-z._:%#/@-]$/.test(name);
 }
 
 async function registerLocalRoutesToProxy(
@@ -184,6 +197,7 @@ async function registerLocalRoutesToProxy(
     { proxyPath: "/env", reversePath: "/env" },
     { proxyPath: "/notify", reversePath: "/notify" },
     { proxyPath: "/setreg", reversePath: "/setreg" },
+    { proxyPath: "/getreg", reversePath: "/getreg" },
   ];
   for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
     const results = await Promise.all(
