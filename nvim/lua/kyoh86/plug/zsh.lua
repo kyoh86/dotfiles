@@ -12,7 +12,7 @@ local function reg_source(file)
   else
     p = p .. ":" .. file
   end
-  envar.ZSH_SOURCES = p
+  envar.set_tmux("ZSH_SOURCES", p)
 end
 
 ---FPATH環境変数に、autoloadするディレクトリを追加する
@@ -24,7 +24,7 @@ local function reg_fpath(dir)
   else
     p = p .. ":" .. dir
   end
-  envar.NVIM_ZSH_FPATH = p
+  envar.set_tmux("NVIM_ZSH_FPATH", p)
 end
 
 ---@type LazySpec

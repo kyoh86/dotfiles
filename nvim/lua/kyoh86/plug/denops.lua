@@ -4,7 +4,7 @@ local spec = {
   config = function(plugin)
     local envar = require("kyoh86.lib.envar")
     -- vim.g["denops#debug"] = 1
-    envar.DENOPS_TEST_DENOPS_PATH = plugin.dir
+    envar.set_tmux("DENOPS_TEST_DENOPS_PATH", plugin.dir)
     vim.g["denops#server#deno_args"] = { "-q", "--no-lock", "-A", "--unstable-kv" }
 
     local au = require("kyoh86.lib.autocmd")

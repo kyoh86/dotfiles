@@ -17,6 +17,8 @@ au.group("kyoh86.conf.zsh_result", true):hook("User", {
     local level = vim.log.levels.INFO
     local msg = { "Process" }
     if command ~= nil and command ~= "" then
+      command = command:gsub("-", "+"):gsub("_", "/")
+      command = command .. string.rep("=", (4 - (#command % 4)) % 4)
       command = vim.fn.trim(vim.base64.decode(command))
       if vim.fn.strcharlen(command) > 30 then
         command = vim.fn.strcharpart(command, 0, 30) .. "..."
