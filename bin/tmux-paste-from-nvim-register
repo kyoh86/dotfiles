@@ -26,5 +26,5 @@ fi
 # Extract value from JSON response
 value="$(printf '%s' "$value" | jq -r '.value // empty')"
 if [ -n "$value" ]; then
-  printf '%s' "$value" | tmux paste-buffer
+  printf '%s' "$value" | tmux load-buffer - && tmux paste-buffer
 fi
