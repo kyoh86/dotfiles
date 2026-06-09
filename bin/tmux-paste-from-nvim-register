@@ -11,11 +11,13 @@ if [ -z "${NVIM_PROXY_URL:-}" ] || [ -z "${NVIM_PID:-}" ]; then
   exit 0
 fi
 
-# URL encode the register name
-register_encoded=$(printf '%s' "$register" | jq -sRr @uri)
+# Build JSON payload
+payload="$(jq -nc --arg register "$register" '{register:$register}')"
 if ! value="$(curl -fsSL --connect-timeout 0.5 --max-time 2 \
   -H "X-Nvim-Pid: ${NVIM_PID}" \
-  "${NVIM_PROXY_URL}/getreg?register=${register_encoded}")"; then
+  -H "content-type: application/json" \
+  "${NVIM_PROXY_URL}/getreg" \
+  -d "$payload")"; then
   tmux display-message "failed to get Neovim register ${register}" 2>/dev/null || true
   exit 0
 fi
