@@ -76,6 +76,9 @@ async function startLocalServer(denops: Denops, pid: number) {
       if (pathname === "/notify") {
         return await handleNotifyRequest(denops, req);
       }
+      if (pathname === "/setreg") {
+        return await handleSetregRequest(denops, req);
+      }
       return json({ error: "Not found" }, 404);
     },
     onListen: async ({ port }) => {
@@ -110,6 +113,23 @@ async function handleNotifyRequest(denops: Denops, req: Request) {
     return json({ error: "Invalid event" }, 400);
   }
   await denops.cmd(`doautocmd <nomodeline> User ${event}`);
+  return json({ ok: true });
+}
+
+async function handleSetregRequest(denops: Denops, req: Request) {
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return json({ error: "Invalid body" }, 400);
+  }
+  const register = readStringField(body, "register");
+  const value = readStringField(body, "value");
+  if (!register || !isSafeRegisterName(register)) {
+    return json({ error: "Invalid register" }, 400);
+  }
+  if (value === undefined) {
+    return json({ error: "Invalid value" }, 400);
+  }
+  await denops.call("setreg", register, value, "v");
   return json({ ok: true });
 }
 
@@ -152,6 +172,10 @@ function isSafeUserEvent(name: string) {
   return /^[A-Za-z0-9_:+/=-]+$/.test(name);
 }
 
+function isSafeRegisterName(name: string) {
+  return /^["*+0-9A-Za-z._:%#/-]$/.test(name);
+}
+
 async function registerLocalRoutesToProxy(
   denops: Denops,
   options: { pid: number; port: number },
@@ -159,6 +183,7 @@ async function registerLocalRoutesToProxy(
   const routes = [
     { proxyPath: "/env", reversePath: "/env" },
     { proxyPath: "/notify", reversePath: "/notify" },
+    { proxyPath: "/setreg", reversePath: "/setreg" },
   ];
   for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
     const results = await Promise.all(

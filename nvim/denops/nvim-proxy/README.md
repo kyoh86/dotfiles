@@ -18,6 +18,7 @@ Codex (MCP) ---------------------------------> nvim-proxy (/mcp) --forward--> de
 git pre-commit ------------------------------> nvim-proxy (/dirty-bufs) --> denops/dirty-bufs
 zsh -----------------------------------------> nvim-proxy (/env) --> denops/nvim-proxy
 zsh --------------------------------------> nvim-proxy (/notify) --> denops/nvim-proxy
+tmux copy-mode ----------------------------> nvim-proxy (/setreg) --> denops/nvim-proxy
 ```
 
 ### 関連コンポーネント
@@ -27,6 +28,7 @@ zsh --------------------------------------> nvim-proxy (/notify) --> denops/nvim
   - `NVIM_PROXY_URL` / `NVIM_PID` を環境変数として設定
   - Neovim 内の環境変数を返す `/env` ルートを登録
   - shell から Neovim の `User` autocmd を発火する `/notify` ルートを登録
+  - shell/tmux から Neovim の register へ書き込む `/setreg` ルートを登録
 - `nvim/denops/nvim-proxy/proxy.ts`
   - 固定ポートで待ち受け
   - `path` 単位で登録済みの転送先へプロキシ
@@ -77,6 +79,7 @@ dirty-bufs 側は `/dirty-bufs` を登録する:
 - `POST /dirty-bufs` : dirty-bufs の透過転送
 - `GET/POST /env` : Neovim 内の環境変数を JSON で返す
 - `POST /notify` : Neovim 内の `User` autocmd を発火する
+- `POST /setreg` : Neovim の register へ文字列を書き込む
 
 ## ヘルスチェック
 
