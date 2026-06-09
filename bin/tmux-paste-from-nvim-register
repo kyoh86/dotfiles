@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+register="${1:-}"
+if [ -z "$register" ]; then
+  exit 0
+fi
+
+if [ -z "${NVIM_PROXY_URL:-}" ] || [ -z "${NVIM_PID:-}" ]; then
+  tmux display-message "nvim-proxy is not available" 2>/dev/null || true
+  exit 0
+fi
+
+if ! value="$(curl -fsSL --connect-timeout 0.5 --max-time 2 \
+  -H "X-Nvim-Pid: ${NVIM_PID}" \
+  "${NVIM_PROXY_URL}/getreg?register=${register}")"; then
+  tmux display-message "failed to get Neovim register ${register}" 2>/dev/null || true
+  exit 0
+fi
+
+# Extract value from JSON response
+value="$(printf '%s' "$value" | jq -r '.value // empty')"
+if [ -n "$value" ]; then
+  printf '%s' "$value" | tmux paste-buffer
+fi
