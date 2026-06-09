@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+register="${1:-}"
+if [ -z "$register" ]; then
+  exit 0
+fi
+
+if [ -z "${NVIM_PROXY_URL:-}" ] || [ -z "${NVIM_PID:-}" ]; then
+  tmux display-message "nvim-proxy is not available" 2>/dev/null || true
+  exit 0
+fi
+
+payload="$(jq -Rs --arg register "$register" '{register:$register,value:.}')"
+if ! curl -fsSL --connect-timeout 0.5 --max-time 2 \
+  -H "X-Nvim-Pid: ${NVIM_PID}" \
+  -H "content-type: application/json" \
+  "${NVIM_PROXY_URL}/setreg" \
+  -d "$payload" >/dev/null 2>&1; then
+  tmux display-message "failed to copy selection to Neovim register ${register}" 2>/dev/null || true
+fi
