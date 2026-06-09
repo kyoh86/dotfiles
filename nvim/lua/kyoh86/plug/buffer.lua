@@ -9,14 +9,14 @@ local spec = {
     "kyoh86/bdelete-buffers.nvim",
     keys = {
       {
-        "<leader>q",
+        "<leader>qa",
         function()
           require("bdelete").menu()
         end,
         silent = true,
         desc = "バッファを閉じる",
       },
-      { "<A-q>", keep, silent = true, desc = "Windowを閉じずにバッファを閉じる" },
+      { "<leader>qc", keep, silent = true, desc = "Windowを閉じずにバッファを閉じる" },
     },
   },
 }

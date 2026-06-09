@@ -137,8 +137,11 @@ async function handleSetregRequest(denops: Denops, req: Request) {
 }
 
 async function handleGetregRequest(denops: Denops, req: Request) {
-  const url = new URL(req.url);
-  const register = url.searchParams.get("register");
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return json({ error: "Invalid body" }, 400);
+  }
+  const register = readStringField(body, "register");
   if (!register || !isSafeRegisterName(register)) {
     return json({ error: "Invalid register" }, 400);
   }
