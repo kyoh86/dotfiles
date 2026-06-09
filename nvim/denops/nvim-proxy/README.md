@@ -17,6 +17,7 @@ Neovim (denops/mcp) ---------------register--> nvim-proxy (37125)
 Codex (MCP) ---------------------------------> nvim-proxy (/mcp) --forward--> denops/mcp
 git pre-commit ------------------------------> nvim-proxy (/dirty-bufs) --> denops/dirty-bufs
 zsh -----------------------------------------> nvim-proxy (/env) --> denops/nvim-proxy
+zsh --------------------------------------> nvim-proxy (/notify) --> denops/nvim-proxy
 ```
 
 ### 関連コンポーネント
@@ -25,6 +26,7 @@ zsh -----------------------------------------> nvim-proxy (/env) --> denops/nvim
   - 起動確認とサービス起動 (任意)
   - `NVIM_PROXY_URL` / `NVIM_PID` を環境変数として設定
   - Neovim 内の環境変数を返す `/env` ルートを登録
+  - shell から Neovim の `User` autocmd を発火する `/notify` ルートを登録
 - `nvim/denops/nvim-proxy/proxy.ts`
   - 固定ポートで待ち受け
   - `path` 単位で登録済みの転送先へプロキシ
@@ -74,6 +76,7 @@ dirty-bufs 側は `/dirty-bufs` を登録する:
 - `* /mcp` : MCP の透過転送
 - `POST /dirty-bufs` : dirty-bufs の透過転送
 - `GET/POST /env` : Neovim 内の環境変数を JSON で返す
+- `POST /notify` : Neovim 内の `User` autocmd を発火する
 
 ## ヘルスチェック
 
@@ -99,7 +102,8 @@ Codex 側は `NVIM_PID` を `X-Nvim-Pid` ヘッダとして送信する。
 zsh 側は `NVIM_PROXY_URL` / `NVIM_PID` を使い、必要な環境変数を `/env` から
 取得して現在のシェルへ export する。例えば `vim-guise` が denops 内で
 `GUISE_PROXY_ADDRESS` を後から設定した場合でも、tmux のグローバル環境へ
-流さずに取り込める。
+流さずに取り込める。`REACT_EDITOR` は GUISE 由来の `EDITOR` から zsh 側で
+導出する。
 
 ## ルーティング規則
 

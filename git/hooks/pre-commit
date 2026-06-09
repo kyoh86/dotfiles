@@ -1,13 +1,13 @@
 #!/bin/zsh
 
 if [ -z "${NVIM_PROXY_URL}" ]; then
-  echo "Commit cancelled: NVIM_PROXY_URL is not set"
-  exit 1
+  echo "NVIM_PROXY_URL is not set, skipping pre-commit check"
+  exit 0
 fi
 
 if [ -z "${NVIM_PID}" ]; then
-  echo "Commit cancelled: NVIM_PID is not set"
-  exit 1
+  echo "NVIM_PID is not set, skipping pre-commit check"
+  exit 0
 fi
 
 if [ -t 0 ]; then

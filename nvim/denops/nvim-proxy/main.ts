@@ -47,7 +47,7 @@ export async function main(denops: Denops): Promise<void> {
     ]);
   }
 
-  await startEnvServer(denops, pid);
+  await startLocalServer(denops, pid);
 }
 
 async function setTmuxEnv(key: string, value: string) {
@@ -61,7 +61,7 @@ async function setTmuxEnv(key: string, value: string) {
   }
 }
 
-async function startEnvServer(denops: Denops, pid: number) {
+async function startLocalServer(denops: Denops, pid: number) {
   const { finished } = Deno.serve({
     hostname: "127.0.0.1",
     port: 0,
@@ -73,10 +73,13 @@ async function startEnvServer(denops: Denops, pid: number) {
       if (pathname === "/env") {
         return await handleEnvRequest(denops, req);
       }
+      if (pathname === "/notify") {
+        return await handleNotifyRequest(denops, req);
+      }
       return json({ error: "Not found" }, 404);
     },
     onListen: async ({ port }) => {
-      await registerEnvToProxy(denops, { pid, port });
+      await registerLocalRoutesToProxy(denops, { pid, port });
     },
   });
   await finished;
@@ -95,6 +98,27 @@ async function handleEnvRequest(denops: Denops, req: Request) {
     }
   }
   return json({ env });
+}
+
+async function handleNotifyRequest(denops: Denops, req: Request) {
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return json({ error: "Invalid body" }, 400);
+  }
+  const event = readStringField(body, "event");
+  if (!event || !isSafeUserEvent(event)) {
+    return json({ error: "Invalid event" }, 400);
+  }
+  await denops.cmd(`doautocmd <nomodeline> User ${event}`);
+  return json({ ok: true });
+}
+
+function readStringField(body: object, key: string) {
+  if (!(key in body)) {
+    return undefined;
+  }
+  const value = (body as Record<string, unknown>)[key];
+  return typeof value === "string" ? value : undefined;
 }
 
 async function readEnvNames(req: Request) {
@@ -124,12 +148,28 @@ function isSafeEnvName(name: string) {
   return /^[A-Za-z_][A-Za-z0-9_]*$/.test(name);
 }
 
-async function registerEnvToProxy(
+function isSafeUserEvent(name: string) {
+  return /^[A-Za-z0-9_:+/=-]+$/.test(name);
+}
+
+async function registerLocalRoutesToProxy(
   denops: Denops,
   options: { pid: number; port: number },
 ) {
+  const routes = [
+    { proxyPath: "/env", reversePath: "/env" },
+    { proxyPath: "/notify", reversePath: "/notify" },
+  ];
   for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
-    const ok = await registerEnvOnce(denops, options);
+    const results = await Promise.all(
+      routes.map((route) =>
+        registerLocalRouteOnce(denops, {
+          ...options,
+          ...route,
+        })
+      ),
+    );
+    const ok = results.every((result) => result);
     if (ok) {
       return;
     }
@@ -137,12 +177,17 @@ async function registerEnvToProxy(
       await delay(REGISTER_BACKOFF_BASE_MS * 2 ** attempt);
     }
   }
-  console.error("Failed to register env server to nvim-proxy.");
+  console.error("Failed to register local server to nvim-proxy.");
 }
 
-async function registerEnvOnce(
+async function registerLocalRouteOnce(
   denops: Denops,
-  options: { pid: number; port: number },
+  options: {
+    pid: number;
+    port: number;
+    proxyPath: string;
+    reversePath: string;
+  },
 ) {
   const proxyUrl = await vars.e.get(denops, "NVIM_PROXY_URL", "");
   if (!proxyUrl) {
@@ -151,8 +196,8 @@ async function registerEnvOnce(
   const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
   const payload = {
     pid: options.pid,
-    proxy_path: "/env",
-    reverse_path: "/env",
+    proxy_path: options.proxyPath,
+    reverse_path: options.reversePath,
     reverse_port: options.port,
   };
   try {

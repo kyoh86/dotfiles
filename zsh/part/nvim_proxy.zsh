@@ -52,6 +52,9 @@ function _nvim_proxy_sync_guise_env {
 
     _nvim_proxy_import_env GUISE_PROXY_ADDRESS EDITOR || return 0
     if [ -n "$GUISE_PROXY_ADDRESS" ]; then
+        if [ -n "$EDITOR" ]; then
+            export REACT_EDITOR="$EDITOR"
+        fi
         _NVIM_PROXY_IMPORTED_GUISE_PID="$NVIM_PID"
     fi
 }

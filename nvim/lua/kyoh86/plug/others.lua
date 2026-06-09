@@ -50,7 +50,7 @@ local spec = {
     config = function()
       local envar = require("kyoh86.lib.envar")
       local path = kyoh86.lazydir("vim-themis") -- lazydir is defined in preload.lua
-      envar.PATH = envar.PATH .. ":" .. path .. "/bin"
+      envar.set_tmux("PATH", envar.PATH .. ":" .. path .. "/bin")
     end,
   },
 }
