@@ -29,10 +29,9 @@ export async function main(denops: Denops): Promise<void> {
   registerHelpTool(server, denops);
 
   const transport = new WebStandardStreamableHTTPServerTransport({
-    sessionIdGenerator: undefined,
+    sessionIdGenerator: () => crypto.randomUUID(),
     enableJsonResponse: true,
   });
-
   await server.connect(transport);
 
   const handler = async (req: Request) => {
