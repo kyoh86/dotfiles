@@ -1,7 +1,8 @@
 #!/bin/sh
 set -eu
 
-register="${1:-}"
+# Default to quote register if no argument provided
+register="${1:-\"}"
 if [ -z "$register" ]; then
   exit 0
 fi
