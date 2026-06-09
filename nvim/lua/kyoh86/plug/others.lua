@@ -10,6 +10,18 @@ local spec = {
     init = function()
       vim.g["guise#disable_vim"] = true
       vim.g["guise#disable_editor"] = false
+      vim.g.guise_edit_opener = "GuiseEdit"
+    end,
+    config = function()
+      vim.api.nvim_create_user_command("GuiseEdit", function(opts)
+        if vim.env.TMUX_PANE then
+          vim.system({ "tmux", "select-pane", "-t", vim.env.TMUX_PANE }):wait()
+        end
+        vim.cmd("noswapfile tab drop " .. vim.fn.fnameescape(opts.args))
+      end, {
+        complete = "file",
+        nargs = 1,
+      })
     end,
   },
   {
