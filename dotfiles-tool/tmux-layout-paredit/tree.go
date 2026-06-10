@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -37,54 +38,40 @@ func swapChildrenAndSetAxis(root Node, path []int, axis Axis) Node {
 	})
 }
 
-// modifyNodeAtPath creates a copy of the tree and applies a modifier function to the split node at the given path
 func modifyNodeAtPath(root Node, path []int, modifier func(*Split)) Node {
 	if len(path) == 0 {
-		// Modify root node directly
 		if root.IsLeaf() {
 			return root
 		}
 		split := root.AsSplit()
-		// Create a new split with modified values
 		newSplit := NewSplit(split.Axis, split.Rect, copyNodes(split.Children))
 		modifier(newSplit.AsSplit())
 		return newSplit
 	}
 
 	newRoot := copyNode(root)
-
-	// Navigate to the target node
 	current := newRoot
 	for idx, i := range path {
 		if current.IsLeaf() {
 			return newRoot
 		}
 		split := current.AsSplit()
-
 		if i >= len(split.Children) {
 			return newRoot
 		}
-
 		if idx == len(path)-1 {
-			// This is the last element - we're at the target
 			child := split.Children[i]
 			if child.IsLeaf() {
 				return newRoot
 			}
 			childSplit := child.AsSplit()
-			// Create a new split with modified values
 			newChild := NewSplit(childSplit.Axis, childSplit.Rect, copyNodes(childSplit.Children))
-			// Apply the modifier to the new child
 			modifier(newChild.AsSplit())
-			// Replace the child in the parent's children array
 			split.Children[i] = newChild
 			return newRoot
 		}
-
-		// Move to the next child
 		current = split.Children[i]
 	}
-
 	return newRoot
 }
 
@@ -96,154 +83,91 @@ func copyNodes(nodes []Node) []Node {
 	return result
 }
 
-func recalculateRects(node Node, parentRect *Rect) Node {
+// setNodePositionRecursive sets positions for all nodes in a tree
+func setNodePositionRecursive(node Node, x, y int) Node {
 	if node.IsLeaf() {
 		leaf := node.AsLeaf()
-		if parentRect != nil {
-			return NewLeaf(leaf.Pane, Rect{X: parentRect.X, Y: parentRect.Y, W: leaf.Rect.W, H: leaf.Rect.H})
-		}
-		return node
+		return NewLeaf(leaf.Pane, Rect{X: x, Y: y, W: leaf.Rect.W, H: leaf.Rect.H})
 	}
-
 	split := node.AsSplit()
-	rect := split.Rect
-	if parentRect != nil {
-		rect.X = parentRect.X
-		rect.Y = parentRect.Y
-		rect.W = parentRect.W
-		rect.H = parentRect.H
-	}
+	newRect := Rect{X: x, Y: y, W: split.Rect.W, H: split.Rect.H}
 
 	var updatedChildren []Node
 	if split.Axis == AxisRow {
-		leftRect := Rect{W: getRect(split.Children[0]).W, H: rect.H, X: rect.X, Y: rect.Y}
-		updatedChildren = append(updatedChildren, recalculateRects(split.Children[0], &leftRect))
-		rightRect := Rect{W: getRect(split.Children[1]).W, H: rect.H, X: rect.X + getRect(split.Children[0]).W + 1, Y: rect.Y}
-		updatedChildren = append(updatedChildren, recalculateRects(split.Children[1], &rightRect))
-		rect.W = getRect(split.Children[0]).W + 1 + getRect(split.Children[1]).W
+		childX := x
+		for _, child := range split.Children {
+			newChild := setNodePositionRecursive(child, childX, y)
+			updatedChildren = append(updatedChildren, newChild)
+			childX += getRect(newChild).W + 1
+		}
 	} else {
-		leftRect := Rect{W: rect.W, H: getRect(split.Children[0]).H, X: rect.X, Y: rect.Y}
-		updatedChildren = append(updatedChildren, recalculateRects(split.Children[0], &leftRect))
-		rightRect := Rect{W: rect.W, H: getRect(split.Children[1]).H, X: rect.X, Y: rect.Y + getRect(split.Children[0]).H + 1}
-		updatedChildren = append(updatedChildren, recalculateRects(split.Children[1], &rightRect))
-		rect.H = getRect(split.Children[0]).H + 1 + getRect(split.Children[1]).H
+		childY := y
+		for _, child := range split.Children {
+			newChild := setNodePositionRecursive(child, x, childY)
+			updatedChildren = append(updatedChildren, newChild)
+			childY += getRect(newChild).H + 1
+		}
 	}
 
-	return NewSplit(split.Axis, rect, updatedChildren)
+	return NewSplit(split.Axis, newRect, updatedChildren)
 }
 
-// totalSize calculates the total size of a subtree along the given axis
-func totalSize(node Node, axis Axis) int {
+// normalizeSizes normalizes the sizes of children in a split node
+// For row splits, all children get the same height, width is distributed proportionally
+// For col splits, all children get the same width, height is distributed proportionally
+func normalizeSizes(node Node, width, height int) Node {
 	if node.IsLeaf() {
 		leaf := node.AsLeaf()
-		if axis == AxisRow {
-			return leaf.Rect.W
-		}
-		return leaf.Rect.H
+		return NewLeaf(leaf.Pane, Rect{X: leaf.Rect.X, Y: leaf.Rect.Y, W: width, H: height})
 	}
 
 	split := node.AsSplit()
-	var total int
-	for _, child := range split.Children {
-		total += totalSize(child, axis)
-	}
-	return total
-}
-
-// resizeTotal resizes a subtree to a new total size along the given axis
-// It preserves the relative proportions of leaf nodes
-func resizeTotal(node Node, axis Axis, newTotal int) Node {
-	if node.IsLeaf() {
-		leaf := node.AsLeaf()
-		if axis == AxisRow {
-			return NewLeaf(leaf.Pane, Rect{X: leaf.Rect.X, Y: leaf.Rect.Y, W: newTotal, H: leaf.Rect.H})
-		}
-		return NewLeaf(leaf.Pane, Rect{X: leaf.Rect.X, Y: leaf.Rect.Y, W: leaf.Rect.W, H: newTotal})
-	}
-
-	split := node.AsSplit()
-	currentTotal := totalSize(node, axis)
-	if currentTotal == 0 {
-		return node
-	}
-
-	// Calculate new sizes for children proportionally
+	numChildren := len(split.Children)
 	var updatedChildren []Node
-	for _, child := range split.Children {
-		childSize := totalSize(child, axis)
-		newChildSize := int(float64(childSize) * float64(newTotal) / float64(currentTotal))
-		if newChildSize < 1 {
-			newChildSize = 1
+
+	if split.Axis == AxisRow {
+		// For row splits: distribute width among children (they share height uniformly)
+		// Total width = sum(child widths) + (numChildren - 1) separators
+		// So sum(child widths) = width - (numChildren - 1)
+		availableWidth := width - (numChildren - 1)
+		if availableWidth < numChildren {
+			availableWidth = numChildren // Ensure at least 1 width per child
 		}
-		updatedChildren = append(updatedChildren, resizeTotal(child, axis, newChildSize))
-	}
 
-	// Ensure the total matches exactly by adjusting the last child
-	actualTotal := 0
-	for _, child := range updatedChildren {
-		actualTotal += totalSize(child, axis)
-	}
-	if len(updatedChildren) > 0 && actualTotal != newTotal {
-		lastIdx := len(updatedChildren) - 1
-		lastChild := updatedChildren[lastIdx]
-		adjustedSize := totalSize(lastChild, axis) + (newTotal - actualTotal)
-		updatedChildren[lastIdx] = resizeTotal(lastChild, axis, adjustedSize)
-	}
+		// Distribute equally, then handle remainder
+		baseWidth := availableWidth / numChildren
+		remainder := availableWidth % numChildren
 
-	return NewSplit(split.Axis, split.Rect, updatedChildren)
-}
-
-// resizeChildAt resizes a child of a split node at the given path
-func resizeChildAt(root Node, path []int, child int, amount int) Node {
-	if len(path) == 0 {
-		return root
-	}
-
-	parent := nodeAt(root, path)
-	if parent.IsLeaf() {
-		return root
-	}
-
-	split := parent.AsSplit()
-	axis := split.Axis
-
-	// Get current sizes
-	size0 := totalSize(split.Children[0], axis)
-	size1 := totalSize(split.Children[1], axis)
-
-	if size0 == 0 || size1 == 0 {
-		return root
-	}
-
-	var newSize0, newSize1 int
-	if child == 0 {
-		newSize0 = size0 + amount
-		newSize1 = size1 - amount
-		if newSize1 < 1 {
-			newSize1 = 1
-			newSize0 = size0 + size1 - 1
+		for i, child := range split.Children {
+			allocatedWidth := baseWidth
+			if i < remainder {
+				allocatedWidth++
+			}
+			updatedChildren = append(updatedChildren, normalizeSizes(child, allocatedWidth, height))
 		}
 	} else {
-		newSize0 = size0 - amount
-		newSize1 = size1 + amount
-		if newSize0 < 1 {
-			newSize0 = 1
-			newSize1 = size0 + size1 - 1
+		// For col splits: distribute height among children (they share width uniformly)
+		// Total height = sum(child heights) + (numChildren - 1) separators
+		// So sum(child heights) = height - (numChildren - 1)
+		availableHeight := height - (numChildren - 1)
+		if availableHeight < numChildren {
+			availableHeight = numChildren // Ensure at least 1 height per child
+		}
+
+		// Distribute equally, then handle remainder
+		baseHeight := availableHeight / numChildren
+		remainder := availableHeight % numChildren
+
+		for i, child := range split.Children {
+			allocatedHeight := baseHeight
+			if i < remainder {
+				allocatedHeight++
+			}
+			updatedChildren = append(updatedChildren, normalizeSizes(child, width, allocatedHeight))
 		}
 	}
 
-	// Resize children
-	newChild0 := resizeTotal(split.Children[0], axis, newSize0)
-	newChild1 := resizeTotal(split.Children[1], axis, newSize1)
-
-	// Create new parent node with resized children
-	newParent := NewSplit(split.Axis, split.Rect, []Node{newChild0, newChild1})
-
-	// Replace the parent in the tree
-	return modifyNodeAtPath(root, path, func(s *Split) {
-		s.Children[0] = newParent.AsSplit().Children[0]
-		s.Children[1] = newParent.AsSplit().Children[1]
-	})
+	return NewSplit(split.Axis, Rect{X: split.Rect.X, Y: split.Rect.Y, W: width, H: height}, updatedChildren)
 }
 
 func leafPanes(leaves []*Leaf) string {
@@ -356,7 +280,6 @@ func toggleAxis(root Node, state *State) error {
 	split := n.AsSplit()
 	oldAxis := split.Axis
 
-	// Toggle axis
 	var newAxis Axis
 	if oldAxis == AxisRow {
 		newAxis = AxisCol
@@ -366,10 +289,8 @@ func toggleAxis(root Node, state *State) error {
 
 	log("toggle: axis " + string(oldAxis) + " -> " + string(newAxis))
 
-	// Create new tree with toggled axis
 	newRoot := setAxisAt(root, state.SelectedPath, newAxis)
 
-	// Apply layout with new axis
 	if err := applyLayout(newRoot, nil); err != nil {
 		return err
 	}
@@ -384,10 +305,11 @@ func rotateSelected(root Node, state *State) error {
 		return nil
 	}
 
+	log("rotate: selected path = " + fmt.Sprint(state.SelectedPath) + ", node = " + compact(n))
+
 	split := n.AsSplit()
 	oldAxis := split.Axis
 
-	// Rotate: flip axis and swap children
 	var newAxis Axis
 	if oldAxis == AxisRow {
 		newAxis = AxisCol
@@ -397,10 +319,9 @@ func rotateSelected(root Node, state *State) error {
 
 	log("rotate: axis " + string(oldAxis) + " -> " + string(newAxis))
 
-	// Create new tree with rotated axis and swapped children
 	newRoot := swapChildrenAndSetAxis(root, state.SelectedPath, newAxis)
+	log("rotate: after swap, root = " + compact(newRoot))
 
-	// Apply layout
 	if err := applyLayout(newRoot, nil); err != nil {
 		return err
 	}
