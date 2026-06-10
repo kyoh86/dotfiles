@@ -79,6 +79,7 @@
   "nvim-lspconfig": { "branch": "master", "commit": "ed19590a3a9792901553c388d1aadafce012f80d" },
   "nvim-notify": { "branch": "master", "commit": "8701bece920b38ea289b457f902e2ad184131a5d" },
   "nvim-web-devicons": { "branch": "master", "commit": "dfbfaa967a6f7ec50789bead7ef87e336c1fa63c" },
+  "panedit.nvim": { "branch": "main", "commit": "6a044108d368c495a3dc9c4df9a26a16e1423b90" },
   "plenary.nvim": { "branch": "master", "commit": "74b06c6c75e4eeb3108ec01852001636d85a932b" },
   "previm": { "branch": "master", "commit": "001676c8b516a3370168db95e1f03f89df16e8cf" },
   "qlean.nvim": { "branch": "main", "commit": "42e7450506d4861387635dff6f7576fd62ba7466" },
