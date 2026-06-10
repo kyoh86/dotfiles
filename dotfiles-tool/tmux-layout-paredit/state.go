@@ -76,7 +76,12 @@ func log(msg string) error {
 	if base == "" {
 		base = "/tmp"
 	}
-	path := filepath.Join(base, "tmux-layout-paredit-_0:_0.log")
+	path, err := statePath()
+	if err != nil {
+		return err
+	}
+	// Replace .json with .log
+	path = strings.TrimSuffix(path, ".json") + ".log"
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
