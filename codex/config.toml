@@ -485,3 +485,6 @@ enabled = true
 
 [projects."github.com/kyoh86/previm"]
 trust_level = "trusted"
+
+[projects."github.com/kyoh86/panedit.nvim"]
+trust_level = "trusted"
