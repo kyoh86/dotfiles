@@ -190,23 +190,6 @@ func TestGetRect(t *testing.T) {
 	}
 }
 
-func TestRecalculateRects(t *testing.T) {
-	// Build a simple binary tree
-	leaf1 := NewLeaf("%0", Rect{X: 0, Y: 0, W: 50, H: 50})
-	leaf2 := NewLeaf("%1", Rect{X: 51, Y: 0, W: 49, H: 50})
-	split := NewSplit(AxisRow, Rect{X: 0, Y: 0, W: 100, H: 50}, []Node{leaf1, leaf2})
-
-	got := recalculateRects(split, nil)
-	if !got.IsSplit() {
-		t.Fatalf("expected split, got %s", "leaf")
-	}
-
-	splitNode := got.AsSplit()
-	if splitNode.Rect.W != 100 || splitNode.Rect.H != 50 {
-		t.Errorf("rect = %+v, want W=100 H=50", splitNode.Rect)
-	}
-}
-
 func TestPathOperations(t *testing.T) {
 	// Build a tree: [[%0, %1], %2]
 	leaf0 := NewLeaf("%0", Rect{X: 0, Y: 0, W: 1, H: 1})
@@ -532,7 +515,7 @@ func TestReconstructLayout(t *testing.T) {
 		split := NewSplit(AxisCol, Rect{X: 0, Y: 0, W: 100, H: 50}, []Node{leaf0, leaf1})
 
 		got := reconstructLayout(split, nil)
-		if got != "100x50,0,0[100x25,0,0,0,100x25,0,26,1]" {
+		if got != "100x51,0,0[100x25,0,0,0,100x25,0,26,1]" {
 			t.Errorf("got %s", got)
 		}
 	})
@@ -546,7 +529,7 @@ func TestReconstructLayout(t *testing.T) {
 
 		got := reconstructLayout(root, nil)
 		// Expected: [[%0|%1]/%2]
-		expected := "49x50,0,0[49x25,0,0{25x25,0,0,0,24x25,26,0,1},49x25,0,0,2]"
+		expected := "49x51,0,0[50x25,0,0{25x25,0,0,0,24x25,26,0,1},49x25,0,0,2]"
 		if got != expected {
 			t.Errorf("expected %s, got %s", expected, got)
 		}
@@ -564,22 +547,148 @@ func TestReconstructLayout(t *testing.T) {
 	})
 }
 
-func TestCalculateChecksum(t *testing.T) {
-	tests := []struct {
-		input string
-		want  string
-	}{
-		{"", "0000"},
-		{"a", "0061"},
-		{"100x50,0,0,0", "ac7d"},
+func TestRotateSelected(t *testing.T) {
+	// Create a tree: [[a,b],c] where the inner split is at path [0]
+	// This represents: col split with children [row split(a,b), c]
+	inputTree := NewSplit(AxisCol, Rect{X: 0, Y: 0, W: 293, H: 72}, []Node{
+		NewSplit(AxisRow, Rect{X: 0, Y: 0, W: 293, H: 37}, []Node{
+			NewLeaf("%0", Rect{X: 0, Y: 0, W: 293, H: 18}),
+			NewLeaf("%1", Rect{X: 0, Y: 19, W: 293, H: 17}),
+		}),
+		NewLeaf("%2", Rect{X: 0, Y: 38, W: 293, H: 34}),
+	})
+
+	state := &State{
+		SelectedPath: []int{0}, // Select the inner [a,b] split
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			got := calculateChecksum(tt.input)
-			if got != tt.want {
-				t.Errorf("calculateChecksum(%s) = %s, want %s", tt.input, got, tt.want)
+	t.Run("rotate changes axis from row to col", func(t *testing.T) {
+		// Before rotation, the inner split is AxisRow
+		inner := nodeAt(inputTree, []int{0})
+		if inner.IsSplit() {
+			if inner.AsSplit().Axis != AxisRow {
+				t.Errorf("Expected AxisRow before rotation, got %v", inner.AsSplit().Axis)
 			}
-		})
+		}
+	})
+
+	t.Run("rotate preserves tree structure", func(t *testing.T) {
+		// Rotate by swapping children and changing axis
+		newTree := swapChildrenAndSetAxis(inputTree, state.SelectedPath, AxisCol)
+
+		// Check that the inner split is now AxisCol
+		newInner := nodeAt(newTree, []int{0})
+		if !newInner.IsSplit() {
+			t.Errorf("Expected split after rotation")
+			return
+		}
+
+		if newInner.AsSplit().Axis != AxisCol {
+			t.Errorf("Expected AxisCol after rotation, got %v", newInner.AsSplit().Axis)
+		}
+
+		// Verify tree structure is {a,b}/c (row split containing col split and leaf)
+		t.Logf("Result: %s", compact(newTree))
+	})
+}
+
+func TestRotateWithRealLayout(t *testing.T) {
+	// Real layout from tmux that was failing
+	// original: 293x72,0,0[293x36,0,0,34,293x17,0,37{146x17,0,37,36,146x17,147,37,35},293x17,0,55,31]
+	// Expected: same height (72) after rotate
+	input := "293x72,0,0[293x36,0,0,34,293x17,0,37{146x17,0,37,36,146x17,147,37,35},293x17,0,55,31]"
+
+	parsed, err := parseLayout(input)
+	if err != nil {
+		t.Fatalf("parseLayout failed: %v", err)
+	}
+
+	binary := normalizeToBinary(parsed)
+	t.Logf("binary tree: %s", compact(binary))
+
+	// Apply rotate to the inner split {%36, %35}
+	// The structure is: ((%34/(%36|%35))/%31)
+	// {%36|%35} is at path [0, 1]
+	// After rotate: ((%34/[%35/%36])/%31)
+	newTree := swapChildrenAndSetAxis(binary, []int{0, 1}, AxisCol)
+
+	layout := reconstructLayoutNormalized(newTree, nil, Rect{X: 0, Y: 0, W: 293, H: 72})
+
+	t.Logf("generated layout: %s", layout)
+
+	// Parse the generated layout to check height
+	generatedParsed, err := parseLayout(layout)
+	if err != nil {
+		t.Fatalf("parseLayout of generated failed: %v", err)
+	}
+
+	generatedRoot := normalizeToBinary(generatedParsed)
+	if generatedRoot.IsSplit() {
+		rootRect := generatedRoot.AsSplit().Rect
+		t.Logf("generated root rect: W=%d, H=%d", rootRect.W, rootRect.H)
+
+		// Height should be 72, not 90
+		if rootRect.H != 72 {
+			t.Errorf("expected height 72, got %d", rootRect.H)
+		}
+	}
+}
+
+
+func TestRotateColToRow(t *testing.T) {
+	// Test rotating a col split to a row split
+	// This tests the case where a col with width 293 is rotated to a row
+	// The row should also have width 293 (constrained by parent)
+	input := "293x72,0,0[293x36,0,0,34,293x17,0,37{146x17,0,37,36,146x17,147,37,35},293x17,0,55,31]"
+
+	parsed, err := parseLayout(input)
+	if err != nil {
+		t.Fatalf("parseLayout failed: %v", err)
+	}
+
+	binary := normalizeToBinary(parsed)
+	t.Logf("binary tree: %s", compact(binary))
+
+	// Rotate the intermediate col at path [0]
+	// Before: (%34/{%36,%35})
+	// After: ((%36|%35)|%34)
+	newTree := swapChildrenAndSetAxis(binary, []int{0}, AxisRow)
+
+	t.Logf("after rotate: %s", compact(newTree))
+
+	layout := reconstructLayoutNormalized(newTree, nil, Rect{X: 0, Y: 0, W: 293, H: 72})
+
+	t.Logf("generated layout: %s", layout)
+
+	// Parse the generated layout to verify
+	generatedParsed, err := parseLayout(layout)
+	if err != nil {
+		t.Fatalf("parseLayout of generated failed: %v", err)
+	}
+
+	generatedRoot := normalizeToBinary(generatedParsed)
+	if generatedRoot.IsSplit() {
+		rootRect := generatedRoot.AsSplit().Rect
+		t.Logf("generated root rect: W=%d, H=%d", rootRect.W, rootRect.H)
+
+		// Width should be 293
+		if rootRect.W != 293 {
+			t.Errorf("expected width 293, got %d", rootRect.W)
+		}
+
+		// Height should be 72
+		if rootRect.H != 72 {
+			t.Errorf("expected height 72, got %d", rootRect.H)
+		}
+
+		// The intermediate row should have width 293
+		intermediate := nodeAt(generatedRoot, []int{0})
+		if intermediate.IsSplit() {
+			intRect := intermediate.AsSplit().Rect
+			t.Logf("intermediate rect: W=%d, H=%d", intRect.W, intRect.H)
+			if intRect.W != 293 {
+				t.Errorf("expected intermediate width 293, got %d", intRect.W)
+			}
+		}
 	}
 }

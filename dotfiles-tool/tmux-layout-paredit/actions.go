@@ -81,47 +81,31 @@ func (a Actions) GrowChild(child int) error {
 	split := n.AsSplit()
 	axis := split.Axis
 
-	// Get current sizes
-	size0 := totalSize(split.Children[0], axis)
-	size1 := totalSize(split.Children[1], axis)
+	// Get the target pane for the child to resize
+	targetChild := split.Children[child]
+	targetPane := firstLeaf(targetChild).Pane
 
-	if size0 == 0 || size1 == 0 {
-		return nil
-	}
-
-	var newSize0, newSize1 int
-	if child == 0 {
-		newSize0 = size0 + Step
-		newSize1 = size1 - Step
-		if newSize1 < 1 {
-			newSize1 = 1
-			newSize0 = size0 + size1 - 1
+	// Determine tmux resize flag based on axis
+	// For row splits (horizontal), we resize left/right
+	// For col splits (vertical), we resize up/down
+	var direction string
+	if axis == AxisRow {
+		if child == 0 {
+			direction = "-L" // Grow left (which is child 0)
+		} else {
+			direction = "-R" // Grow right (which is child 1)
 		}
 	} else {
-		newSize0 = size0 - Step
-		newSize1 = size1 + Step
-		if newSize0 < 1 {
-			newSize0 = 1
-			newSize1 = size0 + size1 - 1
+		if child == 0 {
+			direction = "-U" // Grow up (which is child 0)
+		} else {
+			direction = "-D" // Grow down (which is child 1)
 		}
 	}
 
-	// Resize children
-	newChild0 := resizeTotal(split.Children[0], axis, newSize0)
-	newChild1 := resizeTotal(split.Children[1], axis, newSize1)
-
-	// Create new parent node with resized children
-	newParent := NewSplit(split.Axis, split.Rect, []Node{newChild0, newChild1})
-
-	// Replace the parent in the tree
-	newRoot := modifyNodeAtPath(a.root, a.state.SelectedPath, func(s *Split) {
-		s.Children[0] = newParent.AsSplit().Children[0]
-		s.Children[1] = newParent.AsSplit().Children[1]
-	})
-
-	// Apply the new layout
-	if err := applyLayout(newRoot, nil); err != nil {
-		log("grow" + strconv.Itoa(child) + " failed: " + err.Error())
+	// Use tmux's native resize command
+	if _, err := tmux("resize-pane", "-t", targetPane, direction, strconv.Itoa(Step)); err != nil {
+		log("grow"+strconv.Itoa(child)+" failed: "+err.Error())
 		return err
 	}
 

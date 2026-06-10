@@ -112,7 +112,6 @@ func parseLayout(input string) (Node, error) {
 		return NewLeaf(*paneID, rect), nil
 	}
 
-	// tmux layout starts with a window checksum prefix
 	firstComma := strings.Index(input, ",")
 	if firstComma >= 0 && isHex(input[:firstComma]) {
 		i = firstComma + 1
@@ -142,7 +141,6 @@ func normalizeToBinary(node Node) Node {
 		return NewSplit(split.Axis, split.Rect, normalizedChildren)
 	}
 
-	// Left-associative folding: [A, B, C, D] -> [[[A, B], C], D]
 	result := normalizedChildren[0]
 	for i := 1; i < len(normalizedChildren); i++ {
 		leftChild := result
@@ -151,18 +149,26 @@ func normalizeToBinary(node Node) Node {
 		var intermediateRect Rect
 		if split.Axis == AxisRow {
 			intermediateRect = Rect{
-				X: getRect(leftChild).X,
-				Y: getRect(leftChild).Y,
-				W: getRect(leftChild).W + 1 + getRect(rightChild).W,
-				H: max(getRect(leftChild).H, getRect(rightChild).H),
+				X:      getRect(leftChild).X,
+				Y:      getRect(leftChild).Y,
+				W:      getRect(leftChild).W + 1 + getRect(rightChild).W,
+				H:      max(getRect(leftChild).H, getRect(rightChild).H),
 			}
 		} else {
 			intermediateRect = Rect{
-				X: getRect(leftChild).X,
-				Y: getRect(leftChild).Y,
-				W: max(getRect(leftChild).W, getRect(rightChild).W),
-				H: getRect(leftChild).H + 1 + getRect(rightChild).H,
+				X:      getRect(leftChild).X,
+				Y:      getRect(leftChild).Y,
+				W:      max(getRect(leftChild).W, getRect(rightChild).W),
+				H:      getRect(leftChild).H + 1 + getRect(rightChild).H,
 			}
+		}
+
+		if split.Axis == AxisRow {
+			newX := getRect(leftChild).X + getRect(leftChild).W + 1
+			rightChild = setNodePositionRecursive(rightChild, newX, getRect(rightChild).Y)
+		} else {
+			newY := getRect(leftChild).Y + getRect(leftChild).H + 1
+			rightChild = setNodePositionRecursive(rightChild, getRect(rightChild).X, newY)
 		}
 
 		result = NewSplit(split.Axis, intermediateRect, []Node{leftChild, rightChild})
@@ -178,7 +184,7 @@ func reconstructLayout(node Node, paneIDOverride map[string]string) string {
 		if override, ok := paneIDOverride[coordKey]; ok {
 			paneID = override
 		} else {
-			paneID = leaf.Pane[1:] // strip '%'
+			paneID = leaf.Pane[1:]
 		}
 		return fmt.Sprintf("%dx%d,%d,%d,%s", leaf.Rect.W, leaf.Rect.H, leaf.Rect.X, leaf.Rect.Y, paneID)
 	}
@@ -196,7 +202,45 @@ func reconstructLayout(node Node, paneIDOverride map[string]string) string {
 	} else {
 		bracket, closing = "[", "]"
 	}
-	return fmt.Sprintf("%dx%d,%d,%d%s%s%s", split.Rect.W, split.Rect.H, split.Rect.X, split.Rect.Y, bracket, childrenStr, closing)
+
+	var w, h int
+	if len(split.Children) > 0 {
+		if split.Axis == AxisRow {
+			w = 0
+			for _, c := range split.Children {
+				w += getRect(c).W + 1
+			}
+			w -= 1
+			h = 0
+			for _, c := range split.Children {
+				ch := getRect(c).H
+				if ch > h {
+					h = ch
+				}
+			}
+		} else {
+			w = split.Rect.W
+			h = 0
+			for _, c := range split.Children {
+				h += getRect(c).H + 1
+			}
+			h -= 1
+		}
+	} else {
+		w = split.Rect.W
+		h = split.Rect.H
+	}
+
+	return fmt.Sprintf("%dx%d,%d,%d%s%s%s", w, h, split.Rect.X, split.Rect.Y, bracket, childrenStr, closing)
+}
+
+func reconstructLayoutNormalized(node Node, paneIDOverride map[string]string, windowRect Rect) string {
+	// Normalize sizes first
+	normalizedNode := normalizeSizes(node, windowRect.W, windowRect.H)
+	// Set positions
+	positionedNode := setNodePositionRecursive(normalizedNode, 0, 0)
+	// Reconstruct layout
+	return reconstructLayout(positionedNode, paneIDOverride)
 }
 
 func calculateChecksum(layout string) string {
@@ -219,10 +263,22 @@ func applyLayout(root Node, paneIDOverride map[string]string) error {
 	}
 	log("original layout: " + originalLayout)
 
-	recalculatedRoot := recalculateRects(root, nil)
-	log("recalculated tree: " + compact(recalculatedRoot))
+	windowSize, err := tmux("display-message", "-p", "#{window_width}x#{window_height},0,0")
+	if err != nil {
+		return err
+	}
+	var windowRect Rect
+	parts := strings.Split(strings.TrimPrefix(windowSize, "%0"), ",")
+	if len(parts) >= 2 {
+		sizeParts := strings.Split(parts[0], "x")
+		if len(sizeParts) == 2 {
+			windowRect.W = mustAtoi(sizeParts[0])
+			windowRect.H = mustAtoi(sizeParts[1])
+		}
+	}
+	log("window size: " + strconv.Itoa(windowRect.W) + "x" + strconv.Itoa(windowRect.H))
 
-	layout := reconstructLayout(recalculatedRoot, paneIDOverride)
+	layout := reconstructLayoutNormalized(root, paneIDOverride, windowRect)
 	log("generated layout: " + layout)
 
 	checksum := calculateChecksum(layout)
