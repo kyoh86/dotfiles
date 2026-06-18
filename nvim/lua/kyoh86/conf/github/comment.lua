@@ -19,7 +19,7 @@ function M.create(target)
     table.insert(words, "--repo")
     table.insert(words, target.repo)
   end
-  require("kyoh86.lib.volatile_terminal").split(0, {}, { exec = table.concat(words, " ") })
+  require("kyoh86.lib.tmux").run(words, { quit = "wait" })
 end
 
 return M
