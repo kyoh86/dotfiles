@@ -110,7 +110,7 @@ export PATH="${HOME}/.local/bin:${PATH}"
 export PATH="${HOME}/.local/sbin:${PATH}"
 
 # .config/bin
-export PATH="${XDG_CONFIG_HOME}/bin:${PATH}"
+export PATH="${XDG_CONFIG_HOME}/dotfiles-tool/bin:${PATH}"
 
 # mise
 if command -v mise >/dev/null 2>&1; then
