@@ -147,7 +147,9 @@ function buildTmuxArgs(
     return;
   }
 
-  const shellCommand = `codex resume ${shellQuote(action.sessionId)}`;
+  const shellCommand = buildInteractiveShellCommand(
+    `codex resume ${shellQuote(action.sessionId)}`,
+  );
   const cwd = action.cwd && action.cwd.length > 0 ? action.cwd : ".";
 
   if (!command || command === "edit") {
@@ -191,6 +193,11 @@ async function buildTerminalPayload(
 
 function shellQuote(value: string): string {
   return `'${value.replaceAll("'", "'\\''")}'`;
+}
+
+function buildInteractiveShellCommand(command: string): string {
+  const shell = Deno.env.get("SHELL") || "zsh";
+  return `exec ${shellQuote(shell)} -lic ${shellQuote(command)}`;
 }
 
 function buildOpenCommand(
