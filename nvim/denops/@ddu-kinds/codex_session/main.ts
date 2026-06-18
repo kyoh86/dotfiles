@@ -57,9 +57,8 @@ export class Kind extends BaseKind<Params> {
       if (!item) {
         return ActionFlags.None;
       }
-      const { sessionId } = item.action as ActionData;
-      const escaped = await fn.shellescape(denops, sessionId);
-      await denops.cmd(`terminal codex resume ${escaped}`);
+      const action = item.action as ActionData;
+      await openCodexSession(denops, action);
       return ActionFlags.None;
     },
     open: async ({ denops, items, actionParams }) => {
@@ -67,19 +66,14 @@ export class Kind extends BaseKind<Params> {
       if (!item) {
         return ActionFlags.None;
       }
-      const { sessionId } = item.action as ActionData;
+      const action = item.action as ActionData;
       const params = maybe(
         actionParams,
         is.ObjectOf({
           command: is.String,
         }),
       );
-      const escaped = await fn.shellescape(denops, sessionId);
-      const openCommand = buildOpenCommand(
-        params?.command,
-        `terminal codex resume ${escaped}`,
-      );
-      await denops.cmd(openCommand);
+      await openCodexSession(denops, action, params?.command);
       return ActionFlags.None;
     },
     delete: async ({ denops, items }) => {
@@ -128,6 +122,75 @@ export class Kind extends BaseKind<Params> {
   params(): Params {
     return {};
   }
+}
+
+async function openCodexSession(
+  denops: Denops,
+  action: ActionData,
+  command?: string,
+) {
+  const tmuxArgs = buildTmuxArgs(action, command);
+  if (tmuxArgs && await runTmux(tmuxArgs)) {
+    return;
+  }
+
+  const payload = await buildTerminalPayload(denops, action);
+  const openCommand = buildOpenCommand(command, payload);
+  await denops.cmd(openCommand);
+}
+
+function buildTmuxArgs(
+  action: ActionData,
+  command?: string,
+): string[] | undefined {
+  if (!Deno.env.get("TMUX")) {
+    return;
+  }
+
+  const shellCommand = `codex resume ${shellQuote(action.sessionId)}`;
+  const cwd = action.cwd && action.cwd.length > 0 ? action.cwd : ".";
+
+  if (!command || command === "edit") {
+    return ["split-window", "-c", cwd, shellCommand];
+  }
+  if (command === "vnew") {
+    return ["split-window", "-h", "-c", cwd, shellCommand];
+  }
+  if (command === "new") {
+    return ["split-window", "-v", "-c", cwd, shellCommand];
+  }
+  if (command === "tabedit" || command === "tabnew") {
+    return ["new-window", "-c", cwd, shellCommand];
+  }
+}
+
+async function runTmux(args: string[]): Promise<boolean> {
+  try {
+    const result = await new Deno.Command("tmux", {
+      args,
+      stdout: "null",
+      stderr: "null",
+    }).output();
+    return result.code === 0;
+  } catch {
+    return false;
+  }
+}
+
+async function buildTerminalPayload(
+  denops: Denops,
+  action: ActionData,
+): Promise<string> {
+  const sessionId = await fn.shellescape(denops, action.sessionId);
+  if (!action.cwd) {
+    return `terminal codex resume ${sessionId}`;
+  }
+  const cwd = await fn.shellescape(denops, action.cwd);
+  return `terminal cd ${cwd} && codex resume ${sessionId}`;
+}
+
+function shellQuote(value: string): string {
+  return `'${value.replaceAll("'", "'\\''")}'`;
 }
 
 function buildOpenCommand(
