@@ -62,8 +62,42 @@ func isCurrentPaneNvim() bool {
 }
 
 func focusNvimEdge(direction string) error {
-	proxyURL := os.Getenv("NVIM_PROXY_URL")
-	pid := os.Getenv("NVIM_PID")
+	if err := focusNvimEdgeByServer(direction); err == nil {
+		return nil
+	}
+	return focusNvimEdgeByProxy(direction)
+}
+
+func focusNvimEdgeByServer(direction string) error {
+	serverName := lookupTmuxEnv("NVIM_SERVER_NAME")
+	if serverName == "" {
+		return fmt.Errorf("NVIM_SERVER_NAME is not set")
+	}
+	expr := fmt.Sprintf(`luaeval("require('kyoh86.lib.tmux').focus_edge(_A)", "%s")`, direction)
+	_, err := execCommand("nvim", "--server", serverName, "--remote-expr", expr)
+	return err
+}
+
+func lookupTmuxEnv(name string) string {
+	if value := os.Getenv(name); value != "" {
+		return value
+	}
+	out, err := tmux("show-environment", "-g", name)
+	if err != nil {
+		return ""
+	}
+	prefix := name + "="
+	for _, line := range strings.Split(out, "\n") {
+		if strings.HasPrefix(line, prefix) {
+			return strings.TrimPrefix(line, prefix)
+		}
+	}
+	return ""
+}
+
+func focusNvimEdgeByProxy(direction string) error {
+	proxyURL := lookupTmuxEnv("NVIM_PROXY_URL")
+	pid := lookupTmuxEnv("NVIM_PID")
 	if proxyURL == "" || pid == "" {
 		return nil
 	}
