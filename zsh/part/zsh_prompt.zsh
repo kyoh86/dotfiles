@@ -17,9 +17,9 @@ function __prompt_precmd() {
     fi
     if test "$_prompt_executing" != ""
     then
-       printf "\033]133;D;%s;aid=%s\007" "$ret" "$$"
+       printf "\033]133;D;%s\007" "$ret"
     fi
-    printf "\033]133;A;cl=m;aid=%s\007" "$$"
+    printf "\033]133;A\007"
     _prompt_executing=0
 }
 function __prompt_preexec() {

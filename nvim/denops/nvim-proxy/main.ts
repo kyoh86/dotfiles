@@ -52,7 +52,7 @@ export async function main(denops: Denops): Promise<void> {
 
 async function setTmuxEnv(key: string, value: string) {
   const command = new Deno.Command("tmux", {
-    args: ["set-environment", key, value],
+    args: ["set-environment", "-g", key, value],
   });
   const { code, stdout, stderr } = await command.output();
   if (code !== 0) {
@@ -217,26 +217,7 @@ async function handleFocusEdgeRequest(denops: Denops, req: Request) {
   }
   await denops.call(
     "luaeval",
-    `(function(direction)
-      local commands = {
-        h = "l",
-        j = "k",
-        k = "j",
-        l = "h",
-      }
-      local command = commands[direction]
-      if command == nil then
-        return false
-      end
-      while true do
-        local before = vim.api.nvim_get_current_win()
-        vim.cmd("wincmd " .. command)
-        if vim.api.nvim_get_current_win() == before then
-          break
-        end
-      end
-      return true
-    end)(_A.direction)`,
+    "require('kyoh86.lib.tmux').focus_edge(_A.direction)",
     { direction },
   );
   return json({ ok: true });

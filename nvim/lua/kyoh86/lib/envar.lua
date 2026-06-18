@@ -13,7 +13,7 @@ local M = {}
 function M.set_tmux(k, v)
   vim.fn.setenv(k, v)
   if vim.env.TMUX then
-    vim.system({ "tmux", "set-environment", k, v })
+    vim.system({ "tmux", "set-environment", "-g", k, v })
   end
 end
 
