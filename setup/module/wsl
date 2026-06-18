@@ -12,10 +12,8 @@ default=kyoh86
 appendWindowsPath=false
 EOS
 
-  cat - << EOS | tee $HOME/.zshenv
-if [ -n "$XDG_CONFIG_HOME" ] ; then
-    export ZDOTDIR=${XDG_CONFIG_HOME}/zsh
-fi
+  cat - << 'EOS' | tee $HOME/.zshenv
+export ZDOTDIR="${XDG_CONFIG_HOME:-${HOME}/.config}/zsh"
 EOS
 }
 
