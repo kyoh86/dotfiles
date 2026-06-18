@@ -16,6 +16,15 @@ local function with_cwd(cwd, callback)
   return result
 end
 
+local function focus_tmux_pane()
+  if vim.env.TMUX_PANE == nil or vim.env.TMUX_PANE == "" then
+    return
+  end
+  pcall(function()
+    vim.system({ "tmux", "select-pane", "-t", vim.env.TMUX_PANE }):wait()
+  end)
+end
+
 local function open_buffer(target, opener, cwd)
   if target == nil then
     print("No target found at cursor.")
@@ -34,11 +43,13 @@ local function open_buffer(target, opener, cwd)
       end
       local project = vim.json.decode(result.stdout)
       vim.fn["denops#github#issue#view"](project.owner, project.name, target:sub(2), opener)
+      focus_tmux_pane()
     else
       local owner, repo, number = string.match(target, "^([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)#(%d+)$")
       if owner and repo and number then
         vim.print("opening GitHub Issue " .. target)
         vim.fn["denops#github#issue#view"](owner, repo, number, opener)
+        focus_tmux_pane()
       else
         -- TODO: 修正 (多分vim.cmd.findとvim.cmd.sfindでイケる）
         vim.print("opening " .. target)
@@ -63,6 +74,7 @@ local function open_buffer(target, opener, cwd)
         elseif opener.split == "tab" then
           vim.cmd.sfind({ args = { target }, mods = { tab = "." } })
         end
+        focus_tmux_pane()
       end
     end
   end)
