@@ -1,7 +1,7 @@
 # プロンプト設定
 autoload -Uz add-zsh-hook
 
-PROMPT="%(?,,%F{red}[%?]%f
+PROMPT=$'%{\e]133;A\a%}'"%(?,,%F{red}[%?]%f
 
 )%F{blue}$%f "
 
@@ -19,7 +19,6 @@ function __prompt_precmd() {
     then
        printf "\033]133;D;%s\007" "$ret"
     fi
-    printf "\033]133;A\007"
     _prompt_executing=0
 }
 function __prompt_preexec() {
