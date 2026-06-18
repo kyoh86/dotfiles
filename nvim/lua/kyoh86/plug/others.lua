@@ -14,9 +14,7 @@ local spec = {
     end,
     config = function()
       vim.api.nvim_create_user_command("GuiseEdit", function(opts)
-        if vim.env.TMUX_PANE then
-          vim.system({ "tmux", "select-pane", "-t", vim.env.TMUX_PANE }):wait()
-        end
+        require("kyoh86.lib.tmux").focus_nvim_pane()
         vim.cmd("noswapfile tab drop " .. vim.fn.fnameescape(opts.args))
       end, {
         complete = "file",
