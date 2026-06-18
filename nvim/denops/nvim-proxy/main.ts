@@ -85,6 +85,9 @@ async function startLocalServer(denops: Denops, pid: number) {
       if (pathname === "/open") {
         return await handleOpenRequest(denops, req);
       }
+      if (pathname === "/focus-edge") {
+        return await handleFocusEdgeRequest(denops, req);
+      }
       return json({ error: "Not found" }, 404);
     },
     onListen: async ({ port }) => {
@@ -203,6 +206,42 @@ async function handleOpenRequest(denops: Denops, req: Request) {
   return json({ ok: true });
 }
 
+async function handleFocusEdgeRequest(denops: Denops, req: Request) {
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return json({ error: "Invalid body" }, 400);
+  }
+  const direction = readStringField(body, "direction");
+  if (!direction || !isSafeDirection(direction)) {
+    return json({ error: "Invalid direction" }, 400);
+  }
+  await denops.call(
+    "luaeval",
+    `(function(direction)
+      local commands = {
+        h = "l",
+        j = "k",
+        k = "j",
+        l = "h",
+      }
+      local command = commands[direction]
+      if command == nil then
+        return false
+      end
+      while true do
+        local before = vim.api.nvim_get_current_win()
+        vim.cmd("wincmd " .. command)
+        if vim.api.nvim_get_current_win() == before then
+          break
+        end
+      end
+      return true
+    end)(_A.direction)`,
+    { direction },
+  );
+  return json({ ok: true });
+}
+
 function readStringField(body: object, key: string) {
   if (!(key in body)) {
     return undefined;
@@ -275,6 +314,10 @@ function isSafeOpenSplit(name: string) {
   ].includes(name);
 }
 
+function isSafeDirection(name: string) {
+  return ["h", "j", "k", "l"].includes(name);
+}
+
 async function registerLocalRoutesToProxy(
   denops: Denops,
   options: { pid: number; port: number },
@@ -285,6 +328,7 @@ async function registerLocalRoutesToProxy(
     { proxyPath: "/setreg", reversePath: "/setreg" },
     { proxyPath: "/getreg", reversePath: "/getreg" },
     { proxyPath: "/open", reversePath: "/open" },
+    { proxyPath: "/focus-edge", reversePath: "/focus-edge" },
   ];
   for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
     const results = await Promise.all(

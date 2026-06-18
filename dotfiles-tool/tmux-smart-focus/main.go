@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
+	"strings"
+	"time"
 )
 
 func main() {
@@ -39,7 +44,49 @@ func smartFocus(direction string) error {
 
 	// Simply move to adjacent pane
 	_, err := tmux("select-pane", tmuxDir)
-	return err
+	if err != nil {
+		return err
+	}
+	if isCurrentPaneNvim() {
+		_ = focusNvimEdge(direction)
+	}
+	return nil
+}
+
+func isCurrentPaneNvim() bool {
+	out, err := tmux("display-message", "-p", "#{pane_current_command}")
+	if err != nil {
+		return false
+	}
+	return strings.TrimSpace(out) == "nvim"
+}
+
+func focusNvimEdge(direction string) error {
+	proxyURL := os.Getenv("NVIM_PROXY_URL")
+	pid := os.Getenv("NVIM_PID")
+	if proxyURL == "" || pid == "" {
+		return nil
+	}
+	body, err := json.Marshal(map[string]string{"direction": direction})
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest(http.MethodPost, strings.TrimRight(proxyURL, "/")+"/focus-edge", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("content-type", "application/json")
+	req.Header.Set("X-Nvim-Pid", pid)
+	client := http.Client{Timeout: time.Second}
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return fmt.Errorf("focus-edge failed: %s", res.Status)
+	}
+	return nil
 }
 
 func tmux(args ...string) (string, error) {
