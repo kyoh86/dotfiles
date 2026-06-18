@@ -83,6 +83,7 @@ dirty-bufs 側は `/dirty-bufs` を登録する:
 - `POST /setreg` : Neovim の register へ文字列を書き込む
 - `POST /getreg` : Neovim の register から文字列を読む
 - `POST /open` : Neovim 内の file/URL opener で対象文字列を開く
+- `POST /focus-edge` : tmux から Neovim pane へ入った方向に応じて端 window を選ぶ
 
 ## ヘルスチェック
 
