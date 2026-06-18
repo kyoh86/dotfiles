@@ -9,6 +9,7 @@ vim.g.markdown_fenced_languages = {
   --     "javascript",
   --     "javascriptreact",
   "json",
+  "jsonc",
   "lua",
   "make",
   "perl",

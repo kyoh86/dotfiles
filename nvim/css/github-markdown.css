@@ -57,6 +57,7 @@
     --color-danger-emphasis: #da3633;
     --color-done-fg: #a371f7;
     --color-done-emphasis: #8957e5;
+    --color-code-block-label: #2e399f;
   }
 }
 
@@ -114,6 +115,7 @@
     --color-danger-emphasis: #cf222e;
     --color-done-fg: #8250df;
     --color-done-emphasis: #8250df;
+    --color-code-block-label: #ced9ff;
   }
 }
 
@@ -1227,4 +1229,12 @@
 
 #preview .markdown-alert.markdown-alert-caution .markdown-alert-title {
   color: var(--color-danger-fg);
+}
+
+#preview .code-lang {
+  padding: 2px 6px;
+  margin-top: -15px;
+  margin-left: -15px;
+  font-weight: 900;
+  background-color: var(--color-code-block-label);
 }

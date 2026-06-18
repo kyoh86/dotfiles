@@ -482,3 +482,6 @@ trust_level = "trusted"
 
 [plugins."github@openai-curated"]
 enabled = true
+
+[projects."github.com/kyoh86/previm"]
+trust_level = "trusted"
