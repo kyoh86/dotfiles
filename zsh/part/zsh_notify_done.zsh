@@ -7,7 +7,7 @@ if [ -n "${NVIM_PROXY_URL}" ] && [ -n "${NVIM_PID}" ] ; then
   function _notify_precmd_to_nvim() {
     local command event payload
     command="$(printf '%s' "$history[$(($HISTCMD-1))]" | base64 -w 0 | tr '+/' '-_' | tr -d '=')"
-    event="Kyoh86TermNotifReceived:precmd:$?:$KYOH86_VOLATERM_BUFNR:$command"
+    event="Kyoh86TermNotifReceived:precmd:$?::$command"
     payload="$(jq -n --arg event "$event" '{event:$event}')"
     curl -XPOST -sSL --max-time 1 \
       -H "X-Nvim-Pid: ${NVIM_PID}" \
