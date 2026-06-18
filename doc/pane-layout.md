@@ -618,7 +618,7 @@ var root Node
 
 </div>
 
-入れ替え後: 
+入れ替え後:
 
 <div class="view">
     <div class="V">
@@ -921,4 +921,3 @@ var root Node
 - `h`/`j`/`k`/`l` は仕様にはないが、実用的な UX 向上として実装されている
 - Neovim と tmux で同等の操作感を目指している
 - 一部の機能（rotate 等）は Neovim の API 制限により「best-effort」実装となっている
-
