@@ -74,6 +74,34 @@ local function open_buffer_cursor(opener)
   open_buffer(target, opener)
 end
 
+local function with_scratch_cursor(line, col, callback)
+  line = line or ""
+  local win = vim.api.nvim_get_current_win()
+  local prev_buf = vim.api.nvim_win_get_buf(win)
+  local prev_cursor = vim.api.nvim_win_get_cursor(win)
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { line })
+  local ok, result = pcall(function()
+    vim.api.nvim_win_set_buf(win, buf)
+    vim.api.nvim_win_set_cursor(win, { 1, math.min(#line, math.max(0, tonumber(col) or 0)) })
+    return callback()
+  end)
+  pcall(vim.api.nvim_win_set_buf, win, prev_buf)
+  pcall(vim.api.nvim_win_set_cursor, win, prev_cursor)
+  pcall(vim.api.nvim_buf_delete, buf, { force = true })
+  if not ok then
+    error(result)
+  end
+  return result
+end
+
+local function open_buffer_at(line, col, opener, cwd)
+  local target = with_scratch_cursor(line, col, function()
+    return vim.fn.expand("<cfile>")
+  end)
+  return open_buffer(target, opener, cwd)
+end
+
 --- textobjのファイルを関連付けられた外部ファイルで開いたりする
 -- TODO: openerを渡せるようにする？
 -- local function call_open_buffer_operator()
@@ -168,5 +196,6 @@ end, { desc = "Open files under the cursor" })
 -- end, { desc = "Open files under the cursor" })
 
 return {
+  open_buffer_at = open_buffer_at,
   open_buffer = open_buffer,
 }
