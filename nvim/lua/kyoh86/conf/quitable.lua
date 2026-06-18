@@ -20,28 +20,11 @@ local function quit_empty_buffers()
   end
 end
 
-local function tmux_pane_count()
-  if not vim.env.TMUX then
-    return 0
-  end
-  local result = vim.system({ "tmux", "list-panes", "-F", "#{pane_id}" }, { text = true }):wait()
-  if result.code ~= 0 then
-    return 0
-  end
-  local count = 0
-  for line in vim.gsplit(result.stdout, "\n", { plain = true, trimempty = true }) do
-    if line ~= "" then
-      count = count + 1
-    end
-  end
-  return count
-end
-
 local function should_guard_nvim_exit()
   if vim.v.exitreason ~= "quit" then
     return false
   end
-  if tmux_pane_count() <= 1 then
+  if require("kyoh86.lib.tmux").pane_count() <= 1 then
     return false
   end
   return true
