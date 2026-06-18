@@ -19,6 +19,8 @@ MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/.worktree/main/setup/module"
 grep -Fwe docker /etc/group || sudo groupadd docker
 sudo usermod -aG docker "${USER}"
 
+"${MODULE}"/prebuild
+
 "${MODULE}"/neovim
 "${MODULE}"/zenhan
 "${MODULE}"/tmux
