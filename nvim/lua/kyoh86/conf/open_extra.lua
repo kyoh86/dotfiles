@@ -54,6 +54,34 @@ local function open_extra_cursor()
   open_extra(target)
 end
 
+local function with_scratch_cursor(line, col, callback)
+  line = line or ""
+  local win = vim.api.nvim_get_current_win()
+  local prev_buf = vim.api.nvim_win_get_buf(win)
+  local prev_cursor = vim.api.nvim_win_get_cursor(win)
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { line })
+  local ok, result = pcall(function()
+    vim.api.nvim_win_set_buf(win, buf)
+    vim.api.nvim_win_set_cursor(win, { 1, math.min(#line, math.max(0, tonumber(col) or 0)) })
+    return callback()
+  end)
+  pcall(vim.api.nvim_win_set_buf, win, prev_buf)
+  pcall(vim.api.nvim_win_set_cursor, win, prev_cursor)
+  pcall(vim.api.nvim_buf_delete, buf, { force = true })
+  if not ok then
+    error(result)
+  end
+  return result
+end
+
+local function open_extra_at(line, col)
+  local target = with_scratch_cursor(line, col, function()
+    return vim.fn.expand("<cfile>")
+  end)
+  return open_extra(target)
+end
+
 --- textobjの文字列を関連付けられた外部で開いたりする
 local function call_open_extra_operator()
   vim.opt.operatorfunc = "v:lua.require'kyoh86.conf.open_extra'.open_extra_operator"
@@ -92,5 +120,6 @@ vim.keymap.set({ "n", "x" }, "gz", "<plug>(open-extra-operator)", { desc = "Open
 
 return {
   open_extra = open_extra,
+  open_extra_at = open_extra_at,
   open_extra_operator = open_extra_operator,
 }

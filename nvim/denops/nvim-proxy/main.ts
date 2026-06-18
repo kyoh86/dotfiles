@@ -158,16 +158,26 @@ async function handleOpenRequest(denops: Denops, req: Request) {
     return json({ error: "Invalid body" }, 400);
   }
   const kind = readStringField(body, "kind");
-  const target = readStringField(body, "target");
-  if (!target || !kind || !isSafeOpenKind(kind)) {
+  const target = readStringField(body, "target") ?? "";
+  if (!kind || !isSafeOpenKind(kind)) {
     return json({ error: "Invalid open request" }, 400);
   }
+  const line = readStringField(body, "line") ?? "";
+  const cursorCol = readNumberField(body, "cursor_col") ?? 0;
 
   if (kind === "extra") {
+    if (target !== "") {
+      await denops.call(
+        "luaeval",
+        "require('kyoh86.conf.open_extra').open_extra(_A.target)",
+        { target },
+      );
+      return json({ ok: true });
+    }
     await denops.call(
       "luaeval",
-      "require('kyoh86.conf.open_extra').open_extra(_A.target)",
-      { target },
+      "require('kyoh86.conf.open_extra').open_extra_at(_A.line, _A.cursor_col)",
+      { line, cursor_col: cursorCol },
     );
     return json({ ok: true });
   }
@@ -177,11 +187,19 @@ async function handleOpenRequest(denops: Denops, req: Request) {
   if (!isSafeOpenSplit(split)) {
     return json({ error: "Invalid split" }, 400);
   }
-  await denops.call(
-    "luaeval",
-    "require('kyoh86.conf.open_buffer').open_buffer(_A.target, _A.opener, _A.cwd)",
-    { target, opener: { reuse: true, split }, cwd },
-  );
+  if (target !== "") {
+    await denops.call(
+      "luaeval",
+      "require('kyoh86.conf.open_buffer').open_buffer(_A.target, _A.opener, _A.cwd)",
+      { target, opener: { reuse: true, split }, cwd },
+    );
+  } else {
+    await denops.call(
+      "luaeval",
+      "require('kyoh86.conf.open_buffer').open_buffer_at(_A.line, _A.cursor_col, _A.opener, _A.cwd)",
+      { line, cursor_col: cursorCol, opener: { reuse: true, split }, cwd },
+    );
+  }
   return json({ ok: true });
 }
 
@@ -191,6 +209,16 @@ function readStringField(body: object, key: string) {
   }
   const value = (body as Record<string, unknown>)[key];
   return typeof value === "string" ? value : undefined;
+}
+
+function readNumberField(body: object, key: string) {
+  if (!(key in body)) {
+    return undefined;
+  }
+  const value = (body as Record<string, unknown>)[key];
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : undefined;
 }
 
 async function readEnvNames(req: Request) {
