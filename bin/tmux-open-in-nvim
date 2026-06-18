@@ -14,9 +14,9 @@ if [ -t 0 ]; then
 else
   selected="$(cat || true)"
 fi
-line="$(tmux display-message -p '#{copy_cursor_line}' 2>/dev/null || true)"
-x="$(tmux display-message -p '#{copy_cursor_x}' 2>/dev/null || true)"
-cwd="$(tmux display-message -p '#{pane_current_path}' 2>/dev/null || true)"
+line="${TMUX_COPY_CURSOR_LINE:-$(tmux display-message -p '#{copy_cursor_line}' 2>/dev/null || true)}"
+x="${TMUX_COPY_CURSOR_X:-$(tmux display-message -p '#{copy_cursor_x}' 2>/dev/null || true)}"
+cwd="${TMUX_COPY_PANE_CWD:-$(tmux display-message -p '#{pane_current_path}' 2>/dev/null || true)}"
 
 target="$selected"
 target="$(printf '%s' "$target" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
