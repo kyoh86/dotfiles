@@ -91,5 +91,6 @@ vim.keymap.set("n", "gx", "<plug>(open-extra-cursor)", { desc = "Open extra unde
 vim.keymap.set({ "n", "x" }, "gz", "<plug>(open-extra-operator)", { desc = "Open extra in the textobj" })
 
 return {
+  open_extra = open_extra,
   open_extra_operator = open_extra_operator,
 }

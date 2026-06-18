@@ -18,7 +18,7 @@ Codex (MCP) ---------------------------------> nvim-proxy (/mcp) --forward--> de
 git pre-commit ------------------------------> nvim-proxy (/dirty-bufs) --> denops/dirty-bufs
 zsh -----------------------------------------> nvim-proxy (/env) --> denops/nvim-proxy
 zsh --------------------------------------> nvim-proxy (/notify) --> denops/nvim-proxy
-tmux copy-mode ----------------------------> nvim-proxy (/setreg) --> denops/nvim-proxy
+tmux copy-mode -----------------------> nvim-proxy (/setreg,/getreg,/open) --> denops/nvim-proxy
 ```
 
 ### 関連コンポーネント
@@ -29,6 +29,7 @@ tmux copy-mode ----------------------------> nvim-proxy (/setreg) --> denops/nvi
   - Neovim 内の環境変数を返す `/env` ルートを登録
   - shell から Neovim の `User` autocmd を発火する `/notify` ルートを登録
   - shell/tmux から Neovim の register へ書き込む `/setreg` ルートを登録
+  - shell/tmux から Neovim の register と file/URL opener を使う `/getreg` `/open` ルートを登録
 - `nvim/denops/nvim-proxy/proxy.ts`
   - 固定ポートで待ち受け
   - `path` 単位で登録済みの転送先へプロキシ
@@ -80,6 +81,8 @@ dirty-bufs 側は `/dirty-bufs` を登録する:
 - `GET/POST /env` : Neovim 内の環境変数を JSON で返す
 - `POST /notify` : Neovim 内の `User` autocmd を発火する
 - `POST /setreg` : Neovim の register へ文字列を書き込む
+- `POST /getreg` : Neovim の register から文字列を読む
+- `POST /open` : Neovim 内の file/URL opener で対象文字列を開く
 
 ## ヘルスチェック
 

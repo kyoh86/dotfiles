@@ -1,0 +1,82 @@
+#!/bin/sh
+set -eu
+
+kind="${1:-extra}"
+split="${2:-none}"
+
+if [ -z "${NVIM_PROXY_URL:-}" ] || [ -z "${NVIM_PID:-}" ]; then
+  tmux display-message "nvim-proxy is not available" 2>/dev/null || true
+  exit 0
+fi
+
+if [ -t 0 ]; then
+  selected=""
+else
+  selected="$(cat || true)"
+fi
+line="$(tmux display-message -p '#{copy_cursor_line}' 2>/dev/null || true)"
+x="$(tmux display-message -p '#{copy_cursor_x}' 2>/dev/null || true)"
+word="$(tmux display-message -p '#{copy_cursor_word}' 2>/dev/null || true)"
+cwd="$(tmux display-message -p '#{pane_current_path}' 2>/dev/null || true)"
+
+target="$selected"
+if [ -z "$target" ]; then
+  if [ "$kind" = "extra" ]; then
+    target="$(
+      awk -v line="$line" -v x="$x" -v word="$word" '
+        BEGIN {
+          while (match(line, /([A-Za-z][A-Za-z0-9+.-]*:\/\/[^[:space:]<>"'"'"')\]}]+|#[0-9]+|[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(#[0-9]+)?)/)) {
+            start = RSTART - 1
+            end = start + RLENGTH
+            if (x >= start && x <= end) {
+              print substr(line, RSTART, RLENGTH)
+              exit
+            }
+            line = substr(line, RSTART + RLENGTH)
+            x -= end
+          }
+          print word
+        }
+      '
+    )"
+  else
+    target="$(
+      awk -v line="$line" -v x="$x" -v word="$word" '
+        BEGIN {
+          while (match(line, /(~?\/?[A-Za-z0-9_./:@%+,-]+)/)) {
+            start = RSTART - 1
+            end = start + RLENGTH
+            if (x >= start && x <= end) {
+              print substr(line, RSTART, RLENGTH)
+              exit
+            }
+            line = substr(line, RSTART + RLENGTH)
+            x -= end
+          }
+          print word
+        }
+      '
+    )"
+  fi
+fi
+
+target="$(printf '%s' "$target" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+if [ -z "$target" ]; then
+  tmux display-message "No target found under copy cursor" 2>/dev/null || true
+  exit 0
+fi
+
+payload="$(jq -n \
+  --arg kind "$kind" \
+  --arg target "$target" \
+  --arg split "$split" \
+  --arg cwd "$cwd" \
+  '{kind:$kind,target:$target,split:$split,cwd:$cwd}')"
+
+if ! curl -fsSL --connect-timeout 0.5 --max-time 2 \
+  -H "X-Nvim-Pid: ${NVIM_PID}" \
+  -H "content-type: application/json" \
+  "${NVIM_PROXY_URL}/open" \
+  -d "$payload" >/dev/null 2>&1; then
+  tmux display-message "failed to open ${target} in Neovim" 2>/dev/null || true
+fi

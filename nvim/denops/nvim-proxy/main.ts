@@ -82,6 +82,9 @@ async function startLocalServer(denops: Denops, pid: number) {
       if (pathname === "/getreg") {
         return await handleGetregRequest(denops, req);
       }
+      if (pathname === "/open") {
+        return await handleOpenRequest(denops, req);
+      }
       return json({ error: "Not found" }, 404);
     },
     onListen: async ({ port }) => {
@@ -149,6 +152,39 @@ async function handleGetregRequest(denops: Denops, req: Request) {
   return json({ value });
 }
 
+async function handleOpenRequest(denops: Denops, req: Request) {
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return json({ error: "Invalid body" }, 400);
+  }
+  const kind = readStringField(body, "kind");
+  const target = readStringField(body, "target");
+  if (!target || !kind || !isSafeOpenKind(kind)) {
+    return json({ error: "Invalid open request" }, 400);
+  }
+
+  if (kind === "extra") {
+    await denops.call(
+      "luaeval",
+      "require('kyoh86.conf.open_extra').open_extra(_A.target)",
+      { target },
+    );
+    return json({ ok: true });
+  }
+
+  const split = readStringField(body, "split") ?? "none";
+  const cwd = readStringField(body, "cwd") ?? "";
+  if (!isSafeOpenSplit(split)) {
+    return json({ error: "Invalid split" }, 400);
+  }
+  await denops.call(
+    "luaeval",
+    "require('kyoh86.conf.open_buffer').open_buffer(_A.target, _A.opener, _A.cwd)",
+    { target, opener: { reuse: true, split }, cwd },
+  );
+  return json({ ok: true });
+}
+
 function readStringField(body: object, key: string) {
   if (!(key in body)) {
     return undefined;
@@ -192,6 +228,25 @@ function isSafeRegisterName(name: string) {
   return /^["*+0-9A-Za-z._:%#/@-]$/.test(name);
 }
 
+function isSafeOpenKind(name: string) {
+  return name === "extra" || name === "file";
+}
+
+function isSafeOpenSplit(name: string) {
+  return [
+    "none",
+    "left",
+    "right",
+    "rightmost",
+    "leftmost",
+    "above",
+    "below",
+    "top",
+    "bottom",
+    "tab",
+  ].includes(name);
+}
+
 async function registerLocalRoutesToProxy(
   denops: Denops,
   options: { pid: number; port: number },
@@ -201,6 +256,7 @@ async function registerLocalRoutesToProxy(
     { proxyPath: "/notify", reversePath: "/notify" },
     { proxyPath: "/setreg", reversePath: "/setreg" },
     { proxyPath: "/getreg", reversePath: "/getreg" },
+    { proxyPath: "/open", reversePath: "/open" },
   ];
   for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
     const results = await Promise.all(

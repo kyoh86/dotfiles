@@ -1,52 +1,71 @@
 -- #136
-local function open_buffer(target, opener)
+local function with_cwd(cwd, callback)
+  if cwd == nil or cwd == "" then
+    return callback()
+  end
+
+  local prev = vim.fn.getcwd()
+  local ok, result = pcall(function()
+    vim.cmd.lcd(vim.fn.fnameescape(cwd))
+    return callback()
+  end)
+  pcall(vim.cmd.lcd, vim.fn.fnameescape(prev))
+  if not ok then
+    error(result)
+  end
+  return result
+end
+
+local function open_buffer(target, opener, cwd)
   if target == nil then
     print("No target found at cursor.")
     return
   end
   target = string.gsub(target --[[@as string]], [[\.+$]], "")
-  if string.match(target, "^#%d+$") then
-    vim.print("opening GitHub Issue " .. target)
-    -- target が #nnn というIssue番号の場合は、gogh を呼んで現在のリポジトリ名を取得する
-    local cmd = { "gogh", "cwd", "--format", "json" }
-    local result = vim.system(cmd, { text = true }):wait()
-    if result.code ~= 0 or vim.trim(result.stdout) == "" then
-      print("Failed to get current project.")
-      return
-    end
-    local project = vim.json.decode(result.stdout)
-    vim.fn["denops#github#issue#view"](project.owner, project.name, target:sub(2), opener)
-  else
-    local owner, repo, number = string.match(target, "^([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)#(%d+)$")
-    if owner and repo and number then
+  return with_cwd(cwd, function()
+    if string.match(target, "^#%d+$") then
       vim.print("opening GitHub Issue " .. target)
-      vim.fn["denops#github#issue#view"](owner, repo, number, opener)
+      -- target が #nnn というIssue番号の場合は、gogh を呼んで現在のリポジトリ名を取得する
+      local cmd = { "gogh", "cwd", "--format", "json" }
+      local result = vim.system(cmd, { cwd = cwd, text = true }):wait()
+      if result.code ~= 0 or vim.trim(result.stdout) == "" then
+        print("Failed to get current project.")
+        return
+      end
+      local project = vim.json.decode(result.stdout)
+      vim.fn["denops#github#issue#view"](project.owner, project.name, target:sub(2), opener)
     else
-      -- TODO: 修正 (多分vim.cmd.findとvim.cmd.sfindでイケる）
-      vim.print("opening " .. target)
-      if opener.split == "none" then
-        vim.cmd.find(target)
-      elseif opener.split == "left" then
-        vim.cmd.sfind({ args = { target }, mods = { vertical = true, split = "aboveleft" } })
-      elseif opener.split == "right" then
-        vim.cmd.sfind({ args = { target }, mods = { vertical = true, split = "belowright" } })
-      elseif opener.split == "rightmost" then
-        vim.cmd.sfind({ args = { target }, mods = { vertical = true, split = "botright" } })
-      elseif opener.split == "leftmost" then
-        vim.cmd.sfind({ args = { target }, mods = { vertical = true, split = "topleft" } })
-      elseif opener.split == "above" then
-        vim.cmd.sfind({ args = { target }, mods = { split = "aboveleft" } })
-      elseif opener.split == "below" then
-        vim.cmd.sfind({ args = { target }, mods = { split = "belowright" } })
-      elseif opener.split == "top" then
-        vim.cmd.sfind({ args = { target }, mods = { split = "topleft" } })
-      elseif opener.split == "bottom" then
-        vim.cmd.sfind({ args = { target }, mods = { split = "botright" } })
-      elseif opener.split == "tab" then
-        vim.cmd.sfind({ args = { target }, mods = { tab = "." } })
+      local owner, repo, number = string.match(target, "^([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)#(%d+)$")
+      if owner and repo and number then
+        vim.print("opening GitHub Issue " .. target)
+        vim.fn["denops#github#issue#view"](owner, repo, number, opener)
+      else
+        -- TODO: 修正 (多分vim.cmd.findとvim.cmd.sfindでイケる）
+        vim.print("opening " .. target)
+        if opener.split == "none" then
+          vim.cmd.find({ args = { target } })
+        elseif opener.split == "left" then
+          vim.cmd.sfind({ args = { target }, mods = { vertical = true, split = "aboveleft" } })
+        elseif opener.split == "right" then
+          vim.cmd.sfind({ args = { target }, mods = { vertical = true, split = "belowright" } })
+        elseif opener.split == "rightmost" then
+          vim.cmd.sfind({ args = { target }, mods = { vertical = true, split = "botright" } })
+        elseif opener.split == "leftmost" then
+          vim.cmd.sfind({ args = { target }, mods = { vertical = true, split = "topleft" } })
+        elseif opener.split == "above" then
+          vim.cmd.sfind({ args = { target }, mods = { split = "aboveleft" } })
+        elseif opener.split == "below" then
+          vim.cmd.sfind({ args = { target }, mods = { split = "belowright" } })
+        elseif opener.split == "top" then
+          vim.cmd.sfind({ args = { target }, mods = { split = "topleft" } })
+        elseif opener.split == "bottom" then
+          vim.cmd.sfind({ args = { target }, mods = { split = "botright" } })
+        elseif opener.split == "tab" then
+          vim.cmd.sfind({ args = { target }, mods = { tab = "." } })
+        end
       end
     end
-  end
+  end)
 end
 
 --- カーソル下のファイルを関連付けられた外部ファイルで開いたりする
@@ -148,6 +167,6 @@ end, { desc = "Open files under the cursor" })
 --   open_buffer_cursor({ reuse = true, split = "above" })
 -- end, { desc = "Open files under the cursor" })
 
--- return {
---   open_buffer_operator = open_buffer_operator,
--- }
+return {
+  open_buffer = open_buffer,
+}
