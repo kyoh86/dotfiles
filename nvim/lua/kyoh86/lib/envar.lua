@@ -10,10 +10,18 @@
 --- ```
 local M = {}
 
-function M.set_tmux(k, v)
+---@param k string 環境変数名
+---@param v string 値
+---@param opts? {global?: boolean}
+function M.set_tmux(k, v, opts)
+  opts = opts or {}
   vim.fn.setenv(k, v)
   if vim.env.TMUX then
-    vim.system({ "tmux", "set-environment", "-g", k, v })
+    local list = { "tmux", "set-environment", k, v }
+    if opts.global then
+      table.insert(list, 3, "-g")
+    end
+    vim.system(list)
   end
 end
 

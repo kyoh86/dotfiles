@@ -52,7 +52,7 @@ export async function main(denops: Denops): Promise<void> {
 
 async function setTmuxEnv(key: string, value: string) {
   const command = new Deno.Command("tmux", {
-    args: ["set-environment", "-g", key, value],
+    args: ["set-environment", key, value],
   });
   const { code, stdout, stderr } = await command.output();
   if (code !== 0) {

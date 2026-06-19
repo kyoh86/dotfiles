@@ -1,0 +1,9 @@
+#!/bin/bash
+
+create_zshenv() {
+  cat - << 'EOS' | tee $HOME/.zshenv
+export ZDOTDIR="${XDG_CONFIG_HOME:-${HOME}/.config}/zsh"
+EOS
+}
+
+create_zshenv
