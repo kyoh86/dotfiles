@@ -488,3 +488,6 @@ trust_level = "trusted"
 
 [projects."github.com/kyoh86/panedit.nvim"]
 trust_level = "trusted"
+
+[projects."github.com/kyoh86/ddu-source-tmux"]
+trust_level = "trusted"

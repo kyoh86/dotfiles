@@ -45,6 +45,7 @@
   "ddu-source-qf": { "branch": "main", "commit": "de2592500eed613174b183d79530fc6497b8f796" },
   "ddu-source-quickfix_history": { "branch": "main", "commit": "a7ff0c699ffe8046699ebe8e9acb7999d2add27f" },
   "ddu-source-rg": { "branch": "main", "commit": "8c628b5d7c444ac07fb68201b4e02bbb5340b0f5" },
+  "ddu-source-tmux": { "branch": "main", "commit": "054f229d5f954571024425bc8d7ddd55a0e54d80" },
   "ddu-source-vim_function": { "branch": "main", "commit": "e3d37b6acd887c4f14a5abcb054a3ab3db09401b" },
   "ddu-source-zenn_dev": { "branch": "main", "commit": "2a1654444e1f7fe2ee5a75748c28f5cf4f8a33e1" },
   "ddu-ui-ff": { "branch": "main", "commit": "11506f581ca894c726a2545007ebdb64bca24ce3" },
