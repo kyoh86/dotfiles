@@ -3,7 +3,10 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "uga-rosa/ddu-source-lsp",
-  dependencies = { "ddu.vim", "ddu-kind-file" },
+  dependencies = {
+    "ddu.vim",
+    "ddu-kind-file" --[[, local (lsp_client]],
+  },
   config = function()
     vim.fn["ddu#custom#patch_global"]({ kindOptions = {
       lsp = {
@@ -38,6 +41,19 @@ local spec = {
       return 0
     end
     vim.fn["ddu#custom#action"]("kind", "lsp", "custom:preview", custom_preview)
+    helper.setup("lsp-client", {
+      sources = {
+        { name = "lsp_client" },
+      },
+    }, {
+      start = { key = "<leader>flc" },
+      localmap = {
+        ["<leader>d"] = { action = "itemAction", params = { name = "stop" } },
+        ["<leader>D"] = { action = "itemAction", params = { name = "stop", params = { force = true } } },
+        ["<leader>r"] = { action = "itemAction", params = { name = "restart" } },
+        ["<leader>R"] = { action = "itemAction", params = { name = "restart", params = { force = true } } },
+      },
+    })
     helper.setup("lsp-definition", {
       sync = true,
       sources = {
