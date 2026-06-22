@@ -14,31 +14,65 @@ const DEFAULT_PORT = 0;
 const LOCAL_HOST = "127.0.0.1";
 const REGISTER_RETRY_LIMIT = 5;
 const REGISTER_BACKOFF_BASE_MS = 200;
+const MCP_SESSION_HEADER = "mcp-session-id";
 
 export async function main(denops: Denops): Promise<void> {
   const port = await resolvePort(denops);
-  const server = new McpServer({
-    name: "nvim-denops",
-    version: "0.1.0",
-  });
+  const transports = new Map<
+    string,
+    WebStandardStreamableHTTPServerTransport
+  >();
 
-  registerBufferTools(server, denops);
-  registerStateTools(server, denops);
-  registerListItemsTool(server, denops);
-  registerDiagnosticsTool(server, denops);
-  registerHelpTool(server, denops);
+  const createTransport = async () => {
+    const transport = new WebStandardStreamableHTTPServerTransport({
+      sessionIdGenerator: () => crypto.randomUUID(),
+      enableJsonResponse: true,
+      onsessioninitialized: (sessionId: string) => {
+        transports.set(sessionId, transport);
+      },
+      onsessionclosed: (sessionId: string) => {
+        transports.delete(sessionId);
+      },
+    });
+    transport.onclose = () => {
+      if (transport.sessionId) {
+        transports.delete(transport.sessionId);
+      }
+    };
 
-  const transport = new WebStandardStreamableHTTPServerTransport({
-    sessionIdGenerator: () => crypto.randomUUID(),
-    enableJsonResponse: true,
-  });
-  await server.connect(transport);
+    const server = createServer(denops);
+    await server.connect(transport);
+    return transport;
+  };
+
+  const handleMcpRequest = async (req: Request) => {
+    const sessionId = req.headers.get(MCP_SESSION_HEADER);
+    const transport = sessionId ? transports.get(sessionId) : undefined;
+    if (sessionId && !transport) {
+      return new Response(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          error: {
+            code: -32001,
+            message: "Session not found",
+          },
+          id: null,
+        }),
+        {
+          status: 404,
+          headers: { "content-type": "application/json" },
+        },
+      );
+    }
+
+    return await (transport ?? await createTransport()).handleRequest(req);
+  };
 
   const handler = async (req: Request) => {
     try {
       const { pathname } = new URL(req.url);
       if (pathname === "/mcp") {
-        return await transport.handleRequest(req);
+        return await handleMcpRequest(req);
       }
       if (pathname === "/health") {
         return new Response(JSON.stringify({ status: "ok" }), {
@@ -65,6 +99,21 @@ export async function main(denops: Denops): Promise<void> {
   } catch (error) {
     console.error("Failed to start nvim MCP server:", error);
   }
+}
+
+function createServer(denops: Denops) {
+  const server = new McpServer({
+    name: "nvim-denops",
+    version: "0.1.0",
+  });
+
+  registerBufferTools(server, denops);
+  registerStateTools(server, denops);
+  registerListItemsTool(server, denops);
+  registerDiagnosticsTool(server, denops);
+  registerHelpTool(server, denops);
+
+  return server;
 }
 
 async function registerToProxy(
