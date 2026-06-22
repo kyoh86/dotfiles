@@ -8,6 +8,8 @@ import {
 } from "../../@ddu-kinds/lsp_client/main.ts";
 import { ensure, is } from "@core/unknownutil";
 
+import { pathShorten } from "../../lib/path_shorten.ts";
+
 type Params = Record<PropertyKey, never>;
 
 export class Source extends BaseSource<Params, ActionData> {
@@ -24,14 +26,7 @@ export class Source extends BaseSource<Params, ActionData> {
         );
         const clients = ensure(res, is.ArrayOf(isActionData));
         controller.enqueue(
-          clients.map((v) => {
-            return v
-              ? {
-                word: v.name,
-                action: v,
-              }
-              : undefined;
-          }).filter((v) => !!v),
+          clients.map(formatItem).filter((v) => !!v),
         );
         controller.close();
       },
@@ -41,4 +36,37 @@ export class Source extends BaseSource<Params, ActionData> {
   override params(): Params {
     return {};
   }
+}
+
+function formatItem(action?: ActionData) {
+  if (!action) {
+    return undefined;
+  }
+  const ret = {
+    word: action.name,
+    action,
+    highlights: [{
+      name: "ddu-kind-lsp_client-name",
+      hl_group: "Title",
+      col: 1,
+      width: action.name.length,
+    }],
+  };
+  if (action.root_dir) {
+    const shorten = pathShorten(action.root_dir);
+    ret.word += " " + shorten;
+    ret.highlights.push({
+      name: "ddu-kind-lsp_client-root_dir",
+      hl_group: "String",
+      col: action.name.length + 2,
+      width: shorten.length,
+    });
+  }
+  const bufs = Object.entries(action.attached_buffers).map((entry) => {
+    return `${entry[0]}(${entry[1]})`;
+  }).join(", ");
+  if (bufs && bufs !== "") {
+    ret.word += " for buffer " + bufs;
+  }
+  return ret;
 }
