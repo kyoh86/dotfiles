@@ -11,7 +11,7 @@ export class Source extends BaseSource<Params, ActionData> {
   override gather(
     {}: GatherArguments<Params>,
   ): ReadableStream<Item<ActionData>[]> {
-    let timer: number | undefined = undefined;
+    let timer: NodeJS.Timeout | undefined = undefined;
     const cancel = () => {
       if (timer) clearInterval(timer);
     };
