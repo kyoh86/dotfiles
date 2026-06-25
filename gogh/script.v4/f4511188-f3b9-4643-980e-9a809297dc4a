@@ -4,4 +4,4 @@
 --   gogh.repository.name: Repository name
 --   gogh.repository.url: Repository URL
 --   gogh.repository.path: Local repository path
-
+os.execute("git -C " .. gogh.repo.full_path .. " pull")
