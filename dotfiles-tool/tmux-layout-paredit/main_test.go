@@ -547,6 +547,65 @@ func TestReconstructLayout(t *testing.T) {
 	})
 }
 
+func TestGrowChildAtPath(t *testing.T) {
+	t.Run("row split grows first child", func(t *testing.T) {
+		root := NewSplit(AxisRow, Rect{X: 0, Y: 0, W: 100, H: 50}, []Node{
+			NewLeaf("%0", Rect{X: 0, Y: 0, W: 50, H: 50}),
+			NewLeaf("%1", Rect{X: 51, Y: 0, W: 49, H: 50}),
+		})
+
+		grown, changed := growChildAtPath(root, []int{}, 0, 5)
+		if !changed {
+			t.Fatalf("expected grow to change layout")
+		}
+
+		got := reconstructLayoutPreserveSizes(grown, nil, Rect{X: 0, Y: 0, W: 100, H: 50})
+		want := "100x50,0,0{55x50,0,0,0,44x50,56,0,1}"
+		if got != want {
+			t.Errorf("expected %s, got %s", want, got)
+		}
+	})
+
+	t.Run("row split grows second child", func(t *testing.T) {
+		root := NewSplit(AxisRow, Rect{X: 0, Y: 0, W: 100, H: 50}, []Node{
+			NewLeaf("%0", Rect{X: 0, Y: 0, W: 50, H: 50}),
+			NewLeaf("%1", Rect{X: 51, Y: 0, W: 49, H: 50}),
+		})
+
+		grown, changed := growChildAtPath(root, []int{}, 1, 5)
+		if !changed {
+			t.Fatalf("expected grow to change layout")
+		}
+
+		got := reconstructLayoutPreserveSizes(grown, nil, Rect{X: 0, Y: 0, W: 100, H: 50})
+		want := "100x50,0,0{45x50,0,0,0,54x50,46,0,1}"
+		if got != want {
+			t.Errorf("expected %s, got %s", want, got)
+		}
+	})
+
+	t.Run("col split grows subtree as a unit", func(t *testing.T) {
+		root := NewSplit(AxisCol, Rect{X: 0, Y: 0, W: 100, H: 51}, []Node{
+			NewSplit(AxisRow, Rect{X: 0, Y: 0, W: 100, H: 25}, []Node{
+				NewLeaf("%0", Rect{X: 0, Y: 0, W: 50, H: 25}),
+				NewLeaf("%1", Rect{X: 51, Y: 0, W: 49, H: 25}),
+			}),
+			NewLeaf("%2", Rect{X: 0, Y: 26, W: 100, H: 25}),
+		})
+
+		grown, changed := growChildAtPath(root, []int{}, 0, 5)
+		if !changed {
+			t.Fatalf("expected grow to change layout")
+		}
+
+		got := reconstructLayoutPreserveSizes(grown, nil, Rect{X: 0, Y: 0, W: 100, H: 51})
+		want := "100x51,0,0[100x30,0,0{50x30,0,0,0,49x30,51,0,1},100x20,0,31,2]"
+		if got != want {
+			t.Errorf("expected %s, got %s", want, got)
+		}
+	})
+}
+
 func TestRotateSelected(t *testing.T) {
 	// Create a tree: [[a,b],c] where the inner split is at path [0]
 	// This represents: col split with children [row split(a,b), c]
@@ -633,7 +692,6 @@ func TestRotateWithRealLayout(t *testing.T) {
 		}
 	}
 }
-
 
 func TestRotateColToRow(t *testing.T) {
 	// Test rotating a col split to a row split

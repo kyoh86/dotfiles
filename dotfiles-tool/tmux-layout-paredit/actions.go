@@ -1,7 +1,5 @@
 package main
 
-import "strconv"
-
 type Actions struct {
 	root  Node
 	state *State
@@ -78,37 +76,14 @@ func (a Actions) GrowChild(child int) error {
 		return nil
 	}
 
-	split := n.AsSplit()
-	axis := split.Axis
-
-	// Get the target pane for the child to resize
-	targetChild := split.Children[child]
-	targetPane := firstLeaf(targetChild).Pane
-
-	// Determine tmux resize flag based on axis
-	// For row splits (horizontal), we resize left/right
-	// For col splits (vertical), we resize up/down
-	var direction string
-	if axis == AxisRow {
-		if child == 0 {
-			direction = "-L" // Grow left (which is child 0)
-		} else {
-			direction = "-R" // Grow right (which is child 1)
-		}
-	} else {
-		if child == 0 {
-			direction = "-U" // Grow up (which is child 0)
-		} else {
-			direction = "-D" // Grow down (which is child 1)
-		}
+	newRoot, changed := growChildAtPath(a.root, a.state.SelectedPath, child, Step)
+	if !changed {
+		return nil
 	}
 
-	// Use tmux's native resize command
-	if _, err := tmux("resize-pane", "-t", targetPane, direction, strconv.Itoa(Step)); err != nil {
-		log("grow"+strconv.Itoa(child)+" failed: "+err.Error())
+	if err := applyLayoutPreserveSizes(newRoot, nil); err != nil {
 		return err
 	}
-
-	log("grow" + strconv.Itoa(child) + ": done")
+	log("grow: done")
 	return nil
 }

@@ -149,17 +149,17 @@ func normalizeToBinary(node Node) Node {
 		var intermediateRect Rect
 		if split.Axis == AxisRow {
 			intermediateRect = Rect{
-				X:      getRect(leftChild).X,
-				Y:      getRect(leftChild).Y,
-				W:      getRect(leftChild).W + 1 + getRect(rightChild).W,
-				H:      max(getRect(leftChild).H, getRect(rightChild).H),
+				X: getRect(leftChild).X,
+				Y: getRect(leftChild).Y,
+				W: getRect(leftChild).W + 1 + getRect(rightChild).W,
+				H: max(getRect(leftChild).H, getRect(rightChild).H),
 			}
 		} else {
 			intermediateRect = Rect{
-				X:      getRect(leftChild).X,
-				Y:      getRect(leftChild).Y,
-				W:      max(getRect(leftChild).W, getRect(rightChild).W),
-				H:      getRect(leftChild).H + 1 + getRect(rightChild).H,
+				X: getRect(leftChild).X,
+				Y: getRect(leftChild).Y,
+				W: max(getRect(leftChild).W, getRect(rightChild).W),
+				H: getRect(leftChild).H + 1 + getRect(rightChild).H,
 			}
 		}
 
@@ -243,6 +243,12 @@ func reconstructLayoutNormalized(node Node, paneIDOverride map[string]string, wi
 	return reconstructLayout(positionedNode, paneIDOverride)
 }
 
+func reconstructLayoutPreserveSizes(node Node, paneIDOverride map[string]string, windowRect Rect) string {
+	resizedNode := resizeNodePreservingRatios(node, windowRect.W, windowRect.H)
+	positionedNode := setNodePositionRecursive(resizedNode, 0, 0)
+	return reconstructLayout(positionedNode, paneIDOverride)
+}
+
 func calculateChecksum(layout string) string {
 	csum := 0
 	for i := 0; i < len(layout); i++ {
@@ -279,6 +285,44 @@ func applyLayout(root Node, paneIDOverride map[string]string) error {
 	log("window size: " + strconv.Itoa(windowRect.W) + "x" + strconv.Itoa(windowRect.H))
 
 	layout := reconstructLayoutNormalized(root, paneIDOverride, windowRect)
+	log("generated layout: " + layout)
+
+	checksum := calculateChecksum(layout)
+	log("checksum: " + checksum)
+
+	layoutWithChecksum := checksum + "," + layout
+	log("applying layout: " + layoutWithChecksum)
+	if _, err = tmux("select-layout", layoutWithChecksum); err != nil {
+		log("layout apply failed: " + err.Error())
+		return err
+	}
+	log("layout applied successfully")
+	return nil
+}
+
+func applyLayoutPreserveSizes(root Node, paneIDOverride map[string]string) error {
+	originalLayout, err := tmux("display-message", "-p", "#{window_layout}")
+	if err != nil {
+		return err
+	}
+	log("original layout: " + originalLayout)
+
+	windowSize, err := tmux("display-message", "-p", "#{window_width}x#{window_height},0,0")
+	if err != nil {
+		return err
+	}
+	var windowRect Rect
+	parts := strings.Split(strings.TrimPrefix(windowSize, "%0"), ",")
+	if len(parts) >= 2 {
+		sizeParts := strings.Split(parts[0], "x")
+		if len(sizeParts) == 2 {
+			windowRect.W = mustAtoi(sizeParts[0])
+			windowRect.H = mustAtoi(sizeParts[1])
+		}
+	}
+	log("window size: " + strconv.Itoa(windowRect.W) + "x" + strconv.Itoa(windowRect.H))
+
+	layout := reconstructLayoutPreserveSizes(root, paneIDOverride, windowRect)
 	log("generated layout: " + layout)
 
 	checksum := calculateChecksum(layout)

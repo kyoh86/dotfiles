@@ -83,6 +83,154 @@ func copyNodes(nodes []Node) []Node {
 	return result
 }
 
+func majorSize(n Node, axis Axis) int {
+	rect := getRect(n)
+	if axis == AxisRow {
+		return rect.W
+	}
+	return rect.H
+}
+
+func allocateByRatio(children []Node, axis Axis, total int) []int {
+	count := len(children)
+	sizes := make([]int, count)
+	if count == 0 {
+		return sizes
+	}
+	if total < count {
+		total = count
+	}
+
+	sum := 0
+	for _, child := range children {
+		sum += max(majorSize(child, axis), 1)
+	}
+	if sum <= 0 {
+		sum = count
+	}
+
+	remaining := total
+	fractions := make([]int, count)
+	for i, child := range children {
+		weighted := total * max(majorSize(child, axis), 1)
+		size := weighted / sum
+		if size < 1 {
+			size = 1
+		}
+		sizes[i] = size
+		remaining -= size
+		fractions[i] = weighted % sum
+	}
+
+	for remaining > 0 {
+		best := 0
+		for i := 1; i < count; i++ {
+			if fractions[i] > fractions[best] {
+				best = i
+			}
+		}
+		sizes[best]++
+		fractions[best] = -1
+		remaining--
+	}
+	for remaining < 0 {
+		best := -1
+		for i := 0; i < count; i++ {
+			if sizes[i] <= 1 {
+				continue
+			}
+			if best == -1 || fractions[i] < fractions[best] {
+				best = i
+			}
+		}
+		if best == -1 {
+			break
+		}
+		sizes[best]--
+		remaining++
+	}
+
+	return sizes
+}
+
+func resizeNodePreservingRatios(node Node, width, height int) Node {
+	if node.IsLeaf() {
+		leaf := node.AsLeaf()
+		return NewLeaf(leaf.Pane, Rect{X: leaf.Rect.X, Y: leaf.Rect.Y, W: width, H: height})
+	}
+
+	split := node.AsSplit()
+	count := len(split.Children)
+	children := make([]Node, 0, count)
+	if split.Axis == AxisRow {
+		availableWidth := width - (count - 1)
+		sizes := allocateByRatio(split.Children, split.Axis, availableWidth)
+		for i, child := range split.Children {
+			children = append(children, resizeNodePreservingRatios(child, sizes[i], height))
+		}
+	} else {
+		availableHeight := height - (count - 1)
+		sizes := allocateByRatio(split.Children, split.Axis, availableHeight)
+		for i, child := range split.Children {
+			children = append(children, resizeNodePreservingRatios(child, width, sizes[i]))
+		}
+	}
+
+	return NewSplit(split.Axis, Rect{X: split.Rect.X, Y: split.Rect.Y, W: width, H: height}, children)
+}
+
+func growSplitChild(split *Split, child int, step int) bool {
+	if child < 0 || child >= len(split.Children) || len(split.Children) != 2 {
+		return false
+	}
+
+	other := 1 - child
+	growSize := majorSize(split.Children[child], split.Axis)
+	shrinkSize := majorSize(split.Children[other], split.Axis)
+	delta := min(step, shrinkSize-1)
+	if delta <= 0 {
+		return false
+	}
+
+	growSize += delta
+	shrinkSize -= delta
+
+	if split.Axis == AxisRow {
+		height := split.Rect.H
+		split.Children[child] = resizeNodePreservingRatios(split.Children[child], growSize, height)
+		split.Children[other] = resizeNodePreservingRatios(split.Children[other], shrinkSize, height)
+	} else {
+		width := split.Rect.W
+		split.Children[child] = resizeNodePreservingRatios(split.Children[child], width, growSize)
+		split.Children[other] = resizeNodePreservingRatios(split.Children[other], width, shrinkSize)
+	}
+	return true
+}
+
+func growChildAtPath(root Node, path []int, child int, step int) (Node, bool) {
+	if root.IsLeaf() {
+		return root, false
+	}
+
+	split := root.AsSplit()
+	newSplit := NewSplit(split.Axis, split.Rect, copyNodes(split.Children))
+	newSplitNode := newSplit.AsSplit()
+	if len(path) == 0 {
+		return newSplit, growSplitChild(newSplitNode, child, step)
+	}
+
+	index := path[0]
+	if index < 0 || index >= len(newSplitNode.Children) {
+		return newSplit, false
+	}
+	updatedChild, changed := growChildAtPath(newSplitNode.Children[index], path[1:], child, step)
+	if !changed {
+		return newSplit, false
+	}
+	newSplitNode.Children[index] = updatedChild
+	return newSplit, true
+}
+
 // setNodePositionRecursive sets positions for all nodes in a tree
 func setNodePositionRecursive(node Node, x, y int) Node {
 	if node.IsLeaf() {
