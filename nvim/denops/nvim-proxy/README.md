@@ -29,7 +29,8 @@ tmux copy-mode -----------------------> nvim-proxy (/setreg,/getreg,/open) --> d
   - Neovim 内の環境変数を返す `/env` ルートを登録
   - shell から Neovim の `User` autocmd を発火する `/notify` ルートを登録
   - shell/tmux から Neovim の register へ書き込む `/setreg` ルートを登録
-  - shell/tmux から Neovim の register と file/URL opener を使う `/getreg` `/open` ルートを登録
+  - shell/tmux から Neovim の register と file/URL opener を使う `/getreg`
+    `/open` ルートを登録
 - `nvim/denops/nvim-proxy/proxy.ts`
   - 固定ポートで待ち受け
   - `path` 単位で登録済みの転送先へプロキシ
@@ -83,7 +84,8 @@ dirty-bufs 側は `/dirty-bufs` を登録する:
 - `POST /setreg` : Neovim の register へ文字列を書き込む
 - `POST /getreg` : Neovim の register から文字列を読む
 - `POST /open` : Neovim 内の file/URL opener で対象文字列を開く
-- `POST /focus-edge` : tmux から Neovim pane へ入った方向に応じて端 window を選ぶ
+- `POST /focus-edge` : tmux から Neovim pane へ入った方向に応じて端 window
+  を選ぶ
 
 ## ヘルスチェック
 

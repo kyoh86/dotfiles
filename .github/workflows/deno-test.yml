@@ -38,7 +38,7 @@ jobs:
           deno-version: v2.x
 
       - name: Verify formatting
-        run: deno fmt --check ./denops/**
+        run: deno fmt --check
 
       - name: Check
         run: deno check
