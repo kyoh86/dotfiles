@@ -4,6 +4,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 local spec = {
   {
     "kyoh86/ddu-kind-command",
+    dependencies = { "ddu.vim" },
   },
   {
     "kyoh86/ddu-source-command",

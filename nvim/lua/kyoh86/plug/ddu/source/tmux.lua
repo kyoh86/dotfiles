@@ -3,6 +3,7 @@ local helper = require("kyoh86.plug.ddu.helper")
 ---@type LazySpec
 local spec = {
   "kyoh86/ddu-source-tmux",
+  dependencies = { "ddu.vim" },
   config = function()
     helper.setup("tmux-session", {
       sources = { { name = "tmux_session" } },
