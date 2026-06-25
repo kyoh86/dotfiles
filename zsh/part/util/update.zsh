@@ -63,7 +63,7 @@ function update_mise {
     if command -v mise >/dev/null 2>&1; then
         mise cache clear
         mise self-update --yes
-        MISE_FETCH_REMOTE_VERSIONS_CACHE=0 mise upgrade --yes
+        MISE_FETCH_REMOTE_VERSIONS_CACHE=0 mise up --yes
         mise prune --yes
     fi
     popd
