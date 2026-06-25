@@ -5,10 +5,10 @@ local spec = {
   "kyoh86/ddu-source-inkdrop",
   dependencies = { "ddu.vim", "kyoh86/denops-inkdrop.vim" },
   config = function()
-    helper.setup("inkdrop_notes", {
-      sources = { { name = "inkdrop_notes" } },
+    helper.setup("inkdrop_note", {
+      sources = { { name = "inkdrop_note" } },
       kindOptions = {
-        file = {
+        inkdrop_note = {
           defaultAction = "open",
         },
       },
@@ -20,10 +20,10 @@ local spec = {
       filelike = true,
     })
 
-    helper.setup("inkdrop_books", {
-      sources = { { name = "inkdrop_books" } },
+    helper.setup("inkdrop_book", {
+      sources = { { name = "inkdrop_book" } },
       kindOptions = {
-        file = {
+        inkdrop_book = {
           defaultAction = "open",
         },
       },
@@ -33,12 +33,15 @@ local spec = {
         desc = "Inkdrop Books",
       },
       filelike = true,
+      localmap = {
+        ["<leader>a"] = { action = "itemAction", params = { name = "moveNoteToBook" } },
+      },
     })
 
-    helper.setup("inkdrop_tags", {
-      sources = { { name = "inkdrop_tags" } },
+    helper.setup("inkdrop_tag", {
+      sources = { { name = "inkdrop_tag" } },
       kindOptions = {
-        file = {
+        inkdrop_tag = {
           defaultAction = "open",
         },
       },
@@ -48,6 +51,10 @@ local spec = {
         desc = "Inkdrop Tags",
       },
       filelike = true,
+      localmap = {
+        ["<leader>a"] = { action = "itemAction", params = { name = "addTag" } },
+        ["<leader>d"] = { action = "itemAction", params = { name = "removeTag" } },
+      },
     })
 
     helper.setup("inkdrop_status", {
@@ -61,6 +68,9 @@ local spec = {
       start = {
         key = "<leader>fis",
         desc = "Inkdrop Status",
+      },
+      localmap = {
+        ["<leader>a"] = { action = "itemAction", params = { name = "setStatus" } },
       },
     })
   end,
