@@ -1,6 +1,6 @@
 {
   "exports": {
-    ".": "main.ts"
+    ".": "./main.ts"
   },
   "imports": {
     "@denops/std": "jsr:@denops/std@^8.2.0",

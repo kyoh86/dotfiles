@@ -1,6 +1,6 @@
 {
   "exports": {
-    ".": "main.ts"
+    ".": "./main.ts"
   },
   "imports": {
     "@core/unknownutil": "jsr:@core/unknownutil@^4.3.0",
