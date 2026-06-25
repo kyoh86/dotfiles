@@ -50,13 +50,13 @@
     "@core/unknownutil": "jsr:@core/unknownutil@^4.3.0",
     "@denops/std": "jsr:@denops/std@^8.2.0",
     "@denops/test": "jsr:@denops/test@^4.0.0",
-    "@kyoh86/denops-util": "jsr:@kyoh86/denops-util@^0.1.2",
+    "@kyoh86/denops-util": "jsr:@kyoh86/denops-util@^0.1.4",
     "@shougo/ddu-kind-word": "jsr:@shougo/ddu-kind-word@^1.0.0",
     "@shougo/ddu-vim": "jsr:@shougo/ddu-vim@^11.3.0",
     "@std/assert": "jsr:@std/assert@^1.0.19",
-    "@std/fs": "jsr:@std/fs@^1.0.23",
-    "@std/path": "jsr:@std/path@^1.1.4",
-    "@std/streams": "jsr:@std/streams@^1.1.0",
+    "@std/fs": "jsr:@std/fs@^1.0.24",
+    "@std/path": "jsr:@std/path@^1.1.5",
+    "@std/streams": "jsr:@std/streams@^1.1.1",
     "@std/toml": "jsr:@std/toml@^1.0.11"
   },
   "nodeModulesDir": "auto"
