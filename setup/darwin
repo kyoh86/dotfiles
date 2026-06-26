@@ -13,3 +13,4 @@ MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/.worktree/main/setup/module"
 "${MODULE}"/mise
 
 "${MODULE}"/neovim
+"${MODULE}"/codex_remote

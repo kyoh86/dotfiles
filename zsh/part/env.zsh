@@ -96,9 +96,6 @@ export PATH="${HOME}/.deno/bin:${PATH}"
 # Tig:
 export PATH="${XDG_CONFIG_HOME}/tig/clip:${PATH}"
 
-# Codex
-export CODEX_HOME="${XDG_CONFIG_HOME}/codex"
-
 # Homebrew:
 export PATH="/opt/homebrew/bin:${PATH}"
 

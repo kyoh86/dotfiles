@@ -45,7 +45,6 @@ terraform = ["latest", "1.10"]
 terraform-ls = "latest"
 tree-sitter = "latest"
 "aqua:cli/cli" = "latest"
-"npm:@openai/codex" = "latest"
 "npm:@google/gemini-cli" = "latest"
 java = "latest"
 "go:github.com/icholy/gomajor" = "latest"

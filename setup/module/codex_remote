@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -eu
+
+link_codex_path() {
+  local source_path="$1"
+  local link_path="$2"
+
+  if [ -L "${link_path}" ]; then
+    rm -f "${link_path}"
+  elif [ -e "${link_path}" ]; then
+    mv "${link_path}" "${link_path}.bak.$(date +%Y%m%d%H%M%S)"
+  fi
+  ln -s "${source_path}" "${link_path}"
+}
+
+install_codex_standalone() {
+  # Codex Standalone版でしかremote-control起動はできない
+  curl -fsSL https://chatgpt.com/codex/install.sh | sh
+}
+
+setup_codex_remote_control() {
+  local xdg_config_home="${XDG_CONFIG_HOME:-${HOME}/.config}"
+  local codex_config_home="${xdg_config_home}/codex"
+  local codex_home="${HOME}/.codex"
+  local -a codex_command
+
+  mkdir -p "${codex_home}"
+  link_codex_path "${codex_config_home}/config.toml" "${codex_home}/config.toml"
+  link_codex_path "${codex_config_home}/skills" "${codex_home}/skills"
+  link_codex_path "${codex_config_home}/rules" "${codex_home}/rules"
+
+  if command -v mise >/dev/null 2>&1 && mise which codex >/dev/null 2>&1; then
+    codex_command=("$(command -v mise)" exec -- codex)
+  elif [ -x "${HOME}/.local/bin/mise" ] && "${HOME}/.local/bin/mise" which codex >/dev/null 2>&1; then
+    codex_command=("${HOME}/.local/bin/mise" exec -- codex)
+  elif command -v codex >/dev/null 2>&1; then
+    codex_command=("$(command -v codex)")
+  else
+    echo "codex command is not found. Run setup/module/mise first." >&2
+    return 1
+  fi
+
+  "${codex_command[@]}" app-server daemon bootstrap --remote-control
+}
+
+install_codex_standalone
+setup_codex_remote_control
