@@ -32,6 +32,7 @@ apt_install() {
       cmake   \
       wslu    \
       rsync   \
+      openssh-server \
       inotify-tools \
       coreutils \
       binutils \
