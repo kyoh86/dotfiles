@@ -10,24 +10,22 @@ setopt hist_reduce_blanks     # 余分な空白は詰めて記録
 setopt hist_no_store          # historyコマンドは履歴に登録しない
 setopt hist_verify            # ヒストリを呼び出してから実行する間に一旦編集可能
 
+# historyファイルに残さない
+HISTORY_IGNORE="(cat|cd|export|gh|git|t)"
+
+# セッション中の履歴にも残さない
 typeset -ga HISTORY_IGNORE_COMMANDS=(
-  cat
-  cd
   chmod
   chown
   cp
   exit
-  export
-  gh
   gi
-  git
   ln
   ls
   mv
   rm
   rmdir
   t
-  which
 )
 
 zshaddhistory() {
