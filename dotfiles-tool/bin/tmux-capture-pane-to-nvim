@@ -1,0 +1,39 @@
+#!/bin/sh
+set -eu
+
+if [ -z "${NVIM_PROXY_URL:-}" ] || [ -z "${NVIM_PID:-}" ]; then
+  tmux display-message "nvim-proxy is not available" 2>/dev/null || true
+  exit 0
+fi
+
+pane="${TMUX_CAPTURE_PANE:-$(tmux display-message -p '#{pane_id}' 2>/dev/null || true)}"
+cwd="${TMUX_CAPTURE_PANE_CWD:-$(tmux display-message -p '#{pane_current_path}' 2>/dev/null || true)}"
+title="${TMUX_CAPTURE_PANE_TITLE:-$(tmux display-message -p '#{pane_current_command}' 2>/dev/null || true)}"
+
+if [ -n "$pane" ]; then
+  payload="$(
+    tmux capture-pane -p -J -t "$pane" |
+      jq -Rs \
+        --arg pane "$pane" \
+        --arg cwd "$cwd" \
+        --arg title "$title" \
+        '{kind:"tmux-pane",pane:$pane,cwd:$cwd,title:$title,text:.}'
+  )"
+else
+  payload="$(
+    tmux capture-pane -p -J |
+      jq -Rs \
+        --arg pane "$pane" \
+        --arg cwd "$cwd" \
+        --arg title "$title" \
+        '{kind:"tmux-pane",pane:$pane,cwd:$cwd,title:$title,text:.}'
+  )"
+fi
+
+if ! curl -fsSL --connect-timeout 0.5 --max-time 2 \
+  -H "X-Nvim-Pid: ${NVIM_PID}" \
+  -H "content-type: application/json" \
+  "${NVIM_PROXY_URL}/scratch" \
+  -d "$payload" >/dev/null 2>&1; then
+  tmux display-message "failed to open tmux pane capture in Neovim" 2>/dev/null || true
+fi

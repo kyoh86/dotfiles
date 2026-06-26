@@ -85,6 +85,9 @@ async function startLocalServer(denops: Denops, pid: number) {
       if (pathname === "/open") {
         return await handleOpenRequest(denops, req);
       }
+      if (pathname === "/scratch") {
+        return await handleScratchRequest(denops, req);
+      }
       if (pathname === "/focus-edge") {
         return await handleFocusEdgeRequest(denops, req);
       }
@@ -206,6 +209,29 @@ async function handleOpenRequest(denops: Denops, req: Request) {
   return json({ ok: true });
 }
 
+async function handleScratchRequest(denops: Denops, req: Request) {
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return json({ error: "Invalid body" }, 400);
+  }
+  const text = readStringField(body, "text");
+  if (text === undefined) {
+    return json({ error: "Invalid scratch request" }, 400);
+  }
+  await denops.call(
+    "luaeval",
+    "require('kyoh86.conf.tmux_capture').open(_A)",
+    {
+      kind: readStringField(body, "kind") ?? "",
+      pane: readStringField(body, "pane") ?? "",
+      cwd: readStringField(body, "cwd") ?? "",
+      title: readStringField(body, "title") ?? "",
+      text,
+    },
+  );
+  return json({ ok: true });
+}
+
 async function handleFocusEdgeRequest(denops: Denops, req: Request) {
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== "object") {
@@ -309,6 +335,7 @@ async function registerLocalRoutesToProxy(
     { proxyPath: "/setreg", reversePath: "/setreg" },
     { proxyPath: "/getreg", reversePath: "/getreg" },
     { proxyPath: "/open", reversePath: "/open" },
+    { proxyPath: "/scratch", reversePath: "/scratch" },
     { proxyPath: "/focus-edge", reversePath: "/focus-edge" },
   ];
   for (let attempt = 0; attempt < REGISTER_RETRY_LIMIT; attempt += 1) {
