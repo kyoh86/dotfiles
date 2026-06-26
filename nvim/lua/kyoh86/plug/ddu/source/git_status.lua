@@ -62,6 +62,11 @@ local spec = {
           defaultAction = "custom:edit",
         },
       },
+      uiParams = {
+        ff = {
+          startAutoAction = true,
+        },
+      },
     }, {
       start = {
         key = "<leader>fgs",
