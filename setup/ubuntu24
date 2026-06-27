@@ -26,3 +26,4 @@ sudo usermod -aG docker "${USER}"
 "${MODULE}"/zenhan
 "${MODULE}"/tmux
 "${MODULE}"/codex_remote
+"${MODULE}"/claude_code

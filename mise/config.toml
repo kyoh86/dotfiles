@@ -51,7 +51,6 @@ java = "latest"
 usage = "latest"
 npm = "latest"
 gitleaks = "latest"
-claude-code = "latest"
 uv = "latest"
 "github:kyoh86/gogh" = { version = "v5.0.0-alpha.4", postinstall = "gogh completion zsh > $HOME/.config/zsh/completions/_gogh.zsh" }
 
