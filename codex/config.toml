@@ -16,6 +16,17 @@ network_access = true
 url = "http://127.0.0.1:37125/mcp"
 env_http_headers = { "X-Nvim-Pid" = "NVIM_PID" }
 
+[notice.model_migrations]
+"gpt-5.2-codex" = "gpt-5.3-codex"
+"gpt-5.3-codex" = "gpt-5.4"
+"gpt-5.4" = "gpt-5.5"
+
+[plugins."github@openai-curated"]
+enabled = true
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
+
 [projects."/home/kyoh86/Projects/github.com/kyoh86/dotfiles"]
 trust_level = "trusted"
 
@@ -472,17 +483,6 @@ trust_level = "trusted"
 [projects."/home/kyoh86/Projects/github.com/kyoh86/heirline.nvim"]
 trust_level = "trusted"
 
-[notice.model_migrations]
-"gpt-5.2-codex" = "gpt-5.3-codex"
-"gpt-5.3-codex" = "gpt-5.4"
-"gpt-5.4" = "gpt-5.5"
-
-[tui.model_availability_nux]
-"gpt-5.5" = 4
-
-[plugins."github@openai-curated"]
-enabled = true
-
 [projects."github.com/kyoh86/previm"]
 trust_level = "trusted"
 
@@ -493,4 +493,7 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."github.com/kyoh86/windows-config"]
+trust_level = "trusted"
+
+[projects."github.com/kyoh86/mikke"]
 trust_level = "trusted"
