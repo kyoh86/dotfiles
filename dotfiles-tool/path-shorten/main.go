@@ -47,18 +47,18 @@ func shortenPath(path string) string {
 		}
 	}
 
-	// Check for .worktree/(branch) pattern at the end
+	// Check for .wt/(branch) pattern at the end
 	var worktreeBranch string
 	for i, s := range filtered {
-		if s == ".worktree" && i+1 < len(filtered) {
+		if s == ".wt" && i+1 < len(filtered) {
 			// Check if this is at the end (i+2 == len(filtered))
 			if i+2 == len(filtered) {
 				worktreeBranch = filtered[i+1]
-				// Remove .worktree and branch from filtered
+				// Remove .wt and branch from filtered
 				filtered = append(filtered[:i], filtered[i+2:]...)
 				break
 			}
-			// Not at the end, don't remove .worktree
+			// Not at the end, don't remove .wt
 			break
 		}
 	}
@@ -67,9 +67,9 @@ func shortenPath(path string) string {
 	if len(filtered) <= 3 {
 		result := path
 		if worktreeBranch != "" {
-			// Remove .worktree/(branch) from original path and add @(branch)
-			result = strings.Replace(result, "/.worktree/"+worktreeBranch, "", 1)
-			result = strings.Replace(result, "\\.worktree\\"+worktreeBranch, "", 1)
+			// Remove .wt/(branch) from original path and add @(branch)
+			result = strings.Replace(result, "/.wt/"+worktreeBranch, "", 1)
+			result = strings.Replace(result, "\\.wt\\"+worktreeBranch, "", 1)
 			result = result + "@" + worktreeBranch
 		}
 		return result

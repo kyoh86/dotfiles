@@ -3,7 +3,7 @@ import { pathShorten } from "./path_shorten.ts";
 
 Deno.test("pathShorten resolves relative path and home prefix", () => {
   assertEquals(
-    pathShorten("repo/.worktree/main", {
+    pathShorten("repo/.wt/main", {
       cwd: "/home/user/Projects/github.com/kyoh86",
       homeDir: "/home/user",
     }),

@@ -20,8 +20,8 @@
 ```bash
 # Clone and setup dotfiles
 git clone --bare https://github.com/kyoh86/dotfiles $HOME/Projects/github.com/kyoh86/dotfiles
-git -C $HOME/Projects/github.com/kyoh86/dotfiles worktree add $HOME/Projects/github.com/kyoh86/dotfiles/.worktree/main
-cd $HOME/Projects/github.com/kyoh86/dotfiles/.worktree/main
+git -C $HOME/Projects/github.com/kyoh86/dotfiles worktree add $HOME/Projects/github.com/kyoh86/dotfiles/.wt/main
+cd $HOME/Projects/github.com/kyoh86/dotfiles/.wt/main
 
 # Arch Linux (WSL)
 ./setup/arch

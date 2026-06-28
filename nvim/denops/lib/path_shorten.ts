@@ -32,7 +32,7 @@ function shortenPath(path: string): string {
 
   let worktreeBranch = "";
   for (const [index, segment] of filtered.entries()) {
-    if (segment !== ".worktree" || index + 1 >= filtered.length) {
+    if (segment !== ".wt" || index + 1 >= filtered.length) {
       continue;
     }
     if (index + 2 === filtered.length) {
@@ -48,8 +48,8 @@ function shortenPath(path: string): string {
   if (filtered.length <= 3) {
     let result = path;
     if (worktreeBranch !== "") {
-      result = result.replace(`/.worktree/${worktreeBranch}`, "");
-      result = result.replace(`\\.worktree\\${worktreeBranch}`, "");
+      result = result.replace(`/.wt/${worktreeBranch}`, "");
+      result = result.replace(`\\.wt\\${worktreeBranch}`, "");
       result = `${result}@${worktreeBranch}`;
     }
     return result;

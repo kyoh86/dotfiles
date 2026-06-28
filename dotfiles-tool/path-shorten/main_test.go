@@ -32,8 +32,8 @@ func TestShortenPath(t *testing.T) {
 		{"/Long/name/to/path", "/L/n/t/path"},
 		{"/Long/.name/to/path", "/L/.n/t/path"},
 
-		{"~/Long/name/to/path/.worktree/main", "~/L/n/t/path@main"},
-		{"~/Long/name/to/path/.worktree/other/structure", "~/L/n/t/p/.w/o/structure"},
+		{"~/Long/name/to/path/.wt/main", "~/L/n/t/path@main"},
+		{"~/Long/name/to/path/.wt/other/structure", "~/L/n/t/p/.w/o/structure"},
 	}
 
 	for _, tt := range tests {
