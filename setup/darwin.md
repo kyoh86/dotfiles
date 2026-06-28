@@ -30,9 +30,9 @@
 ## 3. Run setup script
 
 ```console
-$ git clone --bare https://github.com/kyoh86/dotfiles $HOME/Projects/github.com/kyoh86/dotfiles
-$ git -C $HOME/Projects/github.com/kyoh86/dotfiles worktree add $HOME/Projects/github.com/kyoh86/dotfiles/.wt/main main
-$ cd $HOME/Projects/github.com/kyoh86/dotfiles/.wt/main
+$ git clone --bare https://github.com/kyoh86/dotfiles $HOME/dev/gh/kyoh86/dotfiles
+$ git -C $HOME/dev/gh/kyoh86/dotfiles worktree add $HOME/dev/gh/kyoh86/dotfiles/.wt/main main
+$ cd $HOME/dev/gh/kyoh86/dotfiles/.wt/main
 $ ./setup/darwin
 ```
 

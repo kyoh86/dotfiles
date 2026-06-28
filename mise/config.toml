@@ -52,7 +52,7 @@ usage = "latest"
 npm = "latest"
 gitleaks = "latest"
 uv = "latest"
-"github:kyoh86/gogh" = { version = "5.0.0-alpha.6", postinstall = "gogh completion zsh > $HOME/.config/zsh/completions/_gogh.zsh" }
+"github:kyoh86/gogh" = { version = "5.0.0-alpha.7", postinstall = "gogh completion zsh > $HOME/.config/zsh/completions/_gogh.zsh" }
 
 [tools.deno]
 version = "latest"

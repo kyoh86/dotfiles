@@ -3,7 +3,7 @@
 # Clone dotfiles
 clone_dotfiles() {
 
-  DOTFILES_DIR="${HOME}/Projects/github.com/kyoh86/dotfiles"
+  DOTFILES_DIR="${HOME}/dev/gh/kyoh86/dotfiles"
   DOTFILES_WORKTREE="${DOTFILES_DIR}/.wt/main"
   [ -d "${DOTFILES_DIR}" ] || git clone --bare https://github.com/kyoh86/dotfiles "${DOTFILES_DIR}"
   [ -d "${DOTFILES_WORKTREE}" ] || git -C "${DOTFILES_DIR}" worktree add "${DOTFILES_WORKTREE}" main

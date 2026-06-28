@@ -73,7 +73,7 @@ setup_git_config() {
     GH_COMMAND="mise exec -- gh"
   fi
 
-  cat << EOS > "${HOME}"/Projects/github.com/kyoh86/dotfiles/.wt/main/git/host.conf
+  cat << EOS > "${HOME}"/dev/gh/kyoh86/dotfiles/.wt/main/git/host.conf
 [user]
   name = ${GITHUB_NAME}
   email = ${GITHUB_EMAIL}

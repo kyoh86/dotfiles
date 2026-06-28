@@ -7,7 +7,7 @@ end
 
 local libs = {
   "/usr/share/lua/5.1",
-  vim.fn.expand("~/Projects/github.com/kyoh86/gogh/lua"),
+  vim.fn.expand("~/dev/gh/kyoh86/gogh/lua"),
 }
 
 -- LSがNeovim設定ディレクトリ以下で起動されてるかチェック

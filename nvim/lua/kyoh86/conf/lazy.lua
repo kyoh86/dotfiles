@@ -1,4 +1,4 @@
-local dev_path_origin = vim.env.HOME .. "/Projects/github.com"
+local dev_path_origin = vim.env.HOME .. "/dev/gh"
 local default_dev_path = dev_path_origin .. "/kyoh86"
 local url_pattern = "^https://github%.com/([^/]+)/([^/]+)(%.git)$"
 

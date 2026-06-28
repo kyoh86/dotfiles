@@ -4,7 +4,7 @@
 
 set -ex
 
-MODULE="${HOME}/Projects/github.com/kyoh86/dotfiles/.wt/main/setup/module"
+MODULE="${HOME}/dev/gh/kyoh86/dotfiles/.wt/main/setup/module"
 
 "${MODULE}"/zshenv
 "${MODULE}"/github

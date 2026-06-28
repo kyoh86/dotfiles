@@ -1,2 +1,5 @@
-roots = ['/home/kyoh86/Projects', '/home/kyoh86/go/src']
-primary_root = '/home/kyoh86/Projects'
+roots = ["/home/kyoh86/dev", "/home/kyoh86/go/src"]
+primary_root = "/home/kyoh86/dev"
+
+[host-path-aliases]
+'github.com' = "gh"

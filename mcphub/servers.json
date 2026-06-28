@@ -8,9 +8,9 @@
         "-i",
         "--rm",
         "--mount",
-        "type=bind,src=/home/kyoh86/Projects,dst=/home/kyoh86/Projects,ro",
+        "type=bind,src=/home/kyoh86/dev,dst=/home/kyoh86/dev,ro",
         "mcp/filesystem",
-        "/home/kyoh86/Projects"
+        "/home/kyoh86/dev"
       ]
     },
     "codegen-mcp": {

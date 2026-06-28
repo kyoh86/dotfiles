@@ -36,7 +36,7 @@ export PATH="/usr/local/go/bin:${GOPATH}/bin:${PATH}"
 export AWS_SDK_LOAD_CONFIG=1
 
 # Generator-go-project:
-export GO_PROJECT_ROOT="${HOME}/Projects"
+export GO_PROJECT_ROOT="${HOME}/dev"
 
 # Python:
 # (support sqlite3 and mysql library (used by mypy, etc...))
