@@ -1,63 +1,8 @@
 import * as fn from "@denops/std/function";
 import type { Denops } from "@denops/std";
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import * as path from "@std/path";
-import * as z from "zod";
 
-const DEFAULT_CONTEXT = 4;
-const DEFAULT_LIMIT = 3;
-
-type HelpQueryOptions = {
-  query: string;
-  context?: number;
-  limit?: number;
-};
-
-export function registerHelpTool(server: McpServer, denops: Denops): void {
-  server.registerTool(
-    "help_query",
-    {
-      title: "Query Neovim help tags",
-      description:
-        "Search Neovim help tags and return context from the matching help file.",
-      inputSchema: z.object({
-        query: z.string().min(1),
-        context: z.number().int().positive().optional(),
-        limit: z.number().int().positive().optional(),
-      }).strict(),
-      outputSchema: z.object({
-        query: z.string(),
-        total: z.number().int(),
-        matches: z.array(z.object({
-          tag: z.string(),
-          file: z.string(),
-          path: z.string(),
-          excmd: z.string(),
-          tagfile: z.string(),
-          matchedBy: z.enum(["exact", "prefix"]),
-          found: z.boolean(),
-          line: z.number().int(),
-          start: z.number().int(),
-          end: z.number().int(),
-          context: z.array(z.string()),
-        })),
-      }),
-    },
-    async ({ query, context, limit }: HelpQueryOptions) => {
-      const payload = await queryHelp(denops, {
-        query,
-        context: context ?? DEFAULT_CONTEXT,
-        limit: limit ?? DEFAULT_LIMIT,
-      });
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
-}
-
-async function queryHelp(
+export async function queryHelp(
   denops: Denops,
   options: { query: string; context: number; limit: number },
 ) {

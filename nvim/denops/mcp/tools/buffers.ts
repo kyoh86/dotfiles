@@ -1,7 +1,5 @@
 import * as fn from "@denops/std/function";
 import type { Denops } from "@denops/std";
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import * as z from "zod";
 import { resolveBuffer } from "../buffer.ts";
 import { isTruthy } from "../util.ts";
 
@@ -37,178 +35,7 @@ type OpenFileOptions = {
   focus?: boolean;
 };
 
-export function registerBufferTools(
-  server: McpServer,
-  denops: Denops,
-): void {
-  server.registerTool(
-    "nvim_buffers",
-    {
-      title: "List Neovim buffers",
-      description: "Return buffers from the active Neovim instance.",
-      inputSchema: z.object({
-        dir: z.string().optional(),
-        modifiedOnly: z.boolean().optional(),
-        limit: z.number().int().positive().optional(),
-      }).strict(),
-      outputSchema: z.object({
-        total: z.number().int(),
-        buffers: z.array(z.object({
-          name: z.string(),
-          bufnr: z.number().int(),
-          modified: z.boolean(),
-          buftype: z.string(),
-          listed: z.boolean(),
-          loaded: z.boolean(),
-        })),
-      }),
-    },
-    async ({ dir, modifiedOnly, limit }: ListBuffersOptions) => {
-      const buffers = await listBuffers(denops, { dir, modifiedOnly, limit });
-      const payload = { total: buffers.length, buffers };
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
-
-  server.registerTool(
-    "nvim_reload_buffer",
-    {
-      title: "Reload buffer from disk",
-      description: "Reload a buffer without changing the current window.",
-      inputSchema: z.object({
-        bufnr: z.number().int().optional(),
-        name: z.string().optional(),
-        match: z.enum(["exact", "suffix", "contains"]).optional(),
-      }).strict(),
-      outputSchema: z.object({
-        bufnr: z.number().int(),
-        name: z.string(),
-        reloaded: z.boolean(),
-        reason: z.string().optional(),
-        candidates: z.array(z.object({
-          bufnr: z.number().int(),
-          name: z.string(),
-        })).optional(),
-      }),
-    },
-    async ({ bufnr, name, match }: ResolveBufferOptions) => {
-      const payload = await reloadBuffer(denops, { bufnr, name, match });
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
-
-  server.registerTool(
-    "nvim_get_buffer_content",
-    {
-      title: "Get buffer content",
-      description: "Return buffer lines without changing the current window.",
-      inputSchema: z.object({
-        bufnr: z.number().int().optional(),
-        name: z.string().optional(),
-        match: z.enum(["exact", "suffix", "contains"]).optional(),
-        start: z.number().int().positive().optional(),
-        end: z.number().int().positive().optional(),
-        limit: z.number().int().positive().optional(),
-      }).strict(),
-      outputSchema: z.object({
-        bufnr: z.number().int(),
-        name: z.string(),
-        start: z.number().int(),
-        end: z.number().int(),
-        total: z.number().int(),
-        truncated: z.boolean(),
-        lines: z.array(z.string()),
-        reason: z.string().optional(),
-        candidates: z.array(z.object({
-          bufnr: z.number().int(),
-          name: z.string(),
-        })).optional(),
-      }),
-    },
-    async (
-      { bufnr, name, match, start, end, limit }: GetBufferContentOptions,
-    ) => {
-      const payload = await getBufferContent(denops, {
-        bufnr,
-        name,
-        match,
-        start,
-        end,
-        limit,
-      });
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
-
-  server.registerTool(
-    "nvim_save_buffer",
-    {
-      title: "Save buffer",
-      description:
-        "Write a buffer to disk without changing the current window.",
-      inputSchema: z.object({
-        bufnr: z.number().int().optional(),
-        name: z.string().optional(),
-        match: z.enum(["exact", "suffix", "contains"]).optional(),
-      }).strict(),
-      outputSchema: z.object({
-        bufnr: z.number().int(),
-        name: z.string(),
-        saved: z.boolean(),
-        reason: z.string().optional(),
-        candidates: z.array(z.object({
-          bufnr: z.number().int(),
-          name: z.string(),
-        })).optional(),
-      }),
-    },
-    async ({ bufnr, name, match }: ResolveBufferOptions) => {
-      const payload = await saveBuffer(denops, { bufnr, name, match });
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
-
-  server.registerTool(
-    "nvim_open_file",
-    {
-      title: "Open file",
-      description:
-        "Open a file, optionally without changing the current window.",
-      inputSchema: z.object({
-        path: z.string(),
-        focus: z.boolean().optional(),
-      }).strict(),
-      outputSchema: z.object({
-        bufnr: z.number().int(),
-        name: z.string(),
-        opened: z.boolean(),
-        focused: z.boolean(),
-        reason: z.string().optional(),
-      }),
-    },
-    async ({ path, focus }: OpenFileOptions) => {
-      const payload = await openFile(denops, { path, focus });
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
-}
-
-async function listBuffers(
+export async function listBuffers(
   denops: Denops,
   options: ListBuffersOptions,
 ): Promise<BufferInfo[]> {
@@ -240,7 +67,7 @@ async function listBuffers(
   return filtered;
 }
 
-async function reloadBuffer(
+export async function reloadBuffer(
   denops: Denops,
   options: ResolveBufferOptions,
 ): Promise<{
@@ -291,7 +118,7 @@ async function reloadBuffer(
   return { bufnr, name, reloaded: true };
 }
 
-async function getBufferContent(
+export async function getBufferContent(
   denops: Denops,
   options: {
     bufnr?: number;
@@ -363,7 +190,7 @@ async function getBufferContent(
   };
 }
 
-async function saveBuffer(
+export async function saveBuffer(
   denops: Denops,
   options: {
     bufnr?: number;
@@ -422,7 +249,7 @@ async function saveBuffer(
   return { bufnr, name, saved: true };
 }
 
-async function openFile(
+export async function openFile(
   denops: Denops,
   options: { path: string; focus?: boolean },
 ): Promise<{

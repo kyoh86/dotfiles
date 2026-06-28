@@ -1,123 +1,94 @@
 # nvim-proxy
 
-Neovim と外部クライアント (Codex / git pre-commit) の橋渡し用プロキシ。 各
-Neovim インスタンスは自分の情報を登録し、外部は固定ポートの
+Neovim と外部クライアントの橋渡し用 HTTP プロキシ。各 Neovim
+インスタンスは自分の内部エンドポイントを登録し、外部は固定ポートの
 プロキシだけを参照する。
 
 ## 目的
 
 - 複数 Neovim の同時起動に対応する
-- MCP と dirty-bufs を安定した固定アドレスに集約する
-- DenopsRestart によるアドレス変更を吸収する
+- DenopsRestart によるランダムポート変更を吸収する
+- `X-Nvim-Pid` で明示された Neovim にだけ転送する
 
 ## アーキテクチャ
 
-```
-Neovim (denops/mcp) ---------------register--> nvim-proxy (37125)
-Codex (MCP) ---------------------------------> nvim-proxy (/mcp) --forward--> denops/mcp
-git pre-commit ------------------------------> nvim-proxy (/dirty-bufs) --> denops/dirty-bufs
-zsh -----------------------------------------> nvim-proxy (/env) --> denops/nvim-proxy
-zsh --------------------------------------> nvim-proxy (/notify) --> denops/nvim-proxy
-tmux copy-mode -----------------------> nvim-proxy (/setreg,/getreg,/open) --> denops/nvim-proxy
+```text
+Neovim (denops/mcp RPC) ----register /rpc----> nvim-proxy (37125)
+nvim-mcp-proxy (MCP 37126) --X-Nvim-Pid-----> nvim-proxy (/rpc) --> denops/mcp RPC
+git pre-commit ------------X-Nvim-Pid-------> nvim-proxy (/dirty-bufs) --> denops/dirty-bufs
+zsh -----------------------X-Nvim-Pid-------> nvim-proxy (/env) --> denops/nvim-proxy
+tmux copy-mode ------------X-Nvim-Pid-------> nvim-proxy (/setreg,/getreg,/open)
 ```
 
-### 関連コンポーネント
+`nvim-proxy` は MCP を実装しない。MCP は `nvim-mcp-proxy` が担当し、Neovim
+側は内部 `/rpc` だけを提供する。
+
+## 関連コンポーネント
 
 - `nvim/denops/nvim-proxy/main.ts`
-  - 起動確認とサービス起動 (任意)
-  - `NVIM_PROXY_URL` / `NVIM_PID` を環境変数として設定
-  - Neovim 内の環境変数を返す `/env` ルートを登録
-  - shell から Neovim の `User` autocmd を発火する `/notify` ルートを登録
-  - shell/tmux から Neovim の register へ書き込む `/setreg` ルートを登録
-  - shell/tmux から Neovim の register と file/URL opener を使う `/getreg`
-    `/open` ルートを登録
+  - `nvim-proxy` と `nvim-mcp-proxy` のサービス起動/インストール
+  - `NVIM_PROXY_URL` / `NVIM_PID` を Neovim と tmux 環境に設定
+  - `/env` `/notify` `/setreg` `/getreg` `/open` `/scratch` `/focus-edge` を登録
 - `nvim/denops/nvim-proxy/proxy.ts`
-  - 固定ポートで待ち受け
-  - `path` 単位で登録済みの転送先へプロキシ
+  - 固定ポート `37125` で待ち受け
+  - `X-Nvim-Pid` と path で登録済み転送先へプロキシ
 - `nvim/denops/mcp/main.ts`
-  - MCP サーバ本体 (ランダムポート)
-  - 起動時に `/register` へ自身を登録
-- `git/hooks/pre-commit`
-  - `NVIM_PROXY_URL` と `NVIM_PID` を使ってプロキシへ問い合わせ
-- `codex/config.toml`
-  - `mcp_servers.nvim_proxy` に固定 URL を設定
-  - `env_http_headers` で `X-Nvim-Pid` を送信
+  - Neovim 内部 RPC サーバ
+  - 起動時に `/rpc` を登録
+- `nvim/denops/nvim-mcp-proxy/proxy.ts`
+  - 固定ポート `37126` の MCP サーバ
+  - tool call の `nvim_pid` を `X-Nvim-Pid` に変換
 - `nvim/denops/dirty-bufs/main.ts`
-  - 起動時に `/register` へ自身を登録
+  - 起動時に `/dirty-bufs` を登録
 
 ## 固定ポート
 
-- プロキシ: `http://127.0.0.1:37125`
-- Neovim MCP: ランダムポート (0) で起動し、登録で共有
+- `nvim-proxy`: `http://127.0.0.1:37125`
+- `nvim-mcp-proxy`: `http://127.0.0.1:37126`
+- Neovim 内部 RPC: ランダムポートで起動し、`/rpc` として登録
 
-## 登録情報
-
-`/register` に送る payload は以下:
-
-```json
-{
-  "pid": 12345,
-  "path": "/mcp",
-  "target_url": "http://127.0.0.1:37287/mcp"
-}
-```
-
-dirty-bufs 側は `/dirty-bufs` を登録する:
+## 登録 payload
 
 ```json
 {
   "pid": 12345,
-  "path": "/dirty-bufs",
-  "target_url": "127.0.0.1:40001"
+  "proxy_path": "/rpc",
+  "reverse_port": 37287,
+  "reverse_path": "/rpc"
 }
 ```
 
-## プロキシのHTTPエンドポイント
+## HTTP エンドポイント
 
 - `GET /health` : 稼働確認
 - `GET /routes` : 登録済みルート一覧
 - `POST /register` : Neovim インスタンスの登録/更新
-- `* /mcp` : MCP の透過転送
-- `POST /dirty-bufs` : dirty-bufs の透過転送
+- `POST /rpc` : Neovim 内部 RPC への透過転送
+- `POST /dirty-bufs` : dirty-bufs への透過転送
 - `GET/POST /env` : Neovim 内の環境変数を JSON で返す
 - `POST /notify` : Neovim 内の `User` autocmd を発火する
 - `POST /setreg` : Neovim の register へ文字列を書き込む
 - `POST /getreg` : Neovim の register から文字列を読む
 - `POST /open` : Neovim 内の file/URL opener で対象文字列を開く
+- `POST /scratch` : scratch buffer を開く
 - `POST /focus-edge` : tmux から Neovim pane へ入った方向に応じて端 window
   を選ぶ
 
+`/routes` `/health` `/register` 以外の転送エンドポイントは `X-Nvim-Pid`
+を必須とする。暗黙の current Neovim fallback は持たない。
+
 ## ヘルスチェック
 
-登録されたルートに対して `GET /health` を定期実行し、失敗が続いたら削除する。 10
-分間隔で 3 回失敗したら削除 (タイムアウトは 2 秒)。
+登録されたルートに対して `GET /health` を定期実行し、失敗が続いたら削除する。10
+分間隔で 3 回失敗したら削除する。転送時に対象ルートが死んでいた場合も、その場で
+該当ルートを削除する。
 
 ## 永続化
 
 `nvim-proxy` は登録ルートを `routes.json` に保存し、再起動時に復元する。
 
 - Linux: `~/.local/state/nvim-proxy/routes.json` (or `XDG_STATE_HOME`)
-- macOS: `~/Library` 配下ではなく `~/.local/state` を使う
-
-## 環境変数
-
-Neovim 側でセットされる値:
-
-- `NVIM_PROXY_URL` : `http://127.0.0.1:37125`
-- `NVIM_PID` : Neovim 本体の PID
-
-Codex 側は `NVIM_PID` を `X-Nvim-Pid` ヘッダとして送信する。
-
-zsh 側は `NVIM_PROXY_URL` / `NVIM_PID` を使い、必要な環境変数を `/env` から
-取得して現在のシェルへ export する。例えば `vim-guise` が denops 内で
-`GUISE_PROXY_ADDRESS` を後から設定した場合でも、tmux のグローバル環境へ
-流さずに取り込める。`REACT_EDITOR` は GUISE 由来の `EDITOR` から zsh 側で
-導出する。
-
-## ルーティング規則
-
-- MCP: `X-Nvim-Pid` を必須とし、その PID のインスタンスに転送
-- dirty-bufs: `X-Nvim-Pid` を必須とし、その PID のインスタンスに転送
+- macOS: `~/.local/state/nvim-proxy/routes.json`
 
 ## 設定
 
@@ -126,7 +97,8 @@ zsh 側は `NVIM_PROXY_URL` / `NVIM_PID` を使い、必要な環境変数を `/
 - 自動起動を切りたい場合:
   - `let g:nvim_proxy_autostart = 0`
 - コマンド:
-  - `:NvimProxyInstall` : サービスをインストールして起動
+  - `:NvimProxyInstall` : `nvim-proxy` と `nvim-mcp-proxy`
+    をサービス登録して起動
   - `:NvimProxyStart` : サービスの起動
   - `:NvimProxyRestart` : サービスの再起動
   - `:NvimProxyEnsure` : 起動チェック。未起動なら案内を表示
@@ -136,37 +108,20 @@ zsh 側は `NVIM_PROXY_URL` / `NVIM_PID` を使い、必要な環境変数を `/
 ### Codex
 
 ```toml
-[mcp_servers.nvim_proxy]
-url = "http://127.0.0.1:37125/mcp"
-env_http_headers = { "X-Nvim-Pid" = "NVIM_PID" }
+[mcp_servers.nvim_mcp_proxy]
+url = "http://127.0.0.1:37126/mcp"
 ```
+
+`NVIM_PID` は Codex の MCP initialize には使わない。`nvim-mcp-proxy` の各 Neovim
+tool に `nvim_pid` を渡す。
 
 ## 動作確認
 
 ```sh
-echo "NVIM_PROXY_URL=$NVIM_PROXY_URL"
-echo "NVIM_PID=$NVIM_PID"
 curl -sS http://127.0.0.1:37125/health
+curl -sS http://127.0.0.1:37126/health
+curl -sS http://127.0.0.1:37125/routes
 ```
 
-Codex では `nvim_current_buffer` 等を呼び出す。
-
-## サービス運用
-
-### Linux (systemd user)
-
-`~/.config/systemd/user/nvim-proxy.service` を作成し、`systemctl --user`
-で起動。
-
-### macOS (launchd)
-
-`~/Library/LaunchAgents/dev.kyoh86.nvim-proxy.plist` を作成し、`launchctl`
-で起動。
-
-どちらも `:NvimProxyInstall` がテンプレートを生成し、起動まで実行する。 `deno`
-のパスや `proxy.ts` の場所が変わった場合は再インストールする。
-
-## 注意点
-
-- DenopsRestart 後は新しい terminal で環境変数が更新される。
-- `NVIM_PID` が無いと MCP は動作しない。
+Codex ではまず `nvim_instances` を呼び、返ってきた PID を各 tool の `nvim_pid`
+に指定する。

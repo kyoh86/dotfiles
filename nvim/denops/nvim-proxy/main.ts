@@ -3,8 +3,11 @@ import * as fn from "@denops/std/function";
 import type { Denops } from "@denops/std";
 import { fromFileUrl } from "@std/path";
 const DEFAULT_PROXY_URL = "http://127.0.0.1:37125";
+const DEFAULT_MCP_PROXY_URL = "http://127.0.0.1:37126";
 const SYSTEMD_SERVICE_NAME = "nvim-proxy.service";
+const MCP_SYSTEMD_SERVICE_NAME = "nvim-mcp-proxy.service";
 const LAUNCHD_LABEL = "dev.kyoh86.nvim-proxy";
+const MCP_LAUNCHD_LABEL = "dev.kyoh86.nvim-mcp-proxy";
 const REGISTER_RETRY_LIMIT = 5;
 const REGISTER_BACKOFF_BASE_MS = 200;
 
@@ -402,19 +405,25 @@ function json(payload: unknown, status = 200) {
 }
 
 async function ensureProxyServer(denops: Denops) {
-  if (await isProxyRunning()) {
+  if (
+    await isProxyRunning(DEFAULT_PROXY_URL) &&
+    await isProxyRunning(DEFAULT_MCP_PROXY_URL)
+  ) {
     return;
   }
   const started = await startService();
-  if (started && await isProxyRunning()) {
+  if (
+    started && await isProxyRunning(DEFAULT_PROXY_URL) &&
+    await isProxyRunning(DEFAULT_MCP_PROXY_URL)
+  ) {
     return;
   }
   await notifyInstallNeeded(denops);
 }
 
-async function isProxyRunning() {
+async function isProxyRunning(url: string) {
   try {
-    const res = await fetch(`${DEFAULT_PROXY_URL}/health`);
+    const res = await fetch(`${url}/health`);
     return res.ok;
   } catch {
     return false;
@@ -424,14 +433,15 @@ async function isProxyRunning() {
 async function startService() {
   switch (Deno.build.os) {
     case "linux":
-      return await runCommand([
-        "systemctl",
-        "--user",
-        "start",
-        SYSTEMD_SERVICE_NAME,
-      ]);
+      return (await Promise.all([
+        runCommand(["systemctl", "--user", "start", SYSTEMD_SERVICE_NAME]),
+        runCommand(["systemctl", "--user", "start", MCP_SYSTEMD_SERVICE_NAME]),
+      ])).every(Boolean);
     case "darwin":
-      return await startLaunchdService();
+      return (await Promise.all([
+        startLaunchdService(LAUNCHD_LABEL),
+        startLaunchdService(MCP_LAUNCHD_LABEL),
+      ])).every(Boolean);
     default:
       return false;
   }
@@ -440,14 +450,20 @@ async function startService() {
 async function restartService() {
   switch (Deno.build.os) {
     case "linux":
-      return await runCommand([
-        "systemctl",
-        "--user",
-        "restart",
-        SYSTEMD_SERVICE_NAME,
-      ]);
+      return (await Promise.all([
+        runCommand(["systemctl", "--user", "restart", SYSTEMD_SERVICE_NAME]),
+        runCommand([
+          "systemctl",
+          "--user",
+          "restart",
+          MCP_SYSTEMD_SERVICE_NAME,
+        ]),
+      ])).every(Boolean);
     case "darwin":
-      return await startLaunchdService();
+      return (await Promise.all([
+        startLaunchdService(LAUNCHD_LABEL),
+        startLaunchdService(MCP_LAUNCHD_LABEL),
+      ])).every(Boolean);
     default:
       return false;
   }
@@ -473,7 +489,10 @@ async function installSystemdService(denops: Denops) {
     return;
   }
   const servicePath = `${home}/.config/systemd/user/${SYSTEMD_SERVICE_NAME}`;
+  const mcpServicePath =
+    `${home}/.config/systemd/user/${MCP_SYSTEMD_SERVICE_NAME}`;
   const proxyPath = resolveProxyPath();
+  const mcpProxyPath = resolveMcpProxyPath();
   const denoCommand = await vars.g.get(denops, "nvim_proxy_deno_command", [
     Deno.execPath(),
   ]);
@@ -489,8 +508,22 @@ async function installSystemdService(denops: Denops) {
     "WantedBy=default.target",
     "",
   ].join("\n");
+  const mcpContent = [
+    "[Unit]",
+    "Description=Neovim MCP proxy",
+    "After=nvim-proxy.service",
+    "",
+    "[Service]",
+    `ExecStart=${denoCommand.join(" ")} run -A --no-lock ${mcpProxyPath}`,
+    "Restart=on-failure",
+    "",
+    "[Install]",
+    "WantedBy=default.target",
+    "",
+  ].join("\n");
   await Deno.mkdir(`${home}/.config/systemd/user`, { recursive: true });
   await Deno.writeTextFile(servicePath, content);
+  await Deno.writeTextFile(mcpServicePath, mcpContent);
   await runCommand(["systemctl", "--user", "daemon-reload"]);
   await runCommand([
     "systemctl",
@@ -498,6 +531,13 @@ async function installSystemdService(denops: Denops) {
     "enable",
     "--now",
     SYSTEMD_SERVICE_NAME,
+  ]);
+  await runCommand([
+    "systemctl",
+    "--user",
+    "enable",
+    "--now",
+    MCP_SYSTEMD_SERVICE_NAME,
   ]);
 }
 
@@ -509,12 +549,17 @@ async function installLaunchdService(denops: Denops) {
     return;
   }
   const plistPath = `${home}/Library/LaunchAgents/${LAUNCHD_LABEL}.plist`;
+  const mcpPlistPath =
+    `${home}/Library/LaunchAgents/${MCP_LAUNCHD_LABEL}.plist`;
   const proxyPath = resolveProxyPath();
+  const mcpProxyPath = resolveMcpProxyPath();
   const denoCommand = await vars.g.get(denops, "nvim_proxy_deno_command", [
     Deno.execPath(),
   ]);
   const stdoutPath = `${home}/Library/Logs/nvim-proxy.log`;
   const stderrPath = `${home}/Library/Logs/nvim-proxy.err.log`;
+  const mcpStdoutPath = `${home}/Library/Logs/nvim-mcp-proxy.log`;
+  const mcpStderrPath = `${home}/Library/Logs/nvim-mcp-proxy.err.log`;
   const plist = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
@@ -542,19 +587,45 @@ async function installLaunchdService(denops: Denops) {
     "</plist>",
     "",
   ].join("\n");
+  const mcpPlist = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
+    '<plist version="1.0">',
+    "<dict>",
+    "  <key>Label</key>",
+    `  <string>${MCP_LAUNCHD_LABEL}</string>`,
+    "  <key>ProgramArguments</key>",
+    "  <array>",
+    ...(denoCommand.map((s) => `    <string>${s}</string>`)),
+    "    <string>run</string>",
+    "    <string>-A</string>",
+    "    <string>--no-lock</string>",
+    `    <string>${mcpProxyPath}</string>`,
+    "  </array>",
+    "  <key>RunAtLoad</key>",
+    "  <true/>",
+    "  <key>KeepAlive</key>",
+    "  <true/>",
+    "  <key>StandardOutPath</key>",
+    `  <string>${mcpStdoutPath}</string>`,
+    "  <key>StandardErrorPath</key>",
+    `  <string>${mcpStderrPath}</string>`,
+    "</dict>",
+    "</plist>",
+    "",
+  ].join("\n");
   await Deno.mkdir(`${home}/Library/LaunchAgents`, { recursive: true });
   await Deno.writeTextFile(plistPath, plist);
+  await Deno.writeTextFile(mcpPlistPath, mcpPlist);
   await runCommand(["launchctl", "bootstrap", `gui/${uid}`, plistPath]);
+  await runCommand(["launchctl", "bootstrap", `gui/${uid}`, mcpPlistPath]);
   await runCommand(["launchctl", "enable", `gui/${uid}/${LAUNCHD_LABEL}`]);
-  await runCommand([
-    "launchctl",
-    "kickstart",
-    "-k",
-    `gui/${uid}/${LAUNCHD_LABEL}`,
-  ]);
+  await runCommand(["launchctl", "enable", `gui/${uid}/${MCP_LAUNCHD_LABEL}`]);
+  await startLaunchdService(LAUNCHD_LABEL);
+  await startLaunchdService(MCP_LAUNCHD_LABEL);
 }
 
-async function startLaunchdService() {
+async function startLaunchdService(label: string) {
   const uid = await resolveUid();
   if (uid === undefined) {
     return false;
@@ -563,12 +634,16 @@ async function startLaunchdService() {
     "launchctl",
     "kickstart",
     "-k",
-    `gui/${uid}/${LAUNCHD_LABEL}`,
+    `gui/${uid}/${label}`,
   ]);
 }
 
 function resolveProxyPath() {
   return fromFileUrl(new URL("./proxy.ts", import.meta.url));
+}
+
+function resolveMcpProxyPath() {
+  return fromFileUrl(new URL("../nvim-mcp-proxy/proxy.ts", import.meta.url));
 }
 
 async function resolveUid() {

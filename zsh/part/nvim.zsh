@@ -1,4 +1,7 @@
 function _start_nvim {
+  if [[ ! -o interactive ]]; then
+    return
+  fi
   if [[ -z "${TMUX}" ]]; then
     # tmuxの外では何もしない
     return

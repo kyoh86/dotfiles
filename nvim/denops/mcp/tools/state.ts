@@ -1,90 +1,8 @@
 import * as fn from "@denops/std/function";
 import type { Denops } from "@denops/std";
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import * as z from "zod";
 import { isTruthy } from "../util.ts";
 
-export function registerStateTools(
-  server: McpServer,
-  denops: Denops,
-): void {
-  server.registerTool(
-    "nvim_current_buffer",
-    {
-      title: "Get current buffer",
-      description: "Return the current buffer and cursor position.",
-      inputSchema: z.object({}).strict(),
-      outputSchema: z.object({
-        name: z.string(),
-        bufnr: z.number().int(),
-        modified: z.boolean(),
-        cursor: z.object({
-          line: z.number().int(),
-          col: z.number().int(),
-        }),
-        cwd: z.string(),
-      }),
-    },
-    async () => {
-      const current = await getCurrentBuffer(denops);
-      return {
-        content: [{ type: "text", text: JSON.stringify(current, null, 2) }],
-        structuredContent: current,
-      };
-    },
-  );
-
-  server.registerTool(
-    "nvim_cwd",
-    {
-      title: "Get Neovim working directory",
-      description: "Return the current working directory in Neovim.",
-      inputSchema: z.object({}).strict(),
-      outputSchema: z.object({
-        cwd: z.string(),
-      }),
-    },
-    async () => {
-      const payload = await getCwd(denops);
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
-
-  server.registerTool(
-    "nvim_current_selection",
-    {
-      title: "Get current selection",
-      description: "Return the current visual selection, if any.",
-      inputSchema: z.object({}).strict(),
-      outputSchema: z.object({
-        hasSelection: z.boolean(),
-        mode: z.string(),
-        start: z.object({
-          line: z.number().int(),
-          col: z.number().int(),
-        }).optional(),
-        end: z.object({
-          line: z.number().int(),
-          col: z.number().int(),
-        }).optional(),
-        lines: z.array(z.string()),
-        text: z.string(),
-      }),
-    },
-    async () => {
-      const selection = await getCurrentSelection(denops);
-      return {
-        content: [{ type: "text", text: JSON.stringify(selection, null, 2) }],
-        structuredContent: selection,
-      };
-    },
-  );
-}
-
-async function getCurrentBuffer(denops: Denops) {
+export async function getCurrentBuffer(denops: Denops) {
   const bufnr = await fn.bufnr(denops, "%");
   const name = await fn.bufname(denops, bufnr);
   const modified = await fn.getbufvar(denops, bufnr, "&modified");
@@ -99,12 +17,12 @@ async function getCurrentBuffer(denops: Denops) {
   };
 }
 
-async function getCwd(denops: Denops) {
+export async function getCwd(denops: Denops) {
   const cwd = await fn.getcwd(denops);
   return { cwd };
 }
 
-async function getCurrentSelection(denops: Denops) {
+export async function getCurrentSelection(denops: Denops) {
   const mode = String(await fn.mode(denops));
   if (mode === "\u0016") {
     return {

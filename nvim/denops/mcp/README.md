@@ -1,39 +1,40 @@
-# denops MCP server
+# denops RPC server
 
-Neovim 内の情報を取得するための MCP サーバ。 外部からは `nvim-proxy`
-経由でアクセスする。
+Neovim 内の情報を取得するための内部 RPC サーバ。外部公開用の MCP は
+`nvim-mcp-proxy` が担当し、この denops プラグインは MCP を実装しない。
 
 ## 役割
 
-- Neovim のバッファや診断情報を MCP tool として提供
-- 起動時に `nvim-proxy` へ `/register` で自身を登録する
+- Neovim のバッファや診断情報を内部 RPC として提供
+- 起動時に `nvim-proxy` へ `/rpc` を登録する
+- リクエスト元の Neovim 特定は `nvim-proxy` の `X-Nvim-Pid` ルーティングに任せる
 
 ## 起動
 
-`main.ts` が `Deno.serve` で起動する。 ポートは 0 (空きポート)
-で起動し、実際のリクエストはnvim-proxyのサーバーで受け付ける
+`main.ts` が `Deno.serve` でランダムポートに起動し、`nvim-proxy` に `/rpc`
+として登録する。外部クライアントは直接このランダムポートを参照しない。
+
+## 内部エンドポイント
+
+- `GET /health` : 稼働確認
+- `GET /tools` : 提供する内部 tool の一覧
+- `POST /rpc` : `{ "tool": "...", "arguments": { ... } }` を実行
 
 ## 提供するツール
 
 - `nvim_buffers`
-  - バッファ一覧
-  - `dir` / `modifiedOnly` / `limit` で絞り込み
 - `nvim_current_buffer`
-  - カレントバッファとカーソル位置
 - `nvim_current_selection`
-  - 現在の視覚選択 (テキスト・範囲)
+- `nvim_cwd`
 - `nvim_list_items`
-  - quickfix / loclist の内容
 - `nvim_diagnostics`
-  - LSP diagnostics
+- `nvim_reload_buffer`
+- `nvim_get_buffer_content`
+- `nvim_save_buffer`
+- `nvim_open_file`
 - `help_query`
-  - helpタグ検索と該当ファイルのコンテキスト取得
-
-## 主要な環境変数
-
-- `NVIM_PROXY_URL` : `http://127.0.0.1:37125` (登録先)
 
 ## 関連
 
 - `nvim/denops/nvim-proxy/README.md`
-- `nvim/denops/dirty-bufs/README.md`
+- `nvim/denops/nvim-mcp-proxy/README.md`

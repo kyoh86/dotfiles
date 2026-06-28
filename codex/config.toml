@@ -12,9 +12,20 @@ shell_snapshot = true
 [sandbox_workspace_write]
 network_access = true
 
-[mcp_servers.nvim_proxy]
-url = "http://127.0.0.1:37125/mcp"
-env_http_headers = { "X-Nvim-Pid" = "NVIM_PID" }
+[mcp_servers.nvim_mcp_proxy]
+url = "http://127.0.0.1:37126/mcp"
+
+[mcp_servers.nvim_mcp_proxy.tools.nvim_instances]
+approval_mode = "approve"
+
+[mcp_servers.nvim_mcp_proxy.tools.nvim_cwd]
+approval_mode = "approve"
+
+[mcp_servers.nvim_mcp_proxy.tools.nvim_current_buffer]
+approval_mode = "approve"
+
+[mcp_servers.nvim_mcp_proxy.tools.nvim_get_buffer_content]
+approval_mode = "approve"
 
 [notice.model_migrations]
 "gpt-5.2-codex" = "gpt-5.3-codex"
@@ -499,4 +510,7 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/home/kyoh86/dev/gh/upmind-inc"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86"]
 trust_level = "trusted"

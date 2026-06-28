@@ -1,6 +1,4 @@
 import type { Denops } from "@denops/std";
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import * as z from "zod";
 import { resolveBuffer } from "../buffer.ts";
 
 type DiagnosticsOptions = {
@@ -10,58 +8,7 @@ type DiagnosticsOptions = {
   severity?: "error" | "warn" | "info" | "hint";
 };
 
-export function registerDiagnosticsTool(
-  server: McpServer,
-  denops: Denops,
-): void {
-  server.registerTool(
-    "nvim_diagnostics",
-    {
-      title: "Get LSP diagnostics",
-      description: "Return diagnostics from Neovim's built-in diagnostic API.",
-      inputSchema: z.object({
-        bufnr: z.number().int().optional(),
-        name: z.string().optional(),
-        match: z.enum(["exact", "suffix", "contains"]).optional(),
-        severity: z.enum(["error", "warn", "info", "hint"]).optional(),
-      }).strict(),
-      outputSchema: z.object({
-        total: z.number().int(),
-        diagnostics: z.array(z.object({
-          bufnr: z.number().int(),
-          lnum: z.number().int(),
-          col: z.number().int(),
-          end_lnum: z.number().int().optional(),
-          end_col: z.number().int().optional(),
-          severity: z.number().int(),
-          severity_name: z.string(),
-          message: z.string(),
-          source: z.string().optional(),
-          code: z.union([z.string(), z.number()]).optional(),
-        })),
-        reason: z.string().optional(),
-        candidates: z.array(z.object({
-          bufnr: z.number().int(),
-          name: z.string(),
-        })).optional(),
-      }),
-    },
-    async ({ bufnr, name, match, severity }: DiagnosticsOptions) => {
-      const payload = await getDiagnostics(denops, {
-        bufnr,
-        name,
-        match,
-        severity,
-      });
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
-}
-
-async function getDiagnostics(
+export async function getDiagnostics(
   denops: Denops,
   options: DiagnosticsOptions,
 ) {

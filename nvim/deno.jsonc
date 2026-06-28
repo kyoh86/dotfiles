@@ -44,6 +44,7 @@
     "./denops/tomlvsnip",
     "./denops/dirty-bufs",
     "./denops/mcp",
+    "./denops/nvim-mcp-proxy",
     "./denops/nvim-proxy"
   ],
   "imports": {

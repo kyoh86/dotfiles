@@ -1,87 +1,38 @@
 import * as vars from "@denops/std/variable";
 import * as fn from "@denops/std/function";
 import type { Denops } from "@denops/std";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { registerBufferTools } from "./tools/buffers.ts";
-import { registerDiagnosticsTool } from "./tools/diagnostics.ts";
-import { registerHelpTool } from "./tools/help.ts";
-import { registerListItemsTool } from "./tools/list_items.ts";
-import { registerStateTools } from "./tools/state.ts";
+import { toolDefinitions } from "./schema.ts";
+import { callTool, RpcError } from "./tools/mod.ts";
 import { logError } from "./util.ts";
 
 const DEFAULT_PORT = 0;
 const LOCAL_HOST = "127.0.0.1";
 const REGISTER_RETRY_LIMIT = 5;
 const REGISTER_BACKOFF_BASE_MS = 200;
-const MCP_SESSION_HEADER = "mcp-session-id";
 
 export async function main(denops: Denops): Promise<void> {
   const port = await resolvePort(denops);
-  const transports = new Map<
-    string,
-    WebStandardStreamableHTTPServerTransport
-  >();
-
-  const createTransport = async () => {
-    const transport = new WebStandardStreamableHTTPServerTransport({
-      sessionIdGenerator: () => crypto.randomUUID(),
-      enableJsonResponse: true,
-      onsessioninitialized: (sessionId: string) => {
-        transports.set(sessionId, transport);
-      },
-      onsessionclosed: (sessionId: string) => {
-        transports.delete(sessionId);
-      },
-    });
-    transport.onclose = () => {
-      if (transport.sessionId) {
-        transports.delete(transport.sessionId);
-      }
-    };
-
-    const server = createServer(denops);
-    await server.connect(transport);
-    return transport;
-  };
-
-  const handleMcpRequest = async (req: Request) => {
-    const sessionId = req.headers.get(MCP_SESSION_HEADER);
-    const transport = sessionId ? transports.get(sessionId) : undefined;
-    if (sessionId && !transport) {
-      return new Response(
-        JSON.stringify({
-          jsonrpc: "2.0",
-          error: {
-            code: -32001,
-            message: "Session not found",
-          },
-          id: null,
-        }),
-        {
-          status: 404,
-          headers: { "content-type": "application/json" },
-        },
-      );
-    }
-
-    return await (transport ?? await createTransport()).handleRequest(req);
-  };
-
   const handler = async (req: Request) => {
     try {
       const { pathname } = new URL(req.url);
-      if (pathname === "/mcp") {
-        return await handleMcpRequest(req);
+      if (pathname === "/rpc" && req.method === "POST") {
+        return await handleRpcRequest(denops, req);
       }
-      if (pathname === "/health") {
-        return new Response(JSON.stringify({ status: "ok" }), {
-          headers: { "content-type": "application/json; charset=utf-8" },
+      if (pathname === "/tools" && req.method === "GET") {
+        return json({
+          tools: toolDefinitions.map(({ name, title, description }) => ({
+            name,
+            title,
+            description,
+          })),
         });
       }
-      return new Response("Not found", { status: 404 });
+      if (pathname === "/health") {
+        return json({ status: "ok" });
+      }
+      return json({ error: "Not found" }, 404);
     } catch (error) {
-      logError("nvim-mcp: request failed", error);
+      logError("nvim-rpc: request failed", error);
       throw error;
     }
   };
@@ -97,23 +48,33 @@ export async function main(denops: Denops): Promise<void> {
     });
     await finished;
   } catch (error) {
-    console.error("Failed to start nvim MCP server:", error);
+    console.error("Failed to start nvim RPC server:", error);
   }
 }
 
-function createServer(denops: Denops) {
-  const server = new McpServer({
-    name: "nvim-denops",
-    version: "0.1.0",
-  });
-
-  registerBufferTools(server, denops);
-  registerStateTools(server, denops);
-  registerListItemsTool(server, denops);
-  registerDiagnosticsTool(server, denops);
-  registerHelpTool(server, denops);
-
-  return server;
+async function handleRpcRequest(denops: Denops, req: Request) {
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return json({ error: "Invalid body" }, 400);
+  }
+  const tool = readStringField(body, "tool");
+  if (!tool) {
+    return json({ error: "tool is required" }, 400);
+  }
+  try {
+    const result = await callTool(
+      denops,
+      tool,
+      (body as Record<string, unknown>).arguments ?? {},
+    );
+    return json({ ok: true, result });
+  } catch (error) {
+    if (error instanceof RpcError) {
+      return json({ error: error.message }, error.status);
+    }
+    logError("nvim-rpc: tool failed", error);
+    return json({ error: formatError(error) }, 500);
+  }
 }
 
 async function registerToProxy(
@@ -133,7 +94,7 @@ async function registerToProxy(
       await delay(REGISTER_BACKOFF_BASE_MS * 2 ** attempt);
     }
   }
-  console.error("Failed to register MCP server to nvim-proxy.");
+  console.error("Failed to register RPC server to nvim-proxy.");
 }
 
 async function registerOnce(
@@ -150,9 +111,9 @@ async function registerOnce(
   const registerUrl = `${proxyUrl.replace(/\/+$/, "")}/register`;
   const payload = {
     pid: options.pid,
-    proxy_path: "/mcp",
+    proxy_path: "/rpc",
     reverse_port: options.port,
-    reverse_path: "/mcp",
+    reverse_path: "/rpc",
   };
   try {
     const res = await fetch(registerUrl, {
@@ -166,12 +127,20 @@ async function registerOnce(
   }
 }
 
+function readStringField(body: object, key: string) {
+  if (!(key in body)) {
+    return undefined;
+  }
+  const value = (body as Record<string, unknown>)[key];
+  return typeof value === "string" ? value : undefined;
+}
+
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function resolvePort(denops: Denops): Promise<number> {
-  const fromVar = await vars.g.get(denops, "nvim_mcp_port");
+  const fromVar = await vars.g.get(denops, "nvim_rpc_port");
   if (typeof fromVar === "number" && Number.isFinite(fromVar)) {
     if (fromVar >= 0 && fromVar <= 65535) {
       return fromVar;
@@ -183,9 +152,23 @@ async function resolvePort(denops: Denops): Promise<number> {
       return parsed;
     }
   }
-  const fromEnv = Number(Deno.env.get("NVIM_MCP_PORT") ?? "");
+  const fromEnv = Number(Deno.env.get("NVIM_RPC_PORT") ?? "");
   if (Number.isFinite(fromEnv) && fromEnv >= 0 && fromEnv <= 65535) {
     return fromEnv;
   }
   return DEFAULT_PORT;
+}
+
+function json(payload: unknown, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8" },
+  });
+}
+
+function formatError(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
 }

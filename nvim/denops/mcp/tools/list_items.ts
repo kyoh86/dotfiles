@@ -1,7 +1,5 @@
 import * as fn from "@denops/std/function";
 import type { Denops } from "@denops/std";
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import * as z from "zod";
 
 type ListItemsOptions = {
   list?: "quickfix" | "loclist";
@@ -9,52 +7,7 @@ type ListItemsOptions = {
   limit?: number;
 };
 
-export function registerListItemsTool(
-  server: McpServer,
-  denops: Denops,
-): void {
-  server.registerTool(
-    "nvim_list_items",
-    {
-      title: "Get quickfix or loclist items",
-      description: "Return quickfix or location list items.",
-      inputSchema: z.object({
-        list: z.enum(["quickfix", "loclist"]).optional(),
-        winid: z.number().int().positive().optional(),
-        limit: z.number().int().positive().optional(),
-      }).strict(),
-      outputSchema: z.object({
-        list: z.string(),
-        title: z.string().optional(),
-        total: z.number().int(),
-        items: z.array(z.object({
-          bufnr: z.number().int(),
-          filename: z.string(),
-          lnum: z.number().int(),
-          col: z.number().int(),
-          end_lnum: z.number().int().optional(),
-          end_col: z.number().int().optional(),
-          text: z.string(),
-          type: z.string().optional(),
-          valid: z.boolean(),
-        })),
-      }),
-    },
-    async ({ list, winid, limit }: ListItemsOptions) => {
-      const payload = await getListItems(denops, {
-        list: list ?? "quickfix",
-        winid,
-        limit,
-      });
-      return {
-        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-        structuredContent: payload,
-      };
-    },
-  );
-}
-
-async function getListItems(
+export async function getListItems(
   denops: Denops,
   options: { list: "quickfix" | "loclist"; winid?: number; limit?: number },
 ) {

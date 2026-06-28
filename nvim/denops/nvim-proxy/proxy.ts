@@ -85,11 +85,51 @@ async function handleProxy(req: Request, pathname: string) {
   if (!pid) {
     return json({ error: "NVIM_PID is required" }, 400);
   }
-  const instance = instances.get(pid);
-  const target = instance?.routes.get(pathname);
-  if (!target) {
+  const resolved = resolveRoute(pid, pathname);
+  if (!resolved) {
     return json({ error: `Unknown Neovim PID: ${pid}` }, 404);
   }
+  if (
+    !await checkHealth(
+      buildReverseUrl(resolved.target),
+      DEFAULT_HEALTH_TIMEOUT_MS,
+    )
+  ) {
+    deleteRoute(resolved.instance, pathname);
+    void saveState();
+    return json({ error: `Route unavailable: ${pathname}` }, 502);
+  }
+  const result = await proxyToRoute(req, resolved.target);
+  if (result) {
+    return result;
+  }
+
+  deleteRoute(resolved.instance, pathname);
+  void saveState();
+
+  return json({ error: `Route unavailable: ${pathname}` }, 502);
+}
+
+function deleteRoute(instance: InstanceInfo, pathname: string) {
+  instance.routes.delete(pathname);
+  if (instance.routes.size === 0) {
+    instances.delete(instance.pid);
+  }
+}
+
+function resolveRoute(pid: number, pathname: string) {
+  const instance = instances.get(pid);
+  if (!instance) {
+    return undefined;
+  }
+  const target = instance.routes.get(pathname);
+  if (!target) {
+    return undefined;
+  }
+  return { instance, target };
+}
+
+async function proxyToRoute(req: Request, target: RouteInfo) {
   // Build reverse URL preserving query parameters
   const url = new URL(req.url);
   url.hostname = "127.0.0.1";
@@ -100,7 +140,11 @@ async function handleProxy(req: Request, pathname: string) {
     headers: forwardHeaders(req.headers),
     body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
   });
-  return await fetch(forwardReq);
+  try {
+    return await fetch(forwardReq);
+  } catch {
+    return undefined;
+  }
 }
 
 function startHealthMonitor() {
