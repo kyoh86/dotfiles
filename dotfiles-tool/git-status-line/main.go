@@ -172,7 +172,7 @@ func printStatus(status GitStatus) {
 
 		// Remote
 		if status.Remote != "" {
-			parts = append(parts, "\uF427"+status.Remote)
+			parts = append(parts, "\uF427 "+status.Remote)
 		} else {
 			parts = append(parts, "\U000F0674 ")
 		}
