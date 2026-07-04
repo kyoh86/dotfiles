@@ -7,7 +7,7 @@ Deno.test("pathShorten resolves relative path and home prefix", () => {
       cwd: "/home/user/dev/gh/kyoh86",
       homeDir: "/home/user",
     }),
-    "~/P/g/k/repo@main",
+    "~/d/g/k/repo@main",
   );
 });
 
@@ -17,6 +17,6 @@ Deno.test("pathShorten resolves parent segments", () => {
       cwd: "/home/user/dev/gh/kyoh86/dotfiles",
       homeDir: "/home/user",
     }),
-    "~/P/g/k/d/nvim",
+    "~/d/g/k/d/nvim",
   );
 });
