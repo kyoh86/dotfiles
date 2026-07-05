@@ -41,7 +41,9 @@ local spec = {
       vim.g.previm_custom_css_path = vim.fn.stdpath("config") .. "/css/github-markdown.css"
       local wsl_distro = os.getenv("WSL_DISTRO_NAME")
       if wsl_distro ~= nil and wsl_distro ~= "" then
+        vim.g.previm_wsl_mode = true
         vim.g.previm_open_cmd = "wslview"
+        vim.g.previm_wsl_open_path_format = "wsl"
       else
         local glaze = require("kyoh86.lib.glaze")
         glaze.get_async("opener", function(opener)

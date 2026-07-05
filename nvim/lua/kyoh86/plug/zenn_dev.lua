@@ -1,4 +1,7 @@
 --- integrations for zenn.dev
+
+local PrevimSettingAugroup = "ZennDevPrevimSetting"
+
 ---@param prefix? string  A URL prefix for my zenn.dev posts
 local zenn_url = function(prefix)
   prefix = prefix or "https://zenn.dev/kyoh86/"
@@ -22,6 +25,7 @@ local tryEnable = function()
   if not state.loaded or not state.entered then
     return
   end
+  vim.notify("Entered in Zenn.dev repository", vim.log.levels.INFO)
   vim.fn["zenn_dev#setup#commands"]({ ZennDevNewArticle = true })
 
   vim.keymap.set("n", "<leader>zna", "<cmd>ZennDevNewArticle<cr>", { remap = false, silent = true, desc = "zenn.dev用の記事を追加する" })
@@ -49,6 +53,16 @@ local tryEnable = function()
       vim.fn.setreg("+", url)
     end
   end, { remap = false, silent = true, desc = "現在のバッファの記事のローカルプレビューのURLをYankする" })
+  vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup(PrevimSettingAugroup, { clear = true }),
+    pattern = "markdown",
+    callback = function(ev)
+      vim.b[ev.buf].previm_url_path_mappings = {
+        ["/images/"] = "{gitroot}/images/",
+      }
+    end,
+    desc = "Zenn.dev用のプレビュー画像のURLマッピングを設定する",
+  })
 end
 local leave = function()
   state.entered = false
@@ -58,6 +72,7 @@ local leave = function()
   pcall(vim.keymap.del, "n", "<leader>xzl")
   pcall(vim.keymap.del, "n", "<leader>yzl")
   pcall(vim.api.nvim_del_user_command, "ZennDevNewArticle")
+  pcall(vim.api.nvim_del_augroup_by_name, PrevimSettingAugroup)
 end
 ---@type LazySpec[]
 local spec = {
