@@ -226,6 +226,7 @@ async function handleScratchRequest(denops: Denops, req: Request) {
     "require('kyoh86.conf.tmux_capture').open(_A)",
     {
       kind: readStringField(body, "kind") ?? "",
+      format: readStringField(body, "format") ?? "",
       pane: readStringField(body, "pane") ?? "",
       cwd: readStringField(body, "cwd") ?? "",
       title: readStringField(body, "title") ?? "",

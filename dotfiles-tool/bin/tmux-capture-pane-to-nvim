@@ -12,21 +12,21 @@ title="${TMUX_CAPTURE_PANE_TITLE:-$(tmux display-message -p '#{pane_current_comm
 
 if [ -n "$pane" ]; then
   payload="$(
-    tmux capture-pane -S - -p -J -t "$pane" |
+    tmux capture-pane -S - -e -p -J -t "$pane" |
       jq -Rs \
         --arg pane "$pane" \
         --arg cwd "$cwd" \
         --arg title "$title" \
-        '{kind:"tmux-pane",pane:$pane,cwd:$cwd,title:$title,text:.}'
+        '{kind:"tmux-pane",format:"ansi",pane:$pane,cwd:$cwd,title:$title,text:.}'
   )"
 else
   payload="$(
-    tmux capture-pane -S - -p -J |
+    tmux capture-pane -S - -e -p -J |
       jq -Rs \
         --arg pane "$pane" \
         --arg cwd "$cwd" \
         --arg title "$title" \
-        '{kind:"tmux-pane",pane:$pane,cwd:$cwd,title:$title,text:.}'
+        '{kind:"tmux-pane",format:"ansi",pane:$pane,cwd:$cwd,title:$title,text:.}'
   )"
 fi
 
