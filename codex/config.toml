@@ -27,6 +27,15 @@ approval_mode = "approve"
 [mcp_servers.nvim_mcp_proxy.tools.nvim_get_buffer_content]
 approval_mode = "approve"
 
+[mcp_servers.nvim_mcp_proxy.tools.nvim_diagnostics]
+approval_mode = "approve"
+
+[mcp_servers.nvim_mcp_proxy.tools.nvim_buffers]
+approval_mode = "approve"
+
+[mcp_servers.nvim_mcp_proxy.tools.nvim_open_file]
+approval_mode = "approve"
+
 [notice.model_migrations]
 "gpt-5.2-codex" = "gpt-5.3-codex"
 "gpt-5.3-codex" = "gpt-5.4"

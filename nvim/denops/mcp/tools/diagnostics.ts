@@ -12,7 +12,7 @@ export async function getDiagnostics(
   denops: Denops,
   options: DiagnosticsOptions,
 ) {
-  let target = 0;
+  let target = -1;
   if (options.bufnr !== undefined || options.name) {
     const resolved = await resolveBuffer(denops, {
       bufnr: options.bufnr,

@@ -5,7 +5,11 @@ function M.diagnostics(bufnr, severity)
   if severity and severity ~= "" then
     args.severity = vim.diagnostic.severity[string.upper(severity)]
   end
-  local list = vim.diagnostic.get(bufnr or 0, args)
+  local target = bufnr
+  if target == -1 then
+    target = nil
+  end
+  local list = vim.diagnostic.get(target, args)
   local result = {}
   for _, item in ipairs(list) do
     result[#result + 1] = {
