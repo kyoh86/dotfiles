@@ -22,59 +22,18 @@ https://remap-keys.app/
 https://github.com/kyoh86/keyball/actions/workflows/build-user.yml
 
 ```console
-gh --repo kyoh86/keyball workflow run build-user.yml --ref kyoh86-ow --field keyboard=keyball61 --field keymap=kyoh86
+$ gh --repo kyoh86/keyball workflow run build-user.yml --ref kyoh86-ow --field keyboard=keyball61 --field keymap=kyoh86
 ```
+
+To Download Artifact:
+```console
+$ gh --repo kyoh86/keyball run watch
+$ gh --repo kyoh86/keyball run download "$(gh --repo kyoh86/keyball run list --branch kyoh86-ow --json "name,updatedAt,databaseId,status" --limit 1 --status success --jq ".[]|select(.updatedAt > \"$(date -u -d "-30 minutes" +'%Y-%m-%dT%H:%M:%SZ')\")|.databaseId")" --name keyball61-kyoh86-firmware
 
 ## Build Farmware By Manual
 
-### 0. Install qmk tool
-
-```shell
-pip install --user qmk
-qmk setup
-```
-
-### 1. Prepare working directory
-
-Prepare temporary directory and change working directory to there.
-
-```shell
-pushd "$(mktemp -d)"
-```
-
-### 2. Prepare Keyball keymap
-
-Prepare my own Keyball keymap and rebase it on-to Yowkees/keyball.
-
-```shell
-git clone https://github.com/kyoh86/keyball --branch kyoh86-ow keyball
-
-pushd keyball
-git remote add upstream https://github.com/Yowkees/keyball
-git fetch upstream
-git rebase upstream/main
-popd
-```
-
-### 3. Prepare QMK firmware
-
-Prepare QMK firmware (`0.22.14`)
-
-```shell
-git clone https://github.com/qmk/qmk_firmware --depth 1 --recurse-submodules --shallow-submodules --branch 0.22.14 qmk
-```
-
-### 4. Merge them and build
-
-```shell
-pushd qmk
-pushd keyboards
-ln -s ../../keyball/qmk_firmware/keyboards/keyball keyball
-popd
-make SKIP_GIT=yes keyball/keyball61:kyoh86
-
-ls keyball_*.hex
-```
+NOTE: DEPRECATED
+I don't want to maintenance an environment to build qmk firmwares.
 
 ## Flush the built firmware
 
