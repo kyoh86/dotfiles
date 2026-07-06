@@ -1,0 +1,183 @@
+*gin-buffer-sources.txt*        Personal notes for understanding gin buffers
+
+Author: kyoh86
+
+==============================================================================
+CONTENTS                                      *gin-buffer-sources-contents*
+
+INTRODUCTION                                  |gin-buffer-sources-intro|
+SOURCE LABELS                                 |gin-buffer-sources-labels|
+Ginedit buffers                               |gin-buffer-sources-ginedit|
+Patch-like tri-view                           |gin-buffer-sources-patch|
+Implementation idea                           |gin-buffer-sources-impl|
+Limits                                        |gin-buffer-sources-limits|
+
+==============================================================================
+INTRODUCTION                                  *gin-buffer-sources-intro*
+
+Gin uses special buffer names such as "ginedit://" to represent Git data as
+file-like buffers. Some commands, especially |:GinPatch|, combine those
+buffers with normal file buffers to make a multi-window diff UI.
+
+The practical problem is that the view itself is not explicitly identified
+from user configuration. A "ginedit://" buffer can be opened by |:GinEdit|
+directly, or it can be one pane inside |:GinPatch| or |:GinChaperon|. Instead
+of trying to
+identify the whole multi-window view first, it is usually more robust to label
+what each buffer represents.
+
+In other words, first identify the Git source of each buffer. If related
+source labels appear together in diff windows, the overall view becomes easier
+to read.
+
+==============================================================================
+SOURCE LABELS                                 *gin-buffer-sources-labels*
+
+The useful abstraction is a buffer source label:
+
+  - which plugin scheme produced the buffer
+  - which Git source the content comes from
+  - which path or path list the buffer is about
+
+Examples:
+
+  ginedit://...;commitish=HEAD#README.md
+        GIN EDIT HEAD README.md
+
+  ginedit://...#README.md
+        GIN EDIT INDEX README.md
+
+  /path/to/repo/README.md
+        WORKTREE README.md
+
+The label does not need to prove that the buffer is part of a specific
+command.
+It only needs to describe the content source accurately enough for a winbar,
+statusline, or local UI hint.
+
+==============================================================================
+Ginedit buffers                               *gin-buffer-sources-ginedit*
+
+A "ginedit://" buffer is best understood as a file-like view of a Git object
+or index entry.
+
+  ginedit://{worktree};commitish={commitish}#{path}
+
+Recommended labels:
+
+  commitish missing
+        INDEX
+        The staged version of {path}, equivalent to Git's ":{path}" entry.
+
+  commitish=HEAD
+        HEAD
+        The version of {path} at HEAD.
+
+  commitish=:2
+        OURS
+        The stage-2 version, commonly used by conflict-resolution views.
+
+  commitish=:3
+        THEIRS
+        The stage-3 version, commonly used by conflict-resolution views.
+
+  any other commitish
+        the commitish itself
+        For example, "HEAD~1", a branch name, a tag, or a commit hash.
+
+This interpretation is useful even outside |:GinPatch|. A normal |:GinEdit|
+buffer can still be labeled as HEAD, INDEX, or another revision according to
+its "commitish" parameter.
+
+==============================================================================
+Patch-like tri-view                           *gin-buffer-sources-patch*
+
+|:GinPatch| opens a patch-oriented diff UI. In the common three-pane form, the
+buffers can be understood as:
+
+  left    HEAD      ginedit://{worktree};commitish=HEAD#{path}
+  center  INDEX     ginedit://{worktree}#{path}
+  right   WORKTREE  normal file buffer for {path}
+
+The center INDEX pane is the important one. It represents the staged version,
+that is, what will be committed next. The HEAD and WORKTREE panes are sources
+that can be compared against or copied from with Vim diff commands.
+
+A useful mental model is:
+
+        HEAD  ->  INDEX  <-  WORKTREE
+                  ^
+                  build this
+
+It is not necessary to detect "this is GinPatch" before showing useful labels.
+If the current tab contains matching HEAD, INDEX, and WORKTREE labels for the
+same path, and the windows are in diff mode, the view can be treated as a
+patch-like tri-view.
+
+Two-pane variants can be understood the same way:
+
+  HEAD + INDEX
+        Useful for inspecting or reverting staged changes.
+
+  INDEX + WORKTREE
+        Useful for staging selected worktree changes.
+
+==============================================================================
+Implementation idea                           *gin-buffer-sources-impl*
+
+For personal configuration, avoid parsing gin buffer names with ad-hoc
+Vimscript regular expressions. Gin buffer names are produced by denops'
+bufname formatter,
+so parsing them with the same API is safer.
+
+Recommended approach:
+
+  1. Use a small denops helper that calls @denops/std/bufname parse().
+  2. Cache the parsed result into buffer-local variables on BufEnter,
+     WinEnter, or BufWinEnter.
+  3. Let winbar/statusline read only the cached buffer-local variables.
+  4. Optionally inspect windows in the current tab to infer patch-like groups.
+
+Possible cache variables:
+
+  b:my_gin_scheme
+  b:my_gin_worktree
+  b:my_gin_params
+  b:my_gin_fragment
+  b:my_gin_source
+  b:my_gin_source_label
+
+Suggested source labels for "ginedit://":
+
+  no commitish       index
+  commitish=HEAD     head
+  commitish=:2       ours
+  commitish=:3       theirs
+  other commitish    revision
+
+The WORKTREE pane cannot be parsed as a gin buffer because it is a normal file
+buffer. Detect it by context: same path, same tabpage, diff mode, and matching
+HEAD/INDEX gin buffers.
+
+==============================================================================
+LIMITS                                        *gin-buffer-sources-limits*
+
+This is a user-side heuristic, not an official vim-gin API.
+
+It is suitable for display-only hints such as winbar or statusline labels. It
+is less suitable for changing editing behavior, automatically restoring broken
+layouts, or making destructive decisions.
+
+Known limits:
+
+  - A standalone |:GinEdit| buffer can look like a pane used by |:GinPatch|.
+  - A patch-like view can be broken by closing one window.
+  - The WORKTREE pane is a normal file buffer and needs contextual detection.
+  - Future changes in vim-gin may change how buffers are opened.
+
+If stronger behavior is needed, vim-gin would need to expose explicit runtime
+metadata such as "view", "role", and "view id" for buffers that participate in
+compound views.
+
+==============================================================================
+vim:tw=78:ts=8:noet:ft=help:norl:

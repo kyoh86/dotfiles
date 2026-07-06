@@ -6,6 +6,7 @@ local Mode = require("kyoh86.plug.heirline.mode")
 local Bufnr = require("kyoh86.plug.heirline.bufnr")
 local Ruler = require("kyoh86.plug.heirline.ruler")
 local Diagnostics = require("kyoh86.plug.heirline.diagnostics")
+local GinBufferSource = require("kyoh86.plug.heirline.gin_buffer_source")
 
 return {
   init = function(self)
@@ -20,6 +21,7 @@ return {
     },
     {
       {
+        GinBufferSource,
         File,
         Bufnr,
         Ruler,

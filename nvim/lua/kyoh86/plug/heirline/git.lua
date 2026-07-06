@@ -8,7 +8,7 @@ local defer = require("kyoh86.lib.defer")
 
 local function notify_update_core()
   vim.api.nvim_exec_autocmds("User", { pattern = "UpdateHeirlineGitStatus" })
-  vim.cmd.redrawstatus()
+  vim.cmd("redrawstatus")
 end
 
 local notify_update_debounced, _ = defer.debounce_trailing(notify_update_core, 500)

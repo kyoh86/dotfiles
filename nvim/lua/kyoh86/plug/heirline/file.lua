@@ -30,15 +30,15 @@ local FileIcon = {
 local FileName = {
   provider = function(self)
     if vim.bo.buftype == "terminal" then
-      return "%{b:term_title}" .. " "
+      return "%<%{b:term_title}" .. " "
     elseif vim.bo.buftype == "quickfix" then
-      return [[%{v:lua.require("kyoh86.plug.heirline.qftitle")()}]] .. " "
+      return [[%<%{v:lua.require("kyoh86.plug.heirline.qftitle")()}]] .. " "
     end
     local filename = vim.fn.fnamemodify(self.filename, ":.")
     if filename == "" then
       filename = "[No Name]"
     end
-    return filename .. " "
+    return "%<" .. filename .. " "
   end,
   hl = { bold = true },
 }

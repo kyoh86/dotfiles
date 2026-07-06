@@ -42,6 +42,7 @@
     "./denops/@ddu-sources/slow",
     "./denops/@ddu-sources/lsp_client",
     "./denops/tomlvsnip",
+    "./denops/gin-buffer-sources",
     "./denops/dirty-bufs",
     "./denops/mcp",
     "./denops/nvim-mcp-proxy",
