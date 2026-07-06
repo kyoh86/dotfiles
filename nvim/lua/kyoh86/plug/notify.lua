@@ -1,32 +1,51 @@
+local icons = {
+  ERROR = "",
+  WARN = "",
+  INFO = "",
+  DEBUG = "",
+  TRACE = "✎",
+}
 ---@type LazySpec
 local spec = {
-  "rcarriga/nvim-notify",
-  dependencies = { "plenary.nvim" },
+  "nvim-mini/mini.notify",
+  version = false,
   config = function()
-    vim.notify = require("notify")
+    local notify = require("mini.notify")
+    notify.setup({
+      content = {
+        format = function(notif)
+          local time = vim.fn.strftime("%H:%M:%S", math.floor(notif.ts_update))
+          local icon = icons.INFO
 
-    vim.api.nvim_set_hl(0, "NotifyERRORBorder", { link = "DiagnosticError" })
-    vim.api.nvim_set_hl(0, "NotifyWARNBorder", { link = "DiagnosticWarn" })
-    vim.api.nvim_set_hl(0, "NotifyINFOBorder", { link = "DiagnosticInfo" })
-    vim.api.nvim_set_hl(0, "NotifyDEBUGBorder", { link = "DiagnosticHint" })
-    vim.api.nvim_set_hl(0, "NotifyTRACEBorder", { link = "DiagnosticHint" })
-    vim.api.nvim_set_hl(0, "NotifyERRORIcon", { link = "DiagnosticError" })
-    vim.api.nvim_set_hl(0, "NotifyWARNIcon", { link = "DiagnosticWarn" })
-    vim.api.nvim_set_hl(0, "NotifyINFOIcon", { link = "DiagnosticInfo" })
-    vim.api.nvim_set_hl(0, "NotifyDEBUGIcon", { link = "DiagnosticHint" })
-    vim.api.nvim_set_hl(0, "NotifyTRACEIcon", { link = "DiagnosticHint" })
-    vim.api.nvim_set_hl(0, "NotifyERRORTitle", { link = "DiagnosticError" })
-    vim.api.nvim_set_hl(0, "NotifyWARNTitle", { link = "DiagnosticWarn" })
-    vim.api.nvim_set_hl(0, "NotifyINFOTitle", { link = "DiagnosticInfo" })
-    vim.api.nvim_set_hl(0, "NotifyDEBUGTitle", { link = "DiagnosticHint" })
-    vim.api.nvim_set_hl(0, "NotifyTRACETitle", { link = "DiagnosticHint" })
+          for key, value in pairs(vim.log.levels) do
+            if value == notif.level then
+              icon = icons[key]
+            end
+          end
+          return string.format(" %s %s | %s ", icon, notif.msg, time)
+        end,
+      },
+      window = {
+        winblend = 25,
+        config = {
+          title = "",
+          border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+          row = 1,
+          -- ╭───╮
+          -- │   │
+          -- ╰───╯
+        },
+      },
+    })
 
-    kyoh86.ensure("momiji", function(m)
-      require("notify").setup({
-        merge_duplicates = true,
-        background_colour = m.colors.black,
-      })
-    end)
+    vim.api.nvim_set_hl(0, "MiniNotifyBorder", { link = "FloatBorder" })
+    vim.api.nvim_set_hl(0, "MiniNotifyNormal", { link = "NormalFloat" })
+    vim.api.nvim_set_hl(0, "MiniNotifyTitle", { link = "Title" })
+    vim.api.nvim_set_hl(0, "MiniNotifyLspProgress", { link = "DiagnosticInfo" })
+
+    vim.api.nvim_create_user_command("Notifications", function()
+      MiniNotify.show_history()
+    end, {})
   end,
 }
 return spec
