@@ -65,24 +65,56 @@ local spec = {
       vim.keymap.set("n", "<leader>gdg", "<Plug>(gin-diffget)", { desc = "Get a diff chunk from WORKTREE or HEAD buffer (prefer WORKTREE)" })
       vim.keymap.set("n", "<leader>gd>", "<Plug>(gin-diffget-l)", { desc = "Get a diff chunk from HEAD buffer" })
       vim.keymap.set("n", "<leader>gd<", "<Plug>(gin-diffget-r)", { desc = "Get a diff chunk from WORKTREE buffer" })
-      vim.keymap.set("n", "<leader>gs", "<cmd>GinStatus<cr>", { desc = "Show Git status" })
 
-      local au = require("kyoh86.lib.autocmd")
-      au.group("kyoh86.plug.git", true):hook("FileType", {
+      vim.keymap.set("n", "<leader>gs", "<cmd>GinStatus ++opener=SplitDrop<cr>", { desc = "Show Git status" })
+
+      local au = require("kyoh86.lib.autocmd").group("kyoh86.plug.git", true)
+      au:hook("FileType", {
         pattern = { "gitcommit", "markdown" },
-        callback = function()
+        callback = function(ev)
           vim.keymap.set("n", "<leader>a", function()
             if vim.b.gin_internal_proxy_waiter then
               return "<cmd>Apply<cr>"
             end
             return "<leader>a"
-          end, { expr = true, desc = "Apply a commit message and others" })
+          end, { expr = true, buf = ev.buf, desc = "Apply a commit message and others" })
           vim.keymap.set("n", "<leader>c", function()
             if vim.b.gin_internal_proxy_waiter then
               return "<cmd>Cancel<cr>"
             end
             return "<leader>c"
-          end, { expr = true, desc = "Apply a commit message and others" })
+          end, { expr = true, buf = ev.buf, desc = "Apply a commit message and others" })
+        end,
+      })
+      au:hook("BufRead", {
+        pattern = {
+          "gin://*",
+          "ginbranch://*",
+          "gindiff://*",
+          "ginedit://*",
+          "ginlog://*",
+          "ginreflog://*",
+          "ginstash://*",
+          "ginstatus://*",
+          "gintag://*",
+          "ginblame://*",
+          "ginblamenav://*",
+          "ginblamedetail://*",
+        },
+        callback = function(ev)
+          vim.keymap.set("n", "<leader>g?", "<Plug>(gin-action-help:all)", { buf = ev.buf, desc = "Show all gin action helps" })
+        end,
+      })
+      au:hook("FileType", {
+        pattern = { "gin-status" },
+        callback = function(ev)
+          vim.keymap.set("n", "<leader>a", "<Plug>(gin-action-stage)", { buf = ev.buf, desc = "Stage a changed file" })
+          vim.keymap.set("n", "<leader>r", "<Plug>(gin-action-unstage)", { buf = ev.buf, desc = "Unstage a changed file" })
+          vim.keymap.set("n", "<leader>p", "<Plug>(gin-action-patch)", { buf = ev.buf, desc = "Start the tri-diff-patch for a changed file" })
+          vim.keymap.set("n", "<esc>", "<cmd>hide<cr>", { buf = ev.buf, desc = "Close the buffer" })
+          vim.keymap.set("n", "<leader>e", "<Plug>(gin-action-edit)", { buf = ev.buf, desc = "Edit a file" })
+          vim.keymap.set("n", "<cr>", "<Plug>(gin-action-edit)", { buf = ev.buf, desc = "Edit a file" })
+          vim.keymap.set("n", "<leader>b", "<Plug>(gin-action-browse)", { buf = ev.buf, desc = "Browse a file" })
         end,
       })
     end,

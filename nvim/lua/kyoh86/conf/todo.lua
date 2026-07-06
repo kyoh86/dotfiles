@@ -14,5 +14,5 @@ au.group("kyoh86.conf.todo", true):hook({ "BufReadPost", "BufNewFile" }, {
   end,
 })
 return {
-  open_note = func.bind_all(splitdrop, filename),
+  open_note = func.bind_all(splitdrop, filename, { fit = true }),
 }
