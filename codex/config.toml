@@ -832,3 +832,6 @@ trust_level = "trusted"
 
 [projects."github.com/wcl48/mering"]
 trust_level = "trusted"
+
+[projects."github.com/kyoh86/nvim-plugin-triage"]
+trust_level = "trusted"
