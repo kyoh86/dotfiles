@@ -7,3 +7,5 @@ prefix_rule(pattern=["/home/kyoh86/dev/gh/kyoh86/dotfiles/.wt/main/codex/skills/
 prefix_rule(pattern=["systemctl", "--user"], decision="allow")
 prefix_rule(pattern=["gofmt", "-w"], decision="allow")
 prefix_rule(pattern=["make", "lint"], decision="allow")
+prefix_rule(pattern=["git", "pull"], decision="allow")
+prefix_rule(pattern=["gh", "run", "view"], decision="allow")
