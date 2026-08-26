@@ -1,5 +1,5 @@
-roots = ["/home/kyoh86/dev", "/home/kyoh86/go/src"]
-primary_root = "/home/kyoh86/dev"
+roots = ["~/dev", "~/go/src"]
+primary_root = "~/dev"
 
 [host-path-aliases]
 'github.com' = "gh"

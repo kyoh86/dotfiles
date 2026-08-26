@@ -96,6 +96,10 @@ export PATH="${HOME}/.deno/bin:${PATH}"
 # Tig:
 export PATH="${XDG_CONFIG_HOME}/tig/clip:${PATH}"
 
+# Gogh:
+export GOGH_CONFIG_HOME="${XDG_CONFIG_HOME}/gogh"
+export GOGH_CACHE_HOME="${XDG_CACHE_HOME}/gogh"
+
 # Homebrew:
 export PATH="/opt/homebrew/bin:${PATH}"
 
