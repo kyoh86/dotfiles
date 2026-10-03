@@ -100,6 +100,11 @@ export PATH="${XDG_CONFIG_HOME}/tig/clip:${PATH}"
 export GOGH_CONFIG_HOME="${XDG_CONFIG_HOME}/gogh"
 export GOGH_CACHE_HOME="${XDG_CACHE_HOME}/gogh"
 
+# dozen driver (for vulkan)
+# WSL2 Vulkan: use Mesa dozen (D3D12) driver for GPU-accelerated Vulkan
+export MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA
+export VK_DRIVER_FILES=/usr/share/vulkan/icd.d/dzn_icd.json
+
 # Homebrew:
 export PATH="/opt/homebrew/bin:${PATH}"
 

@@ -38,6 +38,11 @@ apt_install() {
       binutils \
       gettext
 
+  # Vulkan dozen driver
+  sudo add-apt-repository -y ppa:kisak/kisak-mesa
+  sudo apt update
+  sudo apt upgrade -y
+
   # Install as Codex dependency
   sudo apt install --yes \
       bubblewrap
