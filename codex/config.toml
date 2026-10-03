@@ -44,6 +44,9 @@ approval_mode = "approve"
 [plugins."github@openai-curated"]
 enabled = true
 
+[plugins."visualize@openai-bundled"]
+enabled = true
+
 [tui.model_availability_nux]
 "gpt-5.5" = 4
 
@@ -844,3 +847,11 @@ trust_level = "trusted"
 
 [projects."github.com/OpenWonderLabs/SwitchBotAPI"]
 trust_level = "trusted"
+
+[projects."/home/kyoh86/dev/gh/kyoh86/browser-motion-watch"]
+trust_level = "trusted"
+
+[marketplaces.openai-bundled]
+last_updated = "2026-10-03T06:24:52Z"
+source_type = "local"
+source = "/home/kyoh86/.codex/.tmp/bundled-marketplaces/openai-bundled"
