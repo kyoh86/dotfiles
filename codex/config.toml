@@ -852,6 +852,6 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [marketplaces.openai-bundled]
-last_updated = "2026-10-03T06:24:52Z"
+last_updated = "2026-10-08T04:59:07Z"
 source_type = "local"
 source = "/home/kyoh86/.codex/.tmp/bundled-marketplaces/openai-bundled"
