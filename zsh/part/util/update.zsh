@@ -11,6 +11,7 @@ function update {
         update_paru || return 1
         update_brew || return 1
         update_mise || return 1
+        update_codex || return 1
         update_deno || return 1
         update_go || return 1
         update_rust || return 1
@@ -65,6 +66,18 @@ function update_mise {
         mise self-update --yes
         MISE_FETCH_REMOTE_VERSIONS_CACHE=0 mise up --yes
         mise prune --yes
+    fi
+    popd
+}
+# }}}
+
+# update codex {{{
+function update_codex {
+    sudo echo updating codex
+    pushd ~
+    if command -v codex >/dev/null 2>&1; then
+      codex update
+      codex --version
     fi
     popd
 }
