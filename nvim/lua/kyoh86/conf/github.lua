@@ -9,14 +9,6 @@ group:hook("User", {
   end,
 })
 
--- GitHub 認証情報をdduに引き渡す
-group:hook("User", {
-  pattern = "DenopsPluginPost:ddu-source-github",
-  callback = function()
-    require("kyoh86.conf.github.auth").auth_ddu()
-  end,
-})
-
 vim.api.nvim_create_user_command("GitHubLogin", function()
   require("kyoh86.conf.github.auth").relogin()
 end, { desc = "Login to GitHub" })

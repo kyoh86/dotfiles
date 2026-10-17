@@ -1,0 +1,127 @@
+*kyoh86-pick.txt*  mini.pick による一覧・検索
+
+起動 ~
+
+従来の ddu の起動キーを引き継ぐ。<leader><leader>f で全 picker の一覧。
+名前を指定する場合は :Pick git-log / :Pick aws-profile など。
+<leader>ffm もファイル選択として残す。
+
+共通操作 ~
+
+  <C-n> / <C-p>  次 / 前
+  <CR>           選択・実行
+  <C-v>          縦分割して選択
+  <C-s>          横分割して選択
+  <C-t>          タブで選択
+  <C-x>          現在の候補をマーク
+  <C-a>          全候補をマーク / 解除
+  <C-q>          マークした候補を確定
+  <C-w>          プレビューを切り替え
+  <C-o>          個別アクションの一覧
+  <C-]>          遷移前の一覧へ戻る（遷移時のみ）
+  <Esc> / <C-c>  キャンセル
+  <S-Tab>        現在のキー割り当てを表示
+
+文字キーは検索入力になる。個別アクションの Ctrl キーが標準の編集・
+スクロールキーと重なる場合、その picker では個別アクションを優先する。
+live grep は mini.pick 標準の <C-o>（glob指定）を維持する。
+code action は Neovim 標準の実装を使い、選択UIのみ mini.pick にする。
+
+主な起動キー ~
+
+  <leader>fff / ffr / fft  管理対象 / 全ファイル再帰 / ディレクトリ探索
+  <leader><leader>c / r   設定ファイル選択 / 内容検索
+  <leader>fb / fr / fh    バッファ / 内容検索 / ヘルプ
+  <leader>fmu / fmw / fmr 最近開いたファイル / 書いたファイル / リポジトリ
+  <leader>fqc / fqh       Quickfix / Quickfix履歴
+  <leader>f: / f; / fvf   コマンド / コマンド履歴 / Vim関数
+  <leader>ld / lca        定義・型・宣言・実装 / code action
+  <leader>lfr / lfw / lch  参照 / workspace symbol / outgoing call
+  <leader>flc             LSPクライアント
+  <leader>fgs / fgb / fgl  Git status / branch / log
+  <leader>fgh             GitHubメニュー
+  <leader>fghi / fghp     リポジトリのIssue / PR
+  <leader>fghgi / fghgp   自分が関与するIssue / 自分のPR
+  <leader>fpl / fpw / fpr gogh project / worktree / remote repo
+  <leader><leader>p      lazy.nvimプラグイン
+  <leader>fap / fcs       AWS profile / Codex session
+  <leader>fts / ftp       tmux session / pane
+  <leader>fdp / fdt       DocBase記事 / template
+  <leader>fin / fib       Inkdrop note / book
+  <leader>fit / fis       Inkdrop tag / status
+  <leader>fza             Zenn記事
+  <leader>fee / fes       絵文字 / slug
+  terminal の <C-x>y または <C-x><C-y>  Zsh履歴
+  Zsh の <C-x><C-r> または <C-x>r      Neovimで履歴選択→tmuxに貼り付け
+
+個別アクション ~
+
+  バッファ     <C-d> 閉じる（未保存は強制削除しない）
+  ファイル履歴 <C-d> 履歴から削除
+  Git status   <C-g> stage、<C-r> unstage
+  Git branch   <C-d> 削除、<C-b> 選択branchから作成、<C-l> log
+               <C-r> rebase、<C-y> 名前をyank
+  Git log      <CR> commitの変更ファイル、<C-f> fixup commit
+               <C-r> reset --mixed、<C-y> hashをyank、<C-e> hash挿入
+  commit差分   <CR> 当時の内容、<C-e> 作業ツリーのファイル
+  GitHub       <C-b> browse、<C-e> 本文編集、<C-g> コメント
+               <C-r> リンク挿入、<C-u> カーソル前にリンク挿入
+               <C-f> タイトル付き挿入、<C-y> リンクをyank
+               <C-l> open/closed/all切替、PRは <C-k> checkout
+               タイトル付きリンクの前方挿入は <C-o> から選択
+  gogh         <C-b> browse、<C-e> ディレクトリ、<C-f> 配下ファイル
+               <C-g> GitHub Issues、<C-k> clone
+  プラグイン   <C-b> browse、<C-e> ディレクトリ、<C-f> 配下ファイル
+               <C-g> 設定を検索
+  tmux         <C-e> 選択、<C-d> 終了
+  Zsh履歴      <C-y> tmuxに貼り付け（Enterは送らない）
+  LSP client   <C-d> 停止、<C-k> 強制停止、<C-r> 再起動
+  outgoing     <C-l> 選択した呼び出し先をさらに展開
+  Codex        <CR> resume、<C-e> JSONL、<C-d> 削除
+  DocBase      <C-b> browse
+  Inkdrop      book/tag/status の <C-g> で元のノートに適用
+               tag の <C-d> で元のノートからタグ削除
+  Zenn         <C-b> localhost:8000でプレビュー
+
+移行時の違い・残る依存 ~
+
+一覧は検索入力中心。ディレクトリ探索・呼び出し階層は別一覧へ順に進む。
+dduのツリー表示や独自columnを、そのまま再現するものではない。
+Zennの記事日付は現在ファイルの更新日時を表示し、検索は標準fuzzy matching。
+従来のkensakuとfzfを混ぜたマッチングは使わない。
+
+GitHubは gh の認証を使用。本文編集バッファは :w で反映する。
+GitHubリポジトリ検索は picker メニューから起動する。DduSources / DduFilters /
+DduKinds は従来名のまま gh による検索として残す。
+
+DocBase/Inkdropの一覧取得はPython 3.11以降の標準ライブラリを使う。
+既存のXDG_STATE_HOME配下の認証ファイルを読み、認証情報を引数に渡さない。
+DocBaseの記事・template、Inkdropのノートの編集保存・metadata変更は、
+引き続き既存の denops-docbase.vim / denops-inkdrop.vim のURIハンドラを使う。
+未設定時は従来の :DocbaseLogin / :InkdropLogin でログインする。
+今回の移行でDeno依存すべてがなくなるわけではない。
+
+実装は lua/kyoh86/lib/pick/。plugin設定は lua/kyoh86/plug/pick.lua。
+旧Denopsのsource/kind/filter/column実装は移行時の参照用として残しているが、
+dduのplugin設定は削除済みで、新しいpickerからは呼び出さない。
+
+絵文字データ ~
+
+data/pick-emoji.json は muan/unicode-emoji-json の data-by-emoji.json から
+emoji/slugを抽出したもの（2026-10-18取得）。ライセンスは隣の
+data/pick-emoji-LICENSE.txt を参照。
+https://github.com/muan/unicode-emoji-json
+
+検証 ~
+
+リポジトリルートから実行:
+  nvim --headless -u NONE -i NONE '+luafile nvim/tests/pick_test.lua'
+  nvim --headless -u NONE -i NONE '+luafile nvim/tests/pick_sources_test.lua'
+  nvim --headless -u NONE -i NONE '+luafile nvim/tests/pick_git_test.lua'
+  python3 -m unittest discover -s nvim/scripts -p '*_test.py'
+
+mini.pick / mini.extra は標準のlazyインストール先を参照する。
+別checkoutで試す場合は NVIM_PICK_PATH / NVIM_EXTRA_PATH で指定可能。
+API書き込みの検証は行わず、service候補と認証読み込みはfixtureで確認する。
+
+ vim:tw=78:ts=2:sw=2:ft=help:norl:

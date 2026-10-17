@@ -46,7 +46,7 @@ zshaddhistory() {
   return 0
 }
 
-function _zsh_history_ddu() {
+function _zsh_history_pick() {
   emulate -L zsh
 
   if [[ -z "${TMUX}" || -z "${TMUX_PANE}" ]]; then
@@ -59,11 +59,11 @@ function _zsh_history_ddu() {
   fi
 
   nvim --server "${NVIM_SERVER_NAME}" --remote-expr \
-    "luaeval('require(\"kyoh86.lib.zsh_history_ddu\").start_tmux(_A)', '${TMUX_PANE}')" \
+    "luaeval('require(\"kyoh86.lib.pick.tools\").start_tmux(_A)', '${TMUX_PANE}')" \
     >/dev/null 2>&1
   zle reset-prompt
 }
 
-zle -N zsh-history-ddu _zsh_history_ddu
-bindkey -M emacs '^x^r' zsh-history-ddu
-bindkey -M emacs '^xr' zsh-history-ddu
+zle -N zsh-history-pick _zsh_history_pick
+bindkey -M emacs '^x^r' zsh-history-pick
+bindkey -M emacs '^xr' zsh-history-pick

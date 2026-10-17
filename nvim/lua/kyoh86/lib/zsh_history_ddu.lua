@@ -1,15 +1,8 @@
 local M = {}
 
 function M.start_tmux(target)
-  require("kyoh86.lib.tmux").focus_nvim_pane()
-  vim.fn["ddu#start"]({
-    name = "zsh_history_tmux",
-    actionParams = {
-      ["custom:tmux-paste"] = {
-        target = target,
-      },
-    },
-  })
+  -- Compatibility for shells that already loaded the previous ZLE widget.
+  require("kyoh86.lib.pick.tools").start_tmux(target)
 end
 
 return M
