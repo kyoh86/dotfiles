@@ -3,8 +3,8 @@ update_on_startup = false
 sandbox_mode = "workspace-write"
 personality = "pragmatic"
 web_search = "cached"
-model = "gpt-5.5"
-model_reasoning_effort = "medium"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "low"
 
 [features]
 shell_snapshot = true
@@ -47,8 +47,12 @@ enabled = true
 [plugins."visualize@openai-bundled"]
 enabled = true
 
+[tui]
+screen_reader_detection_done = true
+
 [tui.model_availability_nux]
 "gpt-5.5" = 4
+"gpt-6.1-sol" = 4
 
 [projects."/home/kyoh86"]
 trust_level = "trusted"
@@ -851,7 +855,15 @@ trust_level = "trusted"
 [projects."/home/kyoh86/dev/gh/kyoh86/browser-motion-watch"]
 trust_level = "trusted"
 
+[projects."github.com/kyoh86/reptile-system"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/dev/gh/kyoh86/reptile-system/.wt/main"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/dev/gh/kyoh86/dotfiles/.wt/main"]
+trust_level = "trusted"
+
 [marketplaces.openai-bundled]
-last_updated = "2026-10-08T04:59:07Z"
 source_type = "local"
 source = "/home/kyoh86/.codex/.tmp/bundled-marketplaces/openai-bundled"
