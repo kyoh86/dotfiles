@@ -105,6 +105,9 @@ export GOGH_CACHE_HOME="${XDG_CACHE_HOME}/gogh"
 export MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA
 export VK_DRIVER_FILES=/usr/share/vulkan/icd.d/dzn_icd.json
 
+# WSL2 GUI
+export GDK_SCALE=2
+
 # Homebrew:
 export PATH="/opt/homebrew/bin:${PATH}"
 
