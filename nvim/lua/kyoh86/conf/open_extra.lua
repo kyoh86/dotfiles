@@ -1,10 +1,43 @@
 --- 指定された文字列を元に外部で開く
+local function count_char(text, char)
+  local _, count = text:gsub(vim.pesc(char), "")
+  return count
+end
+
+local function normalize_target(target)
+  if target == nil then
+    return nil
+  end
+  target = vim.trim(target)
+  target = target:gsub("[,;:%.。、，；：]+$", "")
+
+  local pairs = {
+    [")"] = "(",
+    ["]"] = "[",
+    ["}"] = "{",
+    [">"] = "<",
+  }
+  while target ~= "" do
+    local close = target:sub(-1)
+    local open = pairs[close]
+    if open == nil or count_char(target, close) <= count_char(target, open) then
+      break
+    end
+    target = vim.trim(target:sub(1, -2))
+  end
+
+  if target == "" then
+    return nil
+  end
+  return target
+end
+
 local function open_extra(target)
+  target = normalize_target(target)
   if target == nil then
     print("No target found at cursor.")
     return
   end
-  target = string.gsub(target --[[@as string]], [[\.+$]], "")
   if string.match(target, "^#%d+$") then
     vim.print("opening GitHub Issue " .. target)
     -- target が #nnn というIssue番号の場合は、gh を呼んでIssueを開く
@@ -43,7 +76,7 @@ local function open_extra(target)
       })
     else
       vim.print("opening " .. target)
-      vim.ui.open(target)
+      require("kyoh86.lib.open").gui(target)
     end
   end
 end
@@ -122,4 +155,5 @@ return {
   open_extra = open_extra,
   open_extra_at = open_extra_at,
   open_extra_operator = open_extra_operator,
+  normalize_target = normalize_target,
 }
