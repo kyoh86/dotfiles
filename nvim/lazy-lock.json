@@ -85,7 +85,6 @@
   "rust.vim": { "branch": "master", "commit": "889b9a7515db477f4cb6808bef1769e53493c578" },
   "sakura": { "branch": "main", "commit": "036c0205e6790e9c576bc436d018a84dad4ab0c1" },
   "schemastore.nvim": { "branch": "main", "commit": "31626d9d0a95418bf12a8b3f0e8f9f42e73e1f35" },
-  "skkeleton": { "branch": "main", "commit": "b322ded0e3264536342e0c6766d97c52452af570" },
   "vim-altercmd": { "branch": "master", "commit": "682b47433cb27ac027e36742ba09177a4dc2f16d" },
   "vim-caser": { "branch": "master", "commit": "6bc9f41d170711c58e0157d882a5fe8c30f34bf6" },
   "vim-cinfo": { "branch": "main", "commit": "3f0f4c135f938031e94b009f993ffb91aeb72861" },

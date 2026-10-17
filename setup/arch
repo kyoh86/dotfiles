@@ -304,11 +304,5 @@ install_neovim() {
 }
 install_neovim
 
-# SKK
-skkdir="${HOME}/.local/share/skk"
-skkfile="SKK-JISYO.L"
-mkdir -p "${skkdir}"
-curl -L --output "${skkdir}/${skkfile}" "https://github.com/skk-dev/dict/blob/master/${skkfile}?raw=true"
-
 # actionlint
 go install github.com/rhysd/actionlint/cmd/actionlint@latest 
