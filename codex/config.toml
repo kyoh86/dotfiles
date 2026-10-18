@@ -49,6 +49,7 @@ enabled = true
 
 [tui]
 screen_reader_detection_done = true
+alternate_screen = "never"
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
@@ -862,6 +863,12 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/home/kyoh86/dev/gh/kyoh86/dotfiles/.wt/main"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/dev/gh/upmind-inc/upmind-server/.wt/main"]
+trust_level = "trusted"
+
+[projects."/home/kyoh86/dev/gh/kyoh86/kyoh86.dev/.wt/main"]
 trust_level = "trusted"
 
 [marketplaces.openai-bundled]
