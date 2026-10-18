@@ -30,10 +30,10 @@ else
   )"
 fi
 
-if ! curl -fsSL --connect-timeout 0.5 --max-time 2 \
+if ! error="$(printf '%s' "$payload" | curl -fsSL --connect-timeout 0.5 --max-time 2 \
   -H "X-Nvim-Pid: ${NVIM_PID}" \
   -H "content-type: application/json" \
   "${NVIM_PROXY_URL}/scratch" \
-  -d "$payload" >/dev/null 2>&1; then
-  tmux display-message "failed to open tmux pane capture in Neovim" 2>/dev/null || true
+  --data-binary @- 2>&1 >/dev/null)"; then
+  tmux display-message "failed to open tmux pane capture in Neovim: ${error}" 2>/dev/null || true
 fi
