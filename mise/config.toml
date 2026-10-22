@@ -54,6 +54,7 @@ gitleaks = "latest"
 uv = "latest"
 "github:kyoh86/gogh" = { version = "5.0.0-beta.2", postinstall = "gogh completion zsh > $HOME/.config/zsh/completions/_gogh.zsh" }
 "github:kyoh86/nvim-plugin-triage" = "latest"
+wrangler = { version = "latest", allow_builds = ["esbuild", "sharp", "workerd"] }
 
 [tools.deno]
 version = "latest"
