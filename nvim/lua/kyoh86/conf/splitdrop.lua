@@ -15,7 +15,7 @@ local function splitdrop(filename, opts)
     vim.cmd([[wincmd K]])
   end
   if opts.fit then
-    if winid > 0 then -- If the file could not opened ... the fern.vim never opens a buffer named for the directory.
+    if winid > 0 then
       local line_count = vim.api.nvim_buf_line_count(0)
       vim.api.nvim_win_set_height(winid, line_count + 1)
     end
