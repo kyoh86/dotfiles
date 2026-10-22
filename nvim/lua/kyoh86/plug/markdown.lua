@@ -1,6 +1,9 @@
 ---@type LazySpec[]
 local spec = {
   {
+    "findango/vim-mdx",
+  },
+  {
     "dhruvasagar/vim-table-mode",
     ft = "markdown",
     init = function()
