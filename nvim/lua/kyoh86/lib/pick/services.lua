@@ -1,16 +1,13 @@
 local P = require("kyoh86.lib.pick")
+local documents = require("kyoh86.lib.service_documents")
 local M = {}
-
-local function command(service, resource)
-  return { "python3", assert(vim.api.nvim_get_runtime_file("scripts/pick_services.py", false)[1]), service, resource }
-end
 
 local function open_uri(item)
   vim.cmd.edit(vim.fn.fnameescape(item.path))
 end
 
 local function docbase(template)
-  P.cli("DocBase " .. (template and "templates" or "posts"), command("docbase", template and "templates" or "posts"), function(text)
+  P.cli("DocBase " .. (template and "templates" or "posts"), documents.command("docbase", template and "templates" or "posts"), function(text)
     return vim.tbl_map(function(post)
       local params = "domain=wacul&" .. (template and "template=" or "postId=") .. post.id
       return {
@@ -31,7 +28,7 @@ end
 
 function M.inkdrop_notes(filter)
   filter = filter or {}
-  P.cli("Inkdrop notes", command("inkdrop", "notes"), function(text)
+  P.cli("Inkdrop notes", documents.command("inkdrop", "notes"), function(text)
     local entries = {}
     for _, note in ipairs(P.json(text)) do
       if (not filter.book or filter.book == note.bookId) and (not filter.tag or vim.list_contains(note.tags or {}, filter.tag)) and (not filter.status or filter.status == (note.status or "none")) and (not filter.pinned or note.pinned) then
@@ -57,7 +54,7 @@ local function inkdrop_metadata(kind)
     name = kind == "books" and "現在のノートを移動" or "現在のノートにタグ追加",
     key = "<C-g>",
     run = function(items)
-      vim.fn[kind == "books" and "inkdrop#move_note_to_book_with_id" or "inkdrop#add_tag"](items[1].id, buf)
+      documents.inkdrop_metadata(buf, kind == "books" and "book" or "add_tag", items[1].id)
     end,
   } }
   if kind == "tags" then
@@ -65,11 +62,11 @@ local function inkdrop_metadata(kind)
       name = "現在のノートからタグ削除",
       key = "<C-d>",
       run = function(items)
-        vim.fn["inkdrop#remove_tag"](items[1].id, buf)
+        documents.inkdrop_metadata(buf, "remove_tag", items[1].id)
       end,
     }
   end
-  P.cli("Inkdrop " .. kind, command("inkdrop", kind), function(text)
+  P.cli("Inkdrop " .. kind, documents.command("inkdrop", kind), function(text)
     return vim.tbl_map(function(entry)
       return { text = entry.name, id = entry._id }
     end, P.json(text))
@@ -99,7 +96,7 @@ local function statuses()
       key = "<C-g>",
       run = function(selected)
         if selected[1].filter.status then
-          vim.fn["inkdrop#set_status"](selected[1].filter.status, buf)
+          documents.inkdrop_metadata(buf, "status", selected[1].filter.status)
         end
       end,
     } },

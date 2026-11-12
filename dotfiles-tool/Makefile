@@ -10,9 +10,13 @@ dest/tmux-smart-focus: tmux-smart-focus/*.go
 dest/path-shorten: path-shorten/main.go
 	go build -buildvcs=false -o dest/path-shorten ./path-shorten
 
+dest/pick-services: pick-services/*.go go.mod go.sum
+	go build -buildvcs=false -o dest/pick-services ./pick-services
+
 .PHONY: install
 install: \
  dest/git-status-line \
  dest/tmux-layout-paredit \
  dest/tmux-smart-focus \
- dest/path-shorten
+ dest/path-shorten \
+ dest/pick-services

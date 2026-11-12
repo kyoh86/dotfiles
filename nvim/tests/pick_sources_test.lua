@@ -40,10 +40,10 @@ local function check()
       end
     elseif argv[1] == "tmux" then
       text = "$1\tsession\t1\n"
-    elseif argv[1] == "python3" then
-      if argv[3] == "docbase" then
+    elseif vim.fs.basename(argv[1]) == "pick-services" then
+      if argv[2] == "docbase" then
         text = vim.json.encode({ { id = 1, title = "post", body = "body" } })
-      elseif argv[4] == "notes" then
+      elseif argv[3] == "notes" then
         text = vim.json.encode({ { _id = "note:1", title = "note", body = "body", bookId = "book:1", tags = { "tag:1" }, status = "active" } })
       else
         text = vim.json.encode({ { _id = "book:1", name = "fixture" } })

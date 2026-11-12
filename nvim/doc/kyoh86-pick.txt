@@ -94,12 +94,21 @@ GitHubは gh の認証を使用。本文編集バッファは :w で反映する
 GitHubリポジトリ検索は picker メニューから起動する。DduSources / DduFilters /
 DduKinds は従来名のまま gh による検索として残す。
 
-DocBase/Inkdropの一覧取得はPython 3.11以降の標準ライブラリを使う。
+DocBase/Inkdropの一覧取得・読み書きはGo製の pick-services を使う。
+既存環境では次のコマンドでビルドする。実行時はビルド済みバイナリを使う。
+>sh
+  make -C "${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles-tool" dest/pick-services
+<
 既存のXDG_STATE_HOME配下の認証ファイルを読み、認証情報を引数に渡さない。
-DocBaseの記事・template、Inkdropのノートの編集保存・metadata変更は、
-引き続き既存の denops-docbase.vim / denops-inkdrop.vim のURIハンドラを使う。
-未設定時は従来の :DocbaseLogin / :InkdropLogin でログインする。
-今回の移行でDeno依存すべてがなくなるわけではない。
+未設定時や認証情報の更新には :DocbaseLogin / :InkdropLogin を使う。
+
+DocBase記事、templateからの新規投稿、Inkdropノートは :write で保存する。
+DocBaseでは --- で囲んだ先頭の設定で title、scope、draft、tags、groups を
+編集できる。tags と groups は引用符付きの箇条書き、空の []、または
+JSON配列で記述する。Inkdropでは先頭の "# タイトル" 行がノート名になる。
+Inkdropのbook/tag/statusはピッカーから変更でき、本文の編集中にも適用できる。
+保存に失敗したときはバッファに変更が残る。リモートとの競合時は編集内容を
+控え、:edit! で読み直してから差分を反映する。
 
 実装は lua/kyoh86/lib/pick/。plugin設定は lua/kyoh86/plug/pick.lua。
 旧Denopsのsource/kind/filter/column実装は移行時の参照用として残しているが、

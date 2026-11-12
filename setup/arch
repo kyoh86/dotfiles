@@ -283,6 +283,7 @@ install       \
 # Install Mise
 curl https://mise.run | sh
 mise install # install tools on mise/config.toml
+mise exec go -- "${DOTFILES_WORKTREE}/setup/module/prebuild" dest/pick-services
 
 # Neovim
 install_neovim() {
