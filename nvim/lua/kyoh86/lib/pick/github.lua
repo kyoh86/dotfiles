@@ -9,55 +9,6 @@ local function identity(item)
   return item.url:match("^https?://[^/]+/([^/]+/[^/]+)/[^/]+/(%d+)")
 end
 
-local function view(item, edit)
-  local name = "github-" .. (edit and "edit" or "view") .. "://" .. item.url
-  local existing = vim.fn.bufnr(name)
-  if existing >= 0 then
-    vim.api.nvim_set_current_buf(existing)
-    return
-  end
-  gh({ item.kind, "view", item.url, "--json", "title,body,url" }, function(text)
-    local data = P.json(text)
-    data.body = type(data.body) == "string" and data.body or ""
-    vim.cmd.enew()
-    local buf = vim.api.nvim_get_current_buf()
-    vim.bo[buf].buftype, vim.bo[buf].bufhidden, vim.bo[buf].swapfile = edit and "acwrite" or "nofile", "hide", false
-    vim.api.nvim_buf_set_name(buf, name)
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, P.content(edit and data.body or ("# " .. data.title .. "\n\n" .. data.url .. "\n\n" .. data.body)))
-    vim.bo[buf].filetype, vim.bo[buf].modified = "markdown", false
-    if edit then
-      vim.api.nvim_create_autocmd("BufWriteCmd", {
-        buffer = buf,
-        callback = function()
-          local tick = vim.api.nvim_buf_get_changedtick(buf)
-          local file = vim.fn.tempname()
-          vim.fn.writefile(vim.api.nvim_buf_get_lines(buf, 0, -1, false), file)
-          local ok = pcall(
-            vim.system,
-            { "gh", item.kind, "edit", item.url, "--body-file", file },
-            { text = true },
-            vim.schedule_wrap(function(result)
-              vim.fn.delete(file)
-              if result.code ~= 0 then
-                return P.notify(result.stderr)
-              end
-              if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_get_changedtick(buf) == tick then
-                vim.bo[buf].modified = false
-              end
-            end)
-          )
-          if not ok then
-            vim.fn.delete(file)
-            P.notify("Failed to start gh")
-          end
-        end,
-      })
-    else
-      vim.bo[buf].modifiable = false
-    end
-  end)
-end
-
 local function link(item, full)
   local repo, number = identity(item)
   local short = repo and (repo .. "#" .. number) or item.url
@@ -94,7 +45,7 @@ function M.issues(opts)
     end, P.json(text))
   end, {
     choose = kind == "pr" and P.browse or function(item)
-      view(item)
+      require("kyoh86.lib.github_issue").open(item)
     end,
     preview = function(buf, item)
       P.preview(buf, "# " .. item.title .. "\n\n" .. (item.body or ""), "markdown")
@@ -105,7 +56,7 @@ function M.issues(opts)
         name = "本文を編集 (:wで保存)",
         key = "<C-e>",
         run = function(items)
-          view(items[1], true)
+          require("kyoh86.lib.github_issue").edit(items[1])
         end,
       },
       {

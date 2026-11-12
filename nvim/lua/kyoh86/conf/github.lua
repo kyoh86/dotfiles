@@ -1,17 +1,6 @@
-local au = require("kyoh86.lib.autocmd")
-local group = au.group("kyoh86.conf.github", true)
-
--- GitHub 認証情報の復帰またはログイン
-group:hook("User", {
-  pattern = "DenopsPluginPost:github",
-  callback = function()
-    require("kyoh86.conf.github.auth").login()
-  end,
-})
-
 vim.api.nvim_create_user_command("GitHubLogin", function()
-  require("kyoh86.conf.github.auth").relogin()
-end, { desc = "Login to GitHub" })
+  require("kyoh86.lib.pick").terminal({ "gh", "auth", "login" })
+end, { desc = "Login to GitHub with gh" })
 
 -- GitHub PRの作成 コマンド
 vim.api.nvim_create_user_command("GitHubPullRequest", function(opts)
@@ -32,7 +21,7 @@ vim.api.nvim_set_keymap("x", "<Leader>ghi", "<Cmd>set opfunc=v:lua.create_github
 vim.api.nvim_create_user_command("GitHubIssueComment", function(opts)
   require("kyoh86.conf.github.comment").create({
     type = "issue",
-    number = opts.args[1],
+    number = opts.fargs[1],
   })
 end, { nargs = 1, desc = "Create new issue comment in the current repository" })
 

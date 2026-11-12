@@ -17,16 +17,10 @@ local zenn_url = function(prefix)
   end
   return nil
 end
-local state = {
-  loaded = false,
-  entered = false,
-}
-local tryEnable = function()
-  if not state.loaded or not state.entered then
-    return
-  end
-  vim.notify("Entered in Zenn.dev repository", vim.log.levels.INFO)
-  vim.fn["zenn_dev#setup#commands"]({ ZennDevNewArticle = true })
+local function enter()
+  vim.api.nvim_create_user_command("ZennDevNewArticle", function(command)
+    require("kyoh86.lib.zenn_article").create(command)
+  end, { nargs = "*", force = true, desc = "Create a Zenn article" })
 
   vim.keymap.set("n", "<leader>zna", "<cmd>ZennDevNewArticle<cr>", { remap = false, silent = true, desc = "zenn.dev用の記事を追加する" })
   vim.keymap.set("n", "<leader>xzz", function()
@@ -64,8 +58,7 @@ local tryEnable = function()
     desc = "Zenn.dev用のプレビュー画像のURLマッピングを設定する",
   })
 end
-local leave = function()
-  state.entered = false
+local function leave()
   pcall(vim.keymap.del, "n", "<leader>zna")
   pcall(vim.keymap.del, "n", "<leader>xzz")
   pcall(vim.keymap.del, "n", "<leader>yzz")
@@ -83,30 +76,10 @@ local spec = {
       local au = require("kyoh86.lib.autocmd")
       vim.fn["zenn_autocmd#enable"]()
       local group = au.group("kyoh86.plug.zenn.autocmd", true)
-      group:hook("User", {
-        pattern = "ZennEnter",
-        callback = function()
-          state.entered = true
-          tryEnable()
-        end,
-      })
+      group:hook("User", { pattern = "ZennEnter", callback = enter })
       group:hook("User", { pattern = "ZennLeave", callback = leave })
+      vim.fn["zenn_autocmd#do"]()
     end,
-  },
-  {
-    "kyoh86/denops-zenn_dev.vim",
-    config = function()
-      local au = require("kyoh86.lib.autocmd")
-      au.group("kyoh86.plug.zenn_dev", true):hook("User", {
-        pattern = "DenopsPluginPost:zenn_dev",
-        callback = function()
-          state.loaded = true
-          vim.fn["zenn_dev#setup#params"]({ newArticle = { emoji = "🐼" } })
-          tryEnable()
-        end,
-      })
-    end,
-    dependencies = { "denops.vim" },
   },
 }
 return spec

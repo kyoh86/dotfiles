@@ -90,7 +90,13 @@ dduのツリー表示や独自columnを、そのまま再現するものでは�
 Zennの記事日付は現在ファイルの更新日時を表示し、検索は標準fuzzy matching。
 従来のkensakuとfzfを混ぜたマッチングは使わない。
 
-GitHubは gh の認証を使用。本文編集バッファは :w で反映する。
+GitHubは gh の認証を使用。ログインには :GitHubLogin を使う。
+#123 や owner/repo#123 は gf / gfv / gfx で開く。Issue バッファでは
+<leader>n / p で次／前の番号、<leader>e で本文・カーソル下のコメント編集、
+<leader>c で新規コメント、<leader>b でブラウザ表示。編集は :w で反映する。
+Zenn リポジトリでは :ZennDevNewArticle または <leader>zna で記事を作る。
+既定では 🐼 の下書きになる。--slug、--title、--type、--emoji、--published、
+--publication-name で初期値を指定できる。
 GitHubリポジトリ検索は picker メニューから起動する。DduSources / DduFilters /
 DduKinds は従来名のまま gh による検索として残す。
 
