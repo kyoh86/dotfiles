@@ -2,11 +2,7 @@ local M = {}
 local documents = {}
 
 function M.command(service, resource)
-  local config = vim.env.XDG_CONFIG_HOME
-  if not config or config == "" then
-    config = vim.fn.expand("~/.config")
-  end
-  return { config .. "/dotfiles-tool/dest/pick-services", service, resource }
+  return { require("kyoh86.lib.dotfiles_tool")("pick-services"), service, resource }
 end
 
 local function request(route, resource, payload)

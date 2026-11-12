@@ -13,10 +13,14 @@ dest/path-shorten: path-shorten/main.go
 dest/pick-services: pick-services/*.go go.mod go.sum
 	go build -buildvcs=false -o dest/pick-services ./pick-services
 
+dest/nvim-tools: nvim-tools/*.go go.mod go.sum
+	go build -buildvcs=false -o dest/nvim-tools ./nvim-tools
+
 .PHONY: install
 install: \
  dest/git-status-line \
  dest/tmux-layout-paredit \
  dest/tmux-smart-focus \
  dest/path-shorten \
- dest/pick-services
+ dest/pick-services \
+ dest/nvim-tools

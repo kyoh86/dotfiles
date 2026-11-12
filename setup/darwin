@@ -11,7 +11,7 @@ MODULE="${HOME}/dev/gh/kyoh86/dotfiles/.wt/main/setup/module"
 "${MODULE}"/dotfiles
 "${MODULE}"/homebrew
 "${MODULE}"/mise
-"${HOME}/.local/bin/mise" exec go -- "${MODULE}/prebuild" dest/pick-services
+"${HOME}/.local/bin/mise" exec go -- "${MODULE}/prebuild" dest/pick-services dest/nvim-tools
 
 "${MODULE}"/neovim
 "${MODULE}"/codex_remote

@@ -116,6 +116,23 @@ Inkdropのbook/tag/statusはピッカーから変更でき、本文の編集中�
 保存に失敗したときはバッファに変更が残る。リモートとの競合時は編集内容を
 控え、:edit! で読み直してから差分を反映する。
 
+Markdown リンク・Quickfix 表・履歴・スニペット ~
+
+:MarkdownUrlPaste はクリップボードの URL を貼り付ける。ページのタイトルが
+取れたときは Markdown リンクにする。:QfTable（<leader>qt）で Quickfix 一覧を
+Markdown 表にする。--column=、--printer=cur/hnew/vnew/reg で出力を変えられる。
+.zsh_history は zsh の保存形式のまま読み書きする。外部で更新されたときは
+保存を止めるので、編集を控えて :edit! で読み直す。
+
+:Snip で TOML を開き、保存するとスニペット JSON が更新される。
+各ディレクトリの filetype.toml と *.filetype.toml をマージする。
+同じスニペット名は、後のディレクトリや後のファイル名の定義を優先する。
+JSON からは :DeconvertToTOML で現在のバッファを TOML に変換できる。
+既存環境でタイトル取得・スニペット変換用の CLI をビルドするには次を実行する。
+>sh
+  make -C "${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles-tool" dest/nvim-tools
+<
+
 実装は lua/kyoh86/lib/pick/。plugin設定は lua/kyoh86/plug/pick.lua。
 旧Denopsのsource/kind/filter/column実装は移行時の参照用として残しているが、
 dduのplugin設定は削除済みで、新しいpickerからは呼び出さない。
