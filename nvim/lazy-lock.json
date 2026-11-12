@@ -49,7 +49,7 @@
   "vim-go-scaffold": { "branch": "main", "commit": "cdb6cccc67312957f730b2833657d45ec8800700" },
   "vim-go-testfile": { "branch": "main", "commit": "a12cba54fdb12f93c72c48821ebfcc3c3313d924" },
   "vim-graphql": { "branch": "master", "commit": "ebea1e6bc93e85aa71848112b8a42f95468ac566" },
-  "vim-guise": { "branch": "main", "commit": "089945b7bd586b7154463f82b286c20c55e7822a" },
+  "vim-guise": { "branch": "main", "commit": "54793754327cd0cc43a50f9706a585c9fb892d9e" },
   "vim-javascript": { "branch": "master", "commit": "b26c9edb3563e02f5c0b20580f7cf9743e95b157" },
   "vim-jinja2-syntax": { "branch": "master", "commit": "2c17843b074b06a835f88587e1023ceff7e2c7d1" },
   "vim-jsonl": { "branch": "main", "commit": "647ade2455a0340be8b8807675f1c43242ffc838" },

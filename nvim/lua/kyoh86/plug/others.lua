@@ -6,7 +6,6 @@ local spec = {
   },
   {
     "lambdalisue/vim-guise", -- Enhance $EDITOR behavior in terminal
-    dependencies = { "denops.vim" },
     init = function()
       vim.g["guise#disable_vim"] = true
       vim.g["guise#disable_editor"] = false

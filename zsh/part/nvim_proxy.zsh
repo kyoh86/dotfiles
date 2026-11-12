@@ -7,6 +7,20 @@ function nvim_proxy_import_env {
 }
 
 function _nvim_proxy_import_env {
+    local exports
+    exports="$(_nvim_proxy_env_exports "$@")" || return 1
+    eval "$exports"
+}
+
+function _nvim_proxy_env_exports {
+    local require_all=false
+    if [[ "$1" == "--require-all" ]]; then
+        require_all=true
+        shift
+    fi
+    if (( $# == 0 )); then
+        return 1
+    fi
     if [ -z "$NVIM_PROXY_URL" ] || [ -z "$NVIM_PID" ]; then
         return 1
     fi
@@ -14,7 +28,7 @@ function _nvim_proxy_import_env {
         return 1
     fi
 
-    local name payload ret exports
+    local name payload ret
     for name in "$@"; do
         case "$name" in
             ""|[0-9]*|*[!A-Za-z0-9_]* )
@@ -32,31 +46,28 @@ function _nvim_proxy_import_env {
             -d "$payload" 2>/dev/null
     )" || return 1
 
-    exports="$(
-        printf '%s' "$ret" \
-            | jq -r '.env // {} | to_entries[] | select(.value != null) | "export \(.key)=\(.value | @sh)"' 2>/dev/null
-    )"
-    if [ -z "$exports" ]; then
-        return 1
-    fi
-    eval "$exports"
+    printf '%s' "$ret" | jq -er --argjson requested "$payload" --argjson require_all "$require_all" '
+        (.env // {}) as $env
+        | select(($require_all | not) or all($requested.names[]; ($env[.] // "") != ""))
+        | $requested.names[] as $name
+        | select($env[$name] != null)
+        | "export \($name)=\($env[$name] | @sh)"
+    ' 2>/dev/null
 }
 
 function _nvim_proxy_sync_guise_env {
-    if [ -z "$NVIM_PROXY_URL" ] || [ -z "$NVIM_PID" ]; then
+    # A shell started inside Neovim already has the correct parent.
+    if [[ -n "$GUISE_ADDRESS" && -z "$_NVIM_PROXY_IMPORTED_GUISE_PID" ]]; then
+        [[ -z "$EDITOR" ]] || export REACT_EDITOR="$EDITOR"
         return
     fi
-    if [ "$_NVIM_PROXY_IMPORTED_GUISE_PID" = "$NVIM_PID" ] && [ -n "$GUISE_PROXY_ADDRESS" ]; then
+    if [[ -n "$GUISE_ADDRESS" && "$_NVIM_PROXY_IMPORTED_GUISE_PID" == "$NVIM_PID" ]]; then
         return
     fi
 
-    _nvim_proxy_import_env GUISE_PROXY_ADDRESS EDITOR || return 0
-    if [ -n "$GUISE_PROXY_ADDRESS" ]; then
-        if [ -n "$EDITOR" ]; then
-            export REACT_EDITOR="$EDITOR"
-        fi
-        _NVIM_PROXY_IMPORTED_GUISE_PID="$NVIM_PID"
-    fi
+    _nvim_proxy_import_env --require-all GUISE_ADDRESS EDITOR VISUAL || return 0
+    export REACT_EDITOR="$EDITOR"
+    _NVIM_PROXY_IMPORTED_GUISE_PID="$NVIM_PID"
 }
 
 add-zsh-hook precmd _nvim_proxy_sync_guise_env
